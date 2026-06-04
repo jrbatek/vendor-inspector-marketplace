@@ -1,0 +1,22 @@
+export type InspectorProfile = {
+  id: string;
+  user_id: string;
+  name: string;
+  headline: string;
+  company: string;
+  email: string;
+  phone: string;
+  base_city: string;
+  base_state: string;
+  base_country: string;
+  travel_radius: string;
+  certifications: string[];
+  methods: string[];
+  industries: string[];
+  hourly_rate: number | null;
+  day_rate: number | null;
+  bio: string;
+  available: boolean;
+  created_at: string;
+  updated_at: string;
+};
