@@ -19,4 +19,12 @@ export type InspectorProfile = {
   available: boolean;
   created_at: string;
   updated_at: string;
+
+  office_address: string;
+  office_lat: number | null;
+  office_lng: number | null;
+  travel_distance: number | null;
+  distance_unit: "miles" | "kilometers";
+  mileage_rate: number | null;
+  kilometer_rate: number | null;
 };
