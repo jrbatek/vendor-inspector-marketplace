@@ -6,10 +6,16 @@ export type InspectorProfile = {
   company: string;
   email: string;
   phone: string;
+  office_address: string;
+  office_lat: number | null;
+  office_lng: number | null;
   base_city: string;
   base_state: string;
   base_country: string;
-  travel_radius: string;
+  travel_distance: number | null;
+  distance_unit: "miles" | "kilometers";
+  mileage_rate: number | null;
+  kilometer_rate: number | null;
   certifications: string[];
   methods: string[];
   industries: string[];
@@ -17,14 +23,10 @@ export type InspectorProfile = {
   day_rate: number | null;
   bio: string;
   available: boolean;
+  years_experience: number | null;
+  primary_discipline: string;
+  willing_to_travel: boolean;
+  remote_review_available: boolean;
   created_at: string;
   updated_at: string;
-
-  office_address: string;
-  office_lat: number | null;
-  office_lng: number | null;
-  travel_distance: number | null;
-  distance_unit: "miles" | "kilometers";
-  mileage_rate: number | null;
-  kilometer_rate: number | null;
 };
