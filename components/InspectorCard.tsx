@@ -34,10 +34,20 @@ export default function InspectorCard({ inspector }: { inspector: InspectorProfi
         {inspector.base_state ? `, ${inspector.base_state}` : ""} · {inspector.base_country || "Country not listed"}
       </p>
 
+      {inspector.primary_discipline && <p><b>Discipline:</b> {inspector.primary_discipline}</p>}
+      {inspector.years_experience !== null && inspector.years_experience !== undefined && (
+        <p><b>Experience:</b> {inspector.years_experience} years</p>
+      )}
+
       {inspector.company && <p><b>Company:</b> {inspector.company}</p>}
 
       <p><b>Driving distance:</b> {travel}</p>
       {travelRate && <p><b>Travel rate:</b> {travelRate}</p>}
+
+      <p>
+        {inspector.willing_to_travel ? "Willing to travel" : "Local only"}
+        {inspector.remote_review_available ? " · Remote review available" : ""}
+      </p>
 
       <div className="chips">
         {inspector.certifications?.slice(0, 4).map((x) => <span key={x}>{x}</span>)}
