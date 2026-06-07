@@ -29,6 +29,10 @@ type FormState = {
   day_rate: string;
   bio: string;
   available: boolean;
+  years_experience: string;
+  primary_discipline: string;
+  willing_to_travel: boolean;
+  remote_review_available: boolean;
 };
 
 const blank: FormState = {
@@ -47,14 +51,32 @@ const blank: FormState = {
   distance_unit: "miles",
   mileage_rate: "",
   kilometer_rate: "",
-  certifications: "API 510, API 570, CWI",
+  certifications: "API 510, API 570, API 653, CWI",
   methods: "VT, MT, PT, UT",
   industries: "Oil & Gas, Power, Chemicals",
   hourly_rate: "",
   day_rate: "",
   bio: "",
   available: true,
+  years_experience: "",
+  primary_discipline: "",
+  willing_to_travel: true,
+  remote_review_available: false,
 };
+
+const disciplines = [
+  "",
+  "Vendor Inspection",
+  "Welding Inspection",
+  "Pressure Equipment",
+  "NDT",
+  "Electrical Inspection",
+  "Mechanical Inspection",
+  "Coating Inspection",
+  "Civil / Structural Inspection",
+  "Quality Auditor",
+  "Expediting",
+];
 
 export default function DashboardPage() {
   const supabase = supabaseBrowser();
@@ -72,26 +94,15 @@ export default function DashboardPage() {
 
     setMessage("Checking address...");
 
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(
-      form.office_address
-    )}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(form.office_address)}`;
 
     try {
-      const res = await fetch(url, {
-        headers: { Accept: "application/json" },
-      });
-
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
       const data = await res.json();
 
       if (!Array.isArray(data) || !data[0]) {
-        setForm((prev) => ({
-          ...prev,
-          office_lat: "",
-          office_lng: "",
-        }));
-        setMessage(
-          "Address not found. You can still save the profile by manually entering City, State, and Country."
-        );
+        setForm((prev) => ({ ...prev, office_lat: "", office_lng: "" }));
+        setMessage("Address not found. You can still save the profile by manually entering City, State, and Country.");
         return;
       }
 
@@ -105,12 +116,7 @@ export default function DashboardPage() {
         office_address: result.display_name || prev.office_address,
         office_lat: result.lat || "",
         office_lng: result.lon || "",
-        base_city:
-          a.city ||
-          a.town ||
-          a.village ||
-          a.municipality ||
-          prev.base_city,
+        base_city: a.city || a.town || a.village || a.municipality || prev.base_city,
         base_state: a.state || a.region || prev.base_state,
         base_country: country || prev.base_country,
         distance_unit: countryCode === "US" ? "miles" : "kilometers",
@@ -118,14 +124,8 @@ export default function DashboardPage() {
 
       setMessage("Address validated.");
     } catch {
-      setForm((prev) => ({
-        ...prev,
-        office_lat: "",
-        office_lng: "",
-      }));
-      setMessage(
-        "Address lookup failed. You can still save the profile by manually entering City, State, and Country."
-      );
+      setForm((prev) => ({ ...prev, office_lat: "", office_lng: "" }));
+      setMessage("Address lookup failed. You can still save the profile by manually entering City, State, and Country.");
     }
   }
 
@@ -176,6 +176,10 @@ export default function DashboardPage() {
         day_rate: p.day_rate ? String(p.day_rate) : "",
         bio: p.bio || "",
         available: p.available,
+        years_experience: p.years_experience ? String(p.years_experience) : "",
+        primary_discipline: p.primary_discipline || "",
+        willing_to_travel: p.willing_to_travel,
+        remote_review_available: p.remote_review_available,
       });
     } else {
       setProfileId(null);
@@ -215,14 +219,10 @@ export default function DashboardPage() {
       base_city: form.base_city,
       base_state: form.base_state,
       base_country: form.base_country,
-      travel_distance: form.travel_distance
-        ? Number(form.travel_distance)
-        : null,
+      travel_distance: form.travel_distance ? Number(form.travel_distance) : null,
       distance_unit: form.distance_unit,
       mileage_rate: form.mileage_rate ? Number(form.mileage_rate) : null,
-      kilometer_rate: form.kilometer_rate
-        ? Number(form.kilometer_rate)
-        : null,
+      kilometer_rate: form.kilometer_rate ? Number(form.kilometer_rate) : null,
       certifications: splitCsv(form.certifications),
       methods: splitCsv(form.methods),
       industries: splitCsv(form.industries),
@@ -230,6 +230,10 @@ export default function DashboardPage() {
       day_rate: form.day_rate ? Number(form.day_rate) : null,
       bio: form.bio,
       available: form.available,
+      years_experience: form.years_experience ? Number(form.years_experience) : null,
+      primary_discipline: form.primary_discipline,
+      willing_to_travel: form.willing_to_travel,
+      remote_review_available: form.remote_review_available,
     };
 
     const { data, error } = await supabase
@@ -254,9 +258,7 @@ export default function DashboardPage() {
       <section className="panel">
         <h1>Dashboard</h1>
         <p>You need to log in before creating an inspector profile.</p>
-        <Link className="button" href="/login">
-          Log in
-        </Link>
+        <Link className="button" href="/login">Log in</Link>
       </section>
     );
   }
@@ -266,222 +268,86 @@ export default function DashboardPage() {
       <div className="actions" style={{ justifyContent: "space-between" }}>
         <div>
           <h1>Inspector Dashboard</h1>
-          <p className="muted">
-            Create or update your public inspector profile.
-          </p>
+          <p className="muted">Create or update your public inspector profile.</p>
         </div>
-        <Link href="/logout" className="button secondary">
-          Log out
-        </Link>
+        <Link href="/logout" className="button secondary">Log out</Link>
       </div>
 
       {message && (
-        <p
-          className={
-            message === "Profile saved." || message === "Address validated."
-              ? "success"
-              : "notice"
-          }
-        >
+        <p className={message === "Profile saved." || message === "Address validated." ? "success" : "notice"}>
           {message}
         </p>
       )}
 
       <form onSubmit={save}>
         <div className="formGrid">
-          <label>
-            Name
-            <input
-              value={form.name}
-              onChange={(e) => setField("name", e.target.value)}
-              required
-            />
+          <label>Name<input value={form.name} onChange={(e) => setField("name", e.target.value)} required /></label>
+          <label>Headline<input value={form.headline} onChange={(e) => setField("headline", e.target.value)} required /></label>
+          <label>Company<input value={form.company} onChange={(e) => setField("company", e.target.value)} /></label>
+          <label>Email<input type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} /></label>
+          <label>Phone<input value={form.phone} onChange={(e) => setField("phone", e.target.value)} /></label>
+
+          <label>Years Experience<input type="number" value={form.years_experience} onChange={(e) => setField("years_experience", e.target.value)} /></label>
+
+          <label>Primary Discipline
+            <select value={form.primary_discipline} onChange={(e) => setField("primary_discipline", e.target.value)}>
+              {disciplines.map((x) => <option key={x} value={x}>{x || "Select..."}</option>)}
+            </select>
           </label>
 
-          <label>
-            Headline
-            <input
-              value={form.headline}
-              onChange={(e) => setField("headline", e.target.value)}
-              required
-            />
-          </label>
-
-          <label>
-            Company
-            <input
-              value={form.company}
-              onChange={(e) => setField("company", e.target.value)}
-            />
-          </label>
-
-          <label>
-            Email
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setField("email", e.target.value)}
-            />
-          </label>
-
-          <label>
-            Phone
-            <input
-              value={form.phone}
-              onChange={(e) => setField("phone", e.target.value)}
-            />
-          </label>
-
-          <label className="full">
-            Office/Home Address
-            <input
-              value={form.office_address}
-              onChange={(e) => setField("office_address", e.target.value)}
-              placeholder="Enter full office/home address"
-            />
+          <label className="full">Office/Home Address
+            <input value={form.office_address} onChange={(e) => setField("office_address", e.target.value)} placeholder="Enter full office/home address" />
           </label>
 
           <div className="full actions">
-            <button type="button" onClick={validateAddress}>
-              Validate Address
-            </button>
-            {form.office_lat && form.office_lng && (
-              <span className="muted">Address validated.</span>
-            )}
+            <button type="button" onClick={validateAddress}>Validate Address</button>
+            {form.office_lat && form.office_lng && <span className="muted">Address validated.</span>}
           </div>
 
-          <label>
-            Base City
-            <input
-              value={form.base_city}
-              onChange={(e) => setField("base_city", e.target.value)}
-            />
-          </label>
+          <label>Base City<input value={form.base_city} onChange={(e) => setField("base_city", e.target.value)} /></label>
+          <label>Base State / Province<input value={form.base_state} onChange={(e) => setField("base_state", e.target.value)} /></label>
+          <label>Base Country<input value={form.base_country} onChange={(e) => setField("base_country", e.target.value)} /></label>
 
-          <label>
-            Base State / Province
-            <input
-              value={form.base_state}
-              onChange={(e) => setField("base_state", e.target.value)}
-            />
-          </label>
+          <label>Driving Distance<input type="number" value={form.travel_distance} onChange={(e) => setField("travel_distance", e.target.value)} placeholder="250" /></label>
 
-          <label>
-            Base Country
-            <input
-              value={form.base_country}
-              onChange={(e) => setField("base_country", e.target.value)}
-            />
-          </label>
-
-          <label>
-            Driving Distance
-            <input
-              type="number"
-              value={form.travel_distance}
-              onChange={(e) => setField("travel_distance", e.target.value)}
-              placeholder="250"
-            />
-          </label>
-
-          <label>
-            Distance Unit
-            <select
-              value={form.distance_unit}
-              onChange={(e) =>
-                setField(
-                  "distance_unit",
-                  e.target.value as "miles" | "kilometers"
-                )
-              }
-            >
+          <label>Distance Unit
+            <select value={form.distance_unit} onChange={(e) => setField("distance_unit", e.target.value as "miles" | "kilometers")}>
               <option value="miles">Miles</option>
               <option value="kilometers">Kilometers</option>
             </select>
           </label>
 
           {form.distance_unit === "miles" ? (
-            <label>
-              Mileage Rate
-              <input
-                type="number"
-                step="0.01"
-                value={form.mileage_rate}
-                onChange={(e) => setField("mileage_rate", e.target.value)}
-                placeholder="0.67"
-              />
-            </label>
+            <label>Mileage Rate<input type="number" step="0.01" value={form.mileage_rate} onChange={(e) => setField("mileage_rate", e.target.value)} placeholder="0.67" /></label>
           ) : (
-            <label>
-              Kilometer Rate
-              <input
-                type="number"
-                step="0.01"
-                value={form.kilometer_rate}
-                onChange={(e) => setField("kilometer_rate", e.target.value)}
-                placeholder="0.50"
-              />
-            </label>
+            <label>Kilometer Rate<input type="number" step="0.01" value={form.kilometer_rate} onChange={(e) => setField("kilometer_rate", e.target.value)} placeholder="0.50" /></label>
           )}
 
-          <label>
-            Hourly Rate
-            <input
-              type="number"
-              value={form.hourly_rate}
-              onChange={(e) => setField("hourly_rate", e.target.value)}
-            />
-          </label>
-
-          <label>
-            Day Rate
-            <input
-              type="number"
-              value={form.day_rate}
-              onChange={(e) => setField("day_rate", e.target.value)}
-            />
-          </label>
+          <label>Hourly Rate<input type="number" value={form.hourly_rate} onChange={(e) => setField("hourly_rate", e.target.value)} /></label>
+          <label>Day Rate<input type="number" value={form.day_rate} onChange={(e) => setField("day_rate", e.target.value)} /></label>
 
           <label className="full">
-            Certifications, comma separated
-            <input
-              value={form.certifications}
-              onChange={(e) => setField("certifications", e.target.value)}
-            />
-          </label>
-
-          <label className="full">
-            Methods, comma separated
-            <input
-              value={form.methods}
-              onChange={(e) => setField("methods", e.target.value)}
-            />
-          </label>
-
-          <label className="full">
-            Industries, comma separated
-            <input
-              value={form.industries}
-              onChange={(e) => setField("industries", e.target.value)}
-            />
-          </label>
-
-          <label className="full">
-            Bio
-            <textarea
-              value={form.bio}
-              onChange={(e) => setField("bio", e.target.value)}
-            />
+            <span>
+              <input type="checkbox" checked={form.willing_to_travel} onChange={(e) => setField("willing_to_travel", e.target.checked)} style={{ width: "auto", marginRight: 8 }} />
+              Willing to travel
+            </span>
           </label>
 
           <label className="full">
             <span>
-              <input
-                type="checkbox"
-                checked={form.available}
-                onChange={(e) => setField("available", e.target.checked)}
-                style={{ width: "auto", marginRight: 8 }}
-              />
+              <input type="checkbox" checked={form.remote_review_available} onChange={(e) => setField("remote_review_available", e.target.checked)} style={{ width: "auto", marginRight: 8 }} />
+              Remote review available
+            </span>
+          </label>
+
+          <label className="full">Certifications, comma separated<input value={form.certifications} onChange={(e) => setField("certifications", e.target.value)} /></label>
+          <label className="full">Methods, comma separated<input value={form.methods} onChange={(e) => setField("methods", e.target.value)} /></label>
+          <label className="full">Industries, comma separated<input value={form.industries} onChange={(e) => setField("industries", e.target.value)} /></label>
+          <label className="full">Bio<textarea value={form.bio} onChange={(e) => setField("bio", e.target.value)} /></label>
+
+          <label className="full">
+            <span>
+              <input type="checkbox" checked={form.available} onChange={(e) => setField("available", e.target.checked)} style={{ width: "auto", marginRight: 8 }} />
               Available for work
             </span>
           </label>
@@ -489,11 +355,7 @@ export default function DashboardPage() {
 
         <div className="actions">
           <button type="submit">Save Profile</button>
-          {profileId && (
-            <Link className="button secondary" href={`/inspectors/${profileId}`}>
-              View Public Profile
-            </Link>
-          )}
+          {profileId && <Link className="button secondary" href={`/inspectors/${profileId}`}>View Public Profile</Link>}
         </div>
       </form>
     </section>
