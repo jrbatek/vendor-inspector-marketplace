@@ -12,9 +12,28 @@ export type AvailabilityStatus =
 export type DistanceUnit = "miles" | "kilometers";
 
 export type InspectorProfile = {
+  // Current database identifier
   inspector_id: string;
 
-  // Original profile columns
+  // Legacy aliases retained so existing pages continue to compile
+  id?: string;
+  user_id?: string;
+
+  // Legacy profile fields still used by the current public directory/profile pages
+  name?: string | null;
+  email?: string | null;
+  office_address?: string | null;
+  office_lat?: number | null;
+  office_lng?: number | null;
+  travel_distance?: number | null;
+  kilometer_rate?: number | null;
+  certifications?: string[];
+  methods?: string[];
+  industries?: string[];
+  bio?: string | null;
+  available?: boolean;
+
+  // Original database columns
   headline: string | null;
   base_location: string | null;
   day_rate: number | null;
