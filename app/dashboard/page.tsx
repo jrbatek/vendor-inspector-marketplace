@@ -3,9 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
-import type { EquipmentReference, InspectorProfile } from "@/lib/types";
+import type {
+  EquipmentReference,
+  InspectionActivityReference,
+  InspectorProfile,
+} from "@/lib/types";
 
-type Step = 1 | 2 | 3;
+type WizardStep = 1 | 2 | 3 | 4;
+
 type FormState = {
   full_name: string;
   headline: string;
@@ -25,76 +30,179 @@ type FormState = {
   website_url: string;
 };
 
-const blank: FormState = {
-  full_name: "", headline: "", company: "", inspector_type: "Independent",
-  phone: "", office_home_address: "", base_city: "", base_state: "",
-  base_country: "United States", latitude: "", longitude: "",
-  years_experience: "", primary_discipline: "", biography: "",
-  linkedin_url: "", website_url: "",
+const blankForm: FormState = {
+  full_name: "",
+  headline: "",
+  company: "",
+  inspector_type: "Independent",
+  phone: "",
+  office_home_address: "",
+  base_city: "",
+  base_state: "",
+  base_country: "United States",
+  latitude: "",
+  longitude: "",
+  years_experience: "",
+  primary_discipline: "",
+  biography: "",
+  linkedin_url: "",
+  website_url: "",
 };
 
 const disciplines = [
-  "Vendor Inspection", "Welding Inspection", "Pressure Equipment",
-  "Piping Inspection", "Storage Tank Inspection", "Rotating Equipment",
-  "Electrical Inspection", "Instrumentation Inspection", "NDT",
-  "Coating Inspection", "Civil / Structural Inspection", "Quality Auditing",
+  "Vendor Inspection",
+  "Welding Inspection",
+  "Pressure Equipment",
+  "Piping Inspection",
+  "Storage Tank Inspection",
+  "Rotating Equipment",
+  "Electrical Inspection",
+  "Instrumentation Inspection",
+  "NDT",
+  "Coating Inspection",
+  "Civil / Structural Inspection",
+  "Quality Auditing",
   "Expediting",
 ];
 
 export default function DashboardPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
+
   const [userId, setUserId] = useState<string | null>(null);
   const [profileExists, setProfileExists] = useState(false);
-  const [step, setStep] = useState<Step>(1);
-  const [form, setForm] = useState<FormState>(blank);
+  const [step, setStep] = useState<WizardStep>(1);
+  const [form, setForm] = useState<FormState>(blankForm);
+
   const [equipment, setEquipment] = useState<EquipmentReference[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
+  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>([]);
+  const [equipmentSearch, setEquipmentSearch] = useState("");
+
+  const [activities, setActivities] = useState<InspectionActivityReference[]>([]);
+  const [selectedActivityIds, setSelectedActivityIds] = useState<string[]>([]);
+  const [activitySearch, setActivitySearch] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [messageType, setMessageType] =
+    useState<"success" | "notice">("notice");
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void loadDashboard();
+  }, []);
 
-  async function load() {
+  async function loadDashboard() {
     setLoading(true);
-    const { data: authData } = await supabase.auth.getUser();
+    setMessage("");
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+      setUserId(null);
+      setLoading(false);
+      return;
+    }
+
     const user = authData.user;
-    if (!user) { setLoading(false); return; }
     setUserId(user.id);
 
-    const [profileResult, equipmentResult, selectedResult] = await Promise.all([
-      supabase.from("inspector_profiles").select("*").eq("inspector_id", user.id).maybeSingle(),
-      supabase.from("equipment_types").select("id,category,name,code,notes,active").eq("active", true).order("category").order("name"),
-      supabase.from("inspector_equipment").select("equipment_id").eq("profile_id", user.id),
+    const [
+      profileResult,
+      equipmentResult,
+      selectedEquipmentResult,
+      activitiesResult,
+      selectedActivitiesResult,
+    ] = await Promise.all([
+      supabase
+        .from("inspector_profiles")
+        .select("*")
+        .eq("inspector_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("equipment_types")
+        .select("id, category, name, code, notes, active")
+        .eq("active", true)
+        .order("category")
+        .order("name"),
+      supabase
+        .from("inspector_equipment")
+        .select("equipment_id")
+        .eq("profile_id", user.id),
+      supabase
+        .from("inspection_activities")
+        .select("id, category, name, code, notes, active")
+        .eq("active", true)
+        .order("category")
+        .order("name"),
+      supabase
+        .from("inspector_activities")
+        .select("activity_id")
+        .eq("profile_id", user.id),
     ]);
 
-    const error = profileResult.error || equipmentResult.error || selectedResult.error;
-    if (error) { setMessage(error.message); setLoading(false); return; }
+    const firstError =
+      profileResult.error ||
+      equipmentResult.error ||
+      selectedEquipmentResult.error ||
+      activitiesResult.error ||
+      selectedActivitiesResult.error;
+
+    if (firstError) {
+      setMessage(firstError.message);
+      setMessageType("notice");
+      setLoading(false);
+      return;
+    }
 
     setEquipment((equipmentResult.data || []) as EquipmentReference[]);
-    setSelected((selectedResult.data || []).map((row) => row.equipment_id));
+    setSelectedEquipmentIds(
+      (selectedEquipmentResult.data || []).map((row) => row.equipment_id),
+    );
+
+    setActivities((activitiesResult.data || []) as InspectionActivityReference[]);
+    setSelectedActivityIds(
+      (selectedActivitiesResult.data || []).map((row) => row.activity_id),
+    );
 
     if (profileResult.data) {
-      const p = profileResult.data as InspectorProfile;
+      const profile = profileResult.data as InspectorProfile;
       setProfileExists(true);
       setForm({
-        full_name: p.full_name || user.user_metadata?.name || "",
-        headline: p.headline || "", company: p.company || "",
-        inspector_type: p.inspector_type || "Independent", phone: p.phone || "",
-        office_home_address: p.office_home_address || "",
-        base_city: p.base_city || p.base_location || "", base_state: p.base_state || "",
-        base_country: p.base_country || "United States",
-        latitude: p.latitude == null ? "" : String(p.latitude),
-        longitude: p.longitude == null ? "" : String(p.longitude),
-        years_experience: p.years_experience == null ? "" : String(p.years_experience),
-        primary_discipline: p.primary_discipline || "", biography: p.biography || "",
-        linkedin_url: p.linkedin_url || "", website_url: p.website_url || "",
+        full_name: profile.full_name || user.user_metadata?.name || "",
+        headline: profile.headline || "",
+        company: profile.company || "",
+        inspector_type: profile.inspector_type || "Independent",
+        phone: profile.phone || "",
+        office_home_address: profile.office_home_address || "",
+        base_city: profile.base_city || profile.base_location || "",
+        base_state: profile.base_state || "",
+        base_country: profile.base_country || "United States",
+        latitude:
+          profile.latitude === null || profile.latitude === undefined
+            ? ""
+            : String(profile.latitude),
+        longitude:
+          profile.longitude === null || profile.longitude === undefined
+            ? ""
+            : String(profile.longitude),
+        years_experience:
+          profile.years_experience === null ||
+          profile.years_experience === undefined
+            ? ""
+            : String(profile.years_experience),
+        primary_discipline: profile.primary_discipline || "",
+        biography: profile.biography || "",
+        linkedin_url: profile.linkedin_url || "",
+        website_url: profile.website_url || "",
       });
     } else {
-      setForm({ ...blank, full_name: user.user_metadata?.name || "" });
+      setProfileExists(false);
+      setForm({
+        ...blankForm,
+        full_name: user.user_metadata?.name || "",
+      });
     }
+
     setLoading(false);
   }
 
@@ -103,150 +211,1181 @@ export default function DashboardPage() {
     setMessage("");
   }
 
-  function validate(current: Step) {
-    if (current === 1) {
+  function validateStep(currentStep: WizardStep): string | null {
+    if (currentStep === 1) {
       if (!form.full_name.trim()) return "Enter your full name.";
       if (!form.headline.trim()) return "Enter a professional headline.";
       if (!form.base_city.trim()) return "Enter your base city.";
       if (!form.base_country.trim()) return "Enter your base country.";
     }
-    if (current === 2) {
+
+    if (currentStep === 2) {
       const years = Number(form.years_experience);
-      if (!form.years_experience.trim() || !Number.isFinite(years) || years < 0 || years > 80) return "Enter years of experience between 0 and 80.";
-      if (!form.primary_discipline) return "Select a primary discipline.";
-      if (form.biography.trim().length < 50) return "Your biography should be at least 50 characters.";
+
+      if (!form.years_experience.trim()) {
+        return "Enter your years of experience.";
+      }
+
+      if (!Number.isFinite(years) || years < 0 || years > 80) {
+        return "Years of experience must be between 0 and 80.";
+      }
+
+      if (!form.primary_discipline) {
+        return "Select a primary discipline.";
+      }
+
+      if (form.biography.trim().length < 50) {
+        return "Your professional biography should be at least 50 characters.";
+      }
     }
-    if (current === 3 && selected.length === 0) return "Select at least one equipment type.";
+
+    if (currentStep === 3 && selectedEquipmentIds.length === 0) {
+      return "Select at least one equipment type.";
+    }
+
+    if (currentStep === 4 && selectedActivityIds.length === 0) {
+      return "Select at least one inspection activity.";
+    }
+
     return null;
   }
 
   async function validateAddress() {
-    if (!form.office_home_address.trim()) { setMessage("Enter an office or home address first."); return; }
+    if (!form.office_home_address.trim()) {
+      setMessage("Enter an office or home address first.");
+      setMessageType("notice");
+      return;
+    }
+
     setMessage("Checking address...");
+    setMessageType("notice");
+
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(form.office_home_address)}`;
-      const response = await fetch(url, { headers: { Accept: "application/json" } });
+      const url =
+        "https://nominatim.openstreetmap.org/search" +
+        `?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(
+          form.office_home_address,
+        )}`;
+
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Address lookup failed.");
+      }
+
       const results = await response.json();
-      if (!Array.isArray(results) || !results[0]) { setMessage("Address not found. Enter city, state and country manually."); return; }
-      const r = results[0], a = r.address || {};
-      setForm((current) => ({ ...current,
-        office_home_address: r.display_name || current.office_home_address,
-        base_city: a.city || a.town || a.village || a.municipality || current.base_city,
-        base_state: a.state || a.region || current.base_state,
-        base_country: a.country || current.base_country,
-        latitude: r.lat || "", longitude: r.lon || "",
+
+      if (!Array.isArray(results) || !results[0]) {
+        setMessage(
+          "Address not found. You can still enter the city, state and country manually.",
+        );
+        return;
+      }
+
+      const result = results[0];
+      const address = result.address || {};
+
+      setForm((current) => ({
+        ...current,
+        office_home_address:
+          result.display_name || current.office_home_address,
+        base_city:
+          address.city ||
+          address.town ||
+          address.village ||
+          address.municipality ||
+          current.base_city,
+        base_state: address.state || address.region || current.base_state,
+        base_country: address.country || current.base_country,
+        latitude: result.lat || "",
+        longitude: result.lon || "",
       }));
-      setSuccess(true); setMessage("Address validated.");
-    } catch { setMessage("Address lookup failed. Enter city, state and country manually."); }
+
+      setMessage("Address validated.");
+      setMessageType("success");
+    } catch {
+      setMessage(
+        "Address lookup failed. You can still enter the city, state and country manually.",
+      );
+      setMessageType("notice");
+    }
   }
 
-  async function saveCore() {
+  async function saveCoreProfile() {
     if (!userId) return false;
+
     const payload = {
-      inspector_id: userId, full_name: form.full_name.trim(), headline: form.headline.trim(),
-      company: form.company.trim() || null, inspector_type: form.inspector_type,
-      phone: form.phone.trim() || null, office_home_address: form.office_home_address.trim() || null,
-      base_location: form.base_city.trim(), base_city: form.base_city.trim(),
-      base_state: form.base_state.trim() || null, base_country: form.base_country.trim(),
+      inspector_id: userId,
+      full_name: form.full_name.trim(),
+      headline: form.headline.trim(),
+      company: form.company.trim() || null,
+      inspector_type: form.inspector_type,
+      phone: form.phone.trim() || null,
+      office_home_address: form.office_home_address.trim() || null,
+      base_location: form.base_city.trim(),
+      base_city: form.base_city.trim(),
+      base_state: form.base_state.trim() || null,
+      base_country: form.base_country.trim(),
       latitude: form.latitude ? Number(form.latitude) : null,
       longitude: form.longitude ? Number(form.longitude) : null,
-      years_experience: form.years_experience ? Number(form.years_experience) : null,
+      years_experience: form.years_experience
+        ? Number(form.years_experience)
+        : null,
       primary_discipline: form.primary_discipline || null,
       biography: form.biography.trim() || null,
       linkedin_url: form.linkedin_url.trim() || null,
       website_url: form.website_url.trim() || null,
     };
-    const { error } = await supabase.from("inspector_profiles").upsert(payload, { onConflict: "inspector_id" });
-    if (error) { setMessage(error.message); return false; }
-    setProfileExists(true); return true;
-  }
 
-  async function saveEquipment() {
-    if (!userId) return false;
-    const { error: deleteError } = await supabase.from("inspector_equipment").delete().eq("profile_id", userId);
-    if (deleteError) { setMessage(deleteError.message); return false; }
-    const { error: insertError } = await supabase.from("inspector_equipment").insert(selected.map((equipment_id) => ({ profile_id: userId, equipment_id })));
-    if (insertError) { setMessage(insertError.message); return false; }
+    const { error } = await supabase
+      .from("inspector_profiles")
+      .upsert(payload, { onConflict: "inspector_id" });
+
+    if (error) {
+      setMessage(error.message);
+      setMessageType("notice");
+      return false;
+    }
+
+    setProfileExists(true);
     return true;
   }
 
-  async function saveCurrent(target?: Step) {
-    const validationError = validate(step);
-    if (validationError) { setSuccess(false); setMessage(validationError); return; }
-    setSaving(true); setMessage("");
-    const ok = step === 3 ? await saveEquipment() : await saveCore();
+  async function replaceSelections(
+    tableName: "inspector_equipment" | "inspector_activities",
+    foreignKey: "equipment_id" | "activity_id",
+    selectedIds: string[],
+  ) {
+    if (!userId) return false;
+
+    const { error: deleteError } = await supabase
+      .from(tableName)
+      .delete()
+      .eq("profile_id", userId);
+
+    if (deleteError) {
+      setMessage(deleteError.message);
+      setMessageType("notice");
+      return false;
+    }
+
+    const rows = selectedIds.map((selectedId) => ({
+      profile_id: userId,
+      [foreignKey]: selectedId,
+    }));
+
+    const { error: insertError } = await supabase
+      .from(tableName)
+      .insert(rows);
+
+    if (insertError) {
+      setMessage(insertError.message);
+      setMessageType("notice");
+      return false;
+    }
+
+    return true;
+  }
+
+  async function saveCurrentStep(targetStep?: WizardStep) {
+    if (!userId) return false;
+
+    const validationError = validateStep(step);
+
+    if (validationError) {
+      setMessage(validationError);
+      setMessageType("notice");
+      return false;
+    }
+
+    setSaving(true);
+    setMessage("");
+
+    let saved = false;
+
+    if (step === 1 || step === 2) {
+      saved = await saveCoreProfile();
+    } else if (step === 3) {
+      saved = await replaceSelections(
+        "inspector_equipment",
+        "equipment_id",
+        selectedEquipmentIds,
+      );
+    } else {
+      saved = await replaceSelections(
+        "inspector_activities",
+        "activity_id",
+        selectedActivityIds,
+      );
+    }
+
     setSaving(false);
-    if (!ok) return;
-    setSuccess(true); setMessage("Progress saved.");
-    if (target) { setStep(target); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+    if (!saved) return false;
+
+    setMessage("Progress saved.");
+    setMessageType("success");
+
+    if (targetStep) {
+      setStep(targetStep);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    return true;
   }
 
-  async function goTo(target: Step) {
-    if (target < step) { setStep(target); setMessage(""); return; }
-    await saveCurrent(target);
+  async function goToStep(targetStep: WizardStep) {
+    if (targetStep < step) {
+      setStep(targetStep);
+      setMessage("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    await saveCurrentStep(targetStep);
   }
 
-  function toggle(id: string) {
-    setSelected((current) => current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
+  function toggleSelection(
+    selectedId: string,
+    currentIds: string[],
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+  ) {
+    setter(
+      currentIds.includes(selectedId)
+        ? currentIds.filter((id) => id !== selectedId)
+        : [...currentIds, selectedId],
+    );
     setMessage("");
   }
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return q ? equipment.filter((item) => [item.name, item.category, item.code, item.notes || ""].join(" ").toLowerCase().includes(q)) : equipment;
-  }, [equipment, search]);
+  function toggleCategory(
+    category: string,
+    items: Array<{ id: string; category: string }>,
+    currentIds: string[],
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+  ) {
+    const ids = items
+      .filter((item) => item.category === category)
+      .map((item) => item.id);
 
-  const grouped = useMemo(() => filtered.reduce<Record<string, EquipmentReference[]>>((acc, item) => {
-    (acc[item.category] ||= []).push(item); return acc;
-  }, {}), [filtered]);
+    const allSelected = ids.every((id) => currentIds.includes(id));
 
-  function toggleCategory(category: string) {
-    const ids = (grouped[category] || []).map((item) => item.id);
-    const all = ids.every((id) => selected.includes(id));
-    setSelected((current) => all ? current.filter((id) => !ids.includes(id)) : Array.from(new Set([...current, ...ids])));
+    setter(
+      allSelected
+        ? currentIds.filter((id) => !ids.includes(id))
+        : Array.from(new Set([...currentIds, ...ids])),
+    );
   }
 
-  if (loading) return <section className="panel"><p>Loading dashboard...</p></section>;
-  if (!userId) return <section className="panel"><h1>Inspector Dashboard</h1><p>You need to log in before creating an inspector profile.</p><Link className="button" href="/login">Log in</Link></section>;
+  const filteredEquipment = useMemo(() => {
+    const query = equipmentSearch.trim().toLowerCase();
 
-  const title = step === 1 ? "Personal Information" : step === 2 ? "Professional Experience" : "Equipment Experience";
+    if (!query) return equipment;
 
-  return <section className="panel wizardShell">
-    <div className="wizardHeader"><div><p className="eyebrow">Inspector Profile</p><h1>Build Your Professional Profile</h1><p className="muted">Complete each section to make your profile searchable by clients.</p></div><div className="headerActions">{profileExists && <Link href={`/inspectors/${userId}`} className="button secondary">View Public Profile</Link>}<Link href="/logout" className="button secondary">Log out</Link></div></div>
-    <div className="progressWrap"><div className="progressTop"><strong>Step {step} of 3</strong><span>{title}</span></div><div className="progressTrack"><div className="progressBar" style={{ width: `${(step / 3) * 100}%` }} /></div></div>
-    <div className="stepTabs">{([1,2,3] as Step[]).map((n) => <button key={n} type="button" className={step === n ? "stepTab active" : step > n ? "stepTab complete" : "stepTab"} onClick={() => void goTo(n)}><span>{n}</span>{n === 1 ? "Personal Information" : n === 2 ? "Professional Experience" : "Equipment"}</button>)}</div>
-    {message && <p className={success ? "success" : "notice"}>{message}</p>}
+    return equipment.filter((item) =>
+      [item.name, item.category, item.code, item.notes || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(query),
+    );
+  }, [equipment, equipmentSearch]);
 
-    {step === 1 && <div className="wizardCard"><h2>Personal Information</h2><p className="muted">This information identifies you and helps clients understand where you are based.</p><div className="formGrid">
-      <label>Full Name<input value={form.full_name} onChange={(e) => setField("full_name", e.target.value)} required /></label>
-      <label>Inspector Type<select value={form.inspector_type} onChange={(e) => setField("inspector_type", e.target.value as FormState["inspector_type"])}><option>Independent</option><option>Agency</option><option>Company Employee</option></select></label>
-      <label className="full">Professional Headline<input value={form.headline} onChange={(e) => setField("headline", e.target.value)} placeholder="Example: API 510 / 570 Inspector and AWS CWI" required /></label>
-      <label>Company<input value={form.company} onChange={(e) => setField("company", e.target.value)} /></label>
-      <label>Phone<input value={form.phone} onChange={(e) => setField("phone", e.target.value)} /></label>
-      <label className="full">Office / Home Address<input value={form.office_home_address} onChange={(e) => setField("office_home_address", e.target.value)} /></label>
-      <div className="full"><button type="button" className="button secondary" onClick={validateAddress}>Validate Address</button></div>
-      <label>Base City<input value={form.base_city} onChange={(e) => setField("base_city", e.target.value)} required /></label>
-      <label>State / Province<input value={form.base_state} onChange={(e) => setField("base_state", e.target.value)} /></label>
-      <label>Country<input value={form.base_country} onChange={(e) => setField("base_country", e.target.value)} required /></label>
-      <label>LinkedIn URL<input type="url" value={form.linkedin_url} onChange={(e) => setField("linkedin_url", e.target.value)} /></label>
-      <label className="full">Website URL<input type="url" value={form.website_url} onChange={(e) => setField("website_url", e.target.value)} /></label>
-    </div></div>}
+  const filteredActivities = useMemo(() => {
+    const query = activitySearch.trim().toLowerCase();
 
-    {step === 2 && <div className="wizardCard"><h2>Professional Experience</h2><p className="muted">Summarize your core discipline and relevant experience.</p><div className="formGrid">
-      <label>Years of Experience<input type="number" min="0" max="80" value={form.years_experience} onChange={(e) => setField("years_experience", e.target.value)} /></label>
-      <label>Primary Discipline<select value={form.primary_discipline} onChange={(e) => setField("primary_discipline", e.target.value)}><option value="">Select...</option>{disciplines.map((d) => <option key={d}>{d}</option>)}</select></label>
-      <label className="full">Professional Biography<textarea rows={8} value={form.biography} onChange={(e) => setField("biography", e.target.value)} placeholder="Describe your inspection background, industries, project types and geographic experience." /></label>
-    </div></div>}
+    if (!query) return activities;
 
-    {step === 3 && <div className="wizardCard"><div className="sectionHeading"><div><h2>Equipment Experience</h2><p className="muted">Select equipment you are qualified and experienced to inspect.</p></div><strong>{selected.length} selected</strong></div>
-      <label className="equipmentSearch">Search Equipment<input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search pumps, vessels, switchgear, modules..." /></label>
-      <div className="equipmentGroups">{Object.entries(grouped).map(([category, items]) => { const ids = items.map((i) => i.id); const all = ids.every((id) => selected.includes(id)); return <section className="equipmentGroup" key={category}><div className="equipmentGroupHeader"><h3>{category}</h3><button type="button" className="textButton" onClick={() => toggleCategory(category)}>{all ? "Clear category" : "Select category"}</button></div><div className="equipmentGrid">{items.map((item) => { const checked = selected.includes(item.id); return <label className={checked ? "equipmentOption selected" : "equipmentOption"} key={item.id}><input type="checkbox" checked={checked} onChange={() => toggle(item.id)} /><span><strong>{item.name}</strong>{item.notes && <small>{item.notes}</small>}</span></label>; })}</div></section>; })}</div>
-    </div>}
+    return activities.filter((item) =>
+      [item.name, item.category, item.code, item.notes || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(query),
+    );
+  }, [activities, activitySearch]);
 
-    <div className="wizardFooter"><div>{step > 1 && <button type="button" className="button secondary" onClick={() => void goTo((step - 1) as Step)} disabled={saving}>Back</button>}</div><div className="footerRight"><button type="button" className="button secondary" onClick={() => void saveCurrent()} disabled={saving}>{saving ? "Saving..." : "Save"}</button>{step < 3 ? <button type="button" onClick={() => void goTo((step + 1) as Step)} disabled={saving}>{saving ? "Saving..." : "Save & Continue"}</button> : <button type="button" onClick={() => void saveCurrent()} disabled={saving}>{saving ? "Saving..." : "Save Equipment"}</button>}</div></div>
+  const groupedEquipment = useMemo(
+    () =>
+      filteredEquipment.reduce<Record<string, EquipmentReference[]>>(
+        (groups, item) => {
+          if (!groups[item.category]) groups[item.category] = [];
+          groups[item.category].push(item);
+          return groups;
+        },
+        {},
+      ),
+    [filteredEquipment],
+  );
 
-    <style jsx>{`
-      .wizardShell{max-width:1040px;margin:0 auto}.wizardHeader,.progressTop,.wizardFooter,.headerActions,.footerRight,.sectionHeading,.equipmentGroupHeader{display:flex;align-items:center;gap:12px}.wizardHeader,.progressTop,.wizardFooter,.sectionHeading,.equipmentGroupHeader{justify-content:space-between}.wizardHeader{align-items:flex-start;margin-bottom:24px}.headerActions,.footerRight{flex-wrap:wrap;justify-content:flex-end}.eyebrow{margin:0 0 4px;font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.progressWrap{margin:18px 0 20px}.progressTop{margin-bottom:8px}.progressTrack{height:10px;overflow:hidden;border-radius:999px;background:rgba(127,127,127,.2)}.progressBar{height:100%;border-radius:inherit;background:currentColor}.stepTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}.stepTab{display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(127,127,127,.35);border-radius:12px;background:transparent;color:inherit;text-align:left}.stepTab span{display:grid;width:30px;height:30px;place-items:center;border:1px solid currentColor;border-radius:50%;font-weight:800}.stepTab.active{border-width:2px;font-weight:800}.wizardCard{padding:24px;border:1px solid rgba(127,127,127,.28);border-radius:16px;background:rgba(127,127,127,.04)}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}label{display:flex;flex-direction:column;gap:7px;font-weight:700}.full{grid-column:1/-1}input,select,textarea{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid rgba(127,127,127,.42);border-radius:9px;background:transparent;color:inherit;font:inherit}small{display:block;margin-top:3px;font-weight:400;opacity:.72}.equipmentSearch{margin-bottom:22px}.equipmentGroups{display:grid;gap:20px}.equipmentGroup{padding:18px;border:1px solid rgba(127,127,127,.28);border-radius:14px}.equipmentGroupHeader{margin-bottom:14px}.equipmentGroupHeader h3{margin:0}.textButton{padding:0;border:0;background:transparent;color:inherit;text-decoration:underline;cursor:pointer}.equipmentGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.equipmentOption{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:10px;padding:13px;border:1px solid rgba(127,127,127,.32);border-radius:10px;cursor:pointer}.equipmentOption.selected{border-width:2px;background:rgba(127,127,127,.08)}.equipmentOption input{width:auto;margin-top:3px}.wizardFooter{margin-top:20px}@media(max-width:760px){.wizardHeader,.wizardFooter{align-items:stretch;flex-direction:column}.headerActions,.footerRight{justify-content:flex-start}.stepTabs,.formGrid,.equipmentGrid{grid-template-columns:1fr}.full{grid-column:auto}.wizardCard{padding:18px}}
-    `}</style>
-  </section>;
+  const groupedActivities = useMemo(
+    () =>
+      filteredActivities.reduce<Record<string, InspectionActivityReference[]>>(
+        (groups, item) => {
+          if (!groups[item.category]) groups[item.category] = [];
+          groups[item.category].push(item);
+          return groups;
+        },
+        {},
+      ),
+    [filteredActivities],
+  );
+
+  if (loading) {
+    return (
+      <section className="panel">
+        <p>Loading dashboard...</p>
+      </section>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <section className="panel">
+        <h1>Inspector Dashboard</h1>
+        <p>You need to log in before creating an inspector profile.</p>
+        <Link className="button" href="/login">
+          Log in
+        </Link>
+      </section>
+    );
+  }
+
+  const stepTitle =
+    step === 1
+      ? "Personal Information"
+      : step === 2
+        ? "Professional Experience"
+        : step === 3
+          ? "Equipment Experience"
+          : "Inspection Activities";
+
+  return (
+    <section className="panel wizardShell">
+      <div className="wizardHeader">
+        <div>
+          <p className="eyebrow">Inspector Profile</p>
+          <h1>Build Your Professional Profile</h1>
+          <p className="muted">
+            Complete each section to make your profile searchable by clients.
+          </p>
+        </div>
+
+        <div className="headerActions">
+          {profileExists && (
+            <Link
+              href={`/inspectors/${userId}`}
+              className="button secondary"
+            >
+              View Public Profile
+            </Link>
+          )}
+          <Link href="/logout" className="button secondary">
+            Log out
+          </Link>
+        </div>
+      </div>
+
+      <div className="progressWrap" aria-label="Profile progress">
+        <div className="progressTop">
+          <strong>Step {step} of 4</strong>
+          <span>{stepTitle}</span>
+        </div>
+
+        <div className="progressTrack">
+          <div
+            className="progressBar"
+            style={{ width: `${(step / 4) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="stepTabs">
+        {[
+          [1, "Personal Information"],
+          [2, "Professional Experience"],
+          [3, "Equipment"],
+          [4, "Inspection Activities"],
+        ].map(([stepNumber, label]) => {
+          const number = stepNumber as WizardStep;
+
+          return (
+            <button
+              type="button"
+              key={number}
+              className={
+                step === number
+                  ? "stepTab active"
+                  : step > number
+                    ? "stepTab complete"
+                    : "stepTab"
+              }
+              onClick={() => void goToStep(number)}
+            >
+              <span>{number}</span>
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {message && (
+        <p className={messageType === "success" ? "success" : "notice"}>
+          {message}
+        </p>
+      )}
+
+      {step === 1 && (
+        <div className="wizardCard">
+          <div className="sectionHeading">
+            <div>
+              <h2>Personal Information</h2>
+              <p className="muted">
+                This information identifies you and helps clients understand
+                where you are based.
+              </p>
+            </div>
+          </div>
+
+          <div className="formGrid">
+            <label>
+              Full Name
+              <input
+                value={form.full_name}
+                onChange={(event) =>
+                  setField("full_name", event.target.value)
+                }
+                autoComplete="name"
+                required
+              />
+            </label>
+
+            <label>
+              Inspector Type
+              <select
+                value={form.inspector_type}
+                onChange={(event) =>
+                  setField(
+                    "inspector_type",
+                    event.target.value as FormState["inspector_type"],
+                  )
+                }
+              >
+                <option value="Independent">Independent</option>
+                <option value="Agency">Agency</option>
+                <option value="Company Employee">Company Employee</option>
+              </select>
+            </label>
+
+            <label className="full">
+              Professional Headline
+              <input
+                value={form.headline}
+                onChange={(event) =>
+                  setField("headline", event.target.value)
+                }
+                placeholder="Example: API 510 / 570 Inspector and AWS CWI"
+                required
+              />
+              <small>
+                Use a clear one-line summary that clients can understand
+                immediately.
+              </small>
+            </label>
+
+            <label>
+              Company
+              <input
+                value={form.company}
+                onChange={(event) => setField("company", event.target.value)}
+                autoComplete="organization"
+              />
+            </label>
+
+            <label>
+              Phone
+              <input
+                value={form.phone}
+                onChange={(event) => setField("phone", event.target.value)}
+                autoComplete="tel"
+              />
+            </label>
+
+            <label className="full">
+              Office / Home Address
+              <input
+                value={form.office_home_address}
+                onChange={(event) =>
+                  setField("office_home_address", event.target.value)
+                }
+                placeholder="Enter a full address for validation"
+                autoComplete="street-address"
+              />
+            </label>
+
+            <div className="full addressActions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={validateAddress}
+              >
+                Validate Address
+              </button>
+
+              {form.latitude && form.longitude && (
+                <span className="muted">
+                  Coordinates saved for future distance searches.
+                </span>
+              )}
+            </div>
+
+            <label>
+              Base City
+              <input
+                value={form.base_city}
+                onChange={(event) =>
+                  setField("base_city", event.target.value)
+                }
+                required
+              />
+            </label>
+
+            <label>
+              State / Province
+              <input
+                value={form.base_state}
+                onChange={(event) =>
+                  setField("base_state", event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Country
+              <input
+                value={form.base_country}
+                onChange={(event) =>
+                  setField("base_country", event.target.value)
+                }
+                required
+              />
+            </label>
+
+            <label>
+              LinkedIn URL
+              <input
+                type="url"
+                value={form.linkedin_url}
+                onChange={(event) =>
+                  setField("linkedin_url", event.target.value)
+                }
+                placeholder="https://www.linkedin.com/in/..."
+              />
+            </label>
+
+            <label className="full">
+              Website URL
+              <input
+                type="url"
+                value={form.website_url}
+                onChange={(event) =>
+                  setField("website_url", event.target.value)
+                }
+                placeholder="https://..."
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="wizardCard">
+          <div className="sectionHeading">
+            <div>
+              <h2>Professional Experience</h2>
+              <p className="muted">
+                Summarize your core discipline and the experience that makes
+                you qualified for inspection assignments.
+              </p>
+            </div>
+          </div>
+
+          <div className="formGrid">
+            <label>
+              Years of Experience
+              <input
+                type="number"
+                min="0"
+                max="80"
+                value={form.years_experience}
+                onChange={(event) =>
+                  setField("years_experience", event.target.value)
+                }
+                required
+              />
+            </label>
+
+            <label>
+              Primary Discipline
+              <select
+                value={form.primary_discipline}
+                onChange={(event) =>
+                  setField("primary_discipline", event.target.value)
+                }
+                required
+              >
+                <option value="">Select...</option>
+                {disciplines.map((discipline) => (
+                  <option key={discipline} value={discipline}>
+                    {discipline}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="full">
+              Professional Biography
+              <textarea
+                value={form.biography}
+                onChange={(event) =>
+                  setField("biography", event.target.value)
+                }
+                placeholder="Describe your inspection background, equipment experience, industries, project types and geographic experience."
+                rows={8}
+                required
+              />
+              <small>
+                Minimum 50 characters. Equipment and certifications are
+                captured separately so clients can search them.
+              </small>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <SelectionStep
+          title="Equipment Experience"
+          description="Select the equipment you are qualified and experienced to inspect."
+          searchLabel="Search Equipment"
+          searchPlaceholder="Search pumps, vessels, switchgear, modules..."
+          searchValue={equipmentSearch}
+          onSearchChange={setEquipmentSearch}
+          groupedItems={groupedEquipment}
+          selectedIds={selectedEquipmentIds}
+          onToggle={(id) =>
+            toggleSelection(
+              id,
+              selectedEquipmentIds,
+              setSelectedEquipmentIds,
+            )
+          }
+          onToggleCategory={(category) =>
+            toggleCategory(
+              category,
+              filteredEquipment,
+              selectedEquipmentIds,
+              setSelectedEquipmentIds,
+            )
+          }
+        />
+      )}
+
+      {step === 4 && (
+        <SelectionStep
+          title="Inspection Activities"
+          description="Select the inspection and quality activities you can confidently perform."
+          searchLabel="Search Activities"
+          searchPlaceholder="Search FAT, source inspection, expediting..."
+          searchValue={activitySearch}
+          onSearchChange={setActivitySearch}
+          groupedItems={groupedActivities}
+          selectedIds={selectedActivityIds}
+          onToggle={(id) =>
+            toggleSelection(
+              id,
+              selectedActivityIds,
+              setSelectedActivityIds,
+            )
+          }
+          onToggleCategory={(category) =>
+            toggleCategory(
+              category,
+              filteredActivities,
+              selectedActivityIds,
+              setSelectedActivityIds,
+            )
+          }
+        />
+      )}
+
+      <div className="wizardFooter">
+        <div>
+          {step > 1 && (
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() =>
+                void goToStep((step - 1) as WizardStep)
+              }
+              disabled={saving}
+            >
+              Back
+            </button>
+          )}
+        </div>
+
+        <div className="footerRight">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => void saveCurrentStep()}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+
+          {step < 4 ? (
+            <button
+              type="button"
+              onClick={() =>
+                void goToStep((step + 1) as WizardStep)
+              }
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save & Continue"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void saveCurrentStep()}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save Activities"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .wizardShell {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+
+        .wizardHeader,
+        .progressTop,
+        .wizardFooter,
+        .headerActions,
+        .footerRight,
+        .addressActions,
+        .sectionHeading {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .wizardHeader,
+        .wizardFooter,
+        .progressTop,
+        .sectionHeading {
+          justify-content: space-between;
+        }
+
+        .wizardHeader {
+          align-items: flex-start;
+          margin-bottom: 24px;
+        }
+
+        .headerActions {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .eyebrow {
+          margin: 0 0 4px;
+          font-size: 0.78rem;
+          font-weight: 800;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        h1,
+        h2,
+        h3 {
+          margin-top: 0;
+        }
+
+        .progressWrap {
+          margin: 18px 0 20px;
+        }
+
+        .progressTop {
+          margin-bottom: 8px;
+          font-size: 0.92rem;
+        }
+
+        .progressTrack {
+          height: 10px;
+          overflow: hidden;
+          border-radius: 999px;
+          background: rgba(127, 127, 127, 0.2);
+        }
+
+        .progressBar {
+          height: 100%;
+          border-radius: inherit;
+          background: currentColor;
+          transition: width 180ms ease;
+        }
+
+        .stepTabs {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .stepTab {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 10px;
+          padding: 14px 16px;
+          border: 1px solid rgba(127, 127, 127, 0.35);
+          border-radius: 12px;
+          background: transparent;
+          color: inherit;
+          text-align: left;
+        }
+
+        .stepTab span {
+          display: grid;
+          width: 30px;
+          height: 30px;
+          place-items: center;
+          border: 1px solid currentColor;
+          border-radius: 50%;
+          font-weight: 800;
+        }
+
+        .stepTab.active {
+          border-width: 2px;
+          font-weight: 800;
+        }
+
+        .wizardCard {
+          padding: 24px;
+          border: 1px solid rgba(127, 127, 127, 0.28);
+          border-radius: 16px;
+          background: rgba(127, 127, 127, 0.04);
+        }
+
+        .sectionHeading {
+          align-items: flex-start;
+          margin-bottom: 20px;
+        }
+
+        .formGrid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 18px;
+        }
+
+        label {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          font-weight: 700;
+        }
+
+        label.full,
+        .full {
+          grid-column: 1 / -1;
+        }
+
+        input,
+        select,
+        textarea {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 11px 12px;
+          border: 1px solid rgba(127, 127, 127, 0.42);
+          border-radius: 9px;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+        }
+
+        textarea {
+          resize: vertical;
+        }
+
+        small {
+          display: block;
+          margin-top: 3px;
+          font-weight: 400;
+          opacity: 0.72;
+        }
+
+        .addressActions {
+          flex-wrap: wrap;
+        }
+
+        .wizardFooter {
+          margin-top: 20px;
+        }
+
+        .footerRight {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        @media (max-width: 900px) {
+          .stepTabs {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 760px) {
+          .wizardHeader,
+          .wizardFooter {
+            align-items: stretch;
+            flex-direction: column;
+          }
+
+          .headerActions,
+          .footerRight {
+            justify-content: flex-start;
+          }
+
+          .stepTabs,
+          .formGrid {
+            grid-template-columns: 1fr;
+          }
+
+          label.full,
+          .full {
+            grid-column: auto;
+          }
+
+          .wizardCard {
+            padding: 18px;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+type SelectableItem = {
+  id: string;
+  category: string;
+  name: string;
+  notes: string | null;
+};
+
+type SelectionStepProps<T extends SelectableItem> = {
+  title: string;
+  description: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  groupedItems: Record<string, T[]>;
+  selectedIds: string[];
+  onToggle: (id: string) => void;
+  onToggleCategory: (category: string) => void;
+};
+
+function SelectionStep<T extends SelectableItem>({
+  title,
+  description,
+  searchLabel,
+  searchPlaceholder,
+  searchValue,
+  onSearchChange,
+  groupedItems,
+  selectedIds,
+  onToggle,
+  onToggleCategory,
+}: SelectionStepProps<T>) {
+  return (
+    <div className="wizardCard">
+      <div className="selectionHeading">
+        <div>
+          <h2>{title}</h2>
+          <p className="muted">{description}</p>
+        </div>
+
+        <strong>{selectedIds.length} selected</strong>
+      </div>
+
+      <label className="selectionSearch">
+        {searchLabel}
+        <input
+          type="search"
+          value={searchValue}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder={searchPlaceholder}
+        />
+      </label>
+
+      {Object.keys(groupedItems).length === 0 ? (
+        <p className="notice">No items match your search.</p>
+      ) : (
+        <div className="selectionGroups">
+          {Object.entries(groupedItems).map(([category, items]) => {
+            const ids = items.map((item) => item.id);
+            const allSelected = ids.every((id) => selectedIds.includes(id));
+
+            return (
+              <section className="selectionGroup" key={category}>
+                <div className="selectionGroupHeader">
+                  <h3>{category}</h3>
+                  <button
+                    type="button"
+                    className="textButton"
+                    onClick={() => onToggleCategory(category)}
+                  >
+                    {allSelected ? "Clear category" : "Select category"}
+                  </button>
+                </div>
+
+                <div className="selectionGrid">
+                  {items.map((item) => {
+                    const checked = selectedIds.includes(item.id);
+
+                    return (
+                      <label
+                        className={
+                          checked
+                            ? "selectionOption selected"
+                            : "selectionOption"
+                        }
+                        key={item.id}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => onToggle(item.id)}
+                        />
+
+                        <span>
+                          <strong>{item.name}</strong>
+                          {item.notes && <small>{item.notes}</small>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      <style jsx>{`
+        .selectionHeading,
+        .selectionGroupHeader {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .selectionHeading {
+          margin-bottom: 20px;
+        }
+
+        .selectionSearch {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          margin-bottom: 22px;
+          font-weight: 700;
+        }
+
+        .selectionSearch input {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 11px 12px;
+          border: 1px solid rgba(127, 127, 127, 0.42);
+          border-radius: 9px;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+        }
+
+        .selectionGroups {
+          display: grid;
+          gap: 20px;
+        }
+
+        .selectionGroup {
+          padding: 18px;
+          border: 1px solid rgba(127, 127, 127, 0.28);
+          border-radius: 14px;
+        }
+
+        .selectionGroupHeader {
+          align-items: center;
+          margin-bottom: 14px;
+        }
+
+        .selectionGroupHeader h3 {
+          margin: 0;
+        }
+
+        .textButton {
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .selectionGrid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .selectionOption {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: start;
+          gap: 10px;
+          padding: 13px;
+          border: 1px solid rgba(127, 127, 127, 0.32);
+          border-radius: 10px;
+          cursor: pointer;
+        }
+
+        .selectionOption.selected {
+          border-width: 2px;
+          background: rgba(127, 127, 127, 0.08);
+        }
+
+        .selectionOption input {
+          width: auto;
+          margin-top: 3px;
+        }
+
+        .selectionOption small {
+          display: block;
+          margin-top: 3px;
+          font-weight: 400;
+          opacity: 0.72;
+        }
+
+        @media (max-width: 760px) {
+          .selectionGrid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </div>
+  );
 }
