@@ -98,7 +98,10 @@ export default function FindInspectorsPage() {
     setResults(ranked);
     setSearching(false);
 
+    const { data: authData } = await supabase.auth.getUser();
+
     await supabase.from("client_search_requests").insert({
+      client_id: authData.user?.id || null,
       request_text: text,
       parsed_request: interpreted,
       result_count: ranked.length,

@@ -2,31 +2,85 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase";
+
+type AccountRole = "client" | "inspector";
 
 export default function RegisterPage() {
   const supabase = supabaseBrowser();
-  const [name,setName]=useState("");
-  const [email,setEmail]=useState("");
-  const [password,setPassword]=useState("");
-  const [message,setMessage]=useState("");
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<AccountRole>("client");
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
 
   async function register(e: React.FormEvent) {
-    e.preventDefault(); setMessage("");
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
-    setMessage(error ? error.message : "Account created. If email confirmation is enabled, check your email. Then log in.");
+    e.preventDefault();
+    setMessage("");
+    setSaving(true);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name, full_name: name, role } },
+    });
+
+    setSaving(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setMessage(
+      "Account created. If email confirmation is enabled, confirm your email before logging in.",
+    );
+
+    if (data.session) {
+      router.push(role === "inspector" ? "/dashboard" : "/client-dashboard");
+    }
   }
 
   return (
-    <section className="panel">
-      <h1>Register</h1>
-      <p className="muted">Create an inspector account. You will build your profile after logging in.</p>
+    <section className="panel authPanel">
+      <p className="eyebrow">Join InspectSource</p>
+      <h1>Create an account</h1>
+      <p className="muted">Choose the path that matches how you will use the platform.</p>
+
       <form onSubmit={register}>
-        <label>Name<input value={name} onChange={(e)=>setName(e.target.value)} required /></label>
-        <label>Email<input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required /></label>
-        <label>Password<input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required minLength={6} /></label>
-        <button type="submit">Create account</button>
+        <div className="roleChoice">
+          <label className={role === "client" ? "roleCard selected" : "roleCard"}>
+            <input
+              type="radio"
+              name="role"
+              value="client"
+              checked={role === "client"}
+              onChange={() => setRole("client")}
+            />
+            <span><strong>Client</strong><small>Find inspectors and send availability requests.</small></span>
+          </label>
+
+          <label className={role === "inspector" ? "roleCard selected" : "roleCard"}>
+            <input
+              type="radio"
+              name="role"
+              value="inspector"
+              checked={role === "inspector"}
+              onChange={() => setRole("inspector")}
+            />
+            <span><strong>Inspector</strong><small>Create a profile and receive opportunities.</small></span>
+          </label>
+        </div>
+
+        <label>Name<input value={name} onChange={(e) => setName(e.target.value)} required /></label>
+        <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+        <label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} /></label>
+        <button type="submit" disabled={saving}>{saving ? "Creating account..." : "Create account"}</button>
       </form>
+
       {message && <p className="notice">{message}</p>}
       <p className="muted">Already have an account? <Link href="/login">Log in</Link></p>
     </section>

@@ -1,41 +1,75 @@
-# Vendor Inspector Marketplace V1
+# InspectSource v1.1
 
-InspectSource — Complete Inspector Profile Wizard
+A Next.js and Supabase marketplace for industrial vendor inspection services.
 
-This package replaces all incremental dashboard builds with one complete version.
+## Current product capabilities
 
-Replace these files in GitHub:
-1. app/dashboard/page.tsx
-2. lib/types.ts
+- Twelve-step inspector profile wizard
+- Normalized equipment, activity, NDT, certification, code, industry, language,
+  travel, software, training, rate, and availability data
+- Public inspector profiles
+- Natural-language inspector search
+- Explainable, deterministic match ranking
+- Client availability requests
+- Client dashboard with search and inquiry history
+- Inspector inquiry dashboard with status updates
+- Client/inspector account-role selection
 
-Commit both files together directly to main.
+## Vercel environment variables
 
-No new SQL is required if you already ran:
-- normalized reference catalog upgrade
-- core inspector profile upgrade
-- profiles foreign-key repair
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
 
-Included wizard steps:
-1. Personal Information
-2. Professional Experience
-3. Equipment
-4. Inspection Activities
-5. NDT Methods
-6. Certifications
-7. Codes & Standards
-8. Industries
-9. Languages
-10. Travel Credentials & Work Countries
-11. Software & Training
-12. Rates & Availability
+Use values from the same Supabase project.
 
-Test sequence:
-1. Wait for Vercel deployment to show Ready.
-2. Log in and open /dashboard.
-3. Walk through all 12 steps.
-4. Save each step.
-5. Refresh and verify selections reload.
-6. Use Supabase Table Editor to confirm relationship tables contain rows.
+## v1.1 database update
 
-Rollback:
-Use GitHub commit history to restore the prior versions of app/dashboard/page.tsx and lib/types.ts.
+Run this in Supabase SQL Editor:
+
+```text
+supabase/migrations/05_client_and_inspector_dashboards.sql
+```
+
+Earlier migrations are retained in your existing Supabase project. Do not rerun
+older migrations against the working database unless specifically required.
+
+## Main routes
+
+```text
+/                       Landing page
+/find-inspectors        Natural-language client search
+/client-dashboard       Client search and inquiry history
+/inspectors             Inspector directory
+/inspectors/[id]        Public inspector profile
+/dashboard              Twelve-step inspector profile wizard
+/inspector-inquiries    Inspector opportunity inbox
+/login                  Login
+/register               Role-based registration
+/logout                 Logout
+```
+
+## Deployment
+
+1. Upload the complete project contents to GitHub.
+2. Run the v1.1 SQL migration in Supabase.
+3. Confirm both Vercel environment variables.
+4. Deploy from the GitHub `main` branch.
+5. Test client and inspector accounts separately.
+
+## Test script
+
+### Client
+1. Register as Client.
+2. Open `/find-inspectors`.
+3. Run a natural-language search.
+4. Request availability from an inspector.
+5. Open `/client-dashboard` and confirm the request appears.
+
+### Inspector
+1. Log in as an inspector.
+2. Open `/inspector-inquiries`.
+3. Confirm the client request appears.
+4. Change the status to `viewed` or `contacted`.
+5. Confirm the client dashboard reflects the new status.
