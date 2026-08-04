@@ -330,6 +330,13 @@ export default function InspectorsPage() {
           color: var(--text);
         }
 
+        .anonymousGrid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 18px;
+          align-items: stretch;
+        }
+
         .emptyResults {
           margin-top: 16px;
           text-align: center;
@@ -340,7 +347,17 @@ export default function InspectorsPage() {
           margin-top: 0;
         }
 
+        @media (max-width: 1050px) {
+          .anonymousGrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
         @media (max-width: 720px) {
+          .anonymousGrid {
+            grid-template-columns: 1fr;
+          }
+
           .resultsSummary {
             align-items: flex-start;
             flex-direction: column;
