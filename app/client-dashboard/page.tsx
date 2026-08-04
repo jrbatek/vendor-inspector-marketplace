@@ -10,13 +10,22 @@ type Inquiry = {
   request_text: string;
   status: string;
   created_at: string;
-  inspector_profiles: {
-    full_name: string | null;
-    headline: string | null;
-    base_city: string | null;
-    base_state: string | null;
-    availability_status: string | null;
-  } | null;
+  inspector_profiles:
+    | {
+        full_name: string | null;
+        headline: string | null;
+        base_city: string | null;
+        base_state: string | null;
+        availability_status: string | null;
+      }
+    | {
+        full_name: string | null;
+        headline: string | null;
+        base_city: string | null;
+        base_state: string | null;
+        availability_status: string | null;
+      }[]
+    | null;
 };
 
 type SearchRequest = {
@@ -126,7 +135,10 @@ export default function ClientDashboardPage() {
         ) : (
           <div className="tableList">
             {inquiries.map((item) => {
-              const inspector = item.inspector_profiles;
+              const inspector = Array.isArray(item.inspector_profiles)
+                ? item.inspector_profiles[0] ?? null
+                : item.inspector_profiles;
+
               return (
                 <article className="dashboardRow" key={item.id}>
                   <div>
