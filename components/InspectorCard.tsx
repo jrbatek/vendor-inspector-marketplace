@@ -29,11 +29,9 @@ export default function InspectorCard({
     .slice(-6)
     .toUpperCase();
 
-  const professionalTitle =
-    profile.headline?.trim() ||
-    (profile.primary_discipline
-      ? `${profile.primary_discipline} Inspection Professional`
-      : "Vendor Inspection Professional");
+  const professionalTitle = profile.primary_discipline
+    ? `${profile.primary_discipline} Inspection Professional`
+    : "Vendor Inspection Professional";
 
   const location = [
     profile.base_city || profile.base_location,
@@ -50,13 +48,10 @@ export default function InspectorCard({
   const isAvailable =
     availability !== "Unavailable";
 
-  const drivingRadius =
-    profile.driving_radius !== null &&
-    profile.driving_radius !== undefined
-      ? `${profile.driving_radius} ${
-          profile.distance_unit || "miles"
-        }`
-      : "Contact for travel radius";
+  const travelCoverage = formatTravelCoverage(
+    profile.driving_radius,
+    profile.distance_unit,
+  );
 
   const topQualifications = [
     ...inspector.certifications.map((item) =>
@@ -97,8 +92,8 @@ export default function InspectorCard({
           }
         >
           {profile.is_verified
-            ? "Verified Inspector"
-            : "Inspector Profile"}
+            ? "Verified by InspectSource"
+            : "Pre-Qualified Inspector"}
         </span>
       </div>
 
@@ -166,8 +161,8 @@ export default function InspectorCard({
         </div>
 
         <div>
-          <span>Travel radius</span>
-          <strong>{drivingRadius}</strong>
+          <span>Travel coverage</span>
+          <strong>{travelCoverage}</strong>
         </div>
 
         <div>
@@ -181,14 +176,14 @@ export default function InspectorCard({
           className="button secondary"
           href={`/inspectors/${profile.inspector_id}`}
         >
-          View Qualifications
+          Review Qualifications
         </Link>
 
         <Link
           className="button"
           href="/find-inspectors"
         >
-          Request Availability
+          Check Availability
         </Link>
       </div>
 
@@ -401,6 +396,27 @@ function formatMoney(
   } catch {
     return `${currency || "USD"} ${value}`;
   }
+}
+
+
+function formatTravelCoverage(
+  radius: number | null | undefined,
+  unit: string | null | undefined,
+) {
+  if (radius === null || radius === undefined) {
+    return "Contact for coverage";
+  }
+
+  const miles =
+    unit === "kilometers"
+      ? radius * 0.621371
+      : radius;
+
+  if (miles <= 50) return "Local travel";
+  if (miles <= 150) return "Regional travel";
+  if (miles <= 500) return "Extended regional travel";
+
+  return "National travel";
 }
 
 function travelSummary(profile: InspectorProfile) {
