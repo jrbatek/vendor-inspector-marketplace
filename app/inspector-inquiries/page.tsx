@@ -4,16 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
 
+type ClientProfileSummary = {
+  full_name: string | null;
+  email: string | null;
+};
+
 type Inquiry = {
   id: string;
   client_id: string;
   request_text: string;
   status: string;
   created_at: string;
-  profiles: {
-    full_name: string | null;
-    email: string | null;
-  } | null;
+  profiles: ClientProfileSummary | null;
+};
+
+type InquiryQueryRow = Omit<Inquiry, "profiles"> & {
+  profiles:
+    | ClientProfileSummary
+    | ClientProfileSummary[]
+    | null;
 };
 
 const STATUSES = ["new", "viewed", "contacted", "accepted", "declined", "closed"];
@@ -47,8 +56,23 @@ export default function InspectorInquiriesPage() {
       .eq("inspector_id", authData.user.id)
       .order("created_at", { ascending: false });
 
-    if (error) setMessage(error.message);
-    setInquiries((data || []) as Inquiry[]);
+    if (error) {
+      setMessage(error.message);
+      setInquiries([]);
+      setLoading(false);
+      return;
+    }
+
+    const normalizedInquiries: Inquiry[] = (
+      (data || []) as InquiryQueryRow[]
+    ).map((item) => ({
+      ...item,
+      profiles: Array.isArray(item.profiles)
+        ? item.profiles[0] ?? null
+        : item.profiles,
+    }));
+
+    setInquiries(normalizedInquiries);
     setLoading(false);
   }
 
