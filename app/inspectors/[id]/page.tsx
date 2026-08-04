@@ -286,11 +286,9 @@ export default function PublicInspectorProfilePage() {
     .slice(-6)
     .toUpperCase();
 
-  const professionalTitle =
-    profile.headline?.trim() ||
-    (profile.primary_discipline
-      ? `${profile.primary_discipline} Inspection Professional`
-      : "Vendor Inspection Professional");
+  const professionalTitle = profile.primary_discipline
+    ? `${profile.primary_discipline} Inspection Professional`
+    : "Vendor Inspection Professional";
 
   const location = [
     profile.base_city || profile.base_location,
@@ -327,8 +325,8 @@ export default function PublicInspectorProfilePage() {
               }
             >
               {profile.is_verified
-                ? "Verified Inspector"
-                : "Inspector Profile"}
+                ? "Verified by InspectSource"
+                : "Pre-Qualified Inspector"}
             </span>
           </div>
 
@@ -354,14 +352,14 @@ export default function PublicInspectorProfilePage() {
             className="secondaryButton"
             onClick={copyProfileLink}
           >
-            {copied ? "Link copied" : "Share Qualifications"}
+            {copied ? "Link copied" : "Share Qualification Summary"}
           </button>
 
           <Link
             className="primaryButton"
             href="/find-inspectors"
           >
-            Request Availability
+            Check Availability
           </Link>
         </div>
       </section>
@@ -384,15 +382,11 @@ export default function PublicInspectorProfilePage() {
         />
 
         <Stat
-          label="Travel Radius"
-          value={
-            profile.driving_radius !== null &&
-            profile.driving_radius !== undefined
-              ? `${profile.driving_radius} ${
-                  profile.distance_unit || "miles"
-                }`
-              : "Contact for radius"
-          }
+          label="Travel Coverage"
+          value={formatTravelCoverage(
+            profile.driving_radius,
+            profile.distance_unit,
+          )}
         />
 
         <Stat
@@ -580,7 +574,7 @@ export default function PublicInspectorProfilePage() {
               href="/find-inspectors"
               className="primaryButton"
             >
-              Request Availability
+              Check Availability
             </Link>
           </section>
         </aside>
@@ -1088,6 +1082,27 @@ function formatDate(date: string) {
     month: "short",
     year: "numeric",
   }).format(new Date(`${date}T00:00:00`));
+}
+
+
+function formatTravelCoverage(
+  radius: number | null | undefined,
+  unit: string | null | undefined,
+) {
+  if (radius === null || radius === undefined) {
+    return "Contact for coverage";
+  }
+
+  const miles =
+    unit === "kilometers"
+      ? radius * 0.621371
+      : radius;
+
+  if (miles <= 50) return "Local travel";
+  if (miles <= 150) return "Regional travel";
+  if (miles <= 500) return "Extended regional travel";
+
+  return "National travel";
 }
 
 function travelSummary(profile: InspectorProfile) {
