@@ -1,79 +1,41 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
 
-type ClientProfileSummary = {
-  full_name: string | null;
-  email: string | null;
-};
-
-type Inquiry = {
+type InquiryRow = {
   id: string;
-  client_id: string;
   request_text: string;
+  match_score: number | null;
   status: string;
   created_at: string;
-  profiles: ClientProfileSummary | null;
 };
-
-type InquiryQueryRow = Omit<Inquiry, "profiles"> & {
-  profiles:
-    | ClientProfileSummary
-    | ClientProfileSummary[]
-    | null;
-};
-
-const STATUSES = ["new", "viewed", "contacted", "accepted", "declined", "closed"];
 
 export default function InspectorInquiriesPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
-  const [loading, setLoading] = useState(true);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [items, setItems] = useState<InquiryRow[]>([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    void loadInquiries();
+    void load();
   }, []);
 
-  async function loadInquiries() {
-    setLoading(true);
-    const { data: authData } = await supabase.auth.getUser();
+  async function load() {
+    const { data: auth } = await supabase.auth.getUser();
 
-    if (!authData.user) {
-      setLoggedIn(false);
-      setLoading(false);
+    if (!auth.user) {
+      setMessage("Log in as an inspector to view requests.");
       return;
     }
-
-    setLoggedIn(true);
 
     const { data, error } = await supabase
       .from("client_inquiries")
-      .select("id,client_id,request_text,status,created_at,profiles(full_name,email)")
-      .eq("inspector_id", authData.user.id)
+      .select("id,request_text,match_score,status,created_at")
+      .eq("inspector_id", auth.user.id)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      setMessage(error.message);
-      setInquiries([]);
-      setLoading(false);
-      return;
-    }
-
-    const normalizedInquiries: Inquiry[] = (
-      (data || []) as InquiryQueryRow[]
-    ).map((item) => ({
-      ...item,
-      profiles: Array.isArray(item.profiles)
-        ? item.profiles[0] ?? null
-        : item.profiles,
-    }));
-
-    setInquiries(normalizedInquiries);
-    setLoading(false);
+    if (error) setMessage(error.message);
+    setItems((data || []) as InquiryRow[]);
   }
 
   async function updateStatus(id: string, status: string) {
@@ -87,71 +49,46 @@ export default function InspectorInquiriesPage() {
       return;
     }
 
-    setInquiries((items) => items.map((item) => item.id === id ? { ...item, status } : item));
-    setMessage("Inquiry status updated.");
-  }
-
-  if (loading) return <section className="panel">Loading inquiries...</section>;
-
-  if (!loggedIn) {
-    return (
-      <section className="panel authPanel">
-        <p className="eyebrow">Inspector Inquiries</p>
-        <h1>Login required</h1>
-        <p className="muted">Log in to review client availability requests.</p>
-        <Link className="button" href="/login">Log in</Link>
-      </section>
+    setItems((current) =>
+      current.map((item) => item.id === id ? { ...item, status } : item)
     );
   }
 
   return (
-    <>
-      <section className="hero dashboardHero">
-        <div>
-          <p className="eyebrow">Inspector Inquiries</p>
-          <h1>Incoming opportunities</h1>
-          <p className="muted">Review client requests and update each opportunity as it progresses.</p>
-        </div>
-        <Link className="button secondary" href="/dashboard">Edit Profile</Link>
+    <main className="page">
+      <section className="hero">
+        <p className="eyebrow">Inspector workspace</p>
+        <h1>Client availability requests</h1>
+        <p>Review anonymous assignment details and indicate whether you are interested.</p>
       </section>
 
-      {message && <p className={message.includes("updated") ? "success" : "notice"}>{message}</p>}
+      {message && <p className="notice">{message}</p>}
 
-      <section className="panel dashboardSection">
-        {inquiries.length === 0 ? (
-          <div className="emptyState">
-            <p>No client inquiries yet.</p>
-            <p className="muted">Complete your profile and keep availability current to improve matching.</p>
-          </div>
-        ) : (
-          <div className="inquiryGrid">
-            {inquiries.map((item) => (
-              <article className="inquiryCard" key={item.id}>
-                <div className="sectionHeader">
-                  <div>
-                    <h2>{item.profiles?.full_name || "Client"}</h2>
-                    <p className="muted">Received {formatDate(item.created_at)}</p>
-                  </div>
-                  <span className={`status status-${item.status}`}>{item.status}</span>
-                </div>
+      <section className="list">
+        {items.map((item) => (
+          <article key={item.id}>
+            <div>
+              <div className="top">
+                <strong>{item.match_score !== null ? `${item.match_score}% match` : "Client request"}</strong>
+                <span>{item.status}</span>
+              </div>
+              <p>{item.request_text}</p>
+              <small>{new Date(item.created_at).toLocaleString()}</small>
+            </div>
 
-                <p className="inquiryText">{item.request_text}</p>
+            <div className="actions">
+              <button onClick={() => void updateStatus(item.id, "accepted")}>Interested</button>
+              <button className="secondary" onClick={() => void updateStatus(item.id, "declined")}>Decline</button>
+            </div>
+          </article>
+        ))}
 
-                <label>
-                  Status
-                  <select value={item.status} onChange={(event) => void updateStatus(item.id, event.target.value)}>
-                    {STATUSES.map((status) => <option value={status} key={status}>{status}</option>)}
-                  </select>
-                </label>
-              </article>
-            ))}
-          </div>
-        )}
+        {!message && items.length === 0 && <p>No requests yet.</p>}
       </section>
-    </>
+
+      <style jsx>{`
+        .page{max-width:980px;margin:0 auto;padding:30px 18px 70px}.hero,.list article{border:1px solid #e5e7eb;border-radius:18px;background:#fff}.hero{padding:28px}.eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:0}.hero p,.list p,small{color:#64748b}.notice{padding:14px;background:#f1f5f9;border-radius:10px}.list{display:grid;gap:14px;margin-top:18px}.list article{display:flex;justify-content:space-between;gap:20px;padding:20px}.top{display:flex;gap:10px;align-items:center}.top span{padding:5px 8px;border-radius:999px;background:#f1f5f9;text-transform:capitalize}.actions{display:flex;align-items:center;gap:8px}.secondary{background:#fff;color:#111827;border:1px solid #cbd5e1}@media(max-width:700px){.list article{flex-direction:column}.actions{align-items:flex-start}}
+      `}</style>
+    </main>
   );
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
 }
