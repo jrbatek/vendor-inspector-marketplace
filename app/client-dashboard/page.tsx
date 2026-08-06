@@ -4,191 +4,135 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
 
-type Inquiry = {
-  id: string;
-  inspector_id: string;
-  request_text: string;
-  status: string;
-  created_at: string;
-  inspector_profiles:
-    | {
-        full_name: string | null;
-        headline: string | null;
-        base_city: string | null;
-        base_state: string | null;
-        availability_status: string | null;
-      }
-    | {
-        full_name: string | null;
-        headline: string | null;
-        base_city: string | null;
-        base_state: string | null;
-        availability_status: string | null;
-      }[]
-    | null;
-};
-
-type SearchRequest = {
+type SearchRow = {
   id: string;
   request_text: string;
   result_count: number;
+  status: string;
+  created_at: string;
+};
+
+type InquiryRow = {
+  id: string;
+  inspector_id: string;
+  request_text: string;
+  match_score: number | null;
+  status: string;
   created_at: string;
 };
 
 export default function ClientDashboardPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
+  const [searches, setSearches] = useState<SearchRow[]>([]);
+  const [inquiries, setInquiries] = useState<InquiryRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [searches, setSearches] = useState<SearchRequest[]>([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    void loadDashboard();
+    void load();
   }, []);
 
-  async function loadDashboard() {
-    setLoading(true);
-    setMessage("");
+  async function load() {
+    const { data: auth } = await supabase.auth.getUser();
 
-    const { data: authData } = await supabase.auth.getUser();
-    if (!authData.user) {
-      setLoggedIn(false);
+    if (!auth.user) {
+      setMessage("Log in to view the client dashboard.");
       setLoading(false);
       return;
     }
 
-    setLoggedIn(true);
-
-    const [inquiryResult, searchResult] = await Promise.all([
-      supabase
-        .from("client_inquiries")
-        .select(
-          "id,inspector_id,request_text,status,created_at,inspector_profiles(full_name,headline,base_city,base_state,availability_status)",
-        )
-        .eq("client_id", authData.user.id)
-        .order("created_at", { ascending: false }),
+    const [searchResult, inquiryResult] = await Promise.all([
       supabase
         .from("client_search_requests")
-        .select("id,request_text,result_count,created_at")
-        .eq("client_id", authData.user.id)
-        .order("created_at", { ascending: false })
-        .limit(10),
+        .select("id,request_text,result_count,status,created_at")
+        .eq("client_id", auth.user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("client_inquiries")
+        .select("id,inspector_id,request_text,match_score,status,created_at")
+        .eq("client_id", auth.user.id)
+        .order("created_at", { ascending: false }),
     ]);
 
-    const error = inquiryResult.error || searchResult.error;
-    if (error) setMessage(error.message);
+    if (searchResult.error || inquiryResult.error) {
+      setMessage(searchResult.error?.message || inquiryResult.error?.message || "Unable to load dashboard.");
+    }
 
-    setInquiries((inquiryResult.data || []) as Inquiry[]);
-    setSearches((searchResult.data || []) as SearchRequest[]);
+    setSearches((searchResult.data || []) as SearchRow[]);
+    setInquiries((inquiryResult.data || []) as InquiryRow[]);
     setLoading(false);
   }
 
-  if (loading) return <section className="panel">Loading client dashboard...</section>;
-
-  if (!loggedIn) {
-    return (
-      <section className="panel authPanel">
-        <p className="eyebrow">Client Dashboard</p>
-        <h1>Login required</h1>
-        <p className="muted">Log in to track searches and inspector availability requests.</p>
-        <div className="actions">
-          <Link className="button" href="/login">Log in</Link>
-          <Link className="button secondary" href="/register">Create account</Link>
-        </div>
-      </section>
-    );
-  }
-
-  const openCount = inquiries.filter((item) => !["declined", "closed"].includes(item.status)).length;
-
   return (
-    <>
-      <section className="hero dashboardHero">
-        <div>
-          <p className="eyebrow">Client Dashboard</p>
-          <h1>Inspection staffing activity</h1>
-          <p className="muted">Review searches, inspector requests, and current inquiry status.</p>
-        </div>
-        <Link className="button" href="/find-inspectors">New Inspector Search</Link>
-      </section>
-
-      <section className="metricGrid">
-        <Metric label="Availability Requests" value={String(inquiries.length)} />
-        <Metric label="Open Requests" value={String(openCount)} />
-        <Metric label="Saved Searches" value={String(searches.length)} />
+    <main className="dashboardPage">
+      <section className="hero">
+        <p className="eyebrow">Client workspace</p>
+        <h1>Inspection staffing requests</h1>
+        <p>Track searches, availability requests, and anonymous candidate responses.</p>
+        <Link className="primaryButton" href="/find-inspectors">Start New Request</Link>
       </section>
 
       {message && <p className="notice">{message}</p>}
 
-      <section className="panel dashboardSection">
-        <div className="sectionHeader">
-          <h2>Availability Requests</h2>
-          <span className="muted">Newest first</span>
-        </div>
+      {!loading && !message && (
+        <>
+          <section className="stats">
+            <Stat label="Saved Searches" value={searches.length} />
+            <Stat label="Availability Requests" value={inquiries.length} />
+            <Stat label="Open Requests" value={inquiries.filter((item) => !["declined","closed"].includes(item.status)).length} />
+          </section>
 
-        {inquiries.length === 0 ? (
-          <div className="emptyState">
-            <p>No requests yet.</p>
-            <Link href="/find-inspectors">Find inspectors →</Link>
-          </div>
-        ) : (
-          <div className="tableList">
-            {inquiries.map((item) => {
-              const inspector = Array.isArray(item.inspector_profiles)
-                ? item.inspector_profiles[0] ?? null
-                : item.inspector_profiles;
+          <section className="panel">
+            <h2>Availability requests</h2>
+            {inquiries.length === 0 ? (
+              <p>No availability requests yet.</p>
+            ) : (
+              <div className="list">
+                {inquiries.map((item) => (
+                  <article key={item.id}>
+                    <div>
+                      <strong>Inspector #{item.inspector_id.replace(/-/g, "").slice(-6).toUpperCase()}</strong>
+                      <p>{item.request_text}</p>
+                    </div>
+                    <div className="right">
+                      {item.match_score !== null && <span>{item.match_score}% match</span>}
+                      <span className="status">{item.status}</span>
+                      <Link href={`/inspectors/${item.inspector_id}`}>Review qualifications</Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
 
-              return (
-                <article className="dashboardRow" key={item.id}>
-                  <div>
-                    <h3>{inspector?.full_name || "Inspector"}</h3>
-                    <p className="muted">{inspector?.headline || "Vendor Inspection Professional"}</p>
-                    <p className="requestPreview">{item.request_text}</p>
-                  </div>
-                  <div className="rowMeta">
-                    <StatusBadge status={item.status} />
-                    <span>{formatDate(item.created_at)}</span>
-                    <Link href={`/inspectors/${item.inspector_id}`}>View profile</Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
+          <section className="panel">
+            <h2>Recent searches</h2>
+            {searches.length === 0 ? (
+              <p>No searches saved yet.</p>
+            ) : (
+              <div className="list">
+                {searches.map((item) => (
+                  <article key={item.id}>
+                    <div>
+                      <strong>{item.result_count} inspectors evaluated</strong>
+                      <p>{item.request_text}</p>
+                    </div>
+                    <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
 
-      <section className="panel dashboardSection">
-        <div className="sectionHeader">
-          <h2>Recent Searches</h2>
-          <Link href="/find-inspectors">Run another search</Link>
-        </div>
-
-        {searches.length === 0 ? (
-          <p className="muted">No searches have been saved yet.</p>
-        ) : (
-          <div className="searchHistory">
-            {searches.map((item) => (
-              <article key={item.id}>
-                <p>{item.request_text}</p>
-                <div className="muted">{item.result_count} results · {formatDate(item.created_at)}</div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-    </>
+      <style jsx>{`
+        .dashboardPage{max-width:1080px;margin:0 auto;padding:30px 18px 70px}.hero,.panel,.stat{border:1px solid #e5e7eb;border-radius:18px;background:#fff}.hero{padding:30px}.eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:0}.hero p{color:#64748b}.primaryButton{display:inline-flex;margin-top:10px;padding:11px 15px;border-radius:10px;background:#111827;color:#fff;text-decoration:none;font-weight:800}.notice{padding:14px;border-radius:10px;background:#f1f5f9}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.stat{padding:18px}.stat span{display:block;color:#64748b;font-size:.78rem;text-transform:uppercase}.stat strong{font-size:1.6rem}.panel{padding:22px;margin-top:16px}.panel h2{margin-top:0}.list{display:grid;gap:10px}.list article{display:flex;justify-content:space-between;gap:18px;padding:15px;border:1px solid #e5e7eb;border-radius:12px}.list p{margin:6px 0 0;color:#64748b}.right{display:flex;align-items:flex-end;gap:7px;flex-direction:column}.status{padding:5px 8px;border-radius:999px;background:#f1f5f9;text-transform:capitalize}@media(max-width:700px){.stats{grid-template-columns:1fr}.list article{flex-direction:column}.right{align-items:flex-start}}
+      `}</style>
+    </main>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return <article className="metricCard"><span>{label}</span><strong>{value}</strong></article>;
-}
-
-function StatusBadge({ status }: { status: string }) {
-  return <span className={`status status-${status}`}>{status.replaceAll("_", " ")}</span>;
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+function Stat({ label, value }: { label: string; value: number }) {
+  return <div className="stat"><span>{label}</span><strong>{value}</strong></div>;
 }
