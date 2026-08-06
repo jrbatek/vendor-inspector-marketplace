@@ -4,14 +4,16 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
 import {
+  inspectorLabel,
   parseRequest,
   rankInspectors,
   type MatchResult,
+  type ReferenceItem,
   type SearchInspector,
 } from "@/lib/clientSearch";
 
 const EXAMPLE =
-  "I need an API 510 inspector near Houston for a refinery turnaround for two weeks. TWIC required. Budget is $900 per day.";
+  "I need an API 570 inspector near Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Budget is $950 per day.";
 
 export default function FindInspectorsPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
@@ -20,29 +22,37 @@ export default function FindInspectorsPage() {
   const [results, setResults] = useState<MatchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState("");
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
 
   async function loadTextFile(file?: File) {
     if (!file) return;
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["txt", "md", "csv", "json"].includes(ext || "")) {
-      setMessage("For this free first version, paste PDF/Word text into the box. TXT, MD, CSV, and JSON uploads work directly.");
+    const extension = file.name.split(".").pop()?.toLowerCase();
+
+    if (!["txt", "md", "csv", "json"].includes(extension || "")) {
+      setMessage("Paste PDF or Word scope text into the request box. TXT, MD, CSV, and JSON files load directly.");
       return;
     }
+
     setText((await file.text()).slice(0, 20000));
-    setMessage(`Loaded ${file.name}.`);
+    setMessage(`Loaded ${file.name}. Review the text and search.`);
   }
 
   async function search() {
-    if (!text.trim()) return setMessage("Describe the inspection requirement first.");
+    if (!text.trim()) {
+      setMessage("Describe the inspection assignment first.");
+      return;
+    }
+
     setSearching(true);
     setMessage("");
+    setSelected({});
 
     const interpreted = parseRequest(text);
     setParsed(interpreted);
 
     const queries = await Promise.all([
       supabase.from("inspector_profiles").select(
-        "inspector_id,full_name,headline,biography,base_city,base_state,base_country,years_experience,day_rate,currency,availability_status,international_travel,is_verified"
+        "inspector_id,primary_discipline,biography,base_city,base_state,base_country,years_experience,day_rate,currency,availability_status,available_from,domestic_travel,international_travel,remote_review_available,is_verified"
       ),
       supabase.from("inspector_equipment").select("profile_id,equipment_types(id,name,code,category)"),
       supabase.from("inspector_activities").select("profile_id,inspection_activities(id,name,code,category)"),
@@ -50,97 +60,148 @@ export default function FindInspectorsPage() {
       supabase.from("inspector_certifications").select("profile_id,certifications(id,name,code,category)"),
       supabase.from("inspector_codes_standards").select("profile_id,codes_standards(id,name,code,category)"),
       supabase.from("inspector_industries").select("profile_id,industries(id,name,code,category)"),
+      supabase.from("inspector_languages").select("profile_id,languages(id,name,code,region)"),
       supabase.from("inspector_travel_credentials").select("profile_id,travel_credentials(id,name,code,category)"),
     ]);
 
-    const firstError = queries.find(q => q.error)?.error;
-    if (firstError) {
-      setMessage(firstError.message);
+    const error = queries.find((query) => query.error)?.error;
+    if (error) {
+      setMessage(error.message);
       setSearching(false);
       return;
     }
 
     const [
       profiles, equipment, activities, ndt, certifications,
-      codes, industries, travel
+      codes, industries, languages, travel,
     ] = queries;
 
-    const group = (rows: any[] | null, key: string) => {
-      const output: Record<string, any[]> = {};
+    const group = (
+      rows: any[] | null,
+      relationship: string,
+    ): Record<string, ReferenceItem[]> => {
+      const grouped: Record<string, ReferenceItem[]> = {};
+
       for (const row of rows || []) {
-        if (!row[key]) continue;
-        if (!output[row.profile_id]) output[row.profile_id] = [];
-        output[row.profile_id].push(row[key]);
+        const related = row[relationship];
+        if (!related || !row.profile_id) continue;
+        if (!grouped[row.profile_id]) grouped[row.profile_id] = [];
+        grouped[row.profile_id].push(related);
       }
-      return output;
+
+      return grouped;
     };
 
-    const byEquipment = group(equipment.data, "equipment_types");
-    const byActivities = group(activities.data, "inspection_activities");
-    const byNdt = group(ndt.data, "ndt_methods");
-    const byCert = group(certifications.data, "certifications");
-    const byCodes = group(codes.data, "codes_standards");
-    const byIndustries = group(industries.data, "industries");
-    const byTravel = group(travel.data, "travel_credentials");
+    const equipmentByProfile = group(equipment.data, "equipment_types");
+    const activitiesByProfile = group(activities.data, "inspection_activities");
+    const ndtByProfile = group(ndt.data, "ndt_methods");
+    const certificationsByProfile = group(certifications.data, "certifications");
+    const codesByProfile = group(codes.data, "codes_standards");
+    const industriesByProfile = group(industries.data, "industries");
+    const languagesByProfile = group(languages.data, "languages");
+    const travelByProfile = group(travel.data, "travel_credentials");
 
-    const inspectors: SearchInspector[] = (profiles.data || []).map((p: any) => ({
-      ...p,
-      equipment: byEquipment[p.inspector_id] || [],
-      activities: byActivities[p.inspector_id] || [],
-      ndtMethods: byNdt[p.inspector_id] || [],
-      certifications: byCert[p.inspector_id] || [],
-      codes: byCodes[p.inspector_id] || [],
-      industries: byIndustries[p.inspector_id] || [],
-      travelCredentials: byTravel[p.inspector_id] || [],
+    const inspectors: SearchInspector[] = (profiles.data || []).map((profile: any) => ({
+      ...profile,
+      equipment: equipmentByProfile[profile.inspector_id] || [],
+      activities: activitiesByProfile[profile.inspector_id] || [],
+      ndtMethods: ndtByProfile[profile.inspector_id] || [],
+      certifications: certificationsByProfile[profile.inspector_id] || [],
+      codes: codesByProfile[profile.inspector_id] || [],
+      industries: industriesByProfile[profile.inspector_id] || [],
+      languages: languagesByProfile[profile.inspector_id] || [],
+      travelCredentials: travelByProfile[profile.inspector_id] || [],
     }));
 
     const ranked = rankInspectors(interpreted, inspectors);
     setResults(ranked);
     setSearching(false);
 
-    const { data: authData } = await supabase.auth.getUser();
-
+    const { data: auth } = await supabase.auth.getUser();
     await supabase.from("client_search_requests").insert({
-      client_id: authData.user?.id || null,
+      client_id: auth.user?.id || null,
       request_text: text,
       parsed_request: interpreted,
       result_count: ranked.length,
+      status: "draft",
     });
   }
 
-  async function requestAvailability(inspector: MatchResult) {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      setMessage("Log in or register before requesting availability.");
+  async function createRequest() {
+    const selectedInspectors = results.filter((result) => selected[result.inspector_id]);
+
+    if (!selectedInspectors.length) {
+      setMessage("Select at least one inspector before sending the request.");
       return;
     }
 
-    const { error } = await supabase.from("client_inquiries").insert({
-      client_id: data.user.id,
-      inspector_id: inspector.inspector_id,
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) {
+      setMessage("Log in or register as a client before sending availability requests.");
+      return;
+    }
+
+    const requestId = crypto.randomUUID();
+    const requestInsert = await supabase.from("client_requests").insert({
+      id: requestId,
+      client_id: auth.user.id,
       request_text: text,
-      status: "new",
+      parsed_request: parsed,
+      status: "submitted",
     });
 
-    setMessage(error ? error.message : `Availability request sent for ${inspector.full_name || "this inspector"}.`);
+    if (requestInsert.error) {
+      setMessage(requestInsert.error.message);
+      return;
+    }
+
+    const inquiryRows = selectedInspectors.map((inspector) => ({
+      client_id: auth.user!.id,
+      inspector_id: inspector.inspector_id,
+      client_request_id: requestId,
+      request_text: text,
+      match_score: inspector.score,
+      status: "new",
+    }));
+
+    const inquiryInsert = await supabase.from("client_inquiries").insert(inquiryRows);
+    if (inquiryInsert.error) {
+      setMessage(inquiryInsert.error.message);
+      return;
+    }
+
+    setMessage(`Request sent to ${selectedInspectors.length} inspector${selectedInspectors.length === 1 ? "" : "s"}.`);
   }
 
   return (
-    <main className="page">
-      <section className="hero">
-        <p className="eyebrow">InspectSource Client Portal</p>
-        <h1>Describe the inspector you need</h1>
-        <p>Use plain English. InspectSource interprets the request and ranks profiles using stored facts.</p>
+    <main className="clientPage">
+      <section className="intakeCard">
+        <p className="eyebrow">InspectSource Client Assistant</p>
+        <h1>Tell us what inspection support you need</h1>
+        <p className="intro">
+          Describe the assignment naturally. InspectSource converts it into structured requirements,
+          verifies profile facts, and ranks anonymous inspectors by fit.
+        </p>
 
-        <textarea rows={8} value={text} onChange={e => setText(e.target.value)} />
+        <textarea
+          rows={8}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          aria-label="Inspection assignment"
+        />
 
         <div className="actions">
-          <label className="upload">
-            Add scope file
-            <input type="file" onChange={e => void loadTextFile(e.target.files?.[0])} />
+          <label className="fileButton">
+            Add scope text file
+            <input
+              type="file"
+              accept=".txt,.md,.csv,.json,.pdf,.doc,.docx"
+              onChange={(event) => void loadTextFile(event.target.files?.[0])}
+            />
           </label>
-          <button onClick={() => void search()} disabled={searching}>
-            {searching ? "Searching..." : "Find Inspectors"}
+
+          <button type="button" onClick={() => void search()} disabled={searching}>
+            {searching ? "Analyzing requirement..." : "Find Qualified Inspectors"}
           </button>
         </div>
 
@@ -148,68 +209,129 @@ export default function FindInspectorsPage() {
       </section>
 
       {parsed && (
-        <section className="understood">
-          <h2>InspectSource understood</h2>
+        <section className="understoodCard">
+          <div>
+            <p className="eyebrow">Requirement summary</p>
+            <h2>InspectSource understood</h2>
+          </div>
+
           <div className="tags">
             {parsed.location && <span>Location: {parsed.location}</span>}
-            {parsed.durationDays && <span>{parsed.durationDays} days</span>}
-            {parsed.maximumDayRate && <span>Max ${parsed.maximumDayRate}/day</span>}
+            {parsed.startDate && <span>Start: {parsed.startDate}</span>}
+            {parsed.durationDays && <span>Duration: {parsed.durationDays} days</span>}
+            {parsed.maximumDayRate && <span>Budget: up to ${parsed.maximumDayRate}/day</span>}
             {parsed.minimumYearsExperience && <span>{parsed.minimumYearsExperience}+ years</span>}
-            {parsed.availabilityRequired && <span>Availability required</span>}
-            {parsed.terms.slice(0, 12).map(term => <span key={term}>{term}</span>)}
+            {parsed.internationalTravelRequired && <span>International/offshore travel</span>}
+            {parsed.remoteAllowed && <span>Remote review allowed</span>}
+            {parsed.requiredTerms.slice(0, 12).map((term) => <span key={term}>{term}</span>)}
           </div>
         </section>
       )}
 
       {parsed && (
-        <section className="results">
-          <h2>{results.length} inspectors found</h2>
+        <section className="resultsSection">
+          <div className="resultsHeader">
+            <div>
+              <p className="eyebrow">Anonymous ranked candidates</p>
+              <h2>{results.length} inspectors evaluated</h2>
+            </div>
 
-          {results.map(inspector => (
-            <article className="card" key={inspector.inspector_id}>
-              <div className="score">{inspector.score}%</div>
-              <div>
-                <h3>{inspector.full_name || "Inspector"}</h3>
-                <p>{inspector.headline || "Vendor Inspection Professional"}</p>
+            <button type="button" onClick={() => void createRequest()}>
+              Send Availability Request
+            </button>
+          </div>
 
-                <div className="meta">
-                  <span>{[inspector.base_city, inspector.base_state].filter(Boolean).join(", ") || "Location not listed"}</span>
-                  {inspector.years_experience !== null && <span>{inspector.years_experience}+ years</span>}
-                  <span>{inspector.availability_status || "Availability not listed"}</span>
-                  <span>{rate(inspector.day_rate, inspector.currency)}</span>
-                </div>
+          <div className="resultList">
+            {results.map((inspector) => (
+              <article className="resultCard" key={inspector.inspector_id}>
+                <label className="selectBox">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(selected[inspector.inspector_id])}
+                    onChange={(event) =>
+                      setSelected((current) => ({
+                        ...current,
+                        [inspector.inspector_id]: event.target.checked,
+                      }))
+                    }
+                  />
+                  Select
+                </label>
 
-                <div className="columns">
-                  <div>
-                    <strong>Why it matched</strong>
-                    <ul>{(inspector.reasons.length ? inspector.reasons : ["Profile available"]).slice(0, 5).map(x => <li key={x}>{x}</li>)}</ul>
-                  </div>
-                  {inspector.gaps.length > 0 && (
+                <div className="score">{inspector.score}%</div>
+
+                <div className="resultBody">
+                  <div className="titleRow">
                     <div>
-                      <strong>Confirm before hiring</strong>
-                      <ul>{inspector.gaps.slice(0, 4).map(x => <li key={x}>{x}</li>)}</ul>
+                      <h3>{inspectorLabel(inspector)}</h3>
+                      <p>
+                        {[inspector.base_city, inspector.base_state, inspector.base_country]
+                          .filter(Boolean).join(", ") || "Location available through InspectSource"}
+                      </p>
                     </div>
-                  )}
-                </div>
 
-                <div className="actions">
-                  <Link href={`/inspectors/${inspector.inspector_id}`} className="secondary">View Profile</Link>
-                  <button onClick={() => void requestAvailability(inspector)}>Request Availability</button>
+                    <span className={inspector.is_verified ? "verified" : "prequalified"}>
+                      {inspector.is_verified ? "Verified by InspectSource" : "Pre-Qualified"}
+                    </span>
+                  </div>
+
+                  <div className="facts">
+                    {inspector.years_experience !== null && <span>{inspector.years_experience}+ years</span>}
+                    <span>{inspector.availability_status || "Confirm availability"}</span>
+                    <span>{formatRate(inspector.day_rate, inspector.currency)}</span>
+                  </div>
+
+                  <div className="columns">
+                    <div>
+                      <strong>Why this inspector matched</strong>
+                      <ul>
+                        {(inspector.reasons.length
+                          ? inspector.reasons
+                          : ["Qualification profile available for review"]
+                        ).slice(0, 6).map((reason) => <li key={reason}>{reason}</li>)}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <strong>Items to confirm</strong>
+                      <ul>
+                        {(inspector.questions.length
+                          ? inspector.questions
+                          : ["No major gaps identified from the stored profile"]
+                        ).slice(0, 5).map((question) => <li key={question}>{question}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <Link
+                    className="qualificationLink"
+                    href={`/inspectors/${inspector.inspector_id}`}
+                  >
+                    Review Qualifications
+                  </Link>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </section>
       )}
 
       <style jsx>{`
-        .page{max-width:1080px;margin:0 auto;padding:28px 18px 70px}.hero,.understood,.card{border:1px solid rgba(127,127,127,.28);border-radius:18px;background:rgba(127,127,127,.04)}.hero{padding:28px}.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:2rem;margin:0}.hero textarea{width:100%;box-sizing:border-box;margin-top:14px;padding:15px;border:1px solid rgba(127,127,127,.4);border-radius:12px;background:transparent;color:inherit;font:inherit}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.upload,.secondary{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid rgba(127,127,127,.4);border-radius:10px;text-decoration:none;color:inherit;cursor:pointer}.upload input{display:none}.notice{padding:12px;border-radius:10px;background:rgba(127,127,127,.1)}.understood{padding:20px;margin-top:16px}.tags,.meta{display:flex;gap:8px;flex-wrap:wrap}.tags span,.meta span{padding:7px 10px;border-radius:999px;background:rgba(127,127,127,.1);font-size:.86rem}.results{margin-top:26px}.card{display:grid;grid-template-columns:84px 1fr;gap:18px;padding:20px;margin-bottom:14px}.score{display:grid;place-items:center;width:70px;height:70px;border:2px solid currentColor;border-radius:50%;font-size:1.15rem;font-weight:900}.card h3{margin:0}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}.columns ul{padding-left:20px}@media(max-width:700px){.card{grid-template-columns:1fr}.columns{grid-template-columns:1fr}}
+        .clientPage{max-width:1120px;margin:0 auto;padding:30px 18px 70px}.intakeCard,.understoodCard,.resultCard{border:1px solid #e5e7eb;border-radius:18px;background:#fff}.intakeCard{padding:30px;box-shadow:0 12px 34px rgba(17,24,39,.06)}.eyebrow{margin:0 0 6px;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.intakeCard h1{margin:0;font-size:2rem}.intro{max-width:780px;color:#64748b;line-height:1.65}.intakeCard textarea{width:100%;box-sizing:border-box;margin-top:14px;padding:16px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;resize:vertical}.actions,.resultsHeader{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:15px}.fileButton,.qualificationLink{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;color:#111827;text-decoration:none;cursor:pointer}.fileButton input{display:none}.notice{padding:12px 14px;border-radius:10px;background:#f1f5f9}.understoodCard{margin-top:18px;padding:22px}.understoodCard h2,.resultsHeader h2{margin:0}.tags,.facts{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.tags span,.facts span{padding:7px 10px;border-radius:999px;background:#f1f5f9;font-size:.84rem}.resultsSection{margin-top:28px}.resultList{display:grid;gap:15px;margin-top:16px}.resultCard{position:relative;display:grid;grid-template-columns:75px minmax(0,1fr);gap:18px;padding:22px}.selectBox{position:absolute;right:18px;bottom:18px;font-size:.84rem}.score{display:grid;place-items:center;width:68px;height:68px;border:2px solid #111827;border-radius:50%;font-size:1.15rem;font-weight:900}.titleRow{display:flex;justify-content:space-between;gap:12px;padding-right:100px}.titleRow h3{margin:0;font-size:1.18rem}.titleRow p{margin:6px 0 0;color:#64748b}.verified,.prequalified{padding:6px 9px;border-radius:999px;font-size:.72rem;font-weight:800;white-space:nowrap}.verified{background:#dcfce7;color:#166534}.prequalified{background:#f1f5f9;color:#475569}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:17px 0}.columns ul{margin:8px 0 0;padding-left:20px}.columns li{margin-bottom:5px}.qualificationLink{width:max-content}@media(max-width:760px){.resultCard{grid-template-columns:1fr}.titleRow{flex-direction:column;padding-right:0}.columns{grid-template-columns:1fr}.selectBox{position:static;width:max-content}}
       `}</style>
     </main>
   );
 }
 
-function rate(value: number | null, currency: string | null) {
-  if (value === null) return "Rate not listed";
-  return `${currency || "USD"} ${value}/day`;
+function formatRate(value: number | null, currency: string | null) {
+  if (value === null) return "Rate available upon request";
+  try {
+    return `${new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: 0,
+    }).format(value)}/day`;
+  } catch {
+    return `${currency || "USD"} ${value}/day`;
+  }
 }
