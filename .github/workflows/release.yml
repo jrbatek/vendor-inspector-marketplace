@@ -1,0 +1,54 @@
+name: Create GitHub release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version, for example v0.6.0
+        required: true
+        type: string
+      title:
+        description: Release title
+        required: true
+        type: string
+      prerelease:
+        description: Mark as prerelease
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create release from current main branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          TITLE: ${{ inputs.title }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          git fetch origin main
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists."
+            exit 1
+          fi
+
+          EXTRA_FLAGS=""
+          if [ "$PRERELEASE" = "true" ]; then
+            EXTRA_FLAGS="--prerelease"
+          fi
+
+          gh release create "$VERSION" \
+            --target origin/main \
+            --title "$TITLE" \
+            --generate-notes \
+            $EXTRA_FLAGS
