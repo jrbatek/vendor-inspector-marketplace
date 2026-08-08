@@ -1,0 +1,50 @@
+name: Production smoke test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PRODUCTION_URL: https://vendor-inspector-marketplace.vercel.app
+    steps:
+      - name: Wait for deployment and verify live routes
+        run: |
+          set -euo pipefail
+          routes=("/" "/project-coordinator" "/inspectors")
+          for attempt in $(seq 1 12); do
+            echo "Production smoke attempt $attempt of 12"
+            all_ok=true
+            for route in "${routes[@]}"; do
+              body="$(mktemp)"
+              status="$(curl -L -sS -o "$body" -w '%{http_code}' "$PRODUCTION_URL$route" || true)"
+              if [ "$status" -lt 200 ] || [ "$status" -ge 400 ] || ! grep -qi 'InspectSource' "$body"; then
+                echo "Not ready: $route returned HTTP $status or expected content was absent."
+                all_ok=false
+              else
+                echo "OK: $route ($status)"
+              fi
+              rm -f "$body"
+            done
+
+            if [ "$all_ok" = true ]; then
+              echo "Production deployment passed smoke testing."
+              exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "Production did not pass smoke testing within the deployment window."
+          exit 1
