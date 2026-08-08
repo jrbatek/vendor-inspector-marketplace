@@ -1,28 +1,60 @@
-# InspectSource Free Automation
+# InspectSource Autonomous Development Pipeline v1
 
-This repository uses free GitHub Actions plus the existing GitHub-to-Vercel integration.
+InspectSource uses GitHub Actions, the existing GitHub-to-Vercel connection, and versioned Supabase migrations so routine development can be handled without file-by-file copy/paste.
 
-## What is automated
+## Operating model
 
-### Application validation
+The product owner describes a change. Development work is performed on a branch named `autonomous-*`. A pull request is opened. GitHub validates the change. If every validation gate passes, the autonomous pull request is eligible for automatic merge. Vercel then deploys `main`, and a production smoke workflow checks the live site.
 
-`.github/workflows/validate.yml` runs automatically on pushes and pull requests.
+Human intervention is reserved for product decisions, credential setup, or genuinely destructive/high-risk changes.
+
+## Validation gate
+
+`.github/workflows/validate.yml` runs on every pull request to `main` and every push to `main`.
 
 It performs:
 
 1. Dependency installation
-2. TypeScript validation
-3. A full Next.js production build
+2. Regression tests (`npm test`)
+3. Supabase migration safety scan
+4. TypeScript validation
+5. Full Next.js production build
+6. Local post-build route smoke tests
 
-A red workflow means the change should not be treated as release-ready.
+A failed gate blocks an autonomous release.
 
-### Vercel deployment
+## Permanent regression tests
 
-Vercel remains connected directly to the `main` branch. A successful push to `main` triggers the existing Vercel deployment automatically.
+`tests/projectCoordinator.test.ts` contains the canonical client request used during development:
 
-### Supabase migrations
+> Need two API 570 inspectors in Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Budget is $950 per day. Please send CVs and confirm availability.
 
-`.github/workflows/supabase-migrations.yml` is intentionally manual for safety. It applies pending files in `supabase/migrations/` only after a user types `APPLY`.
+The test protects inspector count, location, start date, duration, budget, API 570/TWIC recognition, ranking behavior, and anonymity expectations. Bugs fixed in production should be converted into permanent regression tests whenever practical.
+
+## Autonomous merge gate
+
+`.github/workflows/auto-merge.yml` runs only after the main validation workflow completes successfully.
+
+Only pull requests whose source branch begins with `autonomous-` are eligible for automatic merge. Ordinary branches remain manual. Draft pull requests are never auto-merged.
+
+This branch-name rule is the explicit authorization boundary for autonomous code releases.
+
+## Vercel production deployment
+
+Vercel remains connected to `main`. Once an autonomous pull request is merged, Vercel deploys it using the existing integration.
+
+`.github/workflows/production-smoke.yml` then retries the live production site for several minutes and verifies the homepage, AI Project Coordinator, and inspector marketplace respond successfully and contain expected InspectSource content.
+
+## Supabase migrations
+
+Every database change belongs in `supabase/migrations/` as a new versioned migration. Do not paste production schema changes manually into Supabase once this pipeline is fully configured.
+
+`.github/workflows/supabase-migrations.yml` automatically runs when migration files reach `main`. Before applying anything it:
+
+1. Requires all three production deployment secrets
+2. Runs the migration safety scanner
+3. Links the configured Supabase project
+4. Applies pending versioned migrations
 
 Required GitHub repository secrets:
 
@@ -30,33 +62,33 @@ Required GitHub repository secrets:
 - `SUPABASE_PROJECT_REF`
 - `SUPABASE_DB_PASSWORD`
 
-The migration workflow should remain manual until a separate staging database exists.
+If one is missing, the database workflow fails visibly rather than silently skipping a migration.
 
-### GitHub releases
+## Migration safety
 
-`.github/workflows/release.yml` creates a versioned GitHub release with automatically generated notes from the current `main` branch.
+`scripts/check-migrations.mjs` blocks high-risk SQL patterns such as dropping a database/schema, truncating tables, deleting all auth users, or unguarded `DROP TABLE` statements.
 
-## Standard feature workflow
+Destructive database work must be treated as an exceptional reviewed change instead of bypassing the guard.
 
-1. Create a feature branch.
-2. Update code and add a new migration when needed.
-3. Open a pull request.
-4. Wait for the validation workflow to pass.
-5. Merge into `main`.
-6. Vercel deploys automatically.
-7. Run the Supabase migration workflow only when the release includes a migration.
-8. Test the affected production pages.
-9. Create a GitHub release when the feature is confirmed.
+## Local smoke validation
 
-## Migration rules
+`scripts/smoke-local.mjs` starts the built Next.js application with CI-only Supabase placeholders and verifies critical routes render before a release can be considered green.
 
-- Add new migrations under `supabase/migrations/`.
-- Use filenames such as `20260806210000_add_client_messages.sql`.
-- Never edit a migration after it has been applied to production.
-- Add a new corrective migration instead.
-- Use transactions where practical.
-- Make destructive changes explicit and reversible.
+## Standard autonomous feature workflow
 
-## Cost
+1. Create an `autonomous-*` branch from current `main`.
+2. Implement the requested change.
+3. Add/update tests for the behavior being changed.
+4. Add a versioned Supabase migration when necessary.
+5. Open a pull request to `main`.
+6. GitHub automatically runs regression, migration-safety, type, build, and local smoke checks.
+7. Failed checks are fixed on the branch and rerun.
+8. A green autonomous pull request merges automatically.
+9. Vercel deploys `main`.
+10. Production smoke tests verify the live application.
+11. If migrations were included, Supabase applies them automatically using GitHub secrets.
+12. Report milestone completion and any product-level testing worth doing.
 
-GitHub Actions is free within the repository's available allowance. Vercel and Supabase remain on their current free plans while InspectSource is in development.
+## Cost principle
+
+Prefer free automation first. GitHub Actions uses the repository's included runner allowance. Vercel and Supabase remain on their current free tiers during development. Add paid infrastructure only when real usage or commercial requirements justify it.

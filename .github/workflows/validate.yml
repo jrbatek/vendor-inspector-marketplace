@@ -2,7 +2,7 @@ name: Validate application
 
 on:
   push:
-    branches: [main, automation-setup]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -33,11 +33,23 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Run regression tests
+        run: npm test
+
+      - name: Scan database migrations for unsafe operations
+        run: npm run check:migrations
+
       - name: Type-check application
         run: npm run typecheck
 
       - name: Build application
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+
+      - name: Smoke-test built routes
+        run: npm run smoke:local
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
