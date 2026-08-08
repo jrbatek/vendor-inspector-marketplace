@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsx --test tests/*.test.ts",
     "test:coordinator": "tsx --test tests/projectCoordinator.test.ts",
     "check:migrations": "node scripts/check-migrations.mjs",
     "smoke:local": "node scripts/smoke-local.mjs",
