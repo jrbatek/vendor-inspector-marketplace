@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run typecheck && npm run build",
+    "test": "tsx --test tests/**/*.test.ts",
+    "test:coordinator": "tsx --test tests/projectCoordinator.test.ts",
+    "check:migrations": "node scripts/check-migrations.mjs",
+    "smoke:local": "node scripts/smoke-local.mjs",
+    "validate": "npm run test && npm run check:migrations && npm run typecheck && npm run build && npm run smoke:local",
     "start": "next start"
   },
   "dependencies": {
@@ -20,6 +24,7 @@
     "@types/node": "^20.16.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.2"
   }
 }
