@@ -11,6 +11,7 @@ export default function Nav() {
         <Link href="/client-dashboard">Client Dashboard</Link>
         <Link href="/dashboard">Inspector Profile</Link>
         <Link href="/inspector-inquiries">Inspector Requests</Link>
+        <Link href="/inspection-reports">Inspection Reports</Link>
         <Link href="/login">Login</Link>
         <Link href="/register">Register</Link>
       </nav>
