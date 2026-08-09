@@ -24,4 +24,4 @@ alter table public.assets add column if not exists equipment_family_code text re
 alter table public.assets add column if not exists model_number text;
 alter table public.assets add column if not exists factory_location text;
 alter table public.assets add column if not exists commodity_description text;
-alterm table public.inspection_reports add column if not exists equipment_family_code text references public.equipment_families(family_code);
+alter table public.inspection_reports add column if not exists equipment_family_code text references public.equipment_families(family_code);
