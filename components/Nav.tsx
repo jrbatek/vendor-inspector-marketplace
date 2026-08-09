@@ -5,6 +5,7 @@ export default function Nav() {
     <header className="nav">
       <Link href="/" className="brand">InspectSource</Link>
       <nav>
+        <Link href="/demo-showcase">Demo Showcase</Link>
         <Link href="/project-coordinator">AI Project Coordinator</Link>
         <Link href="/asset-intelligence">Asset Intelligence</Link>
         <Link href="/find-inspectors">Find Inspectors</Link>
