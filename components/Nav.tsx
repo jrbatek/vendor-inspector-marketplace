@@ -9,6 +9,7 @@ export default function Nav() {
         <Link href="/project-coordinator">AI Project Coordinator</Link>
         <Link href="/asset-intelligence">Asset Intelligence</Link>
         <Link href="/inspectorhub">InspectorHub</Link>
+        <Link href="/inspectorhub/schedule">InspectorHub Schedule</Link>
         <Link href="/find-inspectors">Find Inspectors</Link>
         <Link href="/inspectors">Browse Qualifications</Link>
         <Link href="/client-dashboard">Client Dashboard</Link>
