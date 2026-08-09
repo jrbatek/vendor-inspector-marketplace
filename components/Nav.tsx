@@ -6,6 +6,7 @@ export default function Nav() {
       <Link href="/" className="brand">InspectSource</Link>
       <nav>
         <Link href="/project-coordinator">AI Project Coordinator</Link>
+        <Link href="/asset-intelligence">Asset Intelligence</Link>
         <Link href="/find-inspectors">Find Inspectors</Link>
         <Link href="/inspectors">Browse Qualifications</Link>
         <Link href="/client-dashboard">Client Dashboard</Link>
