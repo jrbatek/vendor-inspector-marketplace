@@ -8,6 +8,7 @@ export default function Nav() {
         <Link href="/demo-showcase">Demo Showcase</Link>
         <Link href="/project-coordinator">AI Project Coordinator</Link>
         <Link href="/inspection-intelligence">Inspection Intelligence</Link>
+        <Link href="/equipment-intelligence">Equipment Intelligence</Link>
         <Link href="/asset-intelligence">Asset Intelligence</Link>
         <Link href="/inspectorhub">InspectorHub</Link>
         <Link href="/inspectorhub/schedule">InspectorHub Schedule</Link>
