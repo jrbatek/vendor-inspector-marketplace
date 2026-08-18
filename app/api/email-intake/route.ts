@@ -13,7 +13,7 @@ type IntakePayload = {
 };
 
 export async function POST(request: NextRequest) {
-  const expectedSecret = process.env.EMAIL_INTAKE_SECRET;
+  const expectedSecret = process.env.INSPECTSOURCE_EMAIL_SECRET || process.env.EMAIL_INTAKE_SECRET;
   if (!expectedSecret) {
     return NextResponse.json({ error: "Email intake is not configured." }, { status: 503 });
   }
