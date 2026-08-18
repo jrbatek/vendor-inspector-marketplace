@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 type Asset={id:string;asset_code:string;name:string;asset_type:string|null;manufacturer:string|null;criticality:string;metadata:any};
 type Risk={id:string;severity:string;title:string;supplier_name:string|null;schedule_impact:string|null;status:string};
 type Action={id:string;priority:string;recommendation:string;rationale:string|null;status:string};
@@ -36,6 +38,34 @@ export default function DemoShowcase(){
  const equipment=assets.filter(a=>a.asset_code!=="GCRE-2027");
  const attention=equipment.filter(a=>["attention","late"].includes(a.metadata?.status));
  return <main className="page">
+  <section className="requestHero">
+   <p className="eyebrow">InspectSource</p>
+   <h1>Request your inspection</h1>
+   <p className="requestIntro">Start the way you already work. Describe the requirement, email it to us, or select inspectors through the interface.</p>
+   <div className="requestOptions">
+    <article className="requestCard">
+     <span className="step">1</span>
+     <h2>Natural language request here</h2>
+     <p>Tell InspectSource what you need in plain English. Include the location, dates, equipment, certifications, scope, travel requirements, budget, or anything else you know.</p>
+     <Link className="primaryButton" href="/find-inspectors">Describe your inspection</Link>
+    </article>
+    <article className="requestCard">
+     <span className="step">2</span>
+     <h2>Email your requirements</h2>
+     <p>Keep using email. Send the scope, request, or requirements to our inspection-request inbox and the AI Project Coordinator can turn it into a staffing request.</p>
+     <a className="primaryButton" href="mailto:inspectsource2026@gmail.com?subject=Inspection%20Request">Email inspectsource2026@gmail.com</a>
+    </article>
+    <article className="requestCard">
+     <span className="step">3</span>
+     <h2>Select via an interface</h2>
+     <p>Browse qualified anonymous inspector profiles, review credentials and experience, and select the people you want InspectSource to contact.</p>
+     <Link className="primaryButton" href="/inspectors">Browse and select inspectors</Link>
+    </article>
+   </div>
+  </section>
+
+  <div className="sectionDivider"><span>What happens after the request</span></div>
+
   <section className="hero"><p className="eyebrow">Synthetic demonstration environment</p><h1>Gulf Coast Refinery Expansion</h1><p>A fictional $420M refinery expansion showing how InspectSource can continuously focus inspection resources on quality, supplier performance and critical-path risk.</p></section>
   <section className="demoNotice"><strong>Demo mode:</strong> This page uses built-in synthetic data so it is always available and never depends on production client data.</section>
   {project&&<>
@@ -44,7 +74,7 @@ export default function DemoShowcase(){
    <div className="cols"><section className="card"><h2>What the system is seeing</h2>{risks.map(r=><article className="item" key={r.id}><b>{r.severity.toUpperCase()}</b><div><strong>{r.title}</strong><p>{r.supplier_name}</p><small>{r.schedule_impact}</small></div></article>)}</section><section className="card"><h2>Coordinator feedback loop</h2>{actions.map(a=><article className="item" key={a.id}><b>{a.priority.toUpperCase()}</b><div><strong>{a.recommendation}</strong><p>{a.rationale}</p></div></article>)}</section></div>
    <section className="story"><h2>Demo story</h2><p><strong>Lone Star Process Equipment</strong> has repeated material-traceability and alloy-control failures on critical-path piping. InspectSource therefore proposes increasing surveillance to three visits per week and adding daily hydrotest readiness checks on PV-101.</p><p>At the same time, <strong>Gulf Thermal Systems</strong> has four clean surveillance visits and strong documentation performance, so the coordinator can reduce routine coverage there and reallocate inspection hours to the weak supplier.</p><p>This is the recursive loop: <strong>inspect → capture evidence → identify risk → change the inspection plan → inspect again.</strong></p></section>
   </>}
-  <style jsx>{`.page{max-width:1160px;margin:auto;padding:30px 18px 80px}.hero,.card,.story,.stat,.demoNotice{background:#fff;border:1px solid #e2e8f0;border-radius:18px}.hero{padding:30px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:4px 0;font-size:2rem}.hero p,.item p,small{color:#64748b}.demoNotice{padding:14px 18px;margin:16px 0;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat{padding:18px}.stat strong{font-size:1.8rem;display:block}.stat span{color:#64748b}.card,.story{padding:22px;margin-bottom:16px}.table article{display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:12px;padding:13px 0;border-top:1px solid #e2e8f0}.table article div{display:grid}.table article div span{color:#64748b}.table b{text-transform:capitalize}.late,.attention{color:#b45309}.on_track,.recovering{color:#166534}.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.item{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px 0;border-top:1px solid #e2e8f0}.item p{margin:4px 0}.story p{line-height:1.65}@media(max-width:760px){.stats,.cols{grid-template-columns:1fr 1fr}.table article{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}@media(max-width:480px){.stats,.cols{grid-template-columns:1fr}}`}</style>
+  <style jsx>{`.page{max-width:1160px;margin:auto;padding:30px 18px 80px}.requestHero,.hero,.card,.story,.stat,.demoNotice{background:#fff;border:1px solid #e2e8f0;border-radius:18px}.requestHero{padding:34px}.requestHero h1{font-size:2.4rem;margin:4px 0 8px}.requestIntro{max-width:760px;color:#64748b;font-size:1.05rem;line-height:1.55}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:285px}.requestCard h2{font-size:1.15rem;margin:14px 0 8px}.requestCard p{color:#64748b;line-height:1.55;flex:1}.step{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:800}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:700;margin-top:14px}.primaryButton:hover{background:#1e293b}.sectionDivider{display:flex;align-items:center;gap:14px;margin:34px 0 18px;color:#64748b;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.sectionDivider:before,.sectionDivider:after{content:"";height:1px;background:#cbd5e1;flex:1}.hero{padding:30px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:4px 0;font-size:2rem}.hero p,.item p,small{color:#64748b}.demoNotice{padding:14px 18px;margin:16px 0;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat{padding:18px}.stat strong{font-size:1.8rem;display:block}.stat span{color:#64748b}.card,.story{padding:22px;margin-bottom:16px}.table article{display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:12px;padding:13px 0;border-top:1px solid #e2e8f0}.table article div{display:grid}.table article div span{color:#64748b}.table b{text-transform:capitalize}.late,.attention{color:#b45309}.on_track,.recovering{color:#166534}.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.item{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px 0;border-top:1px solid #e2e8f0}.item p{margin:4px 0}.story p{line-height:1.65}@media(max-width:900px){.requestOptions{grid-template-columns:1fr}.requestCard{min-height:0}}@media(max-width:760px){.stats,.cols{grid-template-columns:1fr 1fr}.table article{grid-template-columns:1fr}.hero h1,.requestHero h1{font-size:1.6rem}}@media(max-width:480px){.stats,.cols{grid-template-columns:1fr}.requestHero{padding:24px}}`}</style>
  </main>
 }
 function Stat({n,l}:{n:string;l:string}){return <div className="stat"><strong>{n}</strong><span>{l}</span></div>}
