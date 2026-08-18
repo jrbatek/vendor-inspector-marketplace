@@ -82,7 +82,7 @@ function normalizeCountry(country:string|null):string{
 
 function inferRequestedCountry(location:string|null):string|null{
   if(!location)return null; const l=location.toLowerCase().replace(/,/g," ").replace(/\s+/g," ").trim();
-  for(const term of US_LOCATION_TERMS) if(l.includes(term)) return "united states";
+  for(const term of Array.from(US_LOCATION_TERMS)) if(l.includes(term)) return "united states";
   if(l.includes("singapore"))return "singapore";
   if(l.includes("canada"))return "canada";
   if(l.includes("uk")||l.includes("united kingdom")||l.includes("england"))return "united kingdom";
