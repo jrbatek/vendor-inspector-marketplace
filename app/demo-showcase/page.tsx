@@ -34,25 +34,14 @@ const actions:Action[]=[
 {id:"a4",priority:"normal",recommendation:"Reduce Gulf Thermal routine surveillance after final dimensional review",rationale:"Strong quality history supports reallocating inspection capacity to higher-risk suppliers.",status:"proposed"},
 ];
 
-const sampleEmail=`Hi InspectSource,
+const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
 
-We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.
-
-Requirements:
-• API 570 certification
-• Minimum 5 years refinery/petrochemical experience
-• Current TWIC card
-• Available for 10-12 hour shifts
-• Local Houston inspectors preferred
-
-Please send qualified CVs/resumes, availability, and rates.
-
-Thanks`;
+const sampleEmail=`Hi InspectSource,\n\nWe need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.\n\nRequirements:\n• API 570 certification\n• Minimum 5 years refinery/petrochemical experience\n• Current TWIC card\n• Available for 10-12 hour shifts\n• Local Houston inspectors preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
 
 const emailHref=`mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Houston Refinery Turnaround")}&body=${encodeURIComponent(sampleEmail)}`;
 
 export default function DemoShowcase(){
- const [requestText,setRequestText]=useState("");
+ const [requestText,setRequestText]=useState(sampleRequest);
  const project=assets.find(a=>a.asset_code==="GCRE-2027");
  const equipment=assets.filter(a=>a.asset_code!=="GCRE-2027");
  const attention=equipment.filter(a=>["attention","late"].includes(a.metadata?.status));
@@ -67,7 +56,7 @@ export default function DemoShowcase(){
      <span className="step">1</span>
      <h2>Natural language request here</h2>
      <p>Tell InspectSource what you need in plain English. Include the location, dates, equipment, certifications, scope, travel requirements, budget, or anything else you know.</p>
-     <textarea className="naturalInput" rows={6} value={requestText} onChange={(event)=>setRequestText(event.target.value)} placeholder="Example: I need two API 570 inspectors in Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Please send qualified CVs." aria-label="Describe your inspection request" />
+     <textarea className="naturalInput" rows={6} value={requestText} onChange={(event)=>setRequestText(event.target.value)} aria-label="Describe your inspection request" />
      <Link className="primaryButton" href={continueHref}>Find qualified inspectors</Link>
     </article>
     <article className="requestCard requestCardEmail">
@@ -80,8 +69,8 @@ export default function DemoShowcase(){
     <article className="requestCard">
      <span className="step">3</span>
      <h2>Select via an interface</h2>
-     <p>Browse qualified anonymous inspector profiles, review credentials and experience, and select the people you want InspectSource to contact.</p>
-     <Link className="primaryButton" href="/inspectors">Browse and select inspectors</Link>
+     <p>Use the same standard dropdowns a client would use. For this demo, the fields are pre-populated to represent the same Houston refinery request shown in Options 1 and 2.</p>
+     <Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link>
     </article>
    </div>
   </section>
