@@ -2,206 +2,261 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase";
-import type { InspectorProfile } from "@/lib/types";
-import InspectorCard, { type DirectoryInspector, type QualificationItem } from "@/components/InspectorCard";
 
-type FilterInspector = DirectoryInspector & {
-  equipment: QualificationItem[];
-  activities: QualificationItem[];
+type RefItem = { name?: string | null; code?: string | null };
+
+type InspectorOptionProfile = {
+  inspector_id: string;
+  primary_discipline?: string | null;
+  base_city?: string | null;
+  base_state?: string | null;
+  availability_status?: string | null;
 };
 
-const HOUSTON_AREA = ["houston","baytown","tomball","spring","cypress","pasadena","deer park","la porte","katy","sugar land","pearland"];
+const DEMO = {
+  inspectorsNeeded: "2",
+  startDate: "2026-09-14",
+  duration: "3 weeks",
+  location: "Houston area",
+  localPreference: "Local preferred",
+  discipline: "",
+  certification: "API 570",
+  minimumExperience: "5",
+  industry: "Refinery / Petrochemical",
+  travelCredential: "TWIC",
+  equipment: "",
+  activity: "",
+  availability: "",
+  shiftLength: "10-12 hours",
+  travel: "",
+  maxRate: "",
+};
 
 export default function InspectorsPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
-  const [inspectors, setInspectors] = useState<FilterInspector[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
   const [demoMode, setDemoMode] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [message, setMessage] = useState("");
 
-  const [location, setLocation] = useState("");
-  const [discipline, setDiscipline] = useState("");
-  const [certification, setCertification] = useState("");
-  const [equipment, setEquipment] = useState("");
-  const [activity, setActivity] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [travelCredential, setTravelCredential] = useState("");
-  const [minimumExperience, setMinimumExperience] = useState("");
-  const [availability, setAvailability] = useState("");
-  const [travel, setTravel] = useState("");
-  const [maxRate, setMaxRate] = useState("");
+  const [profiles, setProfiles] = useState<InspectorOptionProfile[]>([]);
+  const [certifications, setCertifications] = useState<string[]>(["API 570"]);
+  const [industries, setIndustries] = useState<string[]>(["Refinery / Petrochemical"]);
+  const [credentials, setCredentials] = useState<string[]>(["TWIC"]);
+  const [equipmentOptions, setEquipmentOptions] = useState<string[]>([]);
+  const [activityOptions, setActivityOptions] = useState<string[]>([]);
+
   const [inspectorsNeeded, setInspectorsNeeded] = useState("");
   const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState("");
-  const [shiftLength, setShiftLength] = useState("");
+  const [location, setLocation] = useState("");
   const [localPreference, setLocalPreference] = useState("");
+  const [discipline, setDiscipline] = useState("");
+  const [certification, setCertification] = useState("");
+  const [minimumExperience, setMinimumExperience] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [travelCredential, setTravelCredential] = useState("");
+  const [equipment, setEquipment] = useState("");
+  const [activity, setActivity] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [shiftLength, setShiftLength] = useState("");
+  const [travel, setTravel] = useState("");
+  const [maxRate, setMaxRate] = useState("");
 
   useEffect(() => {
     const isDemo = new URLSearchParams(window.location.search).get("demo") === "1";
     setDemoMode(isDemo);
     if (isDemo) applyDemoCriteria();
-    void loadInspectors();
-    const intervalId = window.setInterval(() => void loadInspectors(), 15000);
-    return () => window.clearInterval(intervalId);
+    void loadOptions();
   }, []);
 
   function applyDemoCriteria() {
-    setLocation("Houston area");
-    setCertification("API 570");
-    setIndustry("Refinery / Petrochemical");
-    setTravelCredential("TWIC");
-    setMinimumExperience("5");
-    setInspectorsNeeded("2");
-    setStartDate("2026-09-14");
-    setDuration("3 weeks");
-    setShiftLength("10-12 hours");
-    setLocalPreference("Local preferred");
+    setInspectorsNeeded(DEMO.inspectorsNeeded);
+    setStartDate(DEMO.startDate);
+    setDuration(DEMO.duration);
+    setLocation(DEMO.location);
+    setLocalPreference(DEMO.localPreference);
+    setDiscipline(DEMO.discipline);
+    setCertification(DEMO.certification);
+    setMinimumExperience(DEMO.minimumExperience);
+    setIndustry(DEMO.industry);
+    setTravelCredential(DEMO.travelCredential);
+    setEquipment(DEMO.equipment);
+    setActivity(DEMO.activity);
+    setAvailability(DEMO.availability);
+    setShiftLength(DEMO.shiftLength);
+    setTravel(DEMO.travel);
+    setMaxRate(DEMO.maxRate);
   }
 
-  async function loadInspectors() {
-    setLoading(true);
+  async function loadOptions() {
+    setLoadingOptions(true);
     setMessage("");
-    const [profilesResult, certificationsResult, ndtResult, industriesResult, travelResult, equipmentResult, activitiesResult] = await Promise.all([
-      supabase.from("inspector_profiles").select("*").order("created_at", { ascending: false }),
-      supabase.from("inspector_certifications").select("profile_id, certifications(id,name,code,category)"),
-      supabase.from("inspector_ndt_methods").select("profile_id, level, ndt_methods(id,name,code,category)"),
-      supabase.from("inspector_industries").select("profile_id, industries(id,name,code,category)"),
-      supabase.from("inspector_travel_credentials").select("profile_id, travel_credentials(id,name,code,category)"),
-      supabase.from("inspector_equipment").select("profile_id, equipment_types(id,name,code,category)"),
-      supabase.from("inspector_activities").select("profile_id, inspection_activities(id,name,code,category)"),
+
+    const [profilesResult, certResult, industryResult, credentialResult, equipmentResult, activitiesResult, ndtResult] = await Promise.all([
+      supabase.from("inspector_profiles").select("inspector_id,primary_discipline,base_city,base_state,availability_status"),
+      supabase.from("inspector_certifications").select("certifications(name,code)"),
+      supabase.from("inspector_industries").select("industries(name,code)"),
+      supabase.from("inspector_travel_credentials").select("travel_credentials(name,code)"),
+      supabase.from("inspector_equipment").select("equipment_types(name,code)"),
+      supabase.from("inspector_activities").select("inspection_activities(name,code)"),
+      supabase.from("inspector_ndt_methods").select("ndt_methods(name,code)"),
     ]);
 
-    const firstError = [profilesResult, certificationsResult, ndtResult, industriesResult, travelResult, equipmentResult, activitiesResult].find((result) => result.error)?.error;
+    const firstError = [profilesResult, certResult, industryResult, credentialResult, equipmentResult, activitiesResult, ndtResult].find((result) => result.error)?.error;
     if (firstError) {
       setMessage(firstError.message);
-      setInspectors([]);
-      setLoading(false);
+      setLoadingOptions(false);
       return;
     }
 
-    const groupRelated = (rows: any[] | null, relationshipName: string): Record<string, QualificationItem[]> => {
-      const grouped: Record<string, QualificationItem[]> = {};
-      for (const row of rows || []) {
-        const related = row[relationshipName];
-        if (!related || !row.profile_id) continue;
-        if (!grouped[row.profile_id]) grouped[row.profile_id] = [];
-        grouped[row.profile_id].push({ ...related, level: row.level || null });
-      }
-      return grouped;
-    };
+    const unique = (values: Array<string | null | undefined>, seeded: string[] = []) =>
+      Array.from(new Set([...seeded, ...values.filter(Boolean) as string[]])).sort((a, b) => a.localeCompare(b));
 
-    const certs = groupRelated(certificationsResult.data, "certifications");
-    const ndt = groupRelated(ndtResult.data, "ndt_methods");
-    const industries = groupRelated(industriesResult.data, "industries");
-    const credentials = groupRelated(travelResult.data, "travel_credentials");
-    const equipmentMap = groupRelated(equipmentResult.data, "equipment_types");
-    const activities = groupRelated(activitiesResult.data, "inspection_activities");
+    const relationshipValues = (rows: any[] | null, key: string) =>
+      (rows || []).flatMap((row) => {
+        const item = row[key] as RefItem | RefItem[] | null;
+        const list = Array.isArray(item) ? item : item ? [item] : [];
+        return list.flatMap((entry) => [entry.code, entry.name]).filter(Boolean) as string[];
+      });
 
-    const directoryInspectors: FilterInspector[] = ((profilesResult.data || []) as InspectorProfile[]).map((profile) => ({
-      profile,
-      certifications: certs[profile.inspector_id] || [],
-      ndtMethods: ndt[profile.inspector_id] || [],
-      industries: industries[profile.inspector_id] || [],
-      travelCredentials: credentials[profile.inspector_id] || [],
-      equipment: equipmentMap[profile.inspector_id] || [],
-      activities: activities[profile.inspector_id] || [],
-    }));
-
-    setInspectors(directoryInspectors);
-    setLoading(false);
+    setProfiles((profilesResult.data || []) as InspectorOptionProfile[]);
+    setCertifications(unique(relationshipValues(certResult.data, "certifications"), ["API 570"]));
+    setIndustries(unique(relationshipValues(industryResult.data, "industries"), ["Refinery / Petrochemical"]));
+    setCredentials(unique(relationshipValues(credentialResult.data, "travel_credentials"), ["TWIC"]));
+    setEquipmentOptions(unique(relationshipValues(equipmentResult.data, "equipment_types")));
+    setActivityOptions(unique([
+      ...relationshipValues(activitiesResult.data, "inspection_activities"),
+      ...relationshipValues(ndtResult.data, "ndt_methods"),
+    ]));
+    setLoadingOptions(false);
   }
 
-  const unique = (values: Array<string | null | undefined>, seeded: string[] = []) => Array.from(new Set([...seeded, ...values.filter(Boolean) as string[]])).sort((a,b)=>a.localeCompare(b));
-  const locations = useMemo(() => unique(inspectors.map((i) => [i.profile.base_city, i.profile.base_state].filter(Boolean).join(", ")), ["Houston area"]), [inspectors]);
-  const disciplines = useMemo(() => unique(inspectors.map((i) => i.profile.primary_discipline)), [inspectors]);
-  const certifications = useMemo(() => unique(inspectors.flatMap((i) => i.certifications.flatMap((x) => [x.code, x.name])), ["API 570"]), [inspectors]);
-  const equipmentOptions = useMemo(() => unique(inspectors.flatMap((i) => i.equipment.map((x) => x.name))), [inspectors]);
-  const activityOptions = useMemo(() => unique(inspectors.flatMap((i) => [...i.activities.map((x) => x.name), ...i.ndtMethods.flatMap((x) => [x.code, x.name])])), [inspectors]);
-  const industryOptions = useMemo(() => unique(inspectors.flatMap((i) => i.industries.map((x) => x.name)), ["Refinery / Petrochemical"]), [inspectors]);
-  const credentialOptions = useMemo(() => unique(inspectors.flatMap((i) => i.travelCredentials.flatMap((x) => [x.code, x.name])), ["TWIC"]), [inspectors]);
-  const availabilityOptions = useMemo(() => unique(inspectors.map((i) => i.profile.availability_status)), [inspectors]);
+  const uniqueProfileValues = (values: Array<string | null | undefined>, seeded: string[] = []) =>
+    Array.from(new Set([...seeded, ...values.filter(Boolean) as string[]])).sort((a, b) => a.localeCompare(b));
 
-  const hasCriteria = [location,discipline,certification,equipment,activity,industry,travelCredential,minimumExperience,availability,travel,maxRate].some((value) => value.trim() !== "");
+  const locations = useMemo(
+    () => uniqueProfileValues(profiles.map((p) => [p.base_city, p.base_state].filter(Boolean).join(", ")), ["Houston area"]),
+    [profiles],
+  );
+  const disciplines = useMemo(() => uniqueProfileValues(profiles.map((p) => p.primary_discipline)), [profiles]);
+  const availabilityOptions = useMemo(() => uniqueProfileValues(profiles.map((p) => p.availability_status)), [profiles]);
 
-  const filtered = useMemo(() => {
-    const normalize = (value: unknown) => String(value || "").trim().toLowerCase();
-    const includesItem = (items: QualificationItem[], value: string) => !value || items.some((item) => [item.name,item.code,item.category,item.level].filter(Boolean).join(" ").toLowerCase().includes(value));
-    const certText = normalize(certification);
-    const industryText = normalize(industry);
-    const credentialText = normalize(travelCredential);
-    const maxRateNumber = Number(maxRate);
-    const minExp = Number(minimumExperience);
-
-    return inspectors.filter((inspector) => {
-      const p = inspector.profile;
-      const city = normalize(p.base_city);
-      const state = normalize(p.base_state);
-      const locationMatch = !location || (location === "Houston area" ? state.includes("tx") && HOUSTON_AREA.some((name) => city.includes(name)) : normalize([p.base_city,p.base_state].filter(Boolean).join(", ")) === normalize(location));
-      const disciplineMatch = !discipline || normalize(p.primary_discipline) === normalize(discipline);
-      const certificationMatch = includesItem(inspector.certifications, certText);
-      const equipmentMatch = includesItem(inspector.equipment, normalize(equipment));
-      const activityMatch = !activity || includesItem(inspector.activities, normalize(activity)) || includesItem(inspector.ndtMethods, normalize(activity));
-      const industryMatch = !industryText || (industry === "Refinery / Petrochemical" ? inspector.industries.some((x) => /refiner|petrochem/i.test(`${x.name} ${x.code || ""}`)) : includesItem(inspector.industries, industryText));
-      const credentialMatch = includesItem(inspector.travelCredentials, credentialText);
-      const experienceMatch = !minimumExperience || Number(p.years_experience || 0) >= minExp;
-      const availabilityMatch = !availability || normalize(p.availability_status) === normalize(availability);
-      const travelMatch = !travel || (travel === "domestic" && Boolean(p.domestic_travel)) || (travel === "international" && Boolean(p.international_travel)) || (travel === "remote" && Boolean(p.remote_review_available));
-      const rateMatch = !maxRate || !Number.isFinite(maxRateNumber) || maxRateNumber <= 0 || (p.day_rate != null && Number(p.day_rate) <= maxRateNumber);
-      return locationMatch && disciplineMatch && certificationMatch && equipmentMatch && activityMatch && industryMatch && credentialMatch && experienceMatch && availabilityMatch && travelMatch && rateMatch;
-    });
-  }, [inspectors,location,discipline,certification,equipment,activity,industry,travelCredential,minimumExperience,availability,travel,maxRate]);
+  const hasCriteria = [
+    inspectorsNeeded, startDate, duration, location, localPreference, discipline,
+    certification, minimumExperience, industry, travelCredential, equipment,
+    activity, availability, shiftLength, travel, maxRate,
+  ].some((value) => value.trim() !== "");
 
   function clearFilters() {
-    setLocation(""); setDiscipline(""); setCertification(""); setEquipment(""); setActivity(""); setIndustry(""); setTravelCredential(""); setMinimumExperience(""); setAvailability(""); setTravel(""); setMaxRate(""); setInspectorsNeeded(""); setStartDate(""); setDuration(""); setShiftLength(""); setLocalPreference("");
+    setInspectorsNeeded(""); setStartDate(""); setDuration(""); setLocation("");
+    setLocalPreference(""); setDiscipline(""); setCertification(""); setMinimumExperience("");
+    setIndustry(""); setTravelCredential(""); setEquipment(""); setActivity("");
+    setAvailability(""); setShiftLength(""); setTravel(""); setMaxRate("");
   }
 
-  const SelectField = ({label,value,onChange,options,placeholder}:{label:string;value:string;onChange:(v:string)=>void;options:string[];placeholder:string}) => (
-    <label><span>{label}</span><select value={value} onChange={(e)=>onChange(e.target.value)}><option value="">{placeholder}</option>{options.map((option)=><option key={option} value={option}>{option}</option>)}</select></label>
+  function buildStructuredRequest() {
+    const sentences: string[] = [];
+    const quantity = inspectorsNeeded || "an";
+    const role = discipline ? `${discipline} inspector${quantity === "1" ? "" : "s"}` : `inspector${quantity === "1" ? "" : "s"}`;
+    sentences.push(`We need ${quantity} ${role}.`);
+
+    if (location) sentences.push(`Location: ${location}.`);
+    if (localPreference) sentences.push(`Location preference: ${localPreference}.`);
+    if (startDate) sentences.push(`Start date: ${startDate}.`);
+    if (duration) sentences.push(`Expected duration: ${duration}.`);
+    if (certification) sentences.push(`Required certification: ${certification}.`);
+    if (minimumExperience) sentences.push(`Minimum experience: ${minimumExperience} years.`);
+    if (industry) sentences.push(`Industry experience: ${industry}.`);
+    if (travelCredential) sentences.push(`Required travel/site credential: ${travelCredential}.`);
+    if (equipment) sentences.push(`Equipment experience: ${equipment}.`);
+    if (activity) sentences.push(`Inspection activity or NDT: ${activity}.`);
+    if (availability) sentences.push(`Availability requirement: ${availability}.`);
+    if (shiftLength) sentences.push(`Shift length: ${shiftLength}.`);
+    if (travel) sentences.push(`Travel capability: ${travel}.`);
+    if (maxRate) sentences.push(`Maximum day rate: $${maxRate} per day.`);
+
+    return sentences.join(" ");
+  }
+
+  function identifyInspectors() {
+    if (!hasCriteria) {
+      setMessage("Select at least one assignment requirement before identifying inspectors.");
+      return;
+    }
+    const request = buildStructuredRequest();
+    window.location.href = `/find-inspectors?request=${encodeURIComponent(request)}`;
+  }
+
+  const SelectField = ({ label, value, onChange, options, placeholder }: { label: string; value: string; onChange: (value: string) => void; options: string[]; placeholder: string }) => (
+    <label>
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">{placeholder}</option>
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
   );
 
-  return <>
-    <section className="hero anonymousHero">
-      <p className="sectionEyebrow">Select via an interface</p>
-      <h1>Build your inspector criteria</h1>
-      <p className="muted heroCopy">Use the standard client selection fields below. InspectSource narrows the anonymous marketplace as requirements are selected.</p>
-      {demoMode && <div className="demoBanner"><strong>Demo criteria pre-filled:</strong> These selections represent the same Houston refinery request shown in the natural-language and email examples.</div>}
-    </section>
+  return (
+    <>
+      <section className="hero anonymousHero">
+        <p className="sectionEyebrow">Select via an interface</p>
+        <h1>Build your inspector criteria</h1>
+        <p className="muted heroCopy">
+          Use the standard client selection fields below. When you submit the requirements,
+          InspectSource uses the same matching engine as natural-language and email requests.
+        </p>
+        {demoMode && (
+          <div className="demoBanner">
+            <strong>Demo criteria pre-filled:</strong> These selections represent the same Houston refinery request shown in the natural-language and email examples.
+          </div>
+        )}
+      </section>
 
-    <section className="panel filterPanel">
-      <div className="filterHeader"><div><h2>Assignment requirements</h2><p className="muted">Select only the requirements that matter. Optional fields can remain blank.</p></div>{hasCriteria && <button type="button" className="clearButton" onClick={clearFilters}>Clear all</button>}</div>
+      <section className="panel filterPanel">
+        <div className="filterHeader">
+          <div>
+            <h2>Assignment requirements</h2>
+            <p className="muted">Select only the requirements that matter. Optional fields can remain blank.</p>
+          </div>
+          {hasCriteria && <button type="button" className="clearButton" onClick={clearFilters}>Clear all</button>}
+        </div>
 
-      <div className="filterGrid">
-        <SelectField label="Inspectors needed" value={inspectorsNeeded} onChange={setInspectorsNeeded} placeholder="Select quantity" options={["1","2","3","4","5+"]} />
-        <label><span>Start date</span><input type="date" value={startDate} onChange={(e)=>setStartDate(e.target.value)} /></label>
-        <SelectField label="Expected duration" value={duration} onChange={setDuration} placeholder="Select duration" options={["1 day","2-5 days","1 week","2 weeks","3 weeks","1 month","2-3 months","3+ months"]} />
-        <SelectField label="Location" value={location} onChange={setLocation} placeholder="Any location" options={locations} />
-        <SelectField label="Local preference" value={localPreference} onChange={setLocalPreference} placeholder="No preference" options={["Local required","Local preferred","Travel acceptable"]} />
-        <SelectField label="Primary discipline" value={discipline} onChange={setDiscipline} placeholder="Any discipline" options={disciplines} />
-        <SelectField label="Certification" value={certification} onChange={setCertification} placeholder="Any certification" options={certifications} />
-        <SelectField label="Minimum experience" value={minimumExperience} onChange={setMinimumExperience} placeholder="Any experience" options={["1","3","5","10","15","20"]} />
-        <SelectField label="Industry experience" value={industry} onChange={setIndustry} placeholder="Any industry" options={industryOptions} />
-        <SelectField label="Travel credential" value={travelCredential} onChange={setTravelCredential} placeholder="Any credential" options={credentialOptions} />
-        <SelectField label="Equipment type" value={equipment} onChange={setEquipment} placeholder="Any equipment" options={equipmentOptions} />
-        <SelectField label="Inspection activity / NDT" value={activity} onChange={setActivity} placeholder="Any activity or NDT" options={activityOptions} />
-        <SelectField label="Availability" value={availability} onChange={setAvailability} placeholder="Any availability" options={availabilityOptions} />
-        <SelectField label="Shift length" value={shiftLength} onChange={setShiftLength} placeholder="Any shift" options={["8 hours","10 hours","10-12 hours","12 hours"]} />
-        <SelectField label="Travel capability" value={travel} onChange={setTravel} placeholder="Any travel capability" options={["domestic","international","remote"]} />
-        <SelectField label="Maximum day rate" value={maxRate} onChange={setMaxRate} placeholder="No maximum" options={["500","750","1000","1250","1500","2000"]} />
-      </div>
+        <div className="filterGrid">
+          <SelectField label="Inspectors needed" value={inspectorsNeeded} onChange={setInspectorsNeeded} placeholder="Select quantity" options={["1", "2", "3", "4", "5+"]} />
+          <label><span>Start date</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+          <SelectField label="Expected duration" value={duration} onChange={setDuration} placeholder="Select duration" options={["1 day", "2-5 days", "1 week", "2 weeks", "3 weeks", "1 month", "2-3 months", "3+ months"]} />
+          <SelectField label="Location" value={location} onChange={setLocation} placeholder="Any location" options={locations} />
+          <SelectField label="Local preference" value={localPreference} onChange={setLocalPreference} placeholder="No preference" options={["Local required", "Local preferred", "Travel acceptable"]} />
+          <SelectField label="Primary discipline" value={discipline} onChange={setDiscipline} placeholder="Any discipline" options={disciplines} />
+          <SelectField label="Certification" value={certification} onChange={setCertification} placeholder="Any certification" options={certifications} />
+          <SelectField label="Minimum experience" value={minimumExperience} onChange={setMinimumExperience} placeholder="Any experience" options={["1", "3", "5", "10", "15", "20"]} />
+          <SelectField label="Industry experience" value={industry} onChange={setIndustry} placeholder="Any industry" options={industries} />
+          <SelectField label="Travel credential" value={travelCredential} onChange={setTravelCredential} placeholder="Any credential" options={credentials} />
+          <SelectField label="Equipment type" value={equipment} onChange={setEquipment} placeholder="Any equipment" options={equipmentOptions} />
+          <SelectField label="Inspection activity / NDT" value={activity} onChange={setActivity} placeholder="Any activity or NDT" options={activityOptions} />
+          <SelectField label="Availability" value={availability} onChange={setAvailability} placeholder="Any availability" options={availabilityOptions} />
+          <SelectField label="Shift length" value={shiftLength} onChange={setShiftLength} placeholder="Any shift" options={["8 hours", "10 hours", "10-12 hours", "12 hours"]} />
+          <SelectField label="Travel capability" value={travel} onChange={setTravel} placeholder="Any travel capability" options={["domestic", "international", "remote"]} />
+          <SelectField label="Maximum day rate" value={maxRate} onChange={setMaxRate} placeholder="No maximum" options={["500", "750", "1000", "1250", "1500", "2000"]} />
+        </div>
 
-      {message && <p className="notice">{message}</p>}
-      <div className="criteriaFooter"><span>Results update automatically as inspector criteria change.</span><strong>{hasCriteria && !loading ? `${filtered.length} matching inspector${filtered.length===1?"":"s"}` : ""}</strong></div>
-    </section>
+        {message && <p className="notice">{message}</p>}
 
-    <div style={{height:18}} />
-    {!hasCriteria ? <section className="panel startPrompt"><h2>Select assignment requirements above</h2><p className="muted">Matching inspector profiles will appear here.</p></section> : <>
-      <section className="resultsIntro"><div><p className="sectionEyebrow">Filtered marketplace</p><h2>{loading?"Finding qualified inspectors...":`${filtered.length} inspector${filtered.length===1?"":"s"} match your criteria`}</h2></div><span>Personal contact details remain protected.</span></section>
-      <section className="grid anonymousGrid">{filtered.map((inspector)=><InspectorCard key={inspector.profile.inspector_id} inspector={inspector} />)}</section>
-      {!loading && filtered.length===0 && <section className="panel emptyResults"><h2>No inspectors match every selected criterion</h2><p className="muted">Broaden one requirement to expand the candidate pool.</p><button type="button" className="clearButton" onClick={clearFilters}>Clear all criteria</button></section>}
-    </>}
+        <div className="submitRow">
+          <div>
+            <strong>Ready to match?</strong>
+            <span>The selections above will be evaluated by the InspectSource matching engine.</span>
+          </div>
+          <button type="button" className="identifyButton" onClick={identifyInspectors} disabled={loadingOptions}>
+            {loadingOptions ? "Loading criteria..." : "Identify inspectors"}
+          </button>
+        </div>
+      </section>
 
-    <style jsx>{`
-      .anonymousHero{padding:34px}.sectionEyebrow{margin:0 0 6px;font-size:.76rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.heroCopy{max-width:820px;margin-bottom:0;font-size:1.03rem;line-height:1.65}.demoBanner{margin-top:18px;padding:12px 14px;border:1px solid #f3c969;background:#fff9e8;border-radius:10px;color:#7a5410}.filterPanel{padding:26px}.filterHeader{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.filterHeader h2{margin:0 0 5px}.filterHeader p{margin:0}.filterGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.filterGrid label{display:flex;flex-direction:column;gap:7px}.filterGrid label>span{font-size:.82rem;font-weight:800}.filterGrid input,.filterGrid select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;background:white;font:inherit;min-height:44px}.filterGrid input:focus,.filterGrid select:focus{outline:2px solid #94a3b8;outline-offset:1px}.criteriaFooter{display:flex;justify-content:space-between;gap:16px;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;color:#64748b;font-size:.9rem}.criteriaFooter strong{color:#0f172a}.clearButton{border:1px solid #cbd5e1;background:white;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}.startPrompt{text-align:center;padding:46px 24px}.resultsIntro{display:flex;justify-content:space-between;gap:16px;align-items:end;margin:4px 0 16px}.resultsIntro h2{margin:0}.resultsIntro span{color:#64748b;font-size:.9rem}.anonymousGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}.emptyResults{margin-top:16px;text-align:center;padding:34px}@media(max-width:1100px){.filterGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.anonymousGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.filterGrid{grid-template-columns:1fr 1fr}.anonymousGrid{grid-template-columns:1fr}.resultsIntro,.criteriaFooter{align-items:flex-start;flex-direction:column}}@media(max-width:520px){.filterGrid{grid-template-columns:1fr}}
-    `}</style>
-  </>;
+      <style jsx>{`
+        .anonymousHero{padding:34px}.sectionEyebrow{margin:0 0 6px;font-size:.76rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.heroCopy{max-width:820px;margin-bottom:0;font-size:1.03rem;line-height:1.65}.demoBanner{margin-top:18px;padding:12px 14px;border:1px solid #f3c969;background:#fff9e8;border-radius:10px;color:#7a5410}.filterPanel{padding:26px}.filterHeader{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.filterHeader h2{margin:0 0 5px}.filterHeader p{margin:0}.filterGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.filterGrid label{display:flex;flex-direction:column;gap:7px}.filterGrid label>span{font-size:.82rem;font-weight:800}.filterGrid input,.filterGrid select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;background:white;font:inherit;min-height:44px}.clearButton{border:1px solid #cbd5e1;background:white;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}.submitRow{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0}.submitRow>div{display:flex;flex-direction:column;gap:3px}.submitRow span{color:#64748b;font-size:.9rem}.identifyButton{border:0;border-radius:10px;background:#0f172a;color:white;font-weight:800;padding:13px 22px;cursor:pointer;white-space:nowrap}.identifyButton:hover{background:#1e293b}.identifyButton:disabled{opacity:.55;cursor:not-allowed}.notice{margin-top:18px;padding:12px 14px;border-radius:10px;background:#fff7ed;border:1px solid #fdba74;color:#9a3412}@media(max-width:1050px){.filterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.filterGrid{grid-template-columns:1fr}.filterHeader,.submitRow{flex-direction:column;align-items:stretch}.identifyButton{width:100%}}
+      `}</style>
+    </>
+  );
 }
