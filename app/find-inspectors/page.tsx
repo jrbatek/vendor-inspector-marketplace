@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
 import { inspectorLabel, type MatchResult, type ReferenceItem, type SearchInspector } from "@/lib/clientSearch";
 import { coordinateProject, type ProjectBrief } from "@/lib/projectCoordinator";
 
 const EXAMPLE =
-  "I need an API 570 inspector near Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Budget is $950 per day.";
+  "We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.";
 
 export default function FindInspectorsPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
@@ -17,6 +17,11 @@ export default function FindInspectorsPage() {
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState("");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const request = new URLSearchParams(window.location.search).get("request");
+    if (request?.trim()) setText(request.trim());
+  }, []);
 
   async function loadTextFile(file?: File) {
     if (!file) return;
