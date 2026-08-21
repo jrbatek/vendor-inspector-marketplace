@@ -34,11 +34,11 @@ const actions:Action[]=[
 {id:"a4",priority:"normal",recommendation:"Reduce Gulf Thermal routine surveillance after final dimensional review",rationale:"Strong quality history supports reallocating inspection capacity to higher-risk suppliers.",status:"proposed"},
 ];
 
-const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
+const sampleRequest=`We need one Welding Inspection inspector in Singapore starting October 5 for two weeks. Minimum 10 years experience. Available for 8 hour shifts. Local Singapore inspector preferred. Please send qualified CVs/resumes, availability, and rates.`;
 
-const sampleEmail=`Hi InspectSource,\n\nWe need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.\n\nRequirements:\n• API 570 certification\n• Minimum 5 years refinery/petrochemical experience\n• Current TWIC card\n• Available for 10-12 hour shifts\n• Local Houston inspectors preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
+const sampleEmail=`Hi InspectSource,\n\nWe need one Welding Inspection inspector in Singapore starting October 5 for two weeks.\n\nRequirements:\n• Minimum 10 years experience\n• Available for 8 hour shifts\n• Local Singapore inspector preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
 
-const emailHref=`mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Houston Refinery Turnaround")}&body=${encodeURIComponent(sampleEmail)}`;
+const emailHref=`mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Singapore Welding Inspection")}&body=${encodeURIComponent(sampleEmail)}`;
 
 export default function DemoShowcase(){
  const [requestText,setRequestText]=useState(sampleRequest);
@@ -69,7 +69,7 @@ export default function DemoShowcase(){
     <article className="requestCard">
      <span className="step">3</span>
      <h2>Select via an interface</h2>
-     <p>Use the same standard dropdowns a client would use. For this demo, the fields are pre-populated to represent the same Houston refinery request shown in Options 1 and 2.</p>
+     <p>Use the same standard dropdowns a client would use. For this demo, the fields are pre-populated to represent the same Singapore welding-inspection request shown in Options 1 and 2.</p>
      <Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link>
     </article>
    </div>
