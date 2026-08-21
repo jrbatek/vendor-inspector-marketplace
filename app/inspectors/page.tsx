@@ -16,32 +16,30 @@ type InspectorOptionProfile = {
 };
 
 const DEMO = {
-  inspectorsNeeded: "2",
-  startDate: "2026-09-14",
-  duration: "3 weeks",
-  location: "Houston area",
+  inspectorsNeeded: "1",
+  startDate: "2026-10-05",
+  duration: "2 weeks",
+  location: "Singapore",
   localPreference: "Local preferred",
-  discipline: "",
-  certification: "API 570",
-  minimumExperience: "5",
-  industry: "Refinery / Petrochemical",
-  travelCredential: "TWIC",
+  discipline: "Welding Inspection",
+  certification: "",
+  minimumExperience: "10",
+  industry: "",
+  travelCredential: "",
   equipment: "",
   activity: "",
   availability: "",
-  shiftLength: "10-12 hours",
+  shiftLength: "8 hours",
   travel: "",
   maxRate: "",
 };
 
-const DEMO_REQUEST = `We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.
+const DEMO_REQUEST = `We need one Welding Inspection inspector in Singapore starting October 5 for two weeks.
 
 Requirements:
-API 570 certification
-Minimum 5 years refinery/petrochemical experience
-Current TWIC card
-Available for 10-12 hour shifts
-Local Houston inspectors preferred
+Minimum 10 years experience
+Available for 8 hour shifts
+Local Singapore inspector preferred
 
 Please send qualified CVs/resumes, availability, and rates.`;
 
@@ -138,8 +136,8 @@ export default function InspectorsPage() {
 
   const uniqueProfileValues = (values: Array<string | null | undefined>, seeded: string[] = []) =>
     Array.from(new Set([...seeded, ...(values.filter(Boolean) as string[])])).sort((a, b) => a.localeCompare(b));
-  const locations = useMemo(() => uniqueProfileValues(profiles.map((p) => [p.base_city, p.base_state].filter(Boolean).join(", ")), ["Houston area"]), [profiles]);
-  const disciplines = useMemo(() => uniqueProfileValues(profiles.map((p) => p.primary_discipline)), [profiles]);
+  const locations = useMemo(() => uniqueProfileValues(profiles.map((p) => [p.base_city, p.base_state].filter(Boolean).join(", ")), ["Houston area", "Singapore"]), [profiles]);
+  const disciplines = useMemo(() => uniqueProfileValues(profiles.map((p) => p.primary_discipline), ["Welding Inspection"]), [profiles]);
   const availabilityOptions = useMemo(() => uniqueProfileValues(profiles.map((p) => p.availability_status)), [profiles]);
 
   function buildStructuredRequest() {
@@ -245,7 +243,7 @@ export default function InspectorsPage() {
       <p className="sectionEyebrow">Select via an interface</p>
       <h1>Build your inspector criteria</h1>
       <p className="muted heroCopy">Use the standard client selection fields below, then identify inspectors directly from this structured-search experience.</p>
-      {demoMode && <div className="demoBanner"><strong>Demo criteria pre-filled:</strong> These selections represent the same Houston refinery request shown in the natural-language and email examples.</div>}
+      {demoMode && <div className="demoBanner"><strong>Demo criteria pre-filled:</strong> These selections represent the same Singapore welding-inspection request shown in the natural-language and email examples.</div>}
     </section>
 
     <section className="panel filterPanel">
