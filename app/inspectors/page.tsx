@@ -3,14 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase";
-import {
-  inspectorLabel,
-  parseRequest,
-  rankInspectors,
-  type MatchResult,
-  type ReferenceItem,
-  type SearchInspector,
-} from "@/lib/clientSearch";
+import { inspectorLabel, type MatchResult, type ReferenceItem, type SearchInspector } from "@/lib/clientSearch";
+import { coordinateProject } from "@/lib/projectCoordinator";
 
 type RefItem = { name?: string | null; code?: string | null };
 type InspectorOptionProfile = {
@@ -39,6 +33,17 @@ const DEMO = {
   travel: "",
   maxRate: "",
 };
+
+const DEMO_REQUEST = `We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.
+
+Requirements:
+API 570 certification
+Minimum 5 years refinery/petrochemical experience
+Current TWIC card
+Available for 10-12 hour shifts
+Local Houston inspectors preferred
+
+Please send qualified CVs/resumes, availability, and rates.`;
 
 export default function InspectorsPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
@@ -138,24 +143,28 @@ export default function InspectorsPage() {
   const availabilityOptions = useMemo(() => uniqueProfileValues(profiles.map((p) => p.availability_status)), [profiles]);
 
   function buildStructuredRequest() {
-    const parts: string[] = [];
-    if (inspectorsNeeded) parts.push(`We need ${inspectorsNeeded} inspectors.`);
-    if (discipline) parts.push(`Primary discipline: ${discipline}.`);
-    if (location) parts.push(`Location: ${location}.`);
-    if (localPreference) parts.push(`Location preference: ${localPreference}.`);
-    if (startDate) parts.push(`Start date: ${startDate}.`);
-    if (duration) parts.push(`Expected duration: ${duration}.`);
-    if (certification) parts.push(`Required certification: ${certification}.`);
-    if (minimumExperience) parts.push(`Minimum experience: ${minimumExperience} years.`);
-    if (industry) parts.push(`Industry experience: ${industry}.`);
-    if (travelCredential) parts.push(`Required credential: ${travelCredential}.`);
-    if (equipment) parts.push(`Equipment experience: ${equipment}.`);
-    if (activity) parts.push(`Inspection activity or NDT: ${activity}.`);
-    if (availability) parts.push(`Availability: ${availability}.`);
-    if (shiftLength) parts.push(`Shift length: ${shiftLength}.`);
-    if (travel) parts.push(`Travel capability: ${travel}.`);
-    if (maxRate) parts.push(`Maximum day rate: $${maxRate} per day.`);
-    return parts.join(" ");
+    if (demoMode) return DEMO_REQUEST;
+
+    const first: string[] = [];
+    first.push(`We need ${inspectorsNeeded || "an"} ${discipline ? `${discipline} ` : ""}inspector${inspectorsNeeded === "1" ? "" : "s"}`);
+    if (location) first.push(`in ${location.replace(/ area$/i, "")}`);
+    if (startDate) first.push(`starting ${startDate}`);
+    if (duration) first.push(`for ${duration}`);
+
+    const requirements: string[] = [];
+    if (certification) requirements.push(`${certification} certification`);
+    if (minimumExperience) requirements.push(`Minimum ${minimumExperience} years experience`);
+    if (industry) requirements.push(`${industry} experience`);
+    if (travelCredential) requirements.push(`${travelCredential} required`);
+    if (equipment) requirements.push(`${equipment} equipment experience`);
+    if (activity) requirements.push(`${activity} inspection/NDT experience`);
+    if (availability) requirements.push(`Availability: ${availability}`);
+    if (shiftLength) requirements.push(`${shiftLength} shifts`);
+    if (localPreference) requirements.push(`${localPreference}`);
+    if (travel) requirements.push(`${travel} travel capability`);
+    if (maxRate) requirements.push(`Budget is $${maxRate} per day`);
+
+    return `${first.join(" ")}. ${requirements.join(". ")}.`;
   }
 
   async function identifyInspectors() {
@@ -169,7 +178,6 @@ export default function InspectorsPage() {
     setMessage("");
     setHasSearched(false);
 
-    const interpreted = parseRequest(request);
     const queries = await Promise.all([
       supabase.from("inspector_profiles").select("inspector_id,primary_discipline,biography,base_city,base_state,base_country,years_experience,day_rate,currency,availability_status,available_from,domestic_travel,international_travel,remote_review_available,is_verified"),
       supabase.from("inspector_equipment").select("profile_id,equipment_types(id,name,code,category)"),
@@ -222,7 +230,8 @@ export default function InspectorsPage() {
       travelCredentials: travelByProfile[profile.inspector_id] || [],
     }));
 
-    setResults(rankInspectors(interpreted, inspectors));
+    const recommendation = coordinateProject(request, inspectors);
+    setResults(recommendation.shortlist);
     setHasSearched(true);
     setSearching(false);
   }
@@ -264,7 +273,7 @@ export default function InspectorsPage() {
     </section>
 
     {hasSearched && <section className="resultsSection">
-      <div className="resultsHeader"><div><p className="sectionEyebrow">Structured-search results</p><h2>{results.length} inspectors evaluated</h2></div></div>
+      <div className="resultsHeader"><div><p className="sectionEyebrow">Structured-search results</p><h2>{results.length} inspectors recommended</h2></div></div>
       <div className="resultList">
         {results.map((inspector) => <article className="resultCard" key={inspector.inspector_id}>
           <div className="score">{inspector.score}%</div>
