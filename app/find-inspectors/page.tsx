@@ -3,14 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase";
-import {
-  inspectorLabel,
-  parseRequest,
-  rankInspectors,
-  type MatchResult,
-  type ReferenceItem,
-  type SearchInspector,
-} from "@/lib/clientSearch";
+import { inspectorLabel, type MatchResult, type ReferenceItem, type SearchInspector } from "@/lib/clientSearch";
+import { coordinateProject, type ProjectBrief } from "@/lib/projectCoordinator";
 
 const EXAMPLE =
   "I need an API 570 inspector near Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Budget is $950 per day.";
@@ -18,7 +12,7 @@ const EXAMPLE =
 export default function FindInspectorsPage() {
   const supabase = useMemo(() => supabaseBrowser(), []);
   const [text, setText] = useState(EXAMPLE);
-  const [parsed, setParsed] = useState<ReturnType<typeof parseRequest> | null>(null);
+  const [parsed, setParsed] = useState<ProjectBrief | null>(null);
   const [results, setResults] = useState<MatchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState("");
@@ -47,9 +41,6 @@ export default function FindInspectorsPage() {
     setMessage("");
     setSelected({});
 
-    const interpreted = parseRequest(text);
-    setParsed(interpreted);
-
     const queries = await Promise.all([
       supabase.from("inspector_profiles").select(
         "inspector_id,primary_discipline,biography,base_city,base_state,base_country,years_experience,day_rate,currency,availability_status,available_from,domestic_travel,international_travel,remote_review_available,is_verified"
@@ -71,24 +62,16 @@ export default function FindInspectorsPage() {
       return;
     }
 
-    const [
-      profiles, equipment, activities, ndt, certifications,
-      codes, industries, languages, travel,
-    ] = queries;
+    const [profiles, equipment, activities, ndt, certifications, codes, industries, languages, travel] = queries;
 
-    const group = (
-      rows: any[] | null,
-      relationship: string,
-    ): Record<string, ReferenceItem[]> => {
+    const group = (rows: any[] | null, relationship: string): Record<string, ReferenceItem[]> => {
       const grouped: Record<string, ReferenceItem[]> = {};
-
       for (const row of rows || []) {
         const related = row[relationship];
         if (!related || !row.profile_id) continue;
         if (!grouped[row.profile_id]) grouped[row.profile_id] = [];
         grouped[row.profile_id].push(related);
       }
-
       return grouped;
     };
 
@@ -113,16 +96,17 @@ export default function FindInspectorsPage() {
       travelCredentials: travelByProfile[profile.inspector_id] || [],
     }));
 
-    const ranked = rankInspectors(interpreted, inspectors);
-    setResults(ranked);
+    const recommendation = coordinateProject(text, inspectors);
+    setParsed(recommendation.brief);
+    setResults(recommendation.shortlist);
     setSearching(false);
 
     const { data: auth } = await supabase.auth.getUser();
     await supabase.from("client_search_requests").insert({
       client_id: auth.user?.id || null,
       request_text: text,
-      parsed_request: interpreted,
-      result_count: ranked.length,
+      parsed_request: recommendation.brief,
+      result_count: recommendation.shortlist.length,
       status: "draft",
     });
   }
@@ -233,7 +217,7 @@ export default function FindInspectorsPage() {
           <div className="resultsHeader">
             <div>
               <p className="eyebrow">Anonymous ranked candidates</p>
-              <h2>{results.length} inspectors evaluated</h2>
+              <h2>{results.length} inspectors recommended</h2>
             </div>
 
             <button type="button" onClick={() => void createRequest()}>
@@ -248,31 +232,19 @@ export default function FindInspectorsPage() {
                   <input
                     type="checkbox"
                     checked={Boolean(selected[inspector.inspector_id])}
-                    onChange={(event) =>
-                      setSelected((current) => ({
-                        ...current,
-                        [inspector.inspector_id]: event.target.checked,
-                      }))
-                    }
+                    onChange={(event) => setSelected((current) => ({ ...current, [inspector.inspector_id]: event.target.checked }))}
                   />
                   Select
                 </label>
 
                 <div className="score">{inspector.score}%</div>
-
                 <div className="resultBody">
                   <div className="titleRow">
                     <div>
                       <h3>{inspectorLabel(inspector)}</h3>
-                      <p>
-                        {[inspector.base_city, inspector.base_state, inspector.base_country]
-                          .filter(Boolean).join(", ") || "Location available through InspectSource"}
-                      </p>
+                      <p>{[inspector.base_city, inspector.base_state, inspector.base_country].filter(Boolean).join(", ") || "Location available through InspectSource"}</p>
                     </div>
-
-                    <span className={inspector.is_verified ? "verified" : "prequalified"}>
-                      {inspector.is_verified ? "Verified by InspectSource" : "Pre-Qualified"}
-                    </span>
+                    <span className={inspector.is_verified ? "verified" : "prequalified"}>{inspector.is_verified ? "Verified by InspectSource" : "Pre-Qualified"}</span>
                   </div>
 
                   <div className="facts">
@@ -282,33 +254,11 @@ export default function FindInspectorsPage() {
                   </div>
 
                   <div className="columns">
-                    <div>
-                      <strong>Why this inspector matched</strong>
-                      <ul>
-                        {(inspector.reasons.length
-                          ? inspector.reasons
-                          : ["Qualification profile available for review"]
-                        ).slice(0, 6).map((reason) => <li key={reason}>{reason}</li>)}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <strong>Items to confirm</strong>
-                      <ul>
-                        {(inspector.questions.length
-                          ? inspector.questions
-                          : ["No major gaps identified from the stored profile"]
-                        ).slice(0, 5).map((question) => <li key={question}>{question}</li>)}
-                      </ul>
-                    </div>
+                    <div><strong>Why this inspector matched</strong><ul>{(inspector.reasons.length ? inspector.reasons : ["Qualification profile available for review"]).slice(0, 6).map((reason) => <li key={reason}>{reason}</li>)}</ul></div>
+                    <div><strong>Items to confirm</strong><ul>{(inspector.questions.length ? inspector.questions : ["No major gaps identified from the stored profile"]).slice(0, 5).map((question) => <li key={question}>{question}</li>)}</ul></div>
                   </div>
 
-                  <Link
-                    className="qualificationLink"
-                    href={`/inspectors/${inspector.inspector_id}`}
-                  >
-                    Review Qualifications
-                  </Link>
+                  <Link className="qualificationLink" href={`/inspectors/${inspector.inspector_id}`}>Review Qualifications</Link>
                 </div>
               </article>
             ))}
@@ -326,11 +276,7 @@ export default function FindInspectorsPage() {
 function formatRate(value: number | null, currency: string | null) {
   if (value === null) return "Rate available upon request";
   try {
-    return `${new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: 0,
-    }).format(value)}/day`;
+    return `${new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(value)}/day`;
   } catch {
     return `${currency || "USD"} ${value}/day`;
   }
