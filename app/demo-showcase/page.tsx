@@ -1,4 +1,4 @@
 import "./demoFix.css";
-import "./demoTabs.module.css";
+import "./demoTabs.css";
 
 export { default } from "./ClientDemo";
