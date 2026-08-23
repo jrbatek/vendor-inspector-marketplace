@@ -5,6 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase";
 
+const PRODUCTION_ORIGIN = "https://vendor-inspector-marketplace.vercel.app";
+
+function authOrigin() {
+  if (typeof window === "undefined") return PRODUCTION_ORIGIN;
+  return window.location.hostname === "localhost" ? PRODUCTION_ORIGIN : window.location.origin;
+}
+
 export default function LoginPage() {
   const supabase = supabaseBrowser();
   const router = useRouter();
@@ -44,7 +51,7 @@ export default function LoginPage() {
 
     setSaving(true);
     setMessage("");
-    const redirectTo = `${window.location.origin}/reset-password`;
+    const redirectTo = `${authOrigin()}/reset-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
     setSaving(false);
     setMessage(error ? error.message : "Password reset email sent. Check your inbox and follow the secure link.");
@@ -58,7 +65,7 @@ export default function LoginPage() {
 
     setSaving(true);
     setMessage("");
-    const emailRedirectTo = `${window.location.origin}/client-dashboard`;
+    const emailRedirectTo = `${authOrigin()}/client-dashboard`;
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo, shouldCreateUser: false },
