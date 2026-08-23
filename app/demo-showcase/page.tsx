@@ -3,89 +3,233 @@
 import Link from "next/link";
 import { useState } from "react";
 
-type Asset={id:string;asset_code:string;name:string;asset_type:string|null;manufacturer:string|null;criticality:string;metadata:any};
-type Risk={id:string;severity:string;title:string;supplier_name:string|null;schedule_impact:string|null;status:string};
-type Action={id:string;priority:string;recommendation:string;rationale:string|null;status:string};
+type DemoTab = "request" | "active" | "history";
+type ActiveInspection = {
+  id: string;
+  title: string;
+  clientRef: string;
+  location: string;
+  supplier: string;
+  scope: string;
+  inspector: string;
+  status: "On Track" | "Attention" | "Awaiting Client";
+  start: string;
+  end: string;
+  progress: number;
+  latest: string;
+  next: string;
+  issues: string[];
+  reports: number;
+};
 
-const assets:Asset[]=[
-{id:"project",asset_code:"GCRE-2027",name:"Gulf Coast Refinery Expansion",asset_type:"Project",manufacturer:null,criticality:"critical",metadata:{demo:"gulf-coast-expansion",progress:68,budget_musd:420,status:"active"}},
-{id:"pv101",asset_code:"PV-101",name:"Hydrotreater Separator",asset_type:"Pressure Vessel",manufacturer:"Lone Star Process Equipment",criticality:"critical",metadata:{progress:61,status:"attention"}},
-{id:"hx201",asset_code:"HX-201",name:"Feed/Effluent Exchanger",asset_type:"Heat Exchanger",manufacturer:"Gulf Thermal Systems",criticality:"high",metadata:{progress:79,status:"on_track"}},
-{id:"tk301",asset_code:"TK-301",name:"Diesel Product Tank",asset_type:"Storage Tank",manufacturer:"Delta Tank & Steel",criticality:"high",metadata:{progress:72,status:"recovering"}},
-{id:"p101",asset_code:"P-101A/B",name:"Charge Pump Package",asset_type:"Rotating Equipment",manufacturer:"Magnolia Rotating Equipment",criticality:"critical",metadata:{progress:84,status:"on_track"}},
-{id:"vlv401",asset_code:"VLV-401",name:"Critical Isolation Valve Lot",asset_type:"Valve Package",manufacturer:"Red River Valve Works",criticality:"high",metadata:{progress:57,status:"attention"}},
-{id:"pipe501",asset_code:"PIPE-501",name:"Alloy Piping Spools",asset_type:"Piping",manufacturer:"Lone Star Process Equipment",criticality:"critical",metadata:{progress:49,status:"late"}},
-{id:"skid601",asset_code:"SKID-601",name:"Hydrogen Compressor Auxiliary Skid",asset_type:"Packaged Equipment",manufacturer:"Magnolia Rotating Equipment",criticality:"high",metadata:{progress:76,status:"on_track"}},
-{id:"mcc701",asset_code:"MCC-701",name:"Motor Control Center",asset_type:"Electrical",manufacturer:"Bayou Electrical Systems",criticality:"high",metadata:{progress:88,status:"on_track"}},
-{id:"pkg801",asset_code:"PKG-801",name:"Chemical Injection Package",asset_type:"Packaged Equipment",manufacturer:"Delta Process Systems",criticality:"medium",metadata:{progress:91,status:"on_track"}},
+const sampleRequest = `We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
+
+const sampleEmail = `Hi InspectSource,\n\nWe need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.\n\nRequirements:\n• API 570 certification\n• Minimum 5 years refinery/petrochemical experience\n• Current TWIC card\n• Available for 10-12 hour shifts\n• Local Houston inspectors preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
+
+const emailHref = `mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Houston Refinery Turnaround")}&body=${encodeURIComponent(sampleEmail)}`;
+
+const activeInspections: ActiveInspection[] = [
+  {
+    id: "IS-260817-014",
+    title: "Hydrotreater Pressure Vessel Fabrication",
+    clientRef: "PO-78421 / PV-101",
+    location: "Baytown, Texas, USA",
+    supplier: "Lone Star Process Equipment",
+    scope: "API 510 / pressure vessel fabrication surveillance, material traceability, welding and hydrotest witness",
+    inspector: "Inspector #8A722E",
+    status: "Attention",
+    start: "Aug 17, 2026",
+    end: "Sep 11, 2026",
+    progress: 61,
+    latest: "Aug 22 · PMI review identified two material-traceability records requiring supplier correction before hydrotest release.",
+    next: "Inspector returns Aug 24 for traceability closeout and hydrotest readiness review.",
+    issues: ["2 traceability records open", "Hydrotest release pending closure"],
+    reports: 4,
+  },
+  {
+    id: "IS-260819-022",
+    title: "Feed / Effluent Heat Exchanger",
+    clientRef: "PO-79108 / HX-201",
+    location: "Tulsa, Oklahoma, USA",
+    supplier: "Gulf Thermal Systems",
+    scope: "Vendor surveillance, dimensional inspection, documentation review and final release",
+    inspector: "Inspector #B02554",
+    status: "On Track",
+    start: "Aug 19, 2026",
+    end: "Aug 28, 2026",
+    progress: 79,
+    latest: "Aug 22 · Dimensional inspection completed with no reportable deviations. MDR review is 80% complete.",
+    next: "Final documentation review and release inspection scheduled Aug 26.",
+    issues: [],
+    reports: 3,
+  },
+  {
+    id: "IS-260820-031",
+    title: "Alloy Piping Spool Surveillance",
+    clientRef: "PO-79944 / PIPE-501",
+    location: "Baton Rouge, Louisiana, USA",
+    supplier: "Delta Fabrication Services",
+    scope: "Welding surveillance, PMI, NDE review, material control and final documentation",
+    inspector: "Inspector #2DC9E6",
+    status: "Awaiting Client",
+    start: "Aug 20, 2026",
+    end: "Sep 18, 2026",
+    progress: 43,
+    latest: "Aug 22 · Supplier proposed weld repair method uploaded for review following UT rejection on Spool 501-17.",
+    next: "Client disposition of repair method required before supplier proceeds with repair welding.",
+    issues: ["Client approval required: weld repair method"],
+    reports: 2,
+  },
 ];
 
-const risks:Risk[]=[
-{id:"r1",severity:"critical",title:"Repeated traceability and alloy-control failures",supplier_name:"Lone Star Process Equipment",schedule_impact:"Piping release is on the hydrotreater mechanical-completion critical path.",status:"open"},
-{id:"r2",severity:"high",title:"Hydrotest milestone at risk",supplier_name:"Lone Star Process Equipment",schedule_impact:"Potential four-to-seven-day impact to vessel shipment.",status:"monitoring"},
-{id:"r3",severity:"high",title:"Tank weld repair requires enhanced follow-up",supplier_name:"Delta Tank & Steel",schedule_impact:"Low direct schedule impact if closed this week.",status:"monitoring"},
-{id:"r4",severity:"low",title:"Exchanger supplier trending ahead of quality plan",supplier_name:"Gulf Thermal Systems",schedule_impact:"Opportunity to reduce routine surveillance and reallocate hours.",status:"open"},
-];
+export default function DemoShowcase() {
+  const [tab, setTab] = useState<DemoTab>("request");
+  const [requestText, setRequestText] = useState(sampleRequest);
+  const continueHref = requestText.trim() ? `/find-inspectors?request=${encodeURIComponent(requestText.trim())}` : "/find-inspectors";
 
-const actions:Action[]=[
-{id:"a1",priority:"critical",recommendation:"Increase Lone Star alloy-piping coverage from weekly surveillance to three visits per week",rationale:"Repeated traceability and PMI failures combined with critical-path delay justify temporary intensified coverage.",status:"proposed"},
-{id:"a2",priority:"high",recommendation:"Add daily hydrotest readiness checks until the PV-101 hold point is released",rationale:"Vessel shipment is on the critical path and preparation is behind baseline.",status:"proposed"},
-{id:"a3",priority:"high",recommendation:"Assign focused weld-repair verification on TK-301",rationale:"Known defect location allows inspection effort to concentrate on closure evidence.",status:"proposed"},
-{id:"a4",priority:"normal",recommendation:"Reduce Gulf Thermal routine surveillance after final dimensional review",rationale:"Strong quality history supports reallocating inspection capacity to higher-risk suppliers.",status:"proposed"},
-];
+  return (
+    <main className="page">
+      <section className="demoHeader">
+        <div>
+          <p className="eyebrow">InspectSource Client Demo</p>
+          <h1>Client inspection workspace</h1>
+          <p>Request inspection support, follow work currently in progress, and access completed inspection history from one client workspace.</p>
+        </div>
+      </section>
 
-const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
+      <nav className="tabs" aria-label="Client demo sections">
+        <button className={tab === "request" ? "activeTab" : ""} onClick={() => setTab("request")}>1. Request Inspection</button>
+        <button className={tab === "active" ? "activeTab" : ""} onClick={() => setTab("active")}><span>2. Inspections in Progress</span><b>{activeInspections.length}</b></button>
+        <button className={tab === "history" ? "activeTab" : ""} onClick={() => setTab("history")}>3. Inspection History</button>
+      </nav>
 
-const sampleEmail=`Hi InspectSource,\n\nWe need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.\n\nRequirements:\n• API 570 certification\n• Minimum 5 years refinery/petrochemical experience\n• Current TWIC card\n• Available for 10-12 hour shifts\n• Local Houston inspectors preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
+      {tab === "request" && (
+        <section className="tabContent">
+          <div className="sectionIntro">
+            <p className="eyebrow">Request Inspection</p>
+            <h2>Start the way you already work</h2>
+            <p>Describe the requirement, email it to InspectSource, or select the requirements through a structured interface.</p>
+          </div>
+          <div className="requestOptions">
+            <article className="requestCard">
+              <span className="step">1</span>
+              <h3>Natural language request</h3>
+              <p>Tell InspectSource what you need in plain English. Include any details you already know.</p>
+              <textarea rows={7} value={requestText} onChange={(event) => setRequestText(event.target.value)} aria-label="Describe your inspection request" />
+              <Link className="primaryButton" href={continueHref}>Find qualified inspectors</Link>
+            </article>
+            <article className="requestCard">
+              <span className="step">2</span>
+              <h3>Email your requirements</h3>
+              <p>Keep using email. The AI Project Coordinator turns the email into the same structured staffing request.</p>
+              <div className="emailSample"><strong>Sample email</strong><pre>{sampleEmail}</pre></div>
+              <a className="primaryButton" href={emailHref}>Open sample email</a>
+            </article>
+            <article className="requestCard">
+              <span className="step">3</span>
+              <h3>Select via an interface</h3>
+              <p>Use standard client fields and dropdowns to define the assignment and identify qualified inspectors.</p>
+              <div className="structuredPreview">
+                <span>Location</span><span>Dates</span><span>Discipline</span><span>Certification</span><span>Experience</span><span>Industry</span>
+              </div>
+              <Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link>
+            </article>
+          </div>
+        </section>
+      )}
 
-const emailHref=`mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Houston Refinery Turnaround")}&body=${encodeURIComponent(sampleEmail)}`;
+      {tab === "active" && (
+        <section className="tabContent">
+          <div className="sectionIntro withSummary">
+            <div>
+              <p className="eyebrow">Inspections in Progress</p>
+              <h2>What is happening right now</h2>
+              <p>See current assignments, latest inspector activity, open items and what happens next.</p>
+            </div>
+            <div className="portfolioStats">
+              <div><strong>3</strong><span>Active</span></div>
+              <div><strong>1</strong><span>Needs attention</span></div>
+              <div><strong>1</strong><span>Awaiting client</span></div>
+              <div><strong>9</strong><span>Reports received</span></div>
+            </div>
+          </div>
 
-export default function DemoShowcase(){
- const [requestText,setRequestText]=useState(sampleRequest);
- const project=assets.find(a=>a.asset_code==="GCRE-2027");
- const equipment=assets.filter(a=>a.asset_code!=="GCRE-2027");
- const attention=equipment.filter(a=>["attention","late"].includes(a.metadata?.status));
- const continueHref=requestText.trim()?`/find-inspectors?request=${encodeURIComponent(requestText.trim())}`:"/find-inspectors";
- return <main className="page">
-  <section className="requestHero">
-   <p className="eyebrow">InspectSource</p>
-   <h1>Request your inspection</h1>
-   <p className="requestIntro">Start the way you already work. Describe the requirement, email it to us, or select inspectors through the interface.</p>
-   <div className="requestOptions">
-    <article className="requestCard requestCardNatural">
-     <span className="step">1</span>
-     <h2>Natural language request here</h2>
-     <p>Tell InspectSource what you need in plain English. Include the location, dates, equipment, certifications, scope, travel requirements, budget, or anything else you know.</p>
-     <textarea className="naturalInput" rows={6} value={requestText} onChange={(event)=>setRequestText(event.target.value)} aria-label="Describe your inspection request" />
-     <Link className="primaryButton" href={continueHref}>Find qualified inspectors</Link>
-    </article>
-    <article className="requestCard requestCardEmail">
-     <span className="step">2</span>
-     <h2>Email your requirements</h2>
-     <p>Keep using email. Send the scope, request, or requirements to our inspection-request inbox and the AI Project Coordinator can turn it into a staffing request.</p>
-     <div className="emailSample"><strong>Sample email</strong><pre>{sampleEmail}</pre></div>
-     <a className="primaryButton" href={emailHref}>Open sample email</a>
-    </article>
-    <article className="requestCard">
-     <span className="step">3</span>
-     <h2>Select via an interface</h2>
-     <p>Use the same standard dropdowns a client would use. For this demo, the fields are pre-populated to represent the same Houston refinery request shown in Options 1 and 2.</p>
-     <Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link>
-    </article>
-   </div>
-  </section>
+          <div className="activeList">
+            {activeInspections.map((inspection) => (
+              <article className="inspectionCard" key={inspection.id}>
+                <div className="inspectionTop">
+                  <div>
+                    <div className="idRow"><span>{inspection.id}</span><Status status={inspection.status} /></div>
+                    <h3>{inspection.title}</h3>
+                    <p>{inspection.supplier} · {inspection.location}</p>
+                  </div>
+                  <div className="progressCircle"><strong>{inspection.progress}%</strong><span>complete</span></div>
+                </div>
 
-  <div className="sectionDivider"><span>What happens after the request</span></div>
+                <div className="keyFacts">
+                  <Fact label="Client reference" value={inspection.clientRef} />
+                  <Fact label="Assigned inspector" value={inspection.inspector} />
+                  <Fact label="Inspection period" value={`${inspection.start} – ${inspection.end}`} />
+                  <Fact label="Reports" value={`${inspection.reports} submitted`} />
+                </div>
 
-  <section className="hero"><p className="eyebrow">Synthetic demonstration environment</p><h1>Gulf Coast Refinery Expansion</h1><p>A fictional $420M refinery expansion showing how InspectSource can continuously focus inspection resources on quality, supplier performance and critical-path risk.</p></section>
-  <section className="demoNotice"><strong>Demo mode:</strong> This page uses built-in synthetic data so it is always available and never depends on production client data.</section>
-  {project&&<>
-   <section className="stats"><Stat n="68%" l="Project fabrication progress"/><Stat n={String(equipment.length)} l="Tracked assets/packages"/><Stat n={String(attention.length)} l="Assets needing attention"/><Stat n={String(risks.filter(r=>r.severity==="high"||r.severity==="critical").length)} l="High/critical risk signals"/></section>
-   <section className="card"><h2>Asset portfolio</h2><div className="table">{equipment.map(a=><article key={a.id}><div><strong>{a.asset_code}</strong><span>{a.name}</span></div><span>{a.manufacturer||"—"}</span><span>{a.metadata?.progress||0}% complete</span><b className={a.metadata?.status}>{String(a.metadata?.status||"active").replaceAll("_"," ")}</b></article>)}</div></section>
-   <div className="cols"><section className="card"><h2>What the system is seeing</h2>{risks.map(r=><article className="item" key={r.id}><b>{r.severity.toUpperCase()}</b><div><strong>{r.title}</strong><p>{r.supplier_name}</p><small>{r.schedule_impact}</small></div></article>)}</section><section className="card"><h2>Coordinator feedback loop</h2>{actions.map(a=><article className="item" key={a.id}><b>{a.priority.toUpperCase()}</b><div><strong>{a.recommendation}</strong><p>{a.rationale}</p></div></article>)}</section></div>
-   <section className="story"><h2>Demo story</h2><p><strong>Lone Star Process Equipment</strong> has repeated material-traceability and alloy-control failures on critical-path piping. InspectSource therefore proposes increasing surveillance to three visits per week and adding daily hydrotest readiness checks on PV-101.</p><p>At the same time, <strong>Gulf Thermal Systems</strong> has four clean surveillance visits and strong documentation performance, so the coordinator can reduce routine coverage there and reallocate inspection hours to the weak supplier.</p><p>This is the recursive loop: <strong>inspect → capture evidence → identify risk → change the inspection plan → inspect again.</strong></p></section>
-  </>}
-  <style jsx>{`.page{max-width:1160px;margin:auto;padding:30px 18px 80px}.requestHero,.hero,.card,.story,.stat,.demoNotice{background:#fff;border:1px solid #e2e8f0;border-radius:18px}.requestHero{padding:34px}.requestHero h1{font-size:2.4rem;margin:4px 0 8px}.requestIntro{max-width:760px;color:#64748b;font-size:1.05rem;line-height:1.55}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;align-items:stretch}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:285px}.requestCardNatural,.requestCardEmail{min-height:390px}.requestCard h2{font-size:1.15rem;margin:14px 0 8px}.requestCard p{color:#64748b;line-height:1.55}.naturalInput{width:100%;box-sizing:border-box;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;line-height:1.45;min-height:132px;margin-top:8px}.naturalInput:focus{outline:2px solid #94a3b8;outline-offset:1px}.emailSample{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px;margin:8px 0 14px}.emailSample strong{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.emailSample pre{white-space:pre-wrap;margin:0;font:inherit;font-size:.82rem;line-height:1.42;color:#475569}.step{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:800}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:700;margin-top:auto}.primaryButton:hover{background:#1e293b}.sectionDivider{display:flex;align-items:center;gap:14px;margin:34px 0 18px;color:#64748b;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.sectionDivider:before,.sectionDivider:after{content:"";height:1px;background:#cbd5e1;flex:1}.hero{padding:30px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:4px 0;font-size:2rem}.hero p,.item p,small{color:#64748b}.demoNotice{padding:14px 18px;margin:16px 0;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat{padding:18px}.stat strong{font-size:1.8rem;display:block}.stat span{color:#64748b}.card,.story{padding:22px;margin-bottom:16px}.table article{display:grid;grid-template-columns:2fr 2fr 1fr 1fr;gap:12px;padding:13px 0;border-top:1px solid #e2e8f0}.table article div{display:grid}.table article div span{color:#64748b}.table b{text-transform:capitalize}.late,.attention{color:#b45309}.on_track,.recovering{color:#166534}.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.item{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px 0;border-top:1px solid #e2e8f0}.item p{margin:4px 0}.story p{line-height:1.65}@media(max-width:900px){.requestOptions{grid-template-columns:1fr}.requestCard,.requestCardNatural,.requestCardEmail{min-height:0}}@media(max-width:760px){.stats,.cols{grid-template-columns:1fr 1fr}.table article{grid-template-columns:1fr}.hero h1,.requestHero h1{font-size:1.6rem}}@media(max-width:480px){.stats,.cols{grid-template-columns:1fr}.requestHero{padding:24px}}`}</style>
- </main>
+                <div className="scope"><strong>Scope</strong><p>{inspection.scope}</p></div>
+
+                <div className="activityGrid">
+                  <div className="updateBox">
+                    <span className="boxLabel">Latest update</span>
+                    <p>{inspection.latest}</p>
+                  </div>
+                  <div className="nextBox">
+                    <span className="boxLabel">What happens next</span>
+                    <p>{inspection.next}</p>
+                  </div>
+                </div>
+
+                {inspection.issues.length > 0 && (
+                  <div className={inspection.status === "Awaiting Client" ? "issueBanner clientAction" : "issueBanner"}>
+                    <strong>{inspection.status === "Awaiting Client" ? "Your action is needed" : "Open items"}</strong>
+                    <ul>{inspection.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul>
+                  </div>
+                )}
+
+                <div className="cardActions">
+                  <button type="button">View inspection details</button>
+                  <button type="button" className="secondary">View reports ({inspection.reports})</button>
+                  <button type="button" className="secondary">Message coordinator</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {tab === "history" && (
+        <section className="tabContent">
+          <div className="sectionIntro">
+            <p className="eyebrow">Inspection History</p>
+            <h2>Completed inspections</h2>
+            <p>This will become the searchable client record of completed inspections, reports, findings, suppliers, equipment and inspectors.</p>
+          </div>
+          <div className="historyPlaceholder">
+            <strong>Next build</strong>
+            <p>We’ll build this tab after we review and approve the Inspections in Progress experience.</p>
+          </div>
+        </section>
+      )}
+
+      <style jsx>{`
+        .page{max-width:1180px;margin:0 auto;padding:30px 18px 80px}.demoHeader,.tabContent{background:#fff;border:1px solid #e2e8f0}.demoHeader{border-radius:18px;padding:30px}.eyebrow{margin:0 0 6px;font-size:.75rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#475569}.demoHeader h1{margin:0;font-size:2.1rem}.demoHeader p:not(.eyebrow),.sectionIntro>p,.sectionIntro div>p{max-width:820px;color:#64748b;line-height:1.6}.tabs{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0 0;border:1px solid #cbd5e1;border-radius:14px 14px 0 0;overflow:hidden;background:#f8fafc}.tabs button{border:0;border-right:1px solid #cbd5e1;background:transparent;padding:16px 18px;text-align:left;font:inherit;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}.tabs button:last-child{border-right:0}.tabs button b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:999px;background:#e2e8f0;font-size:.76rem}.tabs .activeTab{background:#0f172a;color:#fff}.tabs .activeTab b{background:#fff;color:#0f172a}.tabContent{border-top:0;border-radius:0 0 18px 18px;padding:30px}.sectionIntro h2{margin:0;font-size:1.7rem}.withSummary{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.portfolioStats{display:grid;grid-template-columns:repeat(4,minmax(90px,1fr));gap:8px}.portfolioStats div{border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;min-width:90px}.portfolioStats strong{display:block;font-size:1.35rem}.portfolioStats span{display:block;color:#64748b;font-size:.76rem;margin-top:2px}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:390px}.requestCard h3{margin:14px 0 8px}.requestCard p{color:#64748b;line-height:1.5}.step{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:800}.requestCard textarea{width:100%;box-sizing:border-box;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;line-height:1.45;margin:8px 0 14px}.emailSample{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px;margin:8px 0 14px}.emailSample strong{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}.emailSample pre{white-space:pre-wrap;margin:0;font:inherit;font-size:.78rem;line-height:1.38;color:#475569}.structuredPreview{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}.structuredPreview span{background:#f1f5f9;border-radius:999px;padding:7px 9px;font-size:.78rem}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:800;margin-top:auto}.activeList{display:grid;gap:18px;margin-top:24px}.inspectionCard{border:1px solid #dbe3ee;border-radius:16px;padding:24px}.inspectionTop{display:flex;justify-content:space-between;gap:24px}.idRow{display:flex;align-items:center;gap:10px}.idRow>span{font-size:.76rem;font-weight:900;letter-spacing:.08em;color:#64748b}.inspectionTop h3{font-size:1.35rem;margin:9px 0 5px}.inspectionTop p{margin:0;color:#64748b}.status{border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:900}.onTrack{background:#dcfce7;color:#166534}.attention{background:#fef3c7;color:#92400e}.awaiting{background:#dbeafe;color:#1d4ed8}.progressCircle{width:82px;height:82px;border:4px solid #e2e8f0;border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center;flex:0 0 auto}.progressCircle strong{font-size:1.15rem}.progressCircle span{font-size:.66rem;color:#64748b}.keyFacts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.fact{background:#f8fafc;border-radius:10px;padding:11px}.fact span{display:block;font-size:.69rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#64748b}.fact strong{display:block;margin-top:4px;font-size:.88rem}.scope{border-top:1px solid #e2e8f0;padding-top:17px}.scope p{color:#475569;margin:5px 0;line-height:1.5}.activityGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.updateBox,.nextBox{border-radius:12px;padding:15px;background:#f8fafc}.nextBox{background:#f1f5f9}.boxLabel{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.updateBox p,.nextBox p{margin:7px 0 0;line-height:1.5;color:#334155}.issueBanner{margin-top:14px;padding:13px 15px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}.clientAction{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.issueBanner ul{margin:7px 0 0;padding-left:19px}.cardActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.cardActions button{border:0;background:#0f172a;color:#fff;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.cardActions .secondary{background:#fff;color:#0f172a;border:1px solid #cbd5e1}.historyPlaceholder{margin-top:24px;border:1px dashed #94a3b8;border-radius:14px;padding:30px;text-align:center;color:#475569;background:#f8fafc}.historyPlaceholder p{margin:7px 0 0}@media(max-width:940px){.requestOptions{grid-template-columns:1fr}.requestCard{min-height:0}.withSummary{display:block}.portfolioStats{margin-top:18px}.keyFacts{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.tabs{grid-template-columns:1fr}.tabs button{border-right:0;border-bottom:1px solid #cbd5e1}.tabs button:last-child{border-bottom:0}.tabContent{padding:20px}.portfolioStats{grid-template-columns:repeat(2,1fr)}.inspectionTop{align-items:flex-start}.keyFacts,.activityGrid{grid-template-columns:1fr}.progressCircle{width:68px;height:68px}.demoHeader h1{font-size:1.65rem}}
+      `}</style>
+    </main>
+  );
 }
-function Stat({n,l}:{n:string;l:string}){return <div className="stat"><strong>{n}</strong><span>{l}</span></div>}
+
+function Status({ status }: { status: ActiveInspection["status"] }) {
+  const className = status === "On Track" ? "status onTrack" : status === "Attention" ? "status attention" : "status awaiting";
+  return <span className={className}>{status}</span>;
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return <div className="fact"><span>{label}</span><strong>{value}</strong></div>;
+}
