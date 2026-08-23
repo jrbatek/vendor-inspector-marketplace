@@ -75,7 +75,7 @@ export default function LoginPage() {
     setMessage("");
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${PROD_ORIGIN}/client-dashboard`, shouldCreateUser: false },
+      options: { emailRedirectTo: `${PROD_ORIGIN}/login-complete`, shouldCreateUser: false },
     });
     setSaving(false);
     setMessage(error ? friendlyAuthError(error.message) : "Secure sign-in link sent. Check your email to continue without a password.");
