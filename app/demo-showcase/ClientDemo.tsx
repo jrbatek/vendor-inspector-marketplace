@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type DemoTab = "request" | "active" | "history";
 type ReportLink = { id: string; title: string; date: string };
@@ -27,192 +27,81 @@ type ActiveInspection = {
   reports: ReportLink[];
 };
 
+type HistoryInspection = {
+  id: string;
+  title: string;
+  clientRef: string;
+  supplier: string;
+  location: string;
+  inspector: string;
+  completed: string;
+  outcome: "Completed" | "Completed with Findings";
+  schedule: "On Time" | "Completed Late";
+  scope: string;
+  spend: number;
+  budget: number;
+  findings: string[];
+  reports: ReportLink[];
+};
+
 const sampleRequest = `We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
-
 const sampleEmail = `Hi InspectSource,\n\nWe need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks.\n\nRequirements:\n• API 570 certification\n• Minimum 5 years refinery/petrochemical experience\n• Current TWIC card\n• Available for 10-12 hour shifts\n• Local Houston inspectors preferred\n\nPlease send qualified CVs/resumes, availability, and rates.\n\nThanks`;
-
 const emailHref = `mailto:inspectsource2026@gmail.com?subject=${encodeURIComponent("Inspection Request - Houston Refinery Turnaround")}&body=${encodeURIComponent(sampleEmail)}`;
 
 const activeInspections: ActiveInspection[] = [
-  {
-    id: "IS-260817-014",
-    title: "Hydrotreater Pressure Vessel Fabrication",
-    clientRef: "PO-78421 / PV-101",
-    location: "Baytown, Texas, USA",
-    supplier: "Lone Star Process Equipment",
-    scope: "API 510 / pressure vessel fabrication surveillance, material traceability, welding and hydrotest witness",
-    inspector: "Inspector #8A722E",
-    status: "Attention",
-    scheduleHealth: "At Risk",
-    start: "Aug 17, 2026",
-    end: "Sep 11, 2026",
-    progress: 61,
-    budget: 18200,
-    spent: 11150,
-    latest: "Aug 22 · PMI review identified two material-traceability records requiring supplier correction before hydrotest release.",
-    next: "Inspector returns Aug 24 for traceability closeout and hydrotest readiness review.",
-    issues: ["2 traceability records open", "Hydrotest release pending closure"],
-    reports: [
-      { id: "014-r1", title: "Initial Fabrication Surveillance Report", date: "Aug 17, 2026" },
-      { id: "014-r2", title: "Welding & Traceability Surveillance Report", date: "Aug 19, 2026" },
-      { id: "014-r3", title: "PMI Verification Report", date: "Aug 21, 2026" },
-      { id: "014-r4", title: "Daily Inspection Report", date: "Aug 22, 2026" },
-    ],
-  },
-  {
-    id: "IS-260819-022",
-    title: "Feed / Effluent Heat Exchanger",
-    clientRef: "PO-79108 / HX-201",
-    location: "Tulsa, Oklahoma, USA",
-    supplier: "Gulf Thermal Systems",
-    scope: "Vendor surveillance, dimensional inspection, documentation review and final release",
-    inspector: "Inspector #B02554",
-    status: "On Track",
-    scheduleHealth: "On Schedule",
-    start: "Aug 19, 2026",
-    end: "Aug 28, 2026",
-    progress: 79,
-    budget: 9800,
-    spent: 6720,
-    latest: "Aug 22 · Dimensional inspection completed with no reportable deviations. MDR review is 80% complete.",
-    next: "Final documentation review and release inspection scheduled Aug 26.",
-    issues: [],
-    reports: [
-      { id: "022-r1", title: "Kickoff & Documentation Review Report", date: "Aug 19, 2026" },
-      { id: "022-r2", title: "Dimensional Inspection Report", date: "Aug 21, 2026" },
-      { id: "022-r3", title: "Vendor Surveillance Report", date: "Aug 22, 2026" },
-    ],
-  },
-  {
-    id: "IS-260820-031",
-    title: "Alloy Piping Spool Surveillance",
-    clientRef: "PO-79944 / PIPE-501",
-    location: "Baton Rouge, Louisiana, USA",
-    supplier: "Delta Fabrication Services",
-    scope: "Welding surveillance, PMI, NDE review, material control and final documentation",
-    inspector: "Inspector #2DC9E6",
-    status: "Awaiting Client",
-    scheduleHealth: "Delayed",
-    start: "Aug 20, 2026",
-    end: "Sep 18, 2026",
-    progress: 43,
-    budget: 24600,
-    spent: 8950,
-    latest: "Aug 22 · Supplier proposed weld repair method uploaded for review following UT rejection on Spool 501-17.",
-    next: "Client disposition of repair method required before supplier proceeds with repair welding.",
-    issues: ["Client approval required: weld repair method"],
-    reports: [
-      { id: "031-r1", title: "Welding Surveillance Report", date: "Aug 20, 2026" },
-      { id: "031-r2", title: "NDE / UT Review Report", date: "Aug 22, 2026" },
-    ],
-  },
+  { id: "IS-260817-014", title: "Hydrotreater Pressure Vessel Fabrication", clientRef: "PO-78421 / PV-101", location: "Baytown, Texas, USA", supplier: "Lone Star Process Equipment", scope: "API 510 / pressure vessel fabrication surveillance, material traceability, welding and hydrotest witness", inspector: "Inspector #8A722E", status: "Attention", scheduleHealth: "At Risk", start: "Aug 17, 2026", end: "Sep 11, 2026", progress: 61, budget: 18200, spent: 11150, latest: "Aug 22 · PMI review identified two material-traceability records requiring supplier correction before hydrotest release.", next: "Inspector returns Aug 24 for traceability closeout and hydrotest readiness review.", issues: ["2 traceability records open", "Hydrotest release pending closure"], reports: [{ id: "014-r1", title: "Initial Fabrication Surveillance Report", date: "Aug 17, 2026" }, { id: "014-r2", title: "Welding & Traceability Surveillance Report", date: "Aug 19, 2026" }, { id: "014-r3", title: "PMI Verification Report", date: "Aug 21, 2026" }, { id: "014-r4", title: "Daily Inspection Report", date: "Aug 22, 2026" }] },
+  { id: "IS-260819-022", title: "Feed / Effluent Heat Exchanger", clientRef: "PO-79108 / HX-201", location: "Tulsa, Oklahoma, USA", supplier: "Gulf Thermal Systems", scope: "Vendor surveillance, dimensional inspection, documentation review and final release", inspector: "Inspector #B02554", status: "On Track", scheduleHealth: "On Schedule", start: "Aug 19, 2026", end: "Aug 28, 2026", progress: 79, budget: 9800, spent: 6720, latest: "Aug 22 · Dimensional inspection completed with no reportable deviations. MDR review is 80% complete.", next: "Final documentation review and release inspection scheduled Aug 26.", issues: [], reports: [{ id: "022-r1", title: "Kickoff & Documentation Review Report", date: "Aug 19, 2026" }, { id: "022-r2", title: "Dimensional Inspection Report", date: "Aug 21, 2026" }, { id: "022-r3", title: "Vendor Surveillance Report", date: "Aug 22, 2026" }] },
+  { id: "IS-260820-031", title: "Alloy Piping Spool Surveillance", clientRef: "PO-79944 / PIPE-501", location: "Baton Rouge, Louisiana, USA", supplier: "Delta Fabrication Services", scope: "Welding surveillance, PMI, NDE review, material control and final documentation", inspector: "Inspector #2DC9E6", status: "Awaiting Client", scheduleHealth: "Delayed", start: "Aug 20, 2026", end: "Sep 18, 2026", progress: 43, budget: 24600, spent: 8950, latest: "Aug 22 · Supplier proposed weld repair method uploaded for review following UT rejection on Spool 501-17.", next: "Client disposition of repair method required before supplier proceeds with repair welding.", issues: ["Client approval required: weld repair method"], reports: [{ id: "031-r1", title: "Welding Surveillance Report", date: "Aug 20, 2026" }, { id: "031-r2", title: "NDE / UT Review Report", date: "Aug 22, 2026" }] },
+];
+
+const historyInspections: HistoryInspection[] = [
+  { id: "IS-260705-088", title: "LNG Compressor Package Final Inspection", clientRef: "PO-74112 / CP-440", supplier: "Gulf Rotating Equipment", location: "Houston, Texas, USA", inspector: "Inspector #61CA30", completed: "Jul 18, 2026", outcome: "Completed", schedule: "On Time", scope: "Final mechanical inspection, documentation review, preservation verification and release for shipment.", spend: 7350, budget: 8000, findings: [], reports: [{ id: "088-r1", title: "Final Mechanical Inspection Report", date: "Jul 17, 2026" }, { id: "088-r2", title: "Release & Documentation Report", date: "Jul 18, 2026" }] },
+  { id: "IS-260624-071", title: "Pressure Vessel Welding Surveillance", clientRef: "PO-72804 / V-2201", supplier: "Delta Vessel Works", location: "Baton Rouge, Louisiana, USA", inspector: "Inspector #8A722E", completed: "Jul 9, 2026", outcome: "Completed with Findings", schedule: "On Time", scope: "Material verification, welding surveillance, NDE review, dimensional inspection and hydrotest witness.", spend: 12480, budget: 13500, findings: ["One weld repair completed and accepted", "Two material traceability discrepancies corrected before hydrotest"], reports: [{ id: "071-r1", title: "Material & Welding Surveillance Report", date: "Jun 27, 2026" }, { id: "071-r2", title: "NDE Review Report", date: "Jul 2, 2026" }, { id: "071-r3", title: "Hydrotest & Final Release Report", date: "Jul 9, 2026" }] },
+  { id: "IS-260602-053", title: "Electrical MCC Factory Acceptance Test", clientRef: "PO-70551 / MCC-701", supplier: "Bayou Electrical Systems", location: "Dallas, Texas, USA", inspector: "Inspector #19F0C4", completed: "Jun 12, 2026", outcome: "Completed", schedule: "On Time", scope: "FAT witness, drawing verification, functional testing, nameplate review and final release.", spend: 4280, budget: 5000, findings: [], reports: [{ id: "053-r1", title: "Factory Acceptance Test Report", date: "Jun 12, 2026" }] },
+  { id: "IS-260511-041", title: "Storage Tank Fabrication Surveillance", clientRef: "PO-68992 / TK-118", supplier: "Coastal Tank & Steel", location: "Mobile, Alabama, USA", inspector: "Inspector #2DC9E6", completed: "May 29, 2026", outcome: "Completed with Findings", schedule: "Completed Late", scope: "Plate traceability, welding surveillance, dimensional checks, NDE review, coating hold points and final release.", spend: 16850, budget: 15000, findings: ["Supplier schedule slipped six days following weld repair", "Coating DFT nonconformance corrected before release"], reports: [{ id: "041-r1", title: "Fabrication Surveillance Report", date: "May 15, 2026" }, { id: "041-r2", title: "Weld Repair Follow-Up Report", date: "May 21, 2026" }, { id: "041-r3", title: "Coating Inspection Report", date: "May 27, 2026" }, { id: "041-r4", title: "Final Release Report", date: "May 29, 2026" }] },
+  { id: "IS-260418-029", title: "Valve Manufacturing Surveillance", clientRef: "PO-66104 / VLV-900", supplier: "Red River Valve Works", location: "Shreveport, Louisiana, USA", inspector: "Inspector #B02554", completed: "Apr 30, 2026", outcome: "Completed", schedule: "On Time", scope: "Casting traceability, machining surveillance, pressure testing, documentation review and release.", spend: 6150, budget: 6500, findings: [], reports: [{ id: "029-r1", title: "Manufacturing Surveillance Report", date: "Apr 23, 2026" }, { id: "029-r2", title: "Pressure Test & Release Report", date: "Apr 30, 2026" }] },
 ];
 
 export default function ClientDemo() {
   const [tab, setTab] = useState<DemoTab>("request");
   const [requestText, setRequestText] = useState(sampleRequest);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [historyExpanded, setHistoryExpanded] = useState<string | null>(null);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historyOutcome, setHistoryOutcome] = useState("All outcomes");
   const continueHref = requestText.trim() ? `/find-inspectors?request=${encodeURIComponent(requestText.trim())}` : "/find-inspectors";
   const totalBudget = activeInspections.reduce((sum, item) => sum + item.budget, 0);
   const totalSpent = activeInspections.reduce((sum, item) => sum + item.spent, 0);
+  const historySpend = historyInspections.reduce((sum, item) => sum + item.spend, 0);
+  const historyReports = historyInspections.reduce((sum, item) => sum + item.reports.length, 0);
+  const onTimePct = Math.round((historyInspections.filter((item) => item.schedule === "On Time").length / historyInspections.length) * 100);
+  const filteredHistory = useMemo(() => {
+    const q = historyQuery.trim().toLowerCase();
+    return historyInspections.filter((item) => {
+      const text = [item.id, item.title, item.clientRef, item.supplier, item.location, item.inspector, item.scope].join(" ").toLowerCase();
+      return (!q || text.includes(q)) && (historyOutcome === "All outcomes" || item.outcome === historyOutcome);
+    });
+  }, [historyQuery, historyOutcome]);
 
-  return (
-    <main className="page">
-      <section className="demoHeader">
-        <p className="eyebrow">InspectSource Client Demo</p>
-        <h1>Client inspection workspace</h1>
-        <p>Request inspection support, follow work currently in progress, and access completed inspection history from one client workspace.</p>
-      </section>
+  return <main className="page">
+    <section className="demoHeader"><p className="eyebrow">InspectSource Client Demo</p><h1>Client inspection workspace</h1><p>Request inspection support, follow work currently in progress, and access completed inspection history from one client workspace.</p></section>
+    <nav className="tabs" aria-label="Client demo sections"><button className={tab === "request" ? "activeTab" : ""} onClick={() => setTab("request")}>1. Request Inspection</button><button className={tab === "active" ? "activeTab" : ""} onClick={() => setTab("active")}><span>2. Inspections in Progress</span><b>{activeInspections.length}</b></button><button className={tab === "history" ? "activeTab" : ""} onClick={() => setTab("history")}><span>3. Inspection History</span><b>{historyInspections.length}</b></button></nav>
 
-      <nav className="tabs" aria-label="Client demo sections">
-        <button className={tab === "request" ? "activeTab" : ""} onClick={() => setTab("request")}>1. Request Inspection</button>
-        <button className={tab === "active" ? "activeTab" : ""} onClick={() => setTab("active")}><span>2. Inspections in Progress</span><b>{activeInspections.length}</b></button>
-        <button className={tab === "history" ? "activeTab" : ""} onClick={() => setTab("history")}>3. Inspection History</button>
-      </nav>
+    {tab === "request" && <section className="tabContent"><Intro eyebrow="Request Inspection" title="Start the way you already work" text="Describe the requirement, email it to InspectSource, or select the requirements through a structured interface." /><div className="requestOptions"><article className="requestCard"><span className="step">1</span><h3>Natural language request</h3><p>Tell InspectSource what you need in plain English. Include any details you already know.</p><textarea rows={7} value={requestText} onChange={(e) => setRequestText(e.target.value)} /><Link className="primaryButton" href={continueHref}>Find qualified inspectors</Link></article><article className="requestCard"><span className="step">2</span><h3>Email your requirements</h3><p>Keep using email. The AI Project Coordinator turns the email into the same structured staffing request.</p><div className="emailSample"><strong>Sample email</strong><pre>{sampleEmail}</pre></div><a className="primaryButton" href={emailHref}>Open sample email</a></article><article className="requestCard"><span className="step">3</span><h3>Select via an interface</h3><p>Use standard client fields and dropdowns to define the assignment and identify qualified inspectors.</p><div className="structuredPreview"><span>Location</span><span>Dates</span><span>Discipline</span><span>Certification</span><span>Experience</span><span>Industry</span></div><Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link></article></div></section>}
 
-      {tab === "request" && (
-        <section className="tabContent">
-          <Intro eyebrow="Request Inspection" title="Start the way you already work" text="Describe the requirement, email it to InspectSource, or select the requirements through a structured interface." />
-          <div className="requestOptions">
-            <article className="requestCard"><span className="step">1</span><h3>Natural language request</h3><p>Tell InspectSource what you need in plain English. Include any details you already know.</p><textarea rows={7} value={requestText} onChange={(e) => setRequestText(e.target.value)} /><Link className="primaryButton" href={continueHref}>Find qualified inspectors</Link></article>
-            <article className="requestCard"><span className="step">2</span><h3>Email your requirements</h3><p>Keep using email. The AI Project Coordinator turns the email into the same structured staffing request.</p><div className="emailSample"><strong>Sample email</strong><pre>{sampleEmail}</pre></div><a className="primaryButton" href={emailHref}>Open sample email</a></article>
-            <article className="requestCard"><span className="step">3</span><h3>Select via an interface</h3><p>Use standard client fields and dropdowns to define the assignment and identify qualified inspectors.</p><div className="structuredPreview"><span>Location</span><span>Dates</span><span>Discipline</span><span>Certification</span><span>Experience</span><span>Industry</span></div><Link className="primaryButton" href="/inspectors?demo=1">Open pre-filled selection form</Link></article>
-          </div>
-        </section>
-      )}
+    {tab === "active" && <section className="tabContent"><div className="activeIntro"><Intro eyebrow="Inspections in Progress" title="Active inspection portfolio" text="All active inspections are collapsed by default so you can scan status, schedule, progress and spend at a glance. Select an inspection to open the full record." /><div className="portfolioStats"><Stat n="3" l="Active" /><Stat n="1" l="Client action" /><Stat n={money(totalSpent)} l={`Spent of ${money(totalBudget)}`} /><Stat n="9" l="Reports received" /></div></div><div className="portfolioHeader"><span>Inspection</span><span>Status</span><span>Progress</span><span>Schedule</span><span>Budget / Spend</span><span></span></div><div className="activeList">{activeInspections.map((i) => { const isOpen = expanded === i.id; const budgetPct = Math.round((i.spent / i.budget) * 100); return <article className={`inspectionCard ${isOpen ? "open" : ""}`} key={i.id}><button className="summaryRow" type="button" onClick={() => setExpanded(isOpen ? null : i.id)} aria-expanded={isOpen}><div className="summaryName"><small>{i.id}</small><strong>{i.title}</strong><span>{i.supplier} · {i.location}</span></div><Status status={i.status} /><div className="metric"><strong>{i.progress}%</strong><span>complete</span></div><Schedule health={i.scheduleHealth} /><div className="budgetSummary"><strong>{money(i.spent)} / {money(i.budget)}</strong><span>{budgetPct}% of budget used</span><div className="budgetBar"><i style={{ width: `${Math.min(budgetPct, 100)}%` }} /></div></div><span className="expandIcon">{isOpen ? "−" : "+"}</span></button>{isOpen && <div className="expandedBody"><div className="keyFacts"><Fact label="Client reference" value={i.clientRef} /><Fact label="Assigned inspector" value={i.inspector} /><Fact label="Inspection period" value={`${i.start} – ${i.end}`} /><Fact label="Budget remaining" value={money(Math.max(i.budget - i.spent, 0))} /></div><div className="scope"><strong>Scope</strong><p>{i.scope}</p></div><div className="activityGrid"><div><span>Latest update</span><p>{i.latest}</p></div><div><span>What happens next</span><p>{i.next}</p></div></div>{i.issues.length > 0 && <div className={i.status === "Awaiting Client" ? "issueBanner clientAction" : "issueBanner"}><strong>{i.status === "Awaiting Client" ? "Your action is needed" : "Open items"}</strong><ul>{i.issues.map((x) => <li key={x}>{x}</li>)}</ul></div>}<ReportsBlock reports={i.reports} inspectionId={i.id} /><div className="cardActions"><button type="button">View inspection details</button><button type="button" className="secondary">Message coordinator</button></div></div>}</article>; })}</div></section>}
 
-      {tab === "active" && (
-        <section className="tabContent">
-          <div className="activeIntro">
-            <Intro eyebrow="Inspections in Progress" title="Active inspection portfolio" text="All active inspections are collapsed by default so you can scan status, schedule, progress and spend at a glance. Select an inspection to open the full record." />
-            <div className="portfolioStats">
-              <Stat n="3" l="Active" />
-              <Stat n="1" l="Client action" />
-              <Stat n={money(totalSpent)} l={`Spent of ${money(totalBudget)}`} />
-              <Stat n="9" l="Reports received" />
-            </div>
-          </div>
+    {tab === "history" && <section className="tabContent"><div className="historyIntro"><Intro eyebrow="Inspection History" title="Your complete inspection record" text="Search completed inspections by project, supplier, location, equipment, reference number or inspector, then open the full record and every associated report." /><div className="portfolioStats"><Stat n={String(historyInspections.length)} l="Completed" /><Stat n={String(historyReports)} l="Reports" /><Stat n={`${onTimePct}%`} l="Completed on time" /><Stat n={money(historySpend)} l="Historical spend" /></div></div><section className="apiBanner"><div className="apiCopy"><p className="apiEyebrow">Your data. Your systems.</p><h2>Get API access to all of your inspection data</h2><p>Pull your InspectSource data directly into the system of your choice. No manual exports and no data lock-in. Connect inspection assignments, suppliers, locations, inspectors, reports, findings, status, dates and spend to your ERP, procurement platform, data lake, Power BI environment or internal applications.</p><div className="apiTags"><span>REST API</span><span>JSON</span><span>Inspection records</span><span>Reports & findings</span><span>Cost data</span><span>BI / ERP integration</span></div></div><div className="apiExample"><span>Example client endpoint</span><code>GET /api/v1/client/inspections</code><code>GET /api/v1/client/reports</code><code>GET /api/v1/client/findings</code><button type="button">Request API access</button></div></section><div className="historyToolbar"><label><span>Search inspection history</span><input value={historyQuery} onChange={(e) => setHistoryQuery(e.target.value)} placeholder="Project, supplier, location, PO, equipment..." /></label><label><span>Outcome</span><select value={historyOutcome} onChange={(e) => setHistoryOutcome(e.target.value)}><option>All outcomes</option><option>Completed</option><option>Completed with Findings</option></select></label></div><div className="historyHeader"><span>Inspection</span><span>Completed</span><span>Outcome</span><span>Schedule</span><span>Spend</span><span>Reports</span><span></span></div><div className="historyList">{filteredHistory.map((item) => { const open = historyExpanded === item.id; return <article className={`historyCard ${open ? "open" : ""}`} key={item.id}><button type="button" className="historyRow" onClick={() => setHistoryExpanded(open ? null : item.id)} aria-expanded={open}><div className="summaryName"><small>{item.id} · {item.clientRef}</small><strong>{item.title}</strong><span>{item.supplier} · {item.location}</span></div><div className="metric"><strong>{item.completed}</strong><span>completion date</span></div><Outcome outcome={item.outcome} /><span className={item.schedule === "On Time" ? "scheduleBadge scheduleOn" : "scheduleBadge scheduleDelayed"}>{item.schedule}</span><div className="metric"><strong>{money(item.spend)}</strong><span>budget {money(item.budget)}</span></div><div className="metric"><strong>{item.reports.length}</strong><span>reports</span></div><span className="expandIcon">{open ? "−" : "+"}</span></button>{open && <div className="expandedBody"><div className="keyFacts"><Fact label="Client reference" value={item.clientRef} /><Fact label="Inspector" value={item.inspector} /><Fact label="Final spend" value={`${money(item.spend)} of ${money(item.budget)}`} /><Fact label="Completed" value={item.completed} /></div><div className="scope"><strong>Scope</strong><p>{item.scope}</p></div><div className="historyFindings"><strong>Findings / closeout</strong>{item.findings.length ? <ul>{item.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : <p>No reportable findings. Inspection completed and released.</p>}</div><ReportsBlock reports={item.reports} inspectionId={item.id} /></div>}</article>; })}{filteredHistory.length === 0 && <div className="emptyHistory">No completed inspections match those filters.</div>}</div></section>}
 
-          <div className="portfolioHeader">
-            <span>Inspection</span><span>Status</span><span>Progress</span><span>Schedule</span><span>Budget / Spend</span><span></span>
-          </div>
-
-          <div className="activeList">
-            {activeInspections.map((i) => {
-              const isOpen = expanded === i.id;
-              const budgetPct = Math.round((i.spent / i.budget) * 100);
-              return (
-                <article className={`inspectionCard ${isOpen ? "open" : ""}`} key={i.id}>
-                  <button className="summaryRow" type="button" onClick={() => setExpanded(isOpen ? null : i.id)} aria-expanded={isOpen}>
-                    <div className="summaryName"><small>{i.id}</small><strong>{i.title}</strong><span>{i.supplier} · {i.location}</span></div>
-                    <Status status={i.status} />
-                    <div className="metric"><strong>{i.progress}%</strong><span>complete</span></div>
-                    <Schedule health={i.scheduleHealth} />
-                    <div className="budgetSummary"><strong>{money(i.spent)} / {money(i.budget)}</strong><span>{budgetPct}% of budget used</span><div className="budgetBar"><i style={{ width: `${Math.min(budgetPct, 100)}%` }} /></div></div>
-                    <span className="expandIcon">{isOpen ? "−" : "+"}</span>
-                  </button>
-
-                  {isOpen && (
-                    <div className="expandedBody">
-                      <div className="keyFacts">
-                        <Fact label="Client reference" value={i.clientRef} />
-                        <Fact label="Assigned inspector" value={i.inspector} />
-                        <Fact label="Inspection period" value={`${i.start} – ${i.end}`} />
-                        <Fact label="Budget remaining" value={money(Math.max(i.budget - i.spent, 0))} />
-                      </div>
-
-                      <div className="scope"><strong>Scope</strong><p>{i.scope}</p></div>
-                      <div className="activityGrid"><div><span>Latest update</span><p>{i.latest}</p></div><div><span>What happens next</span><p>{i.next}</p></div></div>
-
-                      {i.issues.length > 0 && <div className={i.status === "Awaiting Client" ? "issueBanner clientAction" : "issueBanner"}><strong>{i.status === "Awaiting Client" ? "Your action is needed" : "Open items"}</strong><ul>{i.issues.map((x) => <li key={x}>{x}</li>)}</ul></div>}
-
-                      <section className="reportsBlock">
-                        <div className="reportsHeading"><div><span className="reportsEyebrow">Inspection reports</span><h4>{i.reports.length} reports submitted</h4></div><div className="customReportNote"><strong>Customizable reporting</strong><span>Report formats, fields, branding and client templates can be customized.</span></div></div>
-                        <div className="reportList">{i.reports.map((r) => <Link key={r.id} className="reportLink" href={`/demo-report?id=${encodeURIComponent(r.id)}&inspection=${encodeURIComponent(i.id)}&title=${encodeURIComponent(r.title)}&date=${encodeURIComponent(r.date)}`}><span><strong>{r.title}</strong><small>{r.date}</small></span><b>Open report →</b></Link>)}</div>
-                      </section>
-
-                      <div className="cardActions"><button type="button">View inspection details</button><button type="button" className="secondary">Message coordinator</button></div>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {tab === "history" && <section className="tabContent"><Intro eyebrow="Inspection History" title="Completed inspections" text="This will become the searchable client record of completed inspections, reports, findings, suppliers, equipment and inspectors." /><div className="historyPlaceholder"><strong>Next build</strong><p>We’ll build this tab after we review and approve the Inspections in Progress experience.</p></div></section>}
-
-      <style jsx>{`
-        .page{max-width:1220px;margin:auto;padding:30px 18px 80px}.demoHeader,.tabContent{background:#fff;border:1px solid #e2e8f0}.demoHeader{border-radius:18px;padding:30px}.eyebrow{margin:0 0 6px;font-size:.75rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#475569}.demoHeader h1{margin:0;font-size:2.1rem}.demoHeader p,.intro p{color:#64748b;line-height:1.6}.tabs{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;border:1px solid #cbd5e1;border-radius:14px 14px 0 0;overflow:hidden;background:#f8fafc}.tabs button{border:0;border-right:1px solid #cbd5e1;background:transparent;padding:16px 18px;text-align:left;font:inherit;font-weight:800;cursor:pointer;display:flex;justify-content:space-between}.tabs button:last-child{border-right:0}.tabs button b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:999px;background:#e2e8f0;font-size:.76rem}.tabs .activeTab{background:#0f172a;color:#fff}.tabs .activeTab b{background:#fff;color:#0f172a}.tabContent{border-top:0;border-radius:0 0 18px 18px;padding:30px}.intro h2{margin:0;font-size:1.7rem}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:390px}.requestCard p{color:#64748b;line-height:1.5}.step{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:800}.requestCard textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;margin:8px 0 14px}.emailSample{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px;margin:8px 0 14px}.emailSample strong{font-size:.75rem;text-transform:uppercase}.emailSample pre{white-space:pre-wrap;font:inherit;font-size:.78rem;line-height:1.38;color:#475569}.structuredPreview{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}.structuredPreview span{background:#f1f5f9;border-radius:999px;padding:7px 9px;font-size:.78rem}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:800;margin-top:auto}.activeIntro{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.portfolioStats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.portfolioStats .stat{border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;min-width:105px}.stat strong{display:block;font-size:1.2rem}.stat span{display:block;color:#64748b;font-size:.72rem;margin-top:3px}.portfolioHeader{display:grid;grid-template-columns:minmax(280px,2.3fr) 1fr .7fr 1fr 1.4fr 38px;gap:14px;padding:11px 18px;margin-top:24px;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em}.activeList{display:grid;gap:10px}.inspectionCard{border:1px solid #dbe3ee;border-radius:14px;overflow:hidden;background:#fff}.inspectionCard.open{box-shadow:0 10px 30px rgba(15,23,42,.06)}.summaryRow{width:100%;display:grid;grid-template-columns:minmax(280px,2.3fr) 1fr .7fr 1fr 1.4fr 38px;gap:14px;align-items:center;border:0;background:#fff;padding:18px;text-align:left;font:inherit;cursor:pointer}.summaryRow:hover{background:#f8fafc}.summaryName{display:flex;flex-direction:column;gap:3px}.summaryName small{color:#64748b;font-size:.68rem;font-weight:900;letter-spacing:.06em}.summaryName strong{font-size:.98rem}.summaryName span{color:#64748b;font-size:.78rem}.status,.schedule{justify-self:start;border-radius:999px;padding:6px 9px;font-size:.7rem;font-weight:900;white-space:nowrap}.onTrack,.onSchedule{background:#dcfce7;color:#166534}.attention,.atRisk{background:#fef3c7;color:#92400e}.awaiting{background:#dbeafe;color:#1d4ed8}.delayed{background:#fee2e2;color:#991b1b}.metric strong,.budgetSummary strong{display:block;font-size:.88rem}.metric span,.budgetSummary span{display:block;color:#64748b;font-size:.7rem;margin-top:2px}.budgetBar{height:5px;background:#e2e8f0;border-radius:999px;margin-top:7px;overflow:hidden}.budgetBar i{display:block;height:100%;background:#0f172a;border-radius:999px}.expandIcon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#f1f5f9;font-size:1.1rem;font-weight:800}.expandedBody{padding:0 20px 22px;border-top:1px solid #e2e8f0}.keyFacts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.fact{background:#f8fafc;border-radius:10px;padding:11px}.fact span{display:block;font-size:.69rem;font-weight:900;text-transform:uppercase;color:#64748b}.fact strong{display:block;margin-top:4px;font-size:.88rem}.scope{border-top:1px solid #e2e8f0;padding-top:17px}.scope p{color:#475569;margin:5px 0}.activityGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.activityGrid>div{border-radius:12px;padding:15px;background:#f8fafc}.activityGrid span{font-size:.72rem;font-weight:900;text-transform:uppercase}.activityGrid p{margin:7px 0 0;color:#334155;line-height:1.5}.issueBanner{margin-top:14px;padding:13px 15px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}.clientAction{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.issueBanner ul{margin:7px 0 0}.reportsBlock{margin-top:18px;border-top:1px solid #e2e8f0;padding-top:18px}.reportsHeading{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.reportsEyebrow{font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}.reportsHeading h4{margin:4px 0 0;font-size:1.05rem}.customReportNote{max-width:390px;padding:10px 12px;border:1px solid #f3c969;background:#fff9e8;border-radius:9px;color:#7a5410}.customReportNote strong,.customReportNote span{display:block}.customReportNote strong{font-size:.78rem}.customReportNote span{font-size:.76rem;line-height:1.4;margin-top:2px}.reportList{display:grid;gap:7px;margin-top:12px}.reportLink{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 13px;border:1px solid #e2e8f0;border-radius:9px;text-decoration:none;color:#0f172a;background:#fff}.reportLink span{display:flex;flex-direction:column;gap:2px}.reportLink small{color:#64748b}.reportLink b{font-size:.78rem}.cardActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.cardActions button{border:0;background:#0f172a;color:#fff;border-radius:9px;padding:10px 13px;font-weight:800}.cardActions .secondary{background:#fff;color:#0f172a;border:1px solid #cbd5e1}.historyPlaceholder{margin-top:24px;border:1px dashed #94a3b8;border-radius:14px;padding:30px;text-align:center;background:#f8fafc;color:#475569}@media(max-width:980px){.requestOptions{grid-template-columns:1fr}.requestCard{min-height:0}.activeIntro{display:block}.portfolioStats{margin-top:18px}.portfolioHeader{display:none}.summaryRow{grid-template-columns:minmax(220px,2fr) 1fr 1fr}.summaryRow .metric,.summaryRow .budgetSummary{display:block}.summaryRow .schedule{display:none}.summaryRow .expandIcon{justify-self:end}.keyFacts{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.tabs{grid-template-columns:1fr}.tabs button{border-right:0;border-bottom:1px solid #cbd5e1}.tabContent{padding:20px}.portfolioStats{grid-template-columns:repeat(2,1fr)}.summaryRow{grid-template-columns:1fr auto}.summaryRow>.status,.summaryRow>.metric,.summaryRow>.schedule,.summaryRow>.budgetSummary{grid-column:1/-1}.keyFacts,.activityGrid{grid-template-columns:1fr}.reportsHeading{display:block}.customReportNote{margin-top:10px}.demoHeader h1{font-size:1.65rem}}
-      `}</style>
-    </main>
-  );
+    <style jsx>{`.page{max-width:1220px;margin:auto;padding:30px 18px 80px}.demoHeader,.tabContent{background:#fff;border:1px solid #e2e8f0}.demoHeader{border-radius:18px;padding:30px}.eyebrow{margin:0 0 6px;font-size:.75rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#475569}.demoHeader h1{margin:0;font-size:2.1rem}.demoHeader p,.intro p{color:#64748b;line-height:1.6}.tabs{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;border:1px solid #cbd5e1;border-radius:14px 14px 0 0;overflow:hidden;background:#f8fafc}.tabs button{border:0;border-right:1px solid #cbd5e1;background:transparent;padding:16px 18px;text-align:left;font:inherit;font-weight:800;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}.tabs button:last-child{border-right:0}.tabs button b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:999px;background:#e2e8f0;font-size:.76rem}.tabs .activeTab{background:#0f172a;color:#fff}.tabs .activeTab b{background:#fff;color:#0f172a}.tabContent{border-top:0;border-radius:0 0 18px 18px;padding:30px}.intro h2{margin:0;font-size:1.7rem}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:390px}.requestCard p{color:#64748b;line-height:1.5}.step{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:800}.requestCard textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;margin:8px 0 14px}.emailSample{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px;margin:8px 0 14px}.emailSample pre{white-space:pre-wrap;font:inherit;font-size:.78rem;color:#475569}.structuredPreview,.apiTags{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}.structuredPreview span,.apiTags span{background:#f1f5f9;border-radius:999px;padding:7px 9px;font-size:.78rem}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:800;margin-top:auto}.activeIntro,.historyIntro{display:flex;justify-content:space-between;gap:24px}.portfolioStats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.portfolioStats .stat{border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;min-width:90px}.stat strong{display:block;font-size:1.25rem}.stat span{display:block;color:#64748b;font-size:.74rem}.portfolioHeader,.summaryRow{display:grid;grid-template-columns:2.35fr .8fr .65fr .8fr 1.3fr 34px;gap:12px;align-items:center}.portfolioHeader,.historyHeader{margin-top:24px;padding:0 16px 8px;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase}.activeList,.historyList{display:grid;gap:10px}.inspectionCard,.historyCard{border:1px solid #dbe3ee;border-radius:14px;overflow:hidden;background:#fff}.summaryRow,.historyRow{width:100%;border:0;background:#fff;padding:17px 16px;text-align:left;font:inherit;cursor:pointer}.summaryRow:hover,.historyRow:hover{background:#f8fafc}.summaryName{display:flex;flex-direction:column;gap:3px;min-width:0}.summaryName small{font-size:.67rem;color:#64748b;font-weight:800}.summaryName strong{font-size:.93rem}.summaryName span{color:#64748b;font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status,.scheduleBadge,.outcomeBadge{width:max-content;border-radius:999px;padding:6px 9px;font-size:.7rem;font-weight:900}.onTrack,.scheduleOn,.outcomeOk{background:#dcfce7;color:#166534}.attention,.scheduleRisk,.outcomeFindings{background:#fef3c7;color:#92400e}.awaiting{background:#dbeafe;color:#1d4ed8}.scheduleDelayed{background:#fee2e2;color:#991b1b}.metric{display:flex;flex-direction:column;gap:2px}.metric strong{font-size:.82rem}.metric span{font-size:.67rem;color:#64748b}.budgetSummary strong{font-size:.8rem}.budgetSummary>span{display:block;margin:3px 0 5px;color:#64748b;font-size:.67rem}.budgetBar{height:5px;border-radius:999px;background:#e2e8f0;overflow:hidden}.budgetBar i{display:block;height:100%;background:#0f172a}.expandIcon{font-size:1.4rem;text-align:center;color:#64748b}.expandedBody{border-top:1px solid #e2e8f0;padding:20px 22px 22px;background:#fcfdff}.keyFacts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.fact{background:#f8fafc;border-radius:10px;padding:11px}.fact span{display:block;font-size:.67rem;font-weight:900;text-transform:uppercase;color:#64748b}.fact strong{display:block;margin-top:4px;font-size:.86rem}.scope{border-top:1px solid #e2e8f0;padding-top:17px}.scope p{color:#475569;margin:5px 0}.activityGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.activityGrid>div,.historyFindings{border-radius:12px;padding:15px;background:#f8fafc}.activityGrid span{font-size:.72rem;font-weight:900;text-transform:uppercase}.activityGrid p,.historyFindings p{margin:7px 0 0;color:#334155}.issueBanner{margin-top:14px;padding:13px 15px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}.clientAction{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.reportsBlock{margin-top:18px;border-top:1px solid #e2e8f0;padding-top:18px}.reportsHeading{display:flex;justify-content:space-between;gap:18px}.reportsHeading h4{margin:4px 0}.reportsEyebrow{font-size:.7rem;font-weight:900;text-transform:uppercase;color:#64748b}.customReportNote{max-width:390px;padding:10px 12px;border:1px solid #f3c969;background:#fff9e8;border-radius:9px;color:#7a5410}.customReportNote strong,.customReportNote span{display:block}.customReportNote span{font-size:.76rem}.reportList{display:grid;gap:7px;margin-top:12px}.reportLink{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border:1px solid #e2e8f0;border-radius:9px;text-decoration:none;color:#0f172a}.reportLink span{display:flex;flex-direction:column}.reportLink small{color:#64748b}.cardActions{display:flex;gap:9px;margin-top:18px}.cardActions button,.apiExample button{border:0;background:#0f172a;color:#fff;border-radius:9px;padding:10px 13px;font-weight:800}.cardActions .secondary{background:#fff;color:#0f172a;border:1px solid #cbd5e1}.apiBanner{display:grid;grid-template-columns:1.55fr .8fr;gap:24px;margin:26px 0;padding:25px;border:1px solid #93c5fd;background:#eff6ff;border-radius:16px}.apiEyebrow{margin:0;font-size:.7rem;font-weight:900;text-transform:uppercase;color:#1d4ed8}.apiBanner h2{margin:5px 0 8px}.apiCopy>p:not(.apiEyebrow){margin:0;color:#334155;line-height:1.55}.apiTags span{background:#fff;color:#1e3a8a}.apiExample{border-radius:12px;background:#0f172a;color:#e2e8f0;padding:18px;display:flex;flex-direction:column;gap:9px}.apiExample>span{font-size:.68rem;text-transform:uppercase;color:#94a3b8;font-weight:900}.apiExample code{display:block;padding:8px 9px;background:#1e293b;border-radius:7px;font-size:.75rem}.apiExample button{margin-top:auto;background:#fff;color:#0f172a}.historyToolbar{display:grid;grid-template-columns:1fr 220px;gap:12px;margin:22px 0}.historyToolbar label{display:flex;flex-direction:column;gap:6px}.historyToolbar label>span{font-size:.72rem;font-weight:900;text-transform:uppercase;color:#64748b}.historyToolbar input,.historyToolbar select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.historyHeader,.historyRow{display:grid;grid-template-columns:2.2fr .85fr 1fr .8fr .8fr .55fr 34px;gap:12px;align-items:center}.historyFindings{margin-top:16px}.historyFindings ul{margin:7px 0 0}.emptyHistory{padding:30px;border:1px dashed #cbd5e1;border-radius:12px;text-align:center;color:#64748b}@media(max-width:1000px){.requestOptions{grid-template-columns:1fr}.requestCard{min-height:0}.activeIntro,.historyIntro{display:block}.portfolioStats{margin-top:18px}.portfolioHeader,.historyHeader{display:none}.summaryRow,.historyRow{grid-template-columns:1.8fr 1fr 1fr}.summaryRow>:nth-child(4),.summaryRow>:nth-child(5),.historyRow>:nth-child(4),.historyRow>:nth-child(5){display:none}.apiBanner{grid-template-columns:1fr}.keyFacts{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.tabs{grid-template-columns:1fr}.tabContent{padding:20px}.portfolioStats{grid-template-columns:repeat(2,1fr)}.summaryRow,.historyRow{grid-template-columns:1fr auto}.summaryRow>:not(.summaryName):not(.expandIcon),.historyRow>:not(.summaryName):not(.expandIcon){display:none}.keyFacts,.activityGrid{grid-template-columns:1fr}.reportsHeading{display:block}.customReportNote{margin-top:10px}.historyToolbar{grid-template-columns:1fr}.demoHeader h1{font-size:1.65rem}}`}</style>
+  </main>;
 }
 
 function Intro({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) { return <div className="intro"><p className="eyebrow">{eyebrow}</p><h2>{title}</h2><p>{text}</p></div>; }
-function Status({ status }: { status: ActiveInspection["status"] }) { const c = status === "On Track" ? "status onTrack" : status === "Attention" ? "status attention" : "status awaiting"; return <span className={c}>{status === "Awaiting Client" ? "Client Action Needed" : status}</span>; }
-function Schedule({ health }: { health: ScheduleHealth }) { const c = health === "On Schedule" ? "schedule onSchedule" : health === "Delayed" ? "schedule delayed" : "schedule atRisk"; return <span className={c}>{health}</span>; }
+function Status({ status }: { status: ActiveInspection["status"] }) { return <span className={status === "On Track" ? "status onTrack" : status === "Attention" ? "status attention" : "status awaiting"}>{status === "Awaiting Client" ? "Client Action Needed" : status}</span>; }
+function Schedule({ health }: { health: ScheduleHealth }) { return <span className={health === "On Schedule" ? "scheduleBadge scheduleOn" : health === "Delayed" ? "scheduleBadge scheduleDelayed" : "scheduleBadge scheduleRisk"}>{health}</span>; }
+function Outcome({ outcome }: { outcome: HistoryInspection["outcome"] }) { return <span className={outcome === "Completed" ? "outcomeBadge outcomeOk" : "outcomeBadge outcomeFindings"}>{outcome}</span>; }
 function Fact({ label, value }: { label: string; value: string }) { return <div className="fact"><span>{label}</span><strong>{value}</strong></div>; }
 function Stat({ n, l }: { n: string; l: string }) { return <div className="stat"><strong>{n}</strong><span>{l}</span></div>; }
 function money(value: number) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value); }
+function ReportsBlock({ reports, inspectionId }: { reports: ReportLink[]; inspectionId: string }) { return <section className="reportsBlock"><div className="reportsHeading"><div><span className="reportsEyebrow">Inspection reports</span><h4>{reports.length} reports submitted</h4></div><div className="customReportNote"><strong>Customizable reporting</strong><span>Report formats, fields, branding and client templates can be customized.</span></div></div><div className="reportList">{reports.map((r) => <Link key={r.id} className="reportLink" href={`/demo-report?id=${encodeURIComponent(r.id)}&inspection=${encodeURIComponent(inspectionId)}&title=${encodeURIComponent(r.title)}&date=${encodeURIComponent(r.date)}`}><span><strong>{r.title}</strong><small>{r.date}</small></span><b>Open report →</b></Link>)}</div></section>; }
