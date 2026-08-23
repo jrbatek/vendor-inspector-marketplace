@@ -5,11 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase";
 
-const PRODUCTION_ORIGIN = "https://vendor-inspector-marketplace.vercel.app";
+const PROD_ORIGIN = "https://vendor-inspector-marketplace.vercel.app";
 
-function authOrigin() {
-  if (typeof window === "undefined") return PRODUCTION_ORIGIN;
-  return window.location.hostname === "localhost" ? PRODUCTION_ORIGIN : window.location.origin;
+function friendlyAuthError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("rate limit") || normalized.includes("email rate")) {
+    return "Too many authentication emails have been requested. Please wait a little while and try again.";
+  }
+  if (normalized.includes("invalid login credentials")) {
+    return "That email and password combination was not recognized. Try again, use Forgot password, or request a secure sign-in link.";
+  }
+  if (normalized.includes("expired") || normalized.includes("otp_expired")) {
+    return "That secure sign-in link has expired. Request a new link below.";
+  }
+  return message;
 }
 
 export default function LoginPage() {
@@ -29,7 +38,7 @@ export default function LoginPage() {
 
     if (error || !data.user) {
       setSaving(false);
-      setMessage(error?.message || "Unable to log in.");
+      setMessage(friendlyAuthError(error?.message || "Unable to log in."));
       return;
     }
 
@@ -51,10 +60,9 @@ export default function LoginPage() {
 
     setSaving(true);
     setMessage("");
-    const redirectTo = `${authOrigin()}/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${PROD_ORIGIN}/reset-password` });
     setSaving(false);
-    setMessage(error ? error.message : "Password reset email sent. Check your inbox and follow the secure link.");
+    setMessage(error ? friendlyAuthError(error.message) : "Password reset email sent. Check your inbox and follow the secure link.");
   }
 
   async function sendMagicLink() {
@@ -65,13 +73,12 @@ export default function LoginPage() {
 
     setSaving(true);
     setMessage("");
-    const emailRedirectTo = `${authOrigin()}/client-dashboard`;
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo, shouldCreateUser: false },
+      options: { emailRedirectTo: `${PROD_ORIGIN}/client-dashboard`, shouldCreateUser: false },
     });
     setSaving(false);
-    setMessage(error ? error.message : "Secure sign-in link sent. Check your email to continue without a password.");
+    setMessage(error ? friendlyAuthError(error.message) : "Secure sign-in link sent. Check your email to continue without a password.");
   }
 
   return (
