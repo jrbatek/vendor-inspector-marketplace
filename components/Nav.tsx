@@ -13,6 +13,7 @@ const groups = [
   ]},
   { label: "Inspectors", links: [
     ["InspectorHub", "/inspectorhub"],
+    ["Smart Onboarding", "/inspector-onboarding"],
     ["My Schedule", "/inspectorhub/schedule"],
     ["Selection Insights", "/selection-insights"],
     ["My Profile", "/dashboard"],
