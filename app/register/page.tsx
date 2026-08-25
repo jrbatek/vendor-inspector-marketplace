@@ -7,6 +7,17 @@ import { supabaseBrowser } from "@/lib/supabase";
 
 type AccountRole = "client" | "inspector";
 
+function friendlyAuthError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("rate limit") || normalized.includes("email rate")) {
+    return "Too many authentication emails have been requested. Please wait a little while and try again. Your information has not been lost.";
+  }
+  if (normalized.includes("already registered") || normalized.includes("user already")) {
+    return "An account already exists for this email. Use Log in or Forgot password instead.";
+  }
+  return message;
+}
+
 export default function RegisterPage() {
   const supabase = supabaseBrowser();
   const router = useRouter();
@@ -31,7 +42,7 @@ export default function RegisterPage() {
     setSaving(false);
 
     if (error) {
-      setMessage(error.message);
+      setMessage(friendlyAuthError(error.message));
       return;
     }
 
@@ -60,7 +71,7 @@ export default function RegisterPage() {
               checked={role === "client"}
               onChange={() => setRole("client")}
             />
-            <span><strong>Client</strong><small>Find inspectors and send availability requests.</small></span>
+            <span><strong>Client</strong><small>Find inspectors and manage inspection programs.</small></span>
           </label>
 
           <label className={role === "inspector" ? "roleCard selected" : "roleCard"}>
@@ -71,7 +82,7 @@ export default function RegisterPage() {
               checked={role === "inspector"}
               onChange={() => setRole("inspector")}
             />
-            <span><strong>Inspector</strong><small>Create a profile and receive opportunities.</small></span>
+            <span><strong>Inspector</strong><small>Create a profile, receive opportunities, and manage assignments.</small></span>
           </label>
         </div>
 
