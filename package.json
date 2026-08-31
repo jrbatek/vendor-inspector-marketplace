@@ -9,8 +9,11 @@
     "test": "tsx --test tests/*.test.ts",
     "test:coordinator": "tsx --test tests/projectCoordinator.test.ts",
     "check:migrations": "node scripts/check-migrations.mjs",
+    "synthetic:generate": "node scripts/generate-synthetic-data.mjs",
+    "synthetic:validate": "node scripts/validate-synthetic-data.mjs",
+    "qa:synthetic": "npm run synthetic:generate && npm run synthetic:validate",
     "smoke:local": "node scripts/smoke-local.mjs",
-    "validate": "npm run test && npm run check:migrations && npm run typecheck && npm run build && npm run smoke:local",
+    "validate": "npm run test && npm run check:migrations && npm run qa:synthetic && npm run typecheck && npm run build && npm run smoke:local",
     "start": "next start"
   },
   "dependencies": {
