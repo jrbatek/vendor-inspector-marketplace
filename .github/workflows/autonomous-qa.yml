@@ -1,0 +1,55 @@
+name: Autonomous QA
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 11 * * 1-5'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-and-app-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SYNTHETIC_SEED: '20260831'
+      SYNTHETIC_SCALE: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and validate synthetic QA corpus
+        run: npm run qa:synthetic
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Migration checks
+        run: npm run check:migrations
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Upload synthetic summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-qa-summary
+          path: .synthetic/summary.json
+          if-no-files-found: ignore
+          retention-days: 14
