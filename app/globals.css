@@ -32,4 +32,5 @@
 .emptyState{padding:22px;text-align:center;border:1px dashed var(--border);border-radius:12px}
 .inquiryCard{padding:18px;border:1px solid var(--border);border-radius:14px;background:#fff}
 .inquiryText{padding:14px;border-radius:10px;background:#f8fafc;line-height:1.6}
+.requestGrid .step{display:none!important}
 @media(max-width:800px){.homeGrid,.metricGrid,.roleChoice{grid-template-columns:1fr}.dashboardHero,.dashboardRow{grid-template-columns:1fr;display:grid}.rowMeta{align-items:flex-start}.sectionHeader{flex-direction:column}}
