@@ -45,9 +45,9 @@ test("coordinator preserves the canonical Houston staffing request", () => {
   assert.ok(brief.requiredTerms.some((term) => term.toLowerCase().includes("twic")));
 });
 
-test("coordinator ranks a clearly qualified inspector above a weak candidate", () => {
+test("coordinator excludes candidates that fail required eligibility gates", () => {
   const strong = inspector();
-  const weak = inspector({
+  const ineligible = inspector({
     inspector_id: crypto.randomUUID(),
     biography: "General coating inspector.",
     primary_discipline: "Coating Inspection",
@@ -58,7 +58,26 @@ test("coordinator ranks a clearly qualified inspector above a weak candidate", (
     day_rate: 850,
   });
 
-  const result = coordinateProject(REQUEST, [weak, strong]);
+  const result = coordinateProject(REQUEST, [ineligible, strong]);
+  assert.equal(result.ranked.length, 1);
+  assert.equal(result.ranked[0].inspector_id, strong.inspector_id);
+  assert.equal(result.ranked.some((candidate) => candidate.inspector_id === ineligible.inspector_id), false);
+});
+
+test("coordinator ranks stronger fit above another eligible candidate", () => {
+  const strong = inspector();
+  const eligibleButWeaker = inspector({
+    inspector_id: crypto.randomUUID(),
+    biography: "API 570 inspector with TWIC.",
+    base_city: "Dallas",
+    years_experience: 5,
+    day_rate: 950,
+    is_verified: false,
+    industries: [],
+  });
+
+  const result = coordinateProject(REQUEST, [eligibleButWeaker, strong]);
+  assert.equal(result.ranked.length, 2);
   assert.equal(result.ranked[0].inspector_id, strong.inspector_id);
   assert.ok(result.ranked[0].score > result.ranked[1].score);
 });
