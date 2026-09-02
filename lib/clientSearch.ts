@@ -59,10 +59,15 @@ function parseRequiredCertifications(text:string):string[]{
   return Array.from(new Set(CERT_PATTERNS.filter(([pattern])=>pattern.test(text)).map(([,label])=>label)));
 }
 
+function parseMaximumDayRate(text:string):RegExpMatchArray|null{
+  return text.match(/(?:\b([A-Z]{3})\s*)?(\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:\/|per\s*)day\b/i)
+    || text.match(/\bmaximum\s+day\s+rate\s+(?:([A-Z]{3})\s*)?(\$)?\s*([\d,]+(?:\.\d+)?)/i);
+}
+
 export function parseRequest(text:string):ParsedRequest{
   const clean=text.trim(); const lower=clean.toLowerCase();
   const location=clean.match(/\b(?:in|near|around|within\s+\d+\s+(?:miles|kilometers|km)\s+of)\s+([A-Z][A-Za-z .'-]+(?:,\s*[A-Z]{2})?)(?=\s+(?:for|starting|beginning|with|who|and|must|budget|available|requiring)|[,.]|$)/);
-  const rate=lower.match(/(?:\b([A-Z]{3})\s*)?(\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:\/|per\s*)day\b/i);
+  const rate=parseMaximumDayRate(clean);
   const years=lower.match(/(?:at least|minimum|min\.?)\s*(\d{1,2})\s*\+?\s*years?/);
   const duration=lower.match(/(\d+)\s*(day|days|week|weeks|month|months)\b/);
   let durationDays:number|null=null; if(duration){const amount=Number(duration[1]);durationDays=duration[2].startsWith("week")?amount*7:duration[2].startsWith("month")?amount*30:amount;}

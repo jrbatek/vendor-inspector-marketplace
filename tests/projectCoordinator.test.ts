@@ -4,6 +4,7 @@ import { buildProjectBrief, coordinateProject } from "../lib/projectCoordinator"
 import type { SearchInspector } from "../lib/clientSearch";
 
 const REQUEST = "Need two API 570 inspectors in Houston for a refinery turnaround starting September 14 for three weeks. TWIC required. Budget is $950 per day. Please send CVs and confirm availability.";
+const STRUCTURED_REQUEST = "We need 2 inspectors in Houston, Texas starting 2026-09-14 for 3 weeks. API 570 certification. minimum 5 years experience. TWIC required. maximum day rate USD 950. inspector must be available for the requested assignment dates.";
 
 function inspector(overrides: Partial<SearchInspector> = {}): SearchInspector {
   return {
@@ -43,6 +44,22 @@ test("coordinator preserves the canonical Houston staffing request", () => {
   assert.equal(brief.maximumDayRate, 950);
   assert.ok(brief.requiredTerms.some((term) => term.toLowerCase().includes("api 570")));
   assert.ok(brief.requiredTerms.some((term) => term.toLowerCase().includes("twic")));
+});
+
+test("structured day-rate wording normalizes to the same budget gate", () => {
+  const brief = buildProjectBrief(STRUCTURED_REQUEST);
+  assert.equal(brief.maximumDayRate, 950);
+  assert.equal(brief.maximumDayRateCurrency, "USD");
+  assert.equal(brief.minimumYearsExperience, 5);
+  assert.equal(brief.durationDays, 21);
+});
+
+test("structured day-rate cap excludes over-budget inspectors", () => {
+  const withinBudget = inspector({ day_rate: 950 });
+  const overBudget = inspector({ inspector_id: crypto.randomUUID(), day_rate: 975 });
+  const result = coordinateProject(STRUCTURED_REQUEST, [overBudget, withinBudget]);
+  assert.equal(result.ranked.length, 1);
+  assert.equal(result.ranked[0].inspector_id, withinBudget.inspector_id);
 });
 
 test("coordinator excludes candidates that fail required eligibility gates", () => {
