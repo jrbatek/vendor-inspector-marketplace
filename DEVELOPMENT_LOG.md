@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-02 - Fixed structured day-rate matching parity
+- Found a request-normalization gap: the structured selection form emitted day-rate caps as `maximum day rate USD 950`, while the shared parser primarily recognized `/day` or `per day` wording.
+- Updated the shared parser so structured, natural-language, and email-style day-rate wording normalize into the same `maximumDayRate` and currency fields.
+- Added regression tests proving the structured rate cap is parsed and over-budget inspectors are excluded by the existing hard eligibility gate.
+- Standard validation passed regression tests, migration checks, TypeScript, production build, and route smoke tests.
+- Autonomous QA passed synthetic generation/validation plus the full application validation suite.
+- Vercel preview reached READY before merge; the change was promoted through PR #30.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-02 - Fixed client workspace deep-link navigation
 - Fixed Client Workspace links from natural-language and structured search pages so `?section=active`, `history`, `analytics`, `billing`, `contracts`, and `profile` now open the intended dashboard section instead of always falling back to Request Inspectors.
 - Added safe parsing and bookmarkable URL generation for dashboard sections, including fallback to Request Inspectors for invalid section values.
