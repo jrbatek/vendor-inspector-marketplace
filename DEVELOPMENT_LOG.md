@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-02 - Fixed client workspace deep-link navigation
+- Fixed Client Workspace links from natural-language and structured search pages so `?section=active`, `history`, `analytics`, `billing`, `contracts`, and `profile` now open the intended dashboard section instead of always falling back to Request Inspectors.
+- Added safe parsing and bookmarkable URL generation for dashboard sections, including fallback to Request Inspectors for invalid section values.
+- Dashboard section changes now update browser history and respond correctly to Back/Forward navigation.
+- Removed the obsolete numbered markers from the three Request Inspectors cards at the component level rather than relying only on CSS hiding.
+- Added regression tests covering valid sections, invalid/missing sections, and generated dashboard URLs.
+- Autonomous QA passed synthetic generation, unit tests, migration checks, TypeScript, production build, and route smoke tests.
+- Vercel production deployment reached READY and no production runtime errors were found after deployment.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-01 - Restored matching regression QA
 - Diagnosed the red validation gate: a legacy ranking test expected an inspector who now correctly fails hard eligibility gates to remain in the ranked results.
 - Updated coordinator regression coverage to verify both behaviors explicitly: ineligible candidates are excluded, while eligible candidates are still ranked by fit.
