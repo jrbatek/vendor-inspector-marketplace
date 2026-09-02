@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-02 - Improved structured selection usability
+- Added a clear `DEMO — Uses Synthetic Data` banner to the structured-selection demo and kept the demo on the production component architecture.
+- Made Location and Start Date required before matching, with accessible required-state markup and a clear validation message.
+- Widened the structured-selection workspace, reduced the desktop grid from four to three columns, and improved Reset-button contrast/readability.
+- Kept day rate as a direct numeric entry and populated a visible synthetic day-rate example in demo mode.
+- Replaced `Identify inspectors` with `Find Inspectors` for clearer client-facing language.
+- Added regression coverage for the demo marker, required fields, wording, day-rate entry, wider layout, and Reset readability.
+- Standard application validation and Autonomous QA both passed; Vercel preview reached READY before merge through PR #31.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-02 - Fixed structured day-rate matching parity
 - Found a request-normalization gap: the structured selection form emitted day-rate caps as `maximum day rate USD 950`, while the shared parser primarily recognized `/day` or `per day` wording.
 - Updated the shared parser so structured, natural-language, and email-style day-rate wording normalize into the same `maximumDayRate` and currency fields.
