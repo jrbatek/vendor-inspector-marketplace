@@ -17,8 +17,8 @@ test("structured selection requires location and start date", () => {
 });
 
 test("structured selection uses clear find-inspectors language", () => {
-  assert.match(source, />Find Inspectors</);
-  assert.doesNotMatch(source, />Identify inspectors</);
+  assert.match(source, /"Find Inspectors"/);
+  assert.doesNotMatch(source, /"Identify inspectors"/);
 });
 
 test("structured selection demo includes an editable day-rate value", () => {
