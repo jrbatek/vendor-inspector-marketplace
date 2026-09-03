@@ -1,3 +1,5 @@
+"use client";
+
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 
 const mailto = "mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request";
