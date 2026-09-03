@@ -2,6 +2,23 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-03 - Established global demo-mode foundation and split home experience
+- Moved `Client Login` and `Inspector Login` into their respective navigation dropdowns and removed the separate top-level login controls.
+- Added a global authentication-aware Demo Mode banner that appears only for unauthenticated users and clearly states that the visible experience uses synthetic data.
+- Redesigned the home page around `InspectSource — Eyes, Ears, and Expertise, Everywhere.` with two clear paths: Clients and Inspectors.
+- Added restrained blue/teal visual differentiation so client and inspector experiences are easier to scan without making the interface busy.
+- Added regression tests covering the brand line, client/inspector split, login placement, and demo-banner authentication behavior.
+- The first preview exposed a Server/Client Component styling error on the redesigned home page; it was fixed immediately before release.
+- Validate application and Autonomous QA both passed after the fix, including synthetic QA, migration checks, TypeScript, production build, and smoke tests.
+- Corrected Vercel preview reached READY, returned HTTP 200 on the redesigned home page, and PR #33 merged to main.
+- Production runtime logs showed no errors before release.
+
+### Follow-on
+Unauthenticated synthetic-data routing across every workflow remains a separate auth/data-behavior change and should be implemented carefully without ever seeding synthetic records into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-03 - Polished natural-language and email requirement intake
 - Renamed the natural-language upload control to `Upload Scope`, added a visible upload icon, and changed the action label from `Find Qualified Inspectors` to `Find Inspectors`.
 - Set a visible 10,000-character limit for natural-language requests and apply the same limit when loading supported text scope files.
