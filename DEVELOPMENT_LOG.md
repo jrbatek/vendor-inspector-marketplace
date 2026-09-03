@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-03 - Polished natural-language and email requirement intake
+- Renamed the natural-language upload control to `Upload Scope`, added a visible upload icon, and changed the action label from `Find Qualified Inspectors` to `Find Inspectors`.
+- Set a visible 10,000-character limit for natural-language requests and apply the same limit when loading supported text scope files.
+- Replaced the direct Email Requirements mailto link with a guidance page containing copy-ready sample text, expected request fields, attachment guidance, and a prefilled `InspectSource - Inspection Request` subject.
+- Added regression coverage for wording, character-limit enforcement, upload guidance, email instructions, and subject formatting.
+- The first Vercel preview exposed a Server/Client Component styling mistake; it was corrected immediately by marking the new styled page as a Client Component.
+- Final Validate application and Autonomous QA workflows passed, the corrected Vercel preview succeeded, and PR #32 merged to main.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-02 - Improved structured selection usability
 - Added a clear `DEMO — Uses Synthetic Data` banner to the structured-selection demo and kept the demo on the production component architecture.
 - Made Location and Start Date required before matching, with accessible required-state markup and a clear validation message.
