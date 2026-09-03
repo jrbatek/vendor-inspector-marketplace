@@ -11,7 +11,7 @@ export default function ClientWorkspaceSidebar(){
     <Link className="primary" href="/client-dashboard">Request Inspectors</Link>
     <div className="subnav">
       <Link className={active("/find-inspectors")?"active":""} href="/find-inspectors">Natural language</Link>
-      <a href="mailto:inspectsource2026@gmail.com">Email requirements</a>
+      <Link className={active("/email-requirements")?"active":""} href="/email-requirements">Email requirements</Link>
       <Link className={active("/inspectors")?"active":""} href="/inspectors">Structured selection</Link>
     </div>
     <Link href="/client-dashboard?section=active">Inspections in Progress</Link>
