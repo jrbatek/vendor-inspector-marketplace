@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-03 - Added InspectorHub synthetic demo mode (reviewable auth/data-routing PR)
+- Changed InspectorHub so unauthenticated visitors see a populated synthetic work-history experience instead of a login-only dead end.
+- Reused the live InspectorHub component and controls so demo and production remain on one architecture rather than maintaining a separate demo product.
+- Added three deterministic synthetic work-history records covering earnings, expenses, mileage, hours, projects, locations, and roles.
+- Added clear `Synthetic Demo` messaging and teal visual treatment consistent with the inspector side of the redesigned home page.
+- Kept Add Activity and CSV Upload visible in demo mode, but hard-blocked both write paths unless the authenticated `live` mode is active; demo interactions explain that they do not write to a live account.
+- Preserved authenticated loading of inspector-scoped `inspector_work_activities` records.
+- Added regression tests for demo record routing, write blocking, and preservation of authenticated live-data loading.
+
+### Product-owner review queue
+Reviewable PR required before merge because the change alters authentication-aware data routing, even though it does not relax authorization or seed synthetic data into production.
+
 ## 2026-09-03 - Established global demo-mode foundation and split home experience
 - Moved `Client Login` and `Inspector Login` into their respective navigation dropdowns and removed the separate top-level login controls.
 - Added a global authentication-aware Demo Mode banner that appears only for unauthenticated users and clearly states that the visible experience uses synthetic data.
