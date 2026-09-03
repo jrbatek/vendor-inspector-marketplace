@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 const groups = [
   { label: "Clients", links: [
+    ["Client Login", "/login?role=client"],
     ["Project Coordinator", "/project-coordinator"],
     ["Client Dashboard", "/client-dashboard"],
     ["Find Inspectors", "/find-inspectors"],
@@ -13,6 +14,7 @@ const groups = [
     ["Asset Intelligence", "/asset-intelligence"],
   ]},
   { label: "Inspectors", links: [
+    ["Inspector Login", "/login?role=inspector"],
     ["InspectorHub", "/inspectorhub"],
     ["My Schedule", "/inspectorhub/schedule"],
     ["My Profile", "/dashboard"],
@@ -54,16 +56,12 @@ export default function Nav() {
           {group.label}<span aria-hidden="true">▾</span>
         </button>
         {openMenu === group.label && <div className="navMenu">
-          {group.links.map(([label, href]) => <Link href={href} key={href} onClick={() => setOpenMenu(null)}>{label}</Link>)}
+          {group.links.map(([label, href], index) => <Link className={index === 0 ? "loginLink" : ""} href={href} key={href} onClick={() => setOpenMenu(null)}>{label}</Link>)}
         </div>}
       </div>)}
       <Link className="topLink" href="/demo-showcase" onClick={() => setOpenMenu(null)}>Demo</Link>
       <Link className="topLink" href="/what-we-do" onClick={() => setOpenMenu(null)}>What We Do</Link>
     </nav>
-    <nav className="loginNav" aria-label="Login navigation">
-      <Link className="clientLogin" href="/login?role=client" onClick={() => setOpenMenu(null)}>Client Login</Link>
-      <Link className="inspectorLogin" href="/login?role=inspector" onClick={() => setOpenMenu(null)}>Inspector Login</Link>
-    </nav>
-    <style jsx>{`.groupedNav{display:flex;align-items:center;gap:28px;padding:14px 18px;position:relative;z-index:50}.primaryNav{display:flex;align-items:center;gap:8px;flex:1}.loginNav{display:flex;align-items:center;gap:8px;margin-left:auto}.navGroup{position:relative}.groupButton{border:0;background:transparent;cursor:pointer;padding:9px 11px;border-radius:8px;font:inherit;font-weight:700;white-space:nowrap;color:#0f172a}.groupButton span{font-size:.7rem;margin-left:6px;color:#64748b}.groupButton.open,.groupButton:hover{background:#f1f5f9}.navMenu{position:absolute;top:calc(100% + 6px);left:0;min-width:245px;padding:7px;background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 14px 35px rgba(15,23,42,.13);display:grid;gap:2px;z-index:100}.navMenu :global(a){padding:10px 11px;border-radius:8px;text-decoration:none;color:#0f172a;white-space:nowrap}.navMenu :global(a:hover){background:#f1f5f9}.topLink,.loginNav :global(a){padding:9px 11px;border-radius:8px;font-weight:700;text-decoration:none;white-space:nowrap}.topLink:hover,.loginNav :global(a:hover){background:#f1f5f9}.clientLogin{border:1px solid #cbd5e1}.inspectorLogin{background:#0f172a;color:#fff!important}@media(max-width:980px){.groupedNav{align-items:flex-start;gap:12px;flex-wrap:wrap}.primaryNav{order:3;width:100%;flex-basis:100%;overflow-x:auto;padding-bottom:4px}.loginNav{margin-left:auto}.navMenu{position:fixed;left:18px;right:18px;top:auto;min-width:0}}`}</style>
+    <style jsx>{`.groupedNav{display:flex;align-items:center;gap:28px;padding:14px 18px;position:relative;z-index:50}.primaryNav{display:flex;align-items:center;gap:8px;flex:1}.navGroup{position:relative}.groupButton{border:0;background:transparent;cursor:pointer;padding:9px 11px;border-radius:8px;font:inherit;font-weight:700;white-space:nowrap;color:#0f172a}.groupButton span{font-size:.7rem;margin-left:6px;color:#64748b}.groupButton.open,.groupButton:hover{background:#eff6ff;color:#1d4ed8}.navMenu{position:absolute;top:calc(100% + 6px);left:0;min-width:245px;padding:7px;background:white;border:1px solid #dbeafe;border-radius:12px;box-shadow:0 14px 35px rgba(15,23,42,.13);display:grid;gap:2px;z-index:100}.navMenu :global(a){padding:10px 11px;border-radius:8px;text-decoration:none;color:#0f172a;white-space:nowrap}.navMenu :global(a:hover){background:#eff6ff;color:#1d4ed8}.navMenu :global(a.loginLink){font-weight:800;color:#1d4ed8;border-bottom:1px solid #e2e8f0;border-radius:8px 8px 4px 4px;margin-bottom:4px}.topLink{padding:9px 11px;border-radius:8px;font-weight:700;text-decoration:none;white-space:nowrap}.topLink:hover{background:#eff6ff;color:#1d4ed8}@media(max-width:980px){.groupedNav{align-items:flex-start;gap:12px;flex-wrap:wrap}.primaryNav{width:100%;flex-basis:100%;overflow-x:auto;padding-bottom:4px}.navMenu{position:fixed;left:18px;right:18px;top:auto;min-width:0}}`}</style>
   </header>;
 }
