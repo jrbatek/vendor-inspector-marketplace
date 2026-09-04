@@ -1,9 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase";
 
 export default function DemoModeBanner() {
+  const pathname = usePathname();
   const supabase = useMemo(() => supabaseBrowser(), []);
   const [isDemo, setIsDemo] = useState<boolean | null>(null);
 
@@ -21,7 +23,7 @@ export default function DemoModeBanner() {
     };
   }, [supabase]);
 
-  if (isDemo !== true) return null;
+  if (pathname === "/" || isDemo !== true) return null;
 
   return (
     <div className="demoBanner" role="status" aria-label="Demo mode">
