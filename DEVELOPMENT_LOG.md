@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-04 - Corrected Client Demo entry routing
+- Found that the new `Client Demo` CTA still opened `/client-dashboard`, which intentionally blocks unauthenticated users with a login message.
+- Routed only the dedicated `Open Client Demo` CTA to the existing `/demo-showcase` synthetic environment so an unauthenticated visitor immediately sees populated demo data.
+- Left `Explore Client Workspace` and all authenticated client-dashboard live-data behavior unchanged; this cycle did not alter authentication policy, RLS, matching rules, billing, or production data semantics.
+- Added regression coverage requiring the Client Demo CTA to target the synthetic demo route.
+- Vercel created a preview for the change; production runtime-error review found no errors in the preceding 24 hours.
+- PR #36 contains the low-risk UX correction and is held until repository validation and the final preview deployment complete successfully.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-04 - Polished home page demo entry experience
 - Removed the Demo Mode / synthetic-data banner from the public home page while preserving the authentication-aware banner on unauthenticated demo/workspace routes.
 - Added the requested client benefit: `Manage contracts, approvals and payments`.
