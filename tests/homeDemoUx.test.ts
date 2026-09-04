@@ -24,6 +24,7 @@ test("home page includes the latest client and inspector workflow benefits", () 
 test("home page exposes clearly labeled client and inspector demo entry points", () => {
   assert.match(home, /Client Demo/);
   assert.match(home, /Open Client Demo/);
+  assert.match(home, /href="\/demo-showcase">Open Client Demo/);
   assert.match(home, /Inspector Demo/);
   assert.match(home, /Open Inspector Demo/);
 });
