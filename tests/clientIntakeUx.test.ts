@@ -5,6 +5,7 @@ import test from "node:test";
 
 const naturalLanguage = fs.readFileSync(path.join(process.cwd(), "app/find-inspectors/page.tsx"), "utf8");
 const emailRequirements = fs.readFileSync(path.join(process.cwd(), "app/email-requirements/page.tsx"), "utf8");
+const demoShowcase = fs.readFileSync(path.join(process.cwd(), "app/demo-showcase/page.tsx"), "utf8");
 const sidebar = fs.readFileSync(path.join(process.cwd(), "components/ClientWorkspaceSidebar.tsx"), "utf8");
 
 test("natural-language intake uses the requested client-facing wording", () => {
@@ -38,4 +39,17 @@ test("email requirements opens a guidance page before email", () => {
 test("email subject identifies InspectSource", () => {
   assert.match(emailRequirements, /InspectSource%20-%20Inspection%20Request/);
   assert.match(emailRequirements, /Subject: <strong>InspectSource - Inspection Request<\/strong>/);
+});
+
+test("Client Demo mirrors the current request-intake UX", () => {
+  assert.match(demoShowcase, /Client Demo · Synthetic data/);
+  assert.match(demoShowcase, /MAX_REQUEST_CHARS=10000/);
+  assert.match(demoShowcase, /maxLength=\{MAX_REQUEST_CHARS\}/);
+  assert.match(demoShowcase, /Upload Scope/);
+  assert.match(demoShowcase, />Find Inspectors<\/Link>/);
+  assert.match(demoShowcase, /href="\/email-requirements"/);
+  assert.match(demoShowcase, /InspectSource-prefixed subject/);
+  assert.doesNotMatch(demoShowcase, /Find qualified inspectors/);
+  assert.doesNotMatch(demoShowcase, /className="step"/);
+  assert.doesNotMatch(demoShowcase, /mailto:inspectsource2026@gmail\.com/);
 });
