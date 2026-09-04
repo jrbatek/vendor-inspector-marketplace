@@ -31,7 +31,7 @@ export default function HomePage() {
               <strong>Client Demo</strong>
               <span>Explore the complete client workflow using synthetic inspection data.</span>
             </div>
-            <Link href="/client-dashboard">Open Client Demo →</Link>
+            <Link href="/demo-showcase">Open Client Demo →</Link>
           </div>
         </article>
 
