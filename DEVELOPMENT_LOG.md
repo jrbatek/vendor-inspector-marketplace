@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-04 - Aligned Client Demo request intake with production UX
+- Found that the synthetic Client Demo still showed stale numbered request cards, `Find qualified inspectors`, and the old direct-email flow after production intake had already been updated.
+- Removed the obsolete numbered markers and aligned the demo copy with the current Natural Language, Email Requirements, and Structured Selection paths.
+- Added the 10,000-character request limit and visible character count, surfaced the `Upload Scope` cue, changed the action to `Find Inspectors`, and routed email users to the Email Requirements guidance page instead of a legacy mailto flow.
+- Preserved the existing synthetic project story and structured demo route; no authentication policy, billing behavior, matching rules, or production data semantics changed.
+- Added regression coverage requiring demo/production intake wording and routing parity.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety checks, TypeScript, production build, smoke tests, and synthetic QA.
+- Vercel preview returned HTTP 200 with the updated Client Demo, PR #37 auto-merged after checks passed, and the production deployment reached READY. No production runtime errors were found before release.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-04 - Corrected Client Demo entry routing
 - Found that the new `Client Demo` CTA still opened `/client-dashboard`, which intentionally blocks unauthenticated users with a login message.
 - Routed only the dedicated `Open Client Demo` CTA to the existing `/demo-showcase` synthetic environment so an unauthenticated visitor immediately sees populated demo data.
