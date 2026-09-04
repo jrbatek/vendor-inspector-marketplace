@@ -2,6 +2,21 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-04 - Polished home page demo entry experience
+- Removed the Demo Mode / synthetic-data banner from the public home page while preserving the authentication-aware banner on unauthenticated demo/workspace routes.
+- Added the requested client benefit: `Manage contracts, approvals and payments`.
+- Added the requested inspector benefit: `Manage billing, documentation, and tax reporting`.
+- Added clearly labeled `Client Demo` and `Inspector Demo` entry panels that route into the existing client and inspector experiences rather than creating separate demo products.
+- Removed the obsolete `What We Do` top-level navigation link; the home page remains the concise product explanation.
+- Preserved Client Login and Inspector Login inside their respective dropdowns and retained the blue/teal client-vs-inspector visual treatment.
+- Added regression coverage for all five product-owner priorities, including public-home banner exclusion.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic QA, TypeScript, production build, and smoke tests.
+- Vercel preview returned HTTP 200 with the updated home experience and no preview error/fatal runtime logs; PR #35 was squash-merged after checks passed.
+- Production deployment reached READY after merge. No auth policy, matching rules, billing behavior, or production data semantics were changed, and no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-03 - Added InspectorHub synthetic demo mode
 - Changed InspectorHub so unauthenticated visitors see a populated synthetic work-history experience instead of a login-only dead end.
 - Reused the live InspectorHub component and controls so demo and production remain on one architecture rather than maintaining a separate demo product.
