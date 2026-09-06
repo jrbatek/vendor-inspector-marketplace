@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-06 - Tightened homepage screen real estate
+- Reduced the home page brand-banner, audience-card, feature-list, demo-entry, and trust-strip spacing so the Client/Inspector split uses substantially less vertical space without removing product-owner content.
+- Preserved the existing single InspectSource brand banner, clearly separated Client/Inspector paths, requested workflow benefits, demo entry points, and blue/teal visual language.
+- Added regression coverage requiring the compact layout cues and client/inspector color differentiation to remain present.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic QA, TypeScript, production build, and smoke tests.
+- Vercel preview reached READY; PR #39 was squash-merged after validation and the production deployment reached READY.
+- Production runtime review found no errors in the preceding 24 hours.
+- No authentication, authorization, billing, matching/business-rule, or production-data behavior changed, and no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-06 - Clarified enforced registration password minimum
 - Added accessible registration guidance stating the existing six-character minimum and tied the visible hint to the same `MIN_PASSWORD_LENGTH` constant used by the form.
 - Added `aria-describedby` so assistive technology associates the password field with its policy hint.
@@ -143,7 +155,7 @@ No decision required.
 
 ## 2026-08-31 - Autonomous development system initialized
 - Added `PRODUCT_ROADMAP.md` with product principles, priorities, shipping guardrails, and definition of done.
-- Added `AUTONOMOUS_DEVELOPMENT.md` with the recurring development protocol and escalation rules.
+- Added `AUTONOMOUS_DEVELOPMENT.md` with the recurring development protocol.
 - Added deterministic synthetic-data generation and QA infrastructure.
 - Added scheduled CI validation for synthetic corpus generation and application quality checks.
 - Established policy that synthetic data is QA-only and must never be inserted into production.
