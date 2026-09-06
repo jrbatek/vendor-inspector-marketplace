@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-06 - Clarified enforced registration password minimum
+- Added accessible registration guidance stating the existing six-character minimum and tied the visible hint to the same `MIN_PASSWORD_LENGTH` constant used by the form.
+- Added `aria-describedby` so assistive technology associates the password field with its policy hint.
+- Did not change Supabase authentication configuration, authorization policy, account security rules, or any production-data behavior.
+- Added regression coverage requiring the visible password guidance and form enforcement to remain synchronized.
+- Validate application and Autonomous QA passed, including synthetic corpus generation/validation, unit tests, migration checks, TypeScript, production build, and route smoke tests.
+- PR #38 was squash-merged after all gates passed; Vercel preview and production deployment reached READY, and no production runtime errors were found after release.
+- No synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-04 - Aligned Client Demo request intake with production UX
 - Found that the synthetic Client Demo still showed stale numbered request cards, `Find qualified inspectors`, and the old direct-email flow after production intake had already been updated.
 - Removed the obsolete numbered markers and aligned the demo copy with the current Natural Language, Email Requirements, and Structured Selection paths.
