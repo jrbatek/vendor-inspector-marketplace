@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase";
 
 type AccountRole = "client" | "inspector";
+const MIN_PASSWORD_LENGTH = 6;
 
 export default function RegisterPage() {
   const supabase = supabaseBrowser();
@@ -77,7 +78,8 @@ export default function RegisterPage() {
 
         <label>Name<input value={name} onChange={(e) => setName(e.target.value)} required /></label>
         <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-        <label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} /></label>
+        <label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={MIN_PASSWORD_LENGTH} aria-describedby="password-policy" /></label>
+        <p id="password-policy" className="muted">Use at least {MIN_PASSWORD_LENGTH} characters. This matches the minimum currently enforced by InspectSource registration.</p>
         <button type="submit" disabled={saving}>{saving ? "Creating account..." : "Create account"}</button>
       </form>
 
