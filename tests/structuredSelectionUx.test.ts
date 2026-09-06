@@ -5,8 +5,15 @@ import test from "node:test";
 
 const source = fs.readFileSync(path.join(process.cwd(), "components/InspectorFilterPage.tsx"), "utf8");
 
-test("structured selection clearly marks demo data", () => {
-  assert.match(source, /DEMO — Uses Synthetic Data/);
+test("structured selection uses the requested inspection-criteria heading", () => {
+  assert.match(source, /Select your inspection criteria\./);
+  assert.doesNotMatch(source, /Build your inspector criteria/);
+});
+
+test("structured selection clearly marks demo data with a subtle treatment", () => {
+  assert.match(source, /Demo Mode · Synthetic data/);
+  assert.match(source, /\.demoBanner\{[^}]*background:#f0fdfa/);
+  assert.match(source, /\.demoBanner\{[^}]*border:1px solid #99f6e4/);
 });
 
 test("structured selection requires location and start date", () => {
