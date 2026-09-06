@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-06 - Added Copy Sample Request to Email Requirements
+- Added the requested `Copy Sample Request` action to the Email Requirements guidance page so clients can copy the complete synthetic sample request in one click before opening their email client.
+- Added accessible `aria-live` confirmation, clipboard-error fallback guidance, and responsive button styling while preserving the existing InspectSource-prefixed email subject and attachment guidance.
+- Added regression coverage for the visible action, clipboard behavior, accessible feedback, and copy confirmation.
+- Validate application and Autonomous QA both passed, including unit/regression tests, migration checks, synthetic-data QA, TypeScript, production build, and route smoke tests.
+- Vercel preview reached READY and `/email-requirements` returned HTTP 200 with the new Copy Sample Request control; PR #40 was squash-merged after validation.
+- Production runtime review found no errors in the preceding 24 hours.
+- No authentication, authorization, billing, matching/business-rule, or production-data behavior changed, and no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-06 - Tightened homepage screen real estate
 - Reduced the home page brand-banner, audience-card, feature-list, demo-entry, and trust-strip spacing so the Client/Inspector split uses substantially less vertical space without removing product-owner content.
 - Preserved the existing single InspectSource brand banner, clearly separated Client/Inspector paths, requested workflow benefits, demo entry points, and blue/teal visual language.
