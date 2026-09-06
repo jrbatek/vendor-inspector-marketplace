@@ -36,6 +36,13 @@ test("email requirements opens a guidance page before email", () => {
   assert.match(emailRequirements, /20 MB or less/);
 });
 
+test("email requirements provides an accessible copy-sample action", () => {
+  assert.match(emailRequirements, /Copy Sample Request/);
+  assert.match(emailRequirements, /navigator\.clipboard\.writeText\(SAMPLE_REQUEST\)/);
+  assert.match(emailRequirements, /aria-live="polite"/);
+  assert.match(emailRequirements, /Sample request copied\./);
+});
+
 test("email subject identifies InspectSource", () => {
   assert.match(emailRequirements, /InspectSource%20-%20Inspection%20Request/);
   assert.match(emailRequirements, /Subject: <strong>InspectSource - Inspection Request<\/strong>/);
