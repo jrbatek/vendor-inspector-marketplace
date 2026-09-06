@@ -49,3 +49,11 @@ test("demo banner is global for unauthenticated demo routes but excluded from th
   assert.match(demoBanner, /Demo Mode/);
   assert.match(demoBanner, /synthetic data/);
 });
+
+test("home page keeps the brand and audience sections compact while preserving client and inspector color cues", () => {
+  assert.match(home, /\.homeShell\{display:grid;gap:16px;padding:6px 0 36px\}/);
+  assert.match(home, /\.brandBanner\{[^}]*padding:30px 36px/);
+  assert.match(home, /\.audienceCard\{[^}]*min-height:440px;padding:26px/);
+  assert.match(home, /\.clientCard\{[^}]*#2563eb/);
+  assert.match(home, /\.inspectorCard\{[^}]*#0f766e/);
+});
