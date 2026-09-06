@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-06 - Polished Structured Selection heading and demo treatment
+- Updated Structured Selection to the requested `Select your inspection criteria.` heading.
+- Replaced the high-contrast yellow demo warning with a subtle teal `Demo Mode · Synthetic data` treatment while keeping synthetic data clearly identified.
+- Added regression coverage for the requested heading and demo styling while retaining required-field, Find Inspectors, day-rate, layout, and Reset-button coverage.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic-data QA, TypeScript, production build, and route smoke tests.
+- Vercel preview reached READY and PR #41 was squash-merged after all checks passed; production promotion was initiated from the validated merge commit.
+- Production runtime review before release found no errors in the preceding 24 hours.
+- No authentication, authorization, billing, matching/business-rule, or production-data behavior changed, and no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-06 - Added Copy Sample Request to Email Requirements
 - Added the requested `Copy Sample Request` action to the Email Requirements guidance page so clients can copy the complete synthetic sample request in one click before opening their email client.
 - Added accessible `aria-live` confirmation, clipboard-error fallback guidance, and responsive button styling while preserving the existing InspectSource-prefixed email subject and attachment guidance.
