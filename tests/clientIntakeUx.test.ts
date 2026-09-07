@@ -28,7 +28,8 @@ test("upload scope control includes a visible icon and supported text formats", 
 });
 
 test("email requirements opens a guidance page before email", () => {
-  assert.match(sidebar, /href="\/email-requirements">Email requirements/);
+  assert.match(sidebar, /const emailHref=demo\?"\/email-requirements\?demo=1":"\/email-requirements"/);
+  assert.match(sidebar, /href=\{emailHref\}>Email requirements/);
   assert.doesNotMatch(sidebar, /mailto:inspectsource2026@gmail\.com/);
   assert.match(emailRequirements, /Copy-ready example/);
   assert.match(emailRequirements, /If you write your own/);
@@ -54,7 +55,7 @@ test("Client Demo mirrors the current request-intake UX", () => {
   assert.match(demoShowcase, /maxLength=\{MAX_REQUEST_CHARS\}/);
   assert.match(demoShowcase, /Upload Scope/);
   assert.match(demoShowcase, />Find Inspectors<\/Link>/);
-  assert.match(demoShowcase, /href="\/email-requirements"/);
+  assert.match(demoShowcase, /href="\/email-requirements\?demo=1"/);
   assert.match(demoShowcase, /InspectSource-prefixed subject/);
   assert.doesNotMatch(demoShowcase, /Find qualified inspectors/);
   assert.doesNotMatch(demoShowcase, /className="step"/);
