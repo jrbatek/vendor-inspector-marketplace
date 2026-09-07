@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-07 - Expanded Inspector Demo end-to-end experience
+- Expanded unauthenticated InspectorHub from a work-history preview into a fuller deterministic synthetic inspector experience covering matched opportunities, active assignments, schedule/availability, Selection Insights, client ratings, qualifications/documents, reports/billing closeout, and work history.
+- Kept demo interactions read-only: Add Activity and CSV Upload remain visible but are blocked outside authenticated live mode, and the demo explicitly states that it does not execute payments, file taxes, handle bank credentials, or change inspector compensation rules.
+- Preserved authenticated live behavior, including inspector-scoped loading from `inspector_work_activities`; no authentication/authorization policy or production-data semantics changed.
+- The first CI run exposed five stale regression assertions left behind by recent client analytics and demo-aware routing changes on main. Updated those tests to verify the current 60-record synthetic analytics experience, drilldowns/export, production isolation, and `?demo=1` email-routing behavior without weakening safety coverage.
+- Validate application and Autonomous QA passed after correction, including regression tests, migration checks, synthetic corpus QA, TypeScript, production build, and smoke tests. The Vercel preview reached READY.
+- PR #45 was squash-merged after all gates passed. No real billing/payment, tax filing, compensation, matching/business-rule, auth/security, or production-data behavior changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-07 - Added interactive synthetic client analytics demo
 - Added a dedicated read-only `Client Analytics Demo` with deterministic synthetic inspection data and cross-filtering across Region, Commodity, Project type, Timing, Non-conformance, and NCR type.
 - Added synthetic KPIs for inspection spend, inspection visits, on-time rate, and projects with NCR, plus monthly spend trends, a clickable geography view, project-type mix, NCR-type mix, and responsive inspection detail.
@@ -227,4 +238,4 @@ No decision required.
 3. Complete Inspector Smart Onboarding persistence after request/matching reliability is strong.
 
 ### Product-owner review queue
-No decision required to initialize this system.
+No decision required.
