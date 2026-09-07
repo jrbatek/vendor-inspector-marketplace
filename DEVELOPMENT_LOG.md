@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-07 - Added interactive synthetic client analytics demo
+- Added a dedicated read-only `Client Analytics Demo` with deterministic synthetic inspection data and cross-filtering across Region, Commodity, Project type, Timing, Non-conformance, and NCR type.
+- Added synthetic KPIs for inspection spend, inspection visits, on-time rate, and projects with NCR, plus monthly spend trends, a clickable geography view, project-type mix, NCR-type mix, and responsive inspection detail.
+- Added `Client Analytics Demo` under the Clients navigation and regression coverage for the requested analytics dimensions, cross-filter experience, navigation exposure, and production-data isolation.
+- The first validation run exposed a test-only false positive where the isolation assertion interpreted JavaScript `Array.from(...)` as a Supabase `.from(...)` call; the assertion was narrowed to actual Supabase access and all validation gates then passed.
+- Validate application and Autonomous QA passed, including regression tests, migration checks, synthetic corpus QA, TypeScript, production build, and smoke tests. Vercel preview reached READY and `/demo/client-analytics` returned HTTP 200.
+- PR #44 was squash-merged after all checks passed. No authentication/authorization policy, billing/payment behavior, matching/business rules, API credentials, or production data were changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-07 - Added populated synthetic client operations demo
 - Added a read-only `Client Operations Demo` with populated deterministic synthetic Billing & Payment, Contracts, and Client Profile experiences.
 - Billing demonstrates invoice amounts, balances, statuses, purchase-order references, approvals, due dates, expandable details, KPIs, and payment-history workflow concepts without executing payments or handling real financial credentials.
