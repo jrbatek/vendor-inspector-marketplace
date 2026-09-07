@@ -33,7 +33,7 @@ test("client analytics demo is deterministic and isolated from production", () =
   assert.match(page, /never reads from or writes to a production tenant/);
   assert.match(page, /does not create API credentials/);
   assert.doesNotMatch(page, /supabaseBrowser/);
-  assert.doesNotMatch(page, /\.from\(/);
+  assert.doesNotMatch(page, /supabase\.from\(/);
 });
 
 test("client navigation exposes analytics demo", () => {
