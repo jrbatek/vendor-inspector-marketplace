@@ -2,6 +2,19 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-06 - Added synthetic client data connectivity demo
+- Added a dedicated `Data & Integrations Demo` for clients with deterministic synthetic inspection records, downloadable CSV export, and a visible synthetic-data boundary.
+- Demonstrated Excel/CSV, InspectSource API, Power BI, and ERP/procurement connectivity concepts without issuing API credentials or connecting to a live tenant.
+- Added a sample client inspection API endpoint copy action, responsive export preview, and a simple InspectSource -> API/export -> Excel/Power BI/ERP data-flow illustration.
+- Added the demo under the Clients navigation dropdown and regression coverage for synthetic isolation, CSV download, connectivity concepts, and navigation exposure.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic corpus QA, TypeScript, production build, and smoke tests.
+- Vercel preview reached READY and `/demo/client-data` returned HTTP 200 with the synthetic export experience; PR #42 was squash-merged after all validation gates passed.
+- Production runtime review before release found no errors in the preceding 24 hours.
+- No live API credentials, authentication/authorization policy, billing behavior, matching/business rules, or production data were changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-06 - Polished Structured Selection heading and demo treatment
 - Updated Structured Selection to the requested `Select your inspection criteria.` heading.
 - Replaced the high-contrast yellow demo warning with a subtle teal `Demo Mode · Synthetic data` treatment while keeping synthetic data clearly identified.
