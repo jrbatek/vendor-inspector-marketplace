@@ -2,6 +2,19 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-07 - Added populated synthetic client operations demo
+- Added a read-only `Client Operations Demo` with populated deterministic synthetic Billing & Payment, Contracts, and Client Profile experiences.
+- Billing demonstrates invoice amounts, balances, statuses, purchase-order references, approvals, due dates, expandable details, KPIs, and payment-history workflow concepts without executing payments or handling real financial credentials.
+- Contracts are organized into `InspectSource`, `Agencies`, `Individual Inspectors`, and `Others` with expandable synthetic records, document/approval concepts, and explicit no-e-signature/no-legal-execution safeguards.
+- Client Profile demonstrates avatar, login email, phone/SMS, preferred contact, coarse city-level suggested location, company/title/department, timezone/language/notifications/hours, roles/access, approval authority/limits, and account-security concepts without changing live auth/security or collecting precise geolocation.
+- Added `Client Operations Demo` under the Clients navigation and regression coverage for populated demo behavior, requested fields, read-only synthetic isolation, and absence of Supabase production writes.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic corpus QA, TypeScript, production build, and smoke tests.
+- Vercel preview reached READY and `/demo/client-operations` returned HTTP 200; PR #43 was squash-merged after all checks passed and the feature production deployment reached READY with HTTP 200 on the new route.
+- No real billing/payment behavior, legal execution, authentication/authorization policy, privacy/PII handling, matching/business rules, or production data were changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-06 - Added synthetic client data connectivity demo
 - Added a dedicated `Data & Integrations Demo` for clients with deterministic synthetic inspection records, downloadable CSV export, and a visible synthetic-data boundary.
 - Demonstrated Excel/CSV, InspectSource API, Power BI, and ERP/procurement connectivity concepts without issuing API credentials or connecting to a live tenant.
