@@ -12,9 +12,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <a className="skipLink" href="#main-content">Skip to main content</a>
         <DemoModeBanner />
         <Nav />
-        <main className="container">{children}</main>
+        <main className="container" id="main-content" tabIndex={-1}>{children}</main>
       </body>
     </html>
   );
