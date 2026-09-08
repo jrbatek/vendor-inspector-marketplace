@@ -34,3 +34,12 @@
 .inquiryText{padding:14px;border-radius:10px;background:#f8fafc;line-height:1.6}
 .requestGrid .step{display:none!important}
 @media(max-width:800px){.homeGrid,.metricGrid,.roleChoice{grid-template-columns:1fr}.dashboardHero,.dashboardRow{grid-template-columns:1fr;display:grid}.rowMeta{align-items:flex-start}.sectionHeader{flex-direction:column}}
+
+/* Cross-product accessibility and responsive baseline */
+.skipLink{position:fixed;left:12px;top:12px;z-index:1000;transform:translateY(-180%);padding:10px 14px;border-radius:8px;background:#0f172a;color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 24px rgba(15,23,42,.2)}
+.skipLink:focus{transform:translateY(0)}
+:where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+:where(button,input,textarea,select){min-height:44px}
+main:focus{outline:none}
+@media(max-width:560px){.container{padding:16px}.hero,.homeHero,.authPanel,.dashboardSection{padding:18px}.hero h1{font-size:28px}.grid{grid-template-columns:minmax(0,1fr)}.cardTop{flex-direction:column}.actions>.button,.actions>button{width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}

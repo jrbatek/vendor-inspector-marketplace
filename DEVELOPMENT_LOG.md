@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-08 - Hardened responsive and keyboard accessibility baseline
+- Added a global keyboard `Skip to main content` link and focusable main landmark so keyboard and assistive-technology users can bypass repeated navigation.
+- Added consistent visible `:focus-visible` treatment, 44px minimum interactive control height, reduced-motion handling, and tighter small-screen card/action layouts across the application shell.
+- Improved Client/Inspector dropdown semantics with `aria-controls`, `aria-haspopup`, existing `aria-expanded`, Escape-to-close behavior, and matching focus-visible styling for buttons and menu links.
+- Added regression coverage for skip navigation, dropdown semantics, keyboard focus visibility, touch targets, small-screen layout collapse, and reduced-motion support.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety, synthetic QA, TypeScript, production build, and smoke tests. The final Vercel preview reached READY and returned HTTP 200 with the new application-shell accessibility markup.
+- No authentication/authorization policy, billing/payment behavior, matching/business rules, production-data semantics, or synthetic production records were changed.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-08 - Tightened demo/live isolation and Inspector Demo entry
 - Audited global demo-state behavior and found the synthetic-data banner was shown on every unauthenticated route except the home page, including login/register and non-demo live-workspace entry pages.
 - Added an explicit demo-experience route classifier so the global `Demo Mode` banner is limited to synthetic experiences (`/demo/*`, `/demo-showcase`, and unauthenticated InspectorHub) and remains hidden for authenticated live-data sessions and ordinary public/auth routes.
@@ -258,7 +269,3 @@ No decision required.
 ### Current focus
 1. Stabilize the client Request Inspectors workflow across natural language, email, and structured selection.
 2. Maintain demo/production parity.
-3. Complete Inspector Smart Onboarding persistence after request/matching reliability is strong.
-
-### Product-owner review queue
-No decision required.
