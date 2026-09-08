@@ -27,6 +27,7 @@ test("home page exposes clearly labeled client and inspector demo entry points",
   assert.match(home, /href="\/demo-showcase">Open Client Demo/);
   assert.match(home, /Inspector Demo/);
   assert.match(home, /Open Inspector Demo/);
+  assert.match(home, /href="\/demo\/inspector">Open Inspector Demo/);
 });
 
 test("client and inspector logins live inside their respective navigation dropdowns", () => {
@@ -40,12 +41,12 @@ test("What We Do is not a top-level navigation link", () => {
   assert.doesNotMatch(nav, /href="\/what-we-do"/);
 });
 
-test("demo banner is global for unauthenticated demo routes but excluded from the public home page", () => {
+test("demo banner is authentication-aware and restricted to explicit synthetic experiences", () => {
   assert.match(layout, /<DemoModeBanner \/>/);
   assert.match(demoBanner, /usePathname/);
+  assert.match(demoBanner, /isDemoExperiencePath\(pathname\)/);
   assert.match(demoBanner, /setIsDemo\(!data\.user\)/);
   assert.match(demoBanner, /setIsDemo\(!session\?\.user\)/);
-  assert.match(demoBanner, /pathname === "\/" \|\| isDemo !== true/);
   assert.match(demoBanner, /Demo Mode/);
   assert.match(demoBanner, /synthetic data/);
 });

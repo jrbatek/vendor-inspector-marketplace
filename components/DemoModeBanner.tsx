@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { isDemoExperiencePath } from "@/lib/demoExperience";
 import { supabaseBrowser } from "@/lib/supabase";
 
 export default function DemoModeBanner() {
@@ -23,7 +24,7 @@ export default function DemoModeBanner() {
     };
   }, [supabase]);
 
-  if (pathname === "/" || isDemo !== true) return null;
+  if (!isDemoExperiencePath(pathname) || isDemo !== true) return null;
 
   return (
     <div className="demoBanner" role="status" aria-label="Demo mode">
