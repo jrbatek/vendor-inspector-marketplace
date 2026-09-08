@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-08 - Tightened demo/live isolation and Inspector Demo entry
+- Audited global demo-state behavior and found the synthetic-data banner was shown on every unauthenticated route except the home page, including login/register and non-demo live-workspace entry pages.
+- Added an explicit demo-experience route classifier so the global `Demo Mode` banner is limited to synthetic experiences (`/demo/*`, `/demo-showcase`, and unauthenticated InspectorHub) and remains hidden for authenticated live-data sessions and ordinary public/auth routes.
+- Added the previously advertised `/demo/inspector` entry route and aligned the home-page Inspector Demo CTA to it; the route resolves into the existing populated InspectorHub synthetic experience rather than creating duplicate demo business logic.
+- Added regression coverage for demo-route isolation, non-demo banner exclusion, Inspector Demo routing, blocked demo writes, and authenticated inspector-scoped live data loading.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety, synthetic QA, TypeScript, production build, and smoke tests. Vercel preview reached READY.
+- PR #47 was squash-merged after all gates passed. No authentication/authorization policy, RLS, billing/payment behavior, matching/business rules, or production-data semantics were changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-07 - Structured client progress and history UX
 - Reworked `Inspections in Progress` into three clearly separated expandable workflow groups: `Active Inspections`, `Pending Requests`, and `Submitted Reports`, while retaining authenticated client-scoped live inquiry data and making no matching/business-rule changes.
 - Replaced the repeated `Manage your inspection program` hero with a compact section-aware workspace header to recover vertical screen real estate.
