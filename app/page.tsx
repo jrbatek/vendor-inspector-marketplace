@@ -54,7 +54,7 @@ export default function HomePage() {
               <strong>Inspector Demo</strong>
               <span>See InspectorHub populated with synthetic work history and activity.</span>
             </div>
-            <Link href="/inspectorhub">Open Inspector Demo →</Link>
+            <Link href="/demo/inspector">Open Inspector Demo →</Link>
           </div>
         </article>
       </section>
