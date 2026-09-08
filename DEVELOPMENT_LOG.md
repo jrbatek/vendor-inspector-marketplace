@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-08 - Consolidated complete Client Demo entry experience
+- Added a dedicated `/demo/client` entry parallel to `/demo/inspector` and routed the home-page `Open Client Demo` action through it while reusing the existing synthetic Client Demo architecture.
+- Expanded the Client Demo hub so the full synthetic experience is discoverable from one place: request intake, inspection history, analytics, Billing & Payment / Contracts / Client Profile, and Data & Integrations.
+- Added a direct switch from Client Demo to Inspector Demo and explicit wording that deterministic synthetic demo data never writes records to production.
+- Added regression coverage for the dedicated client route, complete synthetic-client portfolio links, request-intake wording parity, and absence of production-write behavior in the entry route.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke tests. The final Vercel preview reached READY, and production runtime review before release found no errors in the preceding 24 hours.
+- PR #49 was squash-merged after all gates passed. No authentication/authorization policy, billing/payment execution, API credentials, matching/business rules, or production-data semantics changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-08 - Hardened responsive and keyboard accessibility baseline
 - Added a global keyboard `Skip to main content` link and focusable main landmark so keyboard and assistive-technology users can bypass repeated navigation.
 - Added consistent visible `:focus-visible` treatment, 44px minimum interactive control height, reduced-motion handling, and tighter small-screen card/action layouts across the application shell.
