@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-07 - Structured client progress and history UX
+- Reworked `Inspections in Progress` into three clearly separated expandable workflow groups: `Active Inspections`, `Pending Requests`, and `Submitted Reports`, while retaining authenticated client-scoped live inquiry data and making no matching/business-rule changes.
+- Replaced the repeated `Manage your inspection program` hero with a compact section-aware workspace header to recover vertical screen real estate.
+- Converted the Inspection History API promotion into a dismissible right-side highlight with responsive stacking and a link to the existing synthetic Data & Integrations Demo.
+- Aligned remaining Client Workspace Email Requirements links to the instruction page instead of bypassing it with a direct mailto.
+- Added regression coverage for the three progress groups, expandable accessibility state, dismissible API highlight, compact header, and Email Requirements routing.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety checks, synthetic corpus QA, TypeScript, production build, and route smoke tests. Vercel preview reached READY and returned HTTP 200 on the Client Workspace route.
+- PR #46 was squash-merged after all gates passed; the feature production deployment reached READY. No authentication/authorization policy, billing/payment behavior, API credentials, production schema/data semantics, or synthetic production records were changed.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-07 - Expanded Inspector Demo end-to-end experience
 - Expanded unauthenticated InspectorHub from a work-history preview into a fuller deterministic synthetic inspector experience covering matched opportunities, active assignments, schedule/availability, Selection Insights, client ratings, qualifications/documents, reports/billing closeout, and work history.
 - Kept demo interactions read-only: Add Activity and CSV Upload remain visible but are blocked outside authenticated live mode, and the demo explicitly states that it does not execute payments, file taxes, handle bank credentials, or change inspector compensation rules.
