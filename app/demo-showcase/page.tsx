@@ -7,6 +7,13 @@ import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 const MAX_REQUEST_CHARS=10000;
 const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting September 14 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
 
+const portfolioAreas=[
+ {title:"Inspection history",description:"Search completed work, reports, budgets, NCRs, suppliers, locations, and project history.",href:"/demo/client-history",cta:"View history"},
+ {title:"Analytics",description:"Cross-filter spend, schedule, geography, commodity, project type, and non-conformance trends.",href:"/demo/client-analytics",cta:"Open analytics"},
+ {title:"Billing, contracts & profile",description:"Review populated invoices, balances, approvals, contracts, roles, preferences, and account concepts.",href:"/demo/client-operations",cta:"Open operations"},
+ {title:"Data & integrations",description:"Export synthetic client data and explore API, Excel, Power BI, ERP, and procurement connectivity.",href:"/demo/client-data",cta:"Explore integrations"},
+];
+
 export default function DemoShowcase(){
  const [requestText,setRequestText]=useState(sampleRequest);
  const continueHref=requestText.trim()?`/find-inspectors?demo=1&request=${encodeURIComponent(requestText.trim())}`:"/find-inspectors?demo=1";
@@ -38,12 +45,24 @@ export default function DemoShowcase(){
       </article>
      </div>
     </section>
-    <section className="portfolioLinks">
-      <div><strong>Explore the synthetic client portfolio</strong><span>60 global inspection records across three major projects, with example reports and approximately 2% NCR incidence.</span></div>
-      <Link href="/demo/client-history">View inspection history</Link>
-      <Link href="/demo/client-analytics">View analytics</Link>
+    <section className="portfolio" aria-labelledby="client-demo-portfolio-heading">
+      <div className="portfolioHeading">
+        <div>
+          <p className="eyebrow">Full client experience</p>
+          <h2 id="client-demo-portfolio-heading">Explore the synthetic client portfolio</h2>
+          <span>60 global inspection records across three major projects, with example reports and approximately 2% NCR incidence. Every area below is deterministic demo data and never writes synthetic records to production.</span>
+        </div>
+        <Link className="inspectorSwitch" href="/demo/inspector">Switch to Inspector Demo →</Link>
+      </div>
+      <div className="portfolioGrid">
+       {portfolioAreas.map((area)=><article className="portfolioCard" key={area.href}>
+        <h3>{area.title}</h3>
+        <p>{area.description}</p>
+        <Link href={area.href}>{area.cta} →</Link>
+       </article>)}
+      </div>
     </section>
    </section>
-   <style jsx>{`.shell{max-width:1440px;margin:auto;padding:18px 18px 70px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.requestHero,.portfolioLinks{background:#fff;border:1px solid #e2e8f0;border-radius:18px}.requestHero{padding:34px}.requestHero h1{font-size:2.4rem;margin:4px 0 8px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.requestIntro{max-width:820px;color:#64748b;font-size:1.05rem;line-height:1.55}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;align-items:stretch}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:285px}.requestCardNatural{min-height:410px}.requestCard h2{font-size:1.15rem;margin:0 0 8px}.requestCard p{color:#64748b;line-height:1.55}.naturalInput{width:100%;box-sizing:border-box;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;line-height:1.45;min-height:132px;margin-top:8px}.textMeta{margin-top:7px;text-align:right;color:#64748b;font-size:.78rem}.uploadHint{display:flex;align-items:center;gap:6px;margin:12px 0;color:#64748b;font-size:.82rem}.uploadIcon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:#e0f2fe;color:#075985;font-weight:900}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:700;margin-top:auto}.portfolioLinks{margin-top:16px;padding:16px 18px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}.portfolioLinks div{display:grid;gap:4px}.portfolioLinks span{color:#64748b;font-size:.9rem}.portfolioLinks :global(a){text-decoration:none;font-weight:800;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;color:#0f172a}@media(max-width:980px){.shell{grid-template-columns:1fr}.requestOptions{grid-template-columns:1fr}.requestCard,.requestCardNatural{min-height:0}.portfolioLinks{grid-template-columns:1fr}}@media(max-width:620px){.requestHero{padding:22px}.requestHero h1{font-size:1.7rem}}`}</style>
+   <style jsx>{`.shell{max-width:1440px;margin:auto;padding:18px 18px 70px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.requestHero,.portfolio{background:#fff;border:1px solid #e2e8f0;border-radius:18px}.requestHero{padding:34px}.requestHero h1{font-size:2.4rem;margin:4px 0 8px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.requestIntro{max-width:820px;color:#64748b;font-size:1.05rem;line-height:1.55}.requestOptions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;align-items:stretch}.requestCard{border:1px solid #dbe3ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;min-height:285px}.requestCardNatural{min-height:410px}.requestCard h2{font-size:1.15rem;margin:0 0 8px}.requestCard p{color:#64748b;line-height:1.55}.naturalInput{width:100%;box-sizing:border-box;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;line-height:1.45;min-height:132px;margin-top:8px}.textMeta{margin-top:7px;text-align:right;color:#64748b;font-size:.78rem}.uploadHint{display:flex;align-items:center;gap:6px;margin:12px 0;color:#64748b;font-size:.82rem}.uploadIcon{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:#e0f2fe;color:#075985;font-weight:900}.primaryButton{display:block;text-align:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:10px;padding:12px 14px;font-weight:700;margin-top:auto}.portfolio{margin-top:16px;padding:20px}.portfolioHeading{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.portfolioHeading h2{margin:4px 0 6px;font-size:1.3rem}.portfolioHeading span{display:block;max-width:800px;color:#64748b;line-height:1.5;font-size:.9rem}.inspectorSwitch{white-space:nowrap;text-decoration:none;font-weight:800;padding:10px 12px;border:1px solid #99f6e4;background:#f0fdfa;border-radius:10px;color:#115e59}.portfolioGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}.portfolioCard{display:flex;flex-direction:column;min-height:176px;padding:16px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}.portfolioCard h3{margin:0;font-size:1rem;color:#0f172a}.portfolioCard p{margin:8px 0 16px;color:#64748b;line-height:1.45;font-size:.86rem}.portfolioCard :global(a){margin-top:auto;text-decoration:none;font-weight:800;color:#1d4ed8}@media(max-width:1120px){.portfolioGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:980px){.shell{grid-template-columns:1fr}.requestOptions{grid-template-columns:1fr}.requestCard,.requestCardNatural{min-height:0}.portfolioHeading{flex-direction:column}.inspectorSwitch{white-space:normal}}@media(max-width:620px){.requestHero{padding:22px}.requestHero h1{font-size:1.7rem}.portfolio{padding:16px}.portfolioGrid{grid-template-columns:1fr}.portfolioCard{min-height:0}}`}</style>
   </main>
 }
