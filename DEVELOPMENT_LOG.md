@@ -2,6 +2,16 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-09 - Locked exact homepage brand line after backlog audit
+- Audited the currently specified next-24-hour UX/demo backlog against the merged implementation and confirmed the major Client Demo, Inspector Demo, demo/live isolation, navigation, intake, analytics, client operations, accessibility, and data-connectivity work is already present from prior cycles.
+- Corrected the remaining homepage copy drift so the hero now renders the product-owner-requested line exactly as `InspectSource — Eyes, Ears, and Expertise, Everywhere.` while preserving the existing compact Client/Inspector split and blue/teal visual treatment.
+- Strengthened `homeDemoUx` regression coverage to require the exact brand line so the wording cannot silently drift again.
+- Validate application and Autonomous QA both passed, including regression tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke tests. The final Vercel preview reached READY.
+- PR #52 was squash-merged after all gates passed. No authentication/authorization policy, billing/payment execution, matching/business rules, API credentials, production-data semantics, or synthetic production records changed.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-09 - Clarified authenticated live-data state and repaired demo regression drift
 - Added an authenticated global navigation status that displays `Logged in as <email>` with a `Live data` indicator using the existing Supabase session, while leaving authentication/authorization enforcement unchanged and keeping the status absent for unauthenticated synthetic demo visitors.
 - Restored Client Operations Demo safeguards that had drifted in recent direct commits: Billing again explicitly excludes payment credentials/bank data, Contracts again expose expandable synthetic document/approval detail with no e-signature/legal execution, and Client Profile again labels coarse location, roles/approval authority, account-security concepts, and no precise geolocation.
