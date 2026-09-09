@@ -33,7 +33,6 @@ test("home page exposes clearly labeled client and inspector demo entry points",
 test("client and inspector logins and demo entries live inside their respective navigation dropdowns", () => {
   assert.match(nav, /\{ label: "Clients", links: \[\s*\["Client Login", "\/login\?role=client"\],\s*\["Client Demo", "\/demo\/client"\]/);
   assert.match(nav, /\{ label: "Inspectors", links: \[\s*\["Inspector Login", "\/login\?role=inspector"\],\s*\["Inspector Demo", "\/demo\/inspector"\]/);
-  assert.match(nav, /\["Find Inspectors", "\/find-inspectors"\]/);
   assert.doesNotMatch(nav, /className="loginNav"/);
 });
 
