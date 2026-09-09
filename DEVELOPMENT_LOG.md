@@ -2,6 +2,16 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-08 - Consolidated dedicated demo navigation and retired stale PRs
+- Aligned global navigation with the dedicated `/demo/client` and `/demo/inspector` entry points: each audience dropdown now exposes its Demo directly beneath its Login, and the top-level Client Demo no longer routes through the legacy `/demo-showcase` entry.
+- Preserved the existing Find Inspectors route and all authentication, billing/payment, matching, API-credential, and production-data behavior; no synthetic records were inserted into production.
+- Retired stale superseded PRs #26, #28, and #29 so older demo/client-dashboard implementations cannot be accidentally merged over the current architecture.
+- An initial broadened regression assertion failed unit tests; the assertion and unrelated route change were removed rather than weakening existing QA. Final Validate application and Autonomous QA both passed, including regression tests, migration safety, synthetic QA, TypeScript, production build, and smoke tests. Vercel preview reached READY.
+- PR #50 was squash-merged after all gates passed; its production deployment was building at the final cycle check. Production runtime review before release found no errors in the preceding 24 hours.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-08 - Consolidated complete Client Demo entry experience
 - Added a dedicated `/demo/client` entry parallel to `/demo/inspector` and routed the home-page `Open Client Demo` action through it while reusing the existing synthetic Client Demo architecture.
 - Expanded the Client Demo hub so the full synthetic experience is discoverable from one place: request intake, inspection history, analytics, Billing & Payment / Contracts / Client Profile, and Data & Integrations.
