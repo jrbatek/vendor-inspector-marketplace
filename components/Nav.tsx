@@ -9,7 +9,7 @@ const groups = [
     ["Client Demo", "/demo/client"],
     ["Project Coordinator", "/project-coordinator"],
     ["Client Dashboard", "/client-dashboard"],
-    ["Find Inspectors", "/find-inspectors"],
+    ["Find Inspectors", "/demo-showcase"],
     ["Client Inspection History Demo", "/demo/client-history"],
     ["Client Analytics Demo", "/demo/client-analytics"],
     ["Client Operations Demo", "/demo/client-operations"],
