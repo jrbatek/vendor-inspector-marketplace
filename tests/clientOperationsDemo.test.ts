@@ -15,13 +15,14 @@ test("client operations demo exposes populated synthetic billing", () => {
   assert.match(page, /No payment credentials, bank data or real financial account details/);
 });
 
-test("client operations demo structures contracts by relationship type", () => {
+test("client operations demo structures contracts by relationship type with expandable synthetic detail", () => {
   assert.match(page, /InspectSource/);
   assert.match(page, /Agencies/);
   assert.match(page, /Individual Inspectors/);
   assert.match(page, /Others/);
   assert.match(page, /Document preview/);
   assert.match(page, /Approval history/);
+  assert.match(page, /aria-expanded=\{openRow\}/);
   assert.match(page, /No e-signature, legal acceptance or production contract mutation/);
 });
 
@@ -33,14 +34,15 @@ test("client profile demo covers requested identity, preference, role and approv
   assert.match(page, /Title \/ department/);
   assert.match(page, /Timezone/);
   assert.match(page, /Notifications/);
-  assert.match(page, /Access level/);
+  assert.match(page, /Access level \/ roles/);
   assert.match(page, /Approval authority/);
   assert.match(page, /Account security/);
+  assert.match(page, /precise geolocation is not collected/);
 });
 
 test("client operations demo is explicitly synthetic and read-only", () => {
   assert.match(page, /Client Demo · Synthetic data/);
-  assert.match(page, /read-only/);
+  assert.match(page, /read-only/i);
   assert.match(page, /never writes to production/);
   assert.doesNotMatch(page, /supabaseBrowser/);
   assert.doesNotMatch(page, /\.from\(/);
