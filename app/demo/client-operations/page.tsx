@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 
 type Tab="billing"|"contracts"|"profile";
@@ -24,12 +24,9 @@ Others:[{name:"Client NDA Template",type:"Confidentiality",status:"Active",effec
 const profileFields=[["Login email","demo.client@inspectsource.example"],["Phone / SMS","+1 (713) 555-0148 · SMS enabled"],["Preferred contact","Email first; SMS for urgent exceptions"],["Location","Houston, Texas, USA"],["Company","Gulf Horizon Energy — Synthetic Client"],["Title / department","Inspection Manager · Capital Projects"],["Timezone","America/Chicago"],["Language","English (US)"],["Notifications","Assignments, reports, NCRs, invoice approvals"],["Working hours","Mon–Fri, 07:00–17:00 local"],["Access level","Client Administrator"],["Approval authority","Inspection requests and invoices up to $25,000"]];
 
 export default function ClientOperationsDemo(){
- const search=useSearchParams();const router=useRouter();
- const requested=(search.get("tab") as Tab)||"billing";
- const [tab,setTab]=useState<Tab>(requested);
- const [contractTab,setContractTab]=useState<ContractTab>("InspectSource");
- const [expanded,setExpanded]=useState<string|null>(null);
- useEffect(()=>setTab(requested),[requested]);
+ const router=useRouter();
+ const [tab,setTab]=useState<Tab>("billing"),[contractTab,setContractTab]=useState<ContractTab>("InspectSource"),[expanded,setExpanded]=useState<string|null>(null);
+ useEffect(()=>{const next=new URLSearchParams(window.location.search).get("tab") as Tab|null;if(next&&["billing","contracts","profile"].includes(next))setTab(next)},[]);
  function chooseTab(next:Tab){setTab(next);router.replace(`/demo/client-operations?tab=${next}`)}
  const total=useMemo(()=>invoices.reduce((s,r)=>s+r.amount,0),[]),open=useMemo(()=>invoices.reduce((s,r)=>s+r.balance,0),[]),paid=useMemo(()=>invoices.filter(r=>r.status==="Paid").reduce((s,r)=>s+r.amount,0),[]);
  return <main className="shell"><ClientWorkspaceSidebar demo/><section className="workspace">
