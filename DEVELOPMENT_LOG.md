@@ -2,6 +2,16 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-09 - Clarified authenticated live-data state and repaired demo regression drift
+- Added an authenticated global navigation status that displays `Logged in as <email>` with a `Live data` indicator using the existing Supabase session, while leaving authentication/authorization enforcement unchanged and keeping the status absent for unauthenticated synthetic demo visitors.
+- Restored Client Operations Demo safeguards that had drifted in recent direct commits: Billing again explicitly excludes payment credentials/bank data, Contracts again expose expandable synthetic document/approval detail with no e-signature/legal execution, and Client Profile again labels coarse location, roles/approval authority, account-security concepts, and no precise geolocation.
+- Updated Inspector Demo isolation coverage for the new standalone synthetic `/demo/inspector` experience rather than the superseded redirect behavior, retaining explicit assertions that it has no production inspector/database access; authenticated InspectorHub remains inspector-scoped live data and demo writes remain blocked.
+- The first validation run surfaced six stale regression assertions introduced by recent direct main-branch demo changes. The new authenticated-session test itself passed. Regression coverage was aligned to the current analytics detail view and restored operations/isolation safeguards instead of weakening production-isolation checks.
+- No synthetic records were inserted into production. No auth/RLS policy, real billing/payment execution, API credentials, matching/business rules, precise geolocation, compensation/tax behavior, or legal execution behavior changed.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-08 - Consolidated dedicated demo navigation and retired stale PRs
 - Aligned global navigation with the dedicated `/demo/client` and `/demo/inspector` entry points: each audience dropdown now exposes its Demo directly beneath its Login, and the top-level Client Demo no longer routes through the legacy `/demo-showcase` entry.
 - Preserved the existing Find Inspectors route and all authentication, billing/payment, matching, API-credential, and production-data behavior; no synthetic records were inserted into production.

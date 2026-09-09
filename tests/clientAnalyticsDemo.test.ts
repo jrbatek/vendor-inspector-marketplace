@@ -22,7 +22,8 @@ test("client analytics demo includes drillable portfolio, geography, commodity, 
   assert.match(page, /Top countries in current view/);
   assert.match(page, /Inspections by commodity/);
   assert.match(page, /Non-conformance performance/);
-  assert.match(page, /Filtered records/);
+  assert.match(page, /Inspection records/);
+  assert.match(page, /Showing up to 20 records per page/);
   assert.match(page, /Expanded analytics/);
   assert.match(page, /Drill in →/);
 });

@@ -30,8 +30,14 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
   ]) assert.equal(isDemoExperiencePath(route), false, route);
 });
 
-test("Inspector Demo has a dedicated entry URL that resolves into the populated InspectorHub experience", () => {
-  assert.match(inspectorDemoEntry, /redirect\("\/inspectorhub"\)/);
+test("Inspector Demo is a standalone synthetic experience isolated from production inspector data", () => {
+  assert.match(inspectorDemoEntry, /Inspector Demo · Synthetic data/);
+  assert.match(inspectorDemoEntry, /No production inspector data or database tables are used/);
+  assert.match(inspectorDemoEntry, /PROFILES/);
+  assert.doesNotMatch(inspectorDemoEntry, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
+});
+
+test("unauthenticated InspectorHub remains a populated synthetic preview with writes blocked", () => {
   assert.match(inspectorHub, /if\(!a\.user\)\{setMode\("demo"\);setItems\(DEMO_WORK\)/);
   assert.match(inspectorHub, /if\(mode!=="live"\)\{demoNotice\(\);return;\}/);
 });
