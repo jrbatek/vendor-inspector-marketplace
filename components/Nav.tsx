@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { supabaseBrowser } from "@/lib/supabase";
 
 const groups = [
   { label: "Clients", links: [
@@ -32,7 +33,9 @@ const groups = [
 
 export default function Nav() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
+  const supabase = useMemo(() => supabaseBrowser(), []);
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -48,6 +51,20 @@ export default function Nav() {
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (active) setUserEmail(data.user?.email ?? null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setUserEmail(session?.user.email ?? null);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   return <header className="nav groupedNav" ref={navRef}>
     <Link href="/" className="brand" onClick={() => setOpenMenu(null)}>InspectSource</Link>
@@ -73,6 +90,7 @@ export default function Nav() {
       <Link className="topLink demoLink" href="/demo/client" onClick={() => setOpenMenu(null)}>Client Demo</Link>
       <Link className="topLink demoLink" href="/demo/inspector" onClick={() => setOpenMenu(null)}>Inspector Demo</Link>
     </nav>
-    <style jsx>{`.groupedNav{display:flex;align-items:center;gap:28px;padding:14px 18px;position:relative;z-index:50}.primaryNav{display:flex;align-items:center;gap:8px;flex:1}.navGroup{position:relative}.groupButton{border:0;background:transparent;cursor:pointer;padding:9px 11px;border-radius:8px;font:inherit;font-weight:700;white-space:nowrap;color:#0f172a}.groupButton span{font-size:.7rem;margin-left:6px;color:#64748b}.groupButton.open,.groupButton:hover,.groupButton:focus-visible{background:#eff6ff;color:#1d4ed8}.navMenu{position:absolute;top:calc(100% + 6px);left:0;min-width:265px;padding:7px;background:white;border:1px solid #dbeafe;border-radius:12px;box-shadow:0 14px 35px rgba(15,23,42,.13);display:grid;gap:2px;z-index:100}.navMenu :global(a){padding:10px 11px;border-radius:8px;text-decoration:none;color:#0f172a;white-space:nowrap}.navMenu :global(a:hover),.navMenu :global(a:focus-visible){background:#eff6ff;color:#1d4ed8}.navMenu :global(a.loginLink){font-weight:800;color:#1d4ed8;border-bottom:1px solid #e2e8f0;border-radius:8px 8px 4px 4px;margin-bottom:4px}.topLink{padding:9px 11px;border-radius:8px;font-weight:700;text-decoration:none;white-space:nowrap}.demoLink{background:#f8fafc;border:1px solid #dbeafe}.topLink:hover,.topLink:focus-visible{background:#eff6ff;color:#1d4ed8}@media(max-width:980px){.groupedNav{align-items:flex-start;gap:12px;flex-wrap:wrap}.primaryNav{width:100%;flex-basis:100%;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.navMenu{position:fixed;left:18px;right:18px;top:auto;min-width:0}}`}</style>
+    {userEmail && <div className="liveSession" aria-live="polite" aria-label="Authenticated live-data session"><span>Logged in as <strong>{userEmail}</strong></span><b>Live data</b></div>}
+    <style jsx>{`.groupedNav{display:flex;align-items:center;gap:28px;padding:14px 18px;position:relative;z-index:50}.primaryNav{display:flex;align-items:center;gap:8px;flex:1}.navGroup{position:relative}.groupButton{border:0;background:transparent;cursor:pointer;padding:9px 11px;border-radius:8px;font:inherit;font-weight:700;white-space:nowrap;color:#0f172a}.groupButton span{font-size:.7rem;margin-left:6px;color:#64748b}.groupButton.open,.groupButton:hover,.groupButton:focus-visible{background:#eff6ff;color:#1d4ed8}.navMenu{position:absolute;top:calc(100% + 6px);left:0;min-width:265px;padding:7px;background:white;border:1px solid #dbeafe;border-radius:12px;box-shadow:0 14px 35px rgba(15,23,42,.13);display:grid;gap:2px;z-index:100}.navMenu :global(a){padding:10px 11px;border-radius:8px;text-decoration:none;color:#0f172a;white-space:nowrap}.navMenu :global(a:hover),.navMenu :global(a:focus-visible){background:#eff6ff;color:#1d4ed8}.navMenu :global(a.loginLink){font-weight:800;color:#1d4ed8;border-bottom:1px solid #e2e8f0;border-radius:8px 8px 4px 4px;margin-bottom:4px}.topLink{padding:9px 11px;border-radius:8px;font-weight:700;text-decoration:none;white-space:nowrap}.demoLink{background:#f8fafc;border:1px solid #dbeafe}.topLink:hover,.topLink:focus-visible{background:#eff6ff;color:#1d4ed8}.liveSession{display:flex;align-items:center;gap:8px;min-width:0;padding:7px 9px;border:1px solid #bbf7d0;border-radius:10px;background:#f0fdf4;color:#334155;font-size:.72rem;white-space:nowrap}.liveSession span{overflow:hidden;text-overflow:ellipsis}.liveSession strong{color:#0f172a}.liveSession b{padding:3px 6px;border-radius:999px;background:#dcfce7;color:#166534;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em}@media(max-width:1180px){.liveSession{order:3;width:100%;justify-content:space-between}.liveSession span{white-space:normal}}@media(max-width:980px){.groupedNav{align-items:flex-start;gap:12px;flex-wrap:wrap}.primaryNav{width:100%;flex-basis:100%;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.navMenu{position:fixed;left:18px;right:18px;top:auto;min-width:0}}`}</style>
   </header>;
 }
