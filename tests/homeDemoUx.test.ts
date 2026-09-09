@@ -8,8 +8,8 @@ const nav = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf
 const layout = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
 const demoBanner = fs.readFileSync(path.join(process.cwd(), "components/DemoModeBanner.tsx"), "utf8");
 
-test("home page uses the InspectSource brand line and separates client and inspector paths", () => {
-  assert.match(home, /Eyes, Ears, and Expertise, Everywhere\./);
+test("home page uses the exact InspectSource brand line and separates client and inspector paths", () => {
+  assert.match(home, /InspectSource — Eyes, Ears, and Expertise, Everywhere\./);
   assert.match(home, /For Clients/);
   assert.match(home, /For Inspectors/);
   assert.match(home, /Find Inspectors/);
