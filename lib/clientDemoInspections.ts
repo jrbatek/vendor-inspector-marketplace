@@ -10,6 +10,8 @@ export type DemoInspection={
   inspector:string;
   date:string;
   status:"Completed"|"In Progress"|"Pending";
+  timing:"On time"|"Late"|"Upcoming";
+  spendUsd:number;
   ncr:boolean;
   ncrType:string;
   reportId:string;
@@ -32,15 +34,20 @@ const suppliers=[
 
 const inspectionTypes=["Vendor surveillance","Hold-point witness","FAT witness","Material verification","Welding inspection","Final release inspection","Expediting visit"];
 const inspectors=["Inspector IS-1042","Inspector IS-1187","Inspector IS-1239","Inspector IS-1314","Inspector IS-1426","Inspector IS-1508","Inspector IS-1671","Inspector IS-1733"];
+const ncrTypes=["Material traceability","Welding","Documentation","Dimensional","Coating"];
 
 export const DEMO_INSPECTIONS:DemoInspection[]=Array.from({length:60},(_,i)=>{
   const p=projects[i%projects.length];
   const loc=locations[(i*7)%locations.length];
-  const ncr=i===37;
+  const ncr=i%13===7;
   const month=3+Math.floor(i/10);
   const day=2+((i*3)%24);
   const date=`2026-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
   const id=`IS-${String(5001+i)}`;
+  const status:DemoInspection["status"]=i<55?"Completed":i<58?"In Progress":"Pending";
+  const timing:DemoInspection["timing"]=status!=="Completed"?"Upcoming":i%9===4?"Late":"On time";
+  const spendUsd=status==="Pending"?0:1650+((i*487)%6200);
+  const ncrType=ncr?ncrTypes[i%ncrTypes.length]:"None";
   return {
     id,
     project:p.name,
@@ -52,11 +59,13 @@ export const DEMO_INSPECTIONS:DemoInspection[]=Array.from({length:60},(_,i)=>{
     inspectionType:inspectionTypes[i%inspectionTypes.length],
     inspector:inspectors[i%inspectors.length],
     date,
-    status:i<55?"Completed":i<58?"In Progress":"Pending",
+    status,
+    timing,
+    spendUsd,
     ncr,
-    ncrType:ncr?"Material traceability":"None",
+    ncrType,
     reportId:`RPT-${String(260001+i)}`,
-    reportSummary:ncr?"Inspection completed with one non-conformance related to material traceability. Corrective action requested and follow-up verification required.":"Inspection completed with no non-conformances. Required documents and release evidence were reviewed and accepted for this inspection stage."
+    reportSummary:ncr?`Inspection completed with one ${ncrType.toLowerCase()} non-conformance. Corrective action requested and follow-up verification required.`:"Inspection completed with no non-conformances. Required documents and release evidence were reviewed and accepted for this inspection stage."
   };
 });
 
