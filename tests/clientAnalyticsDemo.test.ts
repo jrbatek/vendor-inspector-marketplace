@@ -4,35 +4,45 @@ import path from "node:path";
 import test from "node:test";
 
 const page = fs.readFileSync(path.join(process.cwd(), "app/demo/client-analytics/page.tsx"), "utf8");
+const data = fs.readFileSync(path.join(process.cwd(), "lib/clientDemoInspections.ts"), "utf8");
 const nav = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf8");
 
-test("client analytics demo exposes current synthetic KPIs and cross-filter dimensions", () => {
+test("client analytics demo exposes the complete requested cross-filter contract", () => {
+  for (const label of ["Project","Project Type","Country","Commodity","Timing","Non-conformance","NCR Type"]) {
+    assert.match(page, new RegExp(`Filter label=\\"${label}\\"`));
+  }
+  assert.match(page, /Cross-filter spend, timing, geography, project type, commodity and non-conformance performance/);
+});
+
+test("client analytics demo restores meaningful spend, timing and NCR KPIs", () => {
+  assert.match(page, /Inspection spend/);
   assert.match(page, /Inspections in view/);
-  assert.match(page, /Completed/);
-  assert.match(page, /Countries in view/);
-  assert.match(page, /Completed NCR rate/);
-  assert.match(page, /Filter label="Project"/);
-  assert.match(page, /Filter label="Country"/);
-  assert.match(page, /Filter label="Commodity"/);
-  assert.match(page, /Filter label="NCR"/);
+  assert.match(page, /On-time performance/);
+  assert.match(page, /Projects with NCRs/);
+  assert.match(data, /spendUsd:number/);
+  assert.match(data, /timing:"On time"\|"Late"\|"Upcoming"/);
 });
 
-test("client analytics demo includes drillable portfolio, geography, commodity, quality and detail views", () => {
-  assert.match(page, /Inspections by project/);
-  assert.match(page, /Top countries in current view/);
-  assert.match(page, /Inspections by commodity/);
-  assert.match(page, /Non-conformance performance/);
-  assert.match(page, /Inspection records/);
-  assert.match(page, /Showing up to 20 records per page/);
-  assert.match(page, /Expanded analytics/);
-  assert.match(page, /Drill in →/);
+test("client analytics demo includes trends, geography, project type, commodity and NCR analysis", () => {
+  assert.match(page, /Monthly spend trend/);
+  assert.match(page, /Geography \/ map view/);
+  assert.match(page, /Project type/);
+  assert.match(page, /Commodity/);
+  assert.match(page, /NCR type/);
+  assert.match(page, /Cross-filtered inspection records/);
+  assert.match(data, /Material traceability/);
+  assert.match(data, /Welding/);
+  assert.match(data, /Documentation/);
+  assert.match(data, /Dimensional/);
+  assert.match(data, /Coating/);
 });
 
-test("client analytics demo is deterministic, downloadable and isolated from production", () => {
+test("client analytics demo is downloadable, integration-aware and isolated from production", () => {
   assert.match(page, /Client Demo · Synthetic data/);
-  assert.match(page, /DEMO_INSPECTIONS/);
   assert.match(page, /Download data/);
   assert.match(page, /inspectsource-client-demo-inspections\.csv/);
+  assert.match(page, /API, Excel & Power BI connectivity/);
+  assert.match(page, /\/demo\/client-data/);
   assert.doesNotMatch(page, /supabaseBrowser|supabase\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 
