@@ -2,40 +2,108 @@
 
 import { useMemo, useState } from "react";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
-import { DEMO_INSPECTIONS, DEMO_NCR_RATE, type DemoInspection } from "@/lib/clientDemoInspections";
+import { DEMO_INSPECTIONS, type DemoInspection } from "@/lib/clientDemoInspections";
 
-type SortKey="id"|"project"|"supplier"|"country"|"commodity"|"inspectionType"|"date"|"status";
-type ExpandView="project"|"country"|"commodity"|null;
-const PAGE_SIZE=20;
+type FilterKey="project"|"projectType"|"country"|"commodity"|"timing"|"ncrType";
+const ALL="All";
+
+const money=(value:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(value);
+const unique=(key:FilterKey)=>[ALL,...Array.from(new Set(DEMO_INSPECTIONS.map(row=>row[key]))).sort()];
 
 export default function ClientAnalyticsDemo(){
- const [project,setProject]=useState("All"),[country,setCountry]=useState("All"),[commodity,setCommodity]=useState("All"),[ncr,setNcr]=useState("All");
- const [expand,setExpand]=useState<ExpandView>(null),[sortKey,setSortKey]=useState<SortKey>("date"),[asc,setAsc]=useState(false),[page,setPage]=useState(0),[report,setReport]=useState<DemoInspection|null>(null);
- const projects=["All",...Array.from(new Set(DEMO_INSPECTIONS.map(x=>x.project)))],countries=["All",...Array.from(new Set(DEMO_INSPECTIONS.map(x=>x.country))).sort()],commodities=["All",...Array.from(new Set(DEMO_INSPECTIONS.map(x=>x.commodity))).sort()];
- const filtered=useMemo(()=>DEMO_INSPECTIONS.filter(x=>(project==="All"||x.project===project)&&(country==="All"||x.country===country)&&(commodity==="All"||x.commodity===commodity)&&(ncr==="All"||(ncr==="With NCR"?x.ncr:!x.ncr))),[project,country,commodity,ncr]);
- const sorted=useMemo(()=>[...filtered].sort((a,b)=>String(a[sortKey]).localeCompare(String(b[sortKey]))*(asc?1:-1)),[filtered,sortKey,asc]);
- const visible=sorted.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE),pages=Math.max(1,Math.ceil(sorted.length/PAGE_SIZE));
- const completed=filtered.filter(x=>x.status==="Completed"),ncrCount=completed.filter(x=>x.ncr).length;
- const count=(values:string[],key:"project"|"country"|"commodity")=>values.slice(1).map(name=>({name,count:filtered.filter(x=>x[key]===name).length})).filter(x=>x.count).sort((a,b)=>b.count-a.count);
- const projectCounts=count(projects,"project"),countryCounts=count(countries,"country"),commodityCounts=count(commodities,"commodity");
- const max=(rows:{count:number}[])=>Math.max(...rows.map(x=>x.count),1);
- function reset(){setProject("All");setCountry("All");setCommodity("All");setNcr("All");setPage(0)}
- function sort(k:SortKey){if(sortKey===k)setAsc(!asc);else{setSortKey(k);setAsc(true)}setPage(0)}
- function download(){const h=["ID","Project","Project Type","Supplier","City","Country","Commodity","Inspection Type","Inspector","Date","Status","NCR","NCR Type","Report ID"];const r=sorted.map(x=>[x.id,x.project,x.projectType,x.supplier,x.city,x.country,x.commodity,x.inspectionType,x.inspector,x.date,x.status,x.ncr?"Yes":"No",x.ncrType,x.reportId]);const csv=[h,...r].map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");const u=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));const a=document.createElement("a");a.href=u;a.download="inspectsource-client-demo-inspections.csv";a.click();URL.revokeObjectURL(u)}
- return <main className="shell"><ClientWorkspaceSidebar demo/><section className="workspace">
-  <section className="demoBanner"><strong>Client Demo · Synthetic data</strong><span>Analytics use the same 60 global inspection records shown in Inspection History.</span></section>
-  <header className="head"><div><p className="eyebrow">Client Analytics</p><h1>Inspection performance</h1><p>Cross-filter the portfolio by project, geography, commodity and NCR status.</p></div><div className="actions"><button onClick={reset}>Reset filters</button><button className="download" onClick={download}>↓ Download data</button></div></header>
-  <section className="filters"><Filter label="Project" value={project} values={projects} setValue={v=>{setProject(v);setPage(0)}}/><Filter label="Country" value={country} values={countries} setValue={v=>{setCountry(v);setPage(0)}}/><Filter label="Commodity" value={commodity} values={commodities} setValue={v=>{setCommodity(v);setPage(0)}}/><Filter label="NCR" value={ncr} values={["All","With NCR","No NCR"]} setValue={v=>{setNcr(v);setPage(0)}}/></section>
-  <section className="kpis"><Kpi label="Inspections in view" value={String(filtered.length)}/><Kpi label="Completed" value={String(completed.length)}/><Kpi label="Countries in view" value={String(new Set(filtered.map(x=>x.country)).size)}/><Kpi label="Completed NCR rate" value={`${completed.length?(ncrCount/completed.length*100).toFixed(1):"0.0"}%`}/></section>
-  <section className="grid"><Chart title="Inspections by project" rows={projectCounts} max={max(projectCounts)} expand={()=>setExpand("project")} select={setProject}/><Chart title="Top countries in current view" rows={countryCounts.slice(0,10)} max={max(countryCounts)} expand={()=>setExpand("country")} select={setCountry}/><Chart title="Inspections by commodity" rows={commodityCounts.slice(0,10)} max={max(commodityCounts)} expand={()=>setExpand("commodity")} select={setCommodity}/><article className="panel quality"><p className="eyebrow">Quality</p><h2>Non-conformance performance</h2><strong className="big">{DEMO_NCR_RATE.toFixed(1)}%</strong><p>Global running average: <strong>2.1%</strong>. The synthetic demo portfolio is currently {DEMO_NCR_RATE<2.1?"below":"above"} that benchmark by {Math.abs(2.1-DEMO_NCR_RATE).toFixed(1)} percentage points.</p></article></section>
-  <section className="panel records"><div className="recordHead"><div><p className="eyebrow">Inspection detail</p><h2>Inspection records</h2><p>Showing up to 20 records per page. Sort any column and open the report from the date/report column.</p></div><span>{sorted.length} total</span></div><div className="tableWrap"><table><thead><tr><Th k="id" label="ID" sort={sort}/><Th k="project" label="Project" sort={sort}/><Th k="supplier" label="Supplier" sort={sort}/><Th k="country" label="Location" sort={sort}/><Th k="commodity" label="Commodity" sort={sort}/><Th k="inspectionType" label="Inspection" sort={sort}/><Th k="date" label="Date / report" sort={sort}/><Th k="status" label="Status" sort={sort}/><th>NCR</th></tr></thead><tbody>{visible.map(x=><tr key={x.id}><td>{x.id}</td><td>{x.project}</td><td>{x.supplier}</td><td>{x.city}, {x.country}</td><td>{x.commodity}</td><td>{x.inspectionType}</td><td><button className="reportLink" onClick={()=>setReport(x)}>{x.date}<small>{x.reportId}</small></button></td><td>{x.status}</td><td>{x.ncr?x.ncrType:"None"}</td></tr>)}</tbody></table></div><div className="pager"><button disabled={page===0} onClick={()=>setPage(page-1)}>← Previous</button><span>Page {page+1} of {pages}</span><button disabled={page>=pages-1} onClick={()=>setPage(page+1)}>Next →</button></div></section>
- </section>
- {expand&&<div className="modalBack" onClick={()=>setExpand(null)}><section className="modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setExpand(null)}>×</button><p className="eyebrow">Expanded analytics</p><h2>{expand==="project"?"Inspections by project":expand==="country"?"Inspections by country":"Inspections by commodity"}</h2><p>Choose a row to drill into that selection.</p><div className="drill">{(expand==="project"?projectCounts:expand==="country"?countryCounts:commodityCounts).map(x=><button key={x.name} onClick={()=>{if(expand==="project")setProject(x.name);if(expand==="country")setCountry(x.name);if(expand==="commodity")setCommodity(x.name);setPage(0);setExpand(null)}}><span>{x.name}</span><strong>{x.count}</strong><b>Drill in →</b></button>)}</div></section></div>}
- {report&&<Report row={report} close={()=>setReport(null)}/>} 
- <style jsx>{`.shell{max-width:1440px;margin:auto;padding:18px 18px 70px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.demoBanner,.head,.filters,.kpi,.panel{background:#fff;border:1px solid #dbe3ee}.demoBanner{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:12px;background:#f0fdfa;color:#115e59}.head{margin-top:14px;border-radius:16px;padding:24px;display:flex;justify-content:space-between;gap:20px}.head h1,.panel h2{margin:3px 0 8px}.head p,.panel p{color:#64748b}.actions{display:flex;gap:8px}.actions button,.pager button{height:max-content;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.actions .download{background:#0f766e;color:#fff;border-color:#0f766e}.eyebrow{margin:0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:#0f766e}.filters{margin:14px 0;padding:14px;border-radius:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.filter{display:grid;gap:5px;font-size:.74rem;font-weight:800}.filter select{padding:9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.kpi{padding:15px;border-radius:12px}.kpi strong{display:block;font-size:1.5rem}.kpi span{font-size:.75rem;color:#64748b}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{border-radius:16px;padding:20px;min-width:0}.big{font-size:3rem;display:block;margin:18px 0}.records{margin-top:14px}.recordHead{display:flex;justify-content:space-between;gap:12px}.recordHead>span{color:#64748b}.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{text-align:left;padding:10px;border-top:1px solid #e2e8f0;white-space:nowrap}th{font-size:.7rem;text-transform:uppercase;color:#64748b}.reportLink{border:0;background:transparent;color:#0f766e;text-align:left;font:inherit;cursor:pointer;text-decoration:underline}.reportLink small{display:block;color:#64748b;text-decoration:none}.pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding-top:14px}.pager button:disabled{opacity:.4;cursor:not-allowed}.modalBack{position:fixed;inset:0;background:#0f172a99;z-index:1000;display:grid;place-items:center;padding:20px}.modal{position:relative;width:min(900px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;padding:24px}.close{position:absolute;right:16px;top:14px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:9px;width:38px;height:38px;font-size:1.4rem}.drill{display:grid;gap:8px;margin-top:18px}.drill button{display:grid;grid-template-columns:1fr 60px 100px;gap:10px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:12px;text-align:left;cursor:pointer}.drill b{color:#0f766e}@media(max-width:980px){.shell{grid-template-columns:1fr}.filters,.kpis,.grid{grid-template-columns:1fr 1fr}}@media(max-width:680px){.demoBanner,.head{display:grid}.actions{flex-wrap:wrap}.filters,.kpis,.grid{grid-template-columns:1fr}}`}</style></main>
+  const [project,setProject]=useState(ALL);
+  const [projectType,setProjectType]=useState(ALL);
+  const [country,setCountry]=useState(ALL);
+  const [commodity,setCommodity]=useState(ALL);
+  const [timing,setTiming]=useState(ALL);
+  const [ncr,setNcr]=useState(ALL);
+  const [ncrType,setNcrType]=useState(ALL);
+
+  const filtered=useMemo(()=>DEMO_INSPECTIONS.filter(row=>(
+    (project===ALL||row.project===project)&&
+    (projectType===ALL||row.projectType===projectType)&&
+    (country===ALL||row.country===country)&&
+    (commodity===ALL||row.commodity===commodity)&&
+    (timing===ALL||row.timing===timing)&&
+    (ncr===ALL||(ncr==="With NCR"?row.ncr:!row.ncr))&&
+    (ncrType===ALL||row.ncrType===ncrType)
+  )),[project,projectType,country,commodity,timing,ncr,ncrType]);
+
+  const completed=filtered.filter(row=>row.status==="Completed");
+  const totalSpend=filtered.reduce((sum,row)=>sum+row.spendUsd,0);
+  const onTime=completed.filter(row=>row.timing==="On time").length;
+  const onTimeRate=completed.length?onTime/completed.length*100:0;
+  const projectsWithNcr=new Set(filtered.filter(row=>row.ncr).map(row=>row.project)).size;
+
+  const monthly=group(filtered,row=>row.date.slice(0,7),row=>row.spendUsd);
+  const geography=group(filtered,row=>row.country);
+  const byCommodity=group(filtered,row=>row.commodity);
+  const byProjectType=group(filtered,row=>row.projectType);
+  const byNcrType=group(filtered.filter(row=>row.ncr),row=>row.ncrType);
+
+  function reset(){
+    setProject(ALL);setProjectType(ALL);setCountry(ALL);setCommodity(ALL);setTiming(ALL);setNcr(ALL);setNcrType(ALL);
+  }
+  function download(){
+    const headers=["ID","Project","Project Type","Supplier","City","Country","Commodity","Inspection Type","Inspector","Date","Status","Timing","Spend USD","NCR","NCR Type","Report ID"];
+    const rows=filtered.map(row=>[row.id,row.project,row.projectType,row.supplier,row.city,row.country,row.commodity,row.inspectionType,row.inspector,row.date,row.status,row.timing,row.spendUsd,row.ncr?"Yes":"No",row.ncrType,row.reportId]);
+    const csv=[headers,...rows].map(row=>row.map(value=>`"${String(value).replaceAll('"','""')}"`).join(",")).join("\n");
+    const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    const link=document.createElement("a");link.href=url;link.download="inspectsource-client-demo-inspections.csv";link.click();URL.revokeObjectURL(url);
+  }
+
+  return <main className="shell"><ClientWorkspaceSidebar demo/><section className="workspace">
+    <section className="demoBanner" role="status"><strong>Client Demo · Synthetic data</strong><span>Deterministic analytics only. No production client records are read or written.</span></section>
+    <header className="head"><div><p className="eyebrow">Client Analytics</p><h1>Inspection performance</h1><p>Cross-filter spend, timing, geography, project type, commodity and non-conformance performance.</p></div><div className="actions"><button type="button" onClick={reset}>Reset filters</button><button type="button" className="download" onClick={download}>↓ Download data</button></div></header>
+
+    <section className="filters" aria-label="Analytics slicers">
+      <Filter label="Project" value={project} values={unique("project")} setValue={setProject}/>
+      <Filter label="Project Type" value={projectType} values={unique("projectType")} setValue={setProjectType}/>
+      <Filter label="Country" value={country} values={unique("country")} setValue={setCountry}/>
+      <Filter label="Commodity" value={commodity} values={unique("commodity")} setValue={setCommodity}/>
+      <Filter label="Timing" value={timing} values={unique("timing")} setValue={setTiming}/>
+      <Filter label="Non-conformance" value={ncr} values={[ALL,"With NCR","No NCR"]} setValue={setNcr}/>
+      <Filter label="NCR Type" value={ncrType} values={unique("ncrType")} setValue={setNcrType}/>
+    </section>
+
+    <section className="kpis" aria-label="Analytics KPIs">
+      <Kpi label="Inspection spend" value={money(totalSpend)}/>
+      <Kpi label="Inspections in view" value={String(filtered.length)}/>
+      <Kpi label="On-time performance" value={`${onTimeRate.toFixed(1)}%`}/>
+      <Kpi label="Projects with NCRs" value={String(projectsWithNcr)}/>
+    </section>
+
+    <section className="grid">
+      <Panel title="Monthly spend trend" subtitle="Synthetic inspection spend by month"><Bars rows={monthly} moneyValues/></Panel>
+      <Panel title="Geography / map view" subtitle="Countries represented in the current selection"><Bars rows={geography} onSelect={setCountry}/></Panel>
+      <Panel title="Project type" subtitle="Inspection mix by project type"><Bars rows={byProjectType} onSelect={setProjectType}/></Panel>
+      <Panel title="Commodity" subtitle="Inspection mix by equipment / commodity"><Bars rows={byCommodity} onSelect={setCommodity}/></Panel>
+      <Panel title="NCR type" subtitle="Non-conformance mix in the current selection"><Bars rows={byNcrType} onSelect={setNcrType} empty="No NCRs in this selection."/></Panel>
+      <article className="panel quality"><p className="eyebrow">Quality & timing</p><h2>Cross-filter summary</h2><dl><div><dt>Completed inspections</dt><dd>{completed.length}</dd></div><div><dt>Late completed inspections</dt><dd>{completed.filter(row=>row.timing==="Late").length}</dd></div><div><dt>NCRs</dt><dd>{filtered.filter(row=>row.ncr).length}</dd></div><div><dt>Countries</dt><dd>{new Set(filtered.map(row=>row.country)).size}</dd></div></dl></article>
+    </section>
+
+    <section className="panel records"><div className="recordHead"><div><p className="eyebrow">Inspection detail</p><h2>Cross-filtered inspection records</h2></div><span>{filtered.length} records</span></div><div className="tableWrap"><table><thead><tr><th>ID</th><th>Project</th><th>Project type</th><th>Country</th><th>Commodity</th><th>Timing</th><th>Spend</th><th>NCR type</th><th>Status</th></tr></thead><tbody>{filtered.slice(0,30).map(row=><tr key={row.id}><td><strong>{row.id}</strong></td><td>{row.project}</td><td>{row.projectType}</td><td>{row.city}, {row.country}</td><td>{row.commodity}</td><td>{row.timing}</td><td>{money(row.spendUsd)}</td><td>{row.ncrType}</td><td>{row.status}</td></tr>)}</tbody></table></div>{filtered.length>30&&<p className="tableNote">Showing 30 of {filtered.length} filtered records. Download data for the complete selection.</p>}</section>
+
+    <section className="connectivity"><div><p className="eyebrow">Take the data with you</p><h2>API, Excel & Power BI connectivity</h2><p>The same normalized client dataset can feed governed API integrations, CSV/Excel analysis and Power BI reporting.</p></div><a href="/demo/client-data">Open Data & Integrations Demo →</a></section>
+  </section>
+  <style jsx>{`
+    .shell{max-width:1440px;margin:auto;padding:18px 18px 70px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.demoBanner,.head,.filters,.kpi,.panel,.connectivity{background:#fff;border:1px solid #dbe3ee}.demoBanner{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:12px;background:#f0fdfa;color:#115e59}.head{margin-top:14px;border-radius:16px;padding:22px;display:flex;justify-content:space-between;gap:20px}.head h1,.panel h2,.connectivity h2{margin:3px 0 8px}.head p,.panel p,.connectivity p{color:#64748b}.eyebrow{margin:0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:#0f766e}.actions{display:flex;gap:8px;align-items:flex-start}.actions button{border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.actions .download{background:#0f766e;color:#fff;border-color:#0f766e}.filters{margin:14px 0;padding:14px;border-radius:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.filter{display:grid;gap:5px;font-size:.74rem;font-weight:800}.filter select{min-width:0;padding:9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.kpi{padding:15px;border-radius:12px}.kpi strong{display:block;font-size:1.45rem}.kpi span{font-size:.75rem;color:#64748b}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{border-radius:16px;padding:20px;min-width:0}.bars{display:grid;gap:9px;margin-top:14px}.barRow{display:grid;grid-template-columns:minmax(130px,210px) 1fr auto;gap:10px;align-items:center;border:0;background:transparent;text-align:left;padding:3px;width:100%}.barRow.clickable{cursor:pointer}.barLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.track{height:9px;background:#e2e8f0;border-radius:99px;overflow:hidden}.fill{display:block;height:100%;background:#0f766e;border-radius:99px}.empty{color:#64748b}.quality dl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 0}.quality dl div{padding:12px;background:#f8fafc;border-radius:10px}.quality dt{font-size:.75rem;color:#64748b}.quality dd{margin:4px 0 0;font-size:1.35rem;font-weight:900}.records{margin-top:14px}.recordHead{display:flex;justify-content:space-between;gap:12px}.recordHead>span,.tableNote{color:#64748b}.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:1050px}th,td{text-align:left;padding:10px;border-top:1px solid #e2e8f0;white-space:nowrap}th{font-size:.7rem;text-transform:uppercase;color:#64748b}.connectivity{margin-top:14px;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:18px}.connectivity a{font-weight:900;color:#0f766e;white-space:nowrap}@media(max-width:980px){.shell{grid-template-columns:1fr}.filters,.kpis,.grid{grid-template-columns:1fr 1fr}}@media(max-width:680px){.demoBanner,.head,.connectivity{display:grid}.actions{flex-wrap:wrap}.filters,.kpis,.grid{grid-template-columns:1fr}.quality dl{grid-template-columns:1fr}.connectivity a{white-space:normal}}
+  `}</style>
+  </main>;
 }
-function Filter({label,value,values,setValue}:{label:string;value:string;values:string[];setValue:(v:string)=>void}){return <label className="filter">{label}<select value={value} onChange={e=>setValue(e.target.value)}>{values.map(v=><option key={v}>{v}</option>)}</select></label>}
+
+function Filter({label,value,values,setValue}:{label:string;value:string;values:string[];setValue:(value:string)=>void}){
+  return <label className="filter">{label}<select value={value} onChange={event=>setValue(event.target.value)}>{values.map(option=><option key={option}>{option}</option>)}</select></label>;
+}
 function Kpi({label,value}:{label:string;value:string}){return <article className="kpi"><strong>{value}</strong><span>{label}</span></article>}
-function Th({k,label,sort}:{k:SortKey;label:string;sort:(k:SortKey)=>void}){return <th><button onClick={()=>sort(k)} style={{border:0,background:"transparent",font:"inherit",fontWeight:900,color:"inherit",cursor:"pointer",padding:0}}>{label} ↕</button></th>}
-function Chart({title,rows,max,expand,select}:{title:string;rows:{name:string;count:number}[];max:number;expand:()=>void;select:(n:string)=>void}){return <article className="panel"><div style={{display:"flex",justifyContent:"space-between",gap:12}}><h2>{title}</h2><button onClick={expand} style={{height:"max-content",border:"1px solid #cbd5e1",background:"#f8fafc",borderRadius:8,padding:"7px 9px",fontWeight:800,cursor:"pointer"}}>↗ Expand</button></div><div style={{display:"grid",gap:9,marginTop:12}}>{rows.map(x=><button key={x.name} onClick={()=>select(x.name)} style={{display:"grid",gridTemplateColumns:"minmax(140px,220px) 1fr 32px",gap:10,alignItems:"center",border:0,background:"transparent",textAlign:"left",cursor:"pointer",padding:3}}><span style={{fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.name}</span><i style={{height:9,background:"#e2e8f0",borderRadius:99,overflow:"hidden"}}><b style={{display:"block",height:"100%",width:`${x.count/max*100}%`,background:"#0f766e",borderRadius:99}}/></i><strong>{x.count}</strong></button>)}</div></article>}
-function Report({row,close}:{row:DemoInspection;close:()=>void}){return <div className="modalBack" onClick={close}><section className="modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={close}>×</button><p className="eyebrow">Synthetic example report</p><h2>Standard Inspection Report</h2><p><strong>{row.reportId}</strong> · {row.date}</p><div className="reportGrid"><span>Project<strong>{row.project}</strong></span><span>Supplier<strong>{row.supplier}</strong></span><span>Location<strong>{row.city}, {row.country}</strong></span><span>Commodity<strong>{row.commodity}</strong></span><span>Inspection<strong>{row.inspectionType}</strong></span><span>Inspector<strong>{row.inspector}</strong></span></div><h3>Inspection summary</h3><p>Scheduled inspection activities were performed against the applicable client inspection and test plan. Documentation, identification, workmanship, and the planned hold/witness points were reviewed for the stage inspected.</p><h3>Result</h3><p>{row.ncr?"One NCR was raised for material traceability. Corrective evidence and follow-up verification are required before release.":"No NCR was raised. The inspected stage was accepted for progression to the next planned manufacturing or release milestone."}</p><h3>Photographs</h3><div className="photos"><div>Photo placeholder</div><div>Photo placeholder</div><div>Photo placeholder</div></div><style jsx>{`.modalBack{position:fixed;inset:0;background:#0f172a99;z-index:1100;display:grid;place-items:center;padding:20px}.modal{position:relative;width:min(820px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:26px}.close{position:absolute;right:16px;top:14px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:9px;width:38px;height:38px;font-size:1.4rem}.eyebrow{margin:0;color:#0f766e;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em}.reportGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;background:#f8fafc;padding:14px;border-radius:12px}.reportGrid span{display:grid;color:#64748b;font-size:.75rem}.reportGrid strong{color:#0f172a;font-size:.9rem}.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.photos div{aspect-ratio:4/3;background:#e2e8f0;border:1px dashed #94a3b8;border-radius:10px;display:grid;place-items:center;color:#64748b}@media(max-width:620px){.reportGrid,.photos{grid-template-columns:1fr}}`}</style></section></div>}
+function Panel({title,subtitle,children}:{title:string;subtitle:string;children:React.ReactNode}){return <article className="panel"><h2>{title}</h2><p>{subtitle}</p>{children}</article>}
+function Bars({rows,onSelect,moneyValues=false,empty="No records in this selection."}:{rows:{name:string;value:number}[];onSelect?:(name:string)=>void;moneyValues?:boolean;empty?:string}){
+  if(!rows.length)return <p className="empty">{empty}</p>;
+  const max=Math.max(...rows.map(row=>row.value),1);
+  return <div className="bars">{rows.slice(0,10).map(row=>{const content=<><span className="barLabel">{row.name}</span><span className="track"><span className="fill" style={{width:`${row.value/max*100}%`}}/></span><strong>{moneyValues?money(row.value):row.value}</strong></>;return onSelect?<button type="button" className="barRow clickable" key={row.name} onClick={()=>onSelect(row.name)}>{content}</button>:<div className="barRow" key={row.name}>{content}</div>})}</div>;
+}
+function group(rows:DemoInspection[],label:(row:DemoInspection)=>string,value:(row:DemoInspection)=>number=()=>1){
+  const totals=new Map<string,number>();
+  rows.forEach(row=>totals.set(label(row),(totals.get(label(row))||0)+value(row)));
+  return Array.from(totals.entries()).map(([name,total])=>({name,value:total})).sort((a,b)=>b.value-a.value);
+}
