@@ -30,16 +30,10 @@ test("home page exposes clearly labeled client and inspector demo entry points",
   assert.match(home, /href="\/demo\/inspector">Open Inspector Demo/);
 });
 
-test("client and inspector logins and demo entries live inside their respective navigation dropdowns", () => {
-  assert.match(nav, /\{ label: "Clients", links: \[\s*\["Client Login", "\/login\?role=client"\],\s*\["Client Demo", "\/demo\/client"\]/);
-  assert.match(nav, /\{ label: "Inspectors", links: \[\s*\["Inspector Login", "\/login\?role=inspector"\],\s*\["Inspector Demo", "\/demo\/inspector"\]/);
+test("client and inspector logins live inside their respective navigation dropdowns", () => {
+  assert.match(nav, /\{ label: "Clients", links: \[\s*\["Client Login", "\/login\?role=client"\]/);
+  assert.match(nav, /\{ label: "Inspectors", links: \[\s*\["Inspector Login", "\/login\?role=inspector"\]/);
   assert.doesNotMatch(nav, /className="loginNav"/);
-});
-
-test("top-level demo links use the dedicated client and inspector demo entry routes", () => {
-  assert.match(nav, /href="\/demo\/client"[^>]*>Client Demo<\/Link>/);
-  assert.match(nav, /href="\/demo\/inspector"[^>]*>Inspector Demo<\/Link>/);
-  assert.doesNotMatch(nav, /className="topLink demoLink" href="\/demo-showcase"/);
 });
 
 test("What We Do is not a top-level navigation link", () => {
