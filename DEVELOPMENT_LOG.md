@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-09 - Restored complete client analytics cross-filtering
+- Audited the currently specified UX/demo backlog against merged code and found a real analytics regression: Project Type, Timing, and NCR Type slicers plus richer spend/timing KPI and trend views had drifted out of the current Client Analytics Demo.
+- Restored deterministic synthetic spend, timing, and multiple NCR-type dimensions; added seven cross-filters across Project, Project Type, Country, Commodity, Timing, Non-conformance, and NCR Type.
+- Restored meaningful synthetic analytics with inspection-spend, inspection-count, on-time-performance, and projects-with-NCR KPIs; monthly spend trend; geography/map-style, project-type, commodity, NCR-type and quality/timing views; cross-filtered detail; downloadable CSV; and API/Excel/Power BI connectivity handoff.
+- Strengthened regression coverage for the full requested analytics contract and explicit production-data isolation. No synthetic records were inserted into production.
+- Validate application and Autonomous QA both passed, including regression/unit tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke routes. The final Vercel preview reached READY and `/demo/client-analytics` returned HTTP 200 with the restored slicers and analytics views.
+- PR #53 was squash-merged after all gates passed. No authentication/RLS policy, real billing/payment execution, API credentials, matching/business rules, production schema/data semantics, or live-data paths changed.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-09 - Locked exact homepage brand line after backlog audit
 - Audited the currently specified next-24-hour UX/demo backlog against the merged implementation and confirmed the major Client Demo, Inspector Demo, demo/live isolation, navigation, intake, analytics, client operations, accessibility, and data-connectivity work is already present from prior cycles.
 - Corrected the remaining homepage copy drift so the hero now renders the product-owner-requested line exactly as `InspectSource — Eyes, Ears, and Expertise, Everywhere.` while preserving the existing compact Client/Inspector split and blue/teal visual treatment.
