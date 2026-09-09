@@ -6,8 +6,8 @@ export default function HomePage() {
   return (
     <div className="homeShell">
       <section className="brandBanner" aria-labelledby="home-brand-line">
-        <p>InspectSource</p>
-        <h1 id="home-brand-line">Eyes, Ears, and Expertise, Everywhere.</h1>
+        <p>Global vendor inspection marketplace</p>
+        <h1 id="home-brand-line">InspectSource — Eyes, Ears, and Expertise, Everywhere.</h1>
         <span>One inspection platform for the people who need inspections and the professionals who perform them.</span>
       </section>
 
