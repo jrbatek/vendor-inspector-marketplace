@@ -2,6 +2,26 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-10 - Made Client Demo the canonical synthetic experience
+- Audited the merged next-24-hour UX/demo backlog and found `/demo/client` still redirected into the legacy `/demo-showcase` route, leaving the supposedly dedicated Client Demo dependent on an obsolete URL.
+- Moved the full synthetic Client Demo request-intake and portfolio experience to `/demo/client` and converted `/demo-showcase` into a compatibility redirect back to the canonical Client Demo route.
+- Updated Client Demo and client-intake regression coverage to protect the canonical route, full synthetic portfolio links, current intake wording, and production-isolation boundary.
+- The first CI pass correctly failed because a stale intake regression still inspected the legacy showcase file. Updated that test to target the canonical Client Demo rather than weakening coverage.
+- Final Validate application and Autonomous QA both passed, including regression/unit tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke routes. The final Vercel preview reached READY.
+- PR #55 was squash-merged after all gates passed. No authentication/RLS policy, real billing/payment execution, API credentials, matching/business rules, production schema/data semantics, or synthetic production records changed.
+
+### Product-owner review queue
+No decision required.
+
+## 2026-09-10 - Fully removed obsolete What We Do route
+- Removed the remaining standalone `/what-we-do` route after its navigation entry had already been retired, keeping the home page as the concise product explanation.
+- Added regression protection so the obsolete route cannot silently return.
+- Validate application and Autonomous QA passed, and PR #54 was squash-merged to `main`; the merged production smoke test passed.
+- No authentication/RLS policy, billing/payment execution, API credentials, matching/business rules, or production data changed; no synthetic records were inserted into production.
+
+### Product-owner review queue
+No decision required.
+
 ## 2026-09-09 - Restored complete client analytics cross-filtering
 - Audited the currently specified UX/demo backlog against merged code and found a real analytics regression: Project Type, Timing, and NCR Type slicers plus richer spend/timing KPI and trend views had drifted out of the current Client Analytics Demo.
 - Restored deterministic synthetic spend, timing, and multiple NCR-type dimensions; added seven cross-filters across Project, Project Type, Country, Commodity, Timing, Non-conformance, and NCR Type.
