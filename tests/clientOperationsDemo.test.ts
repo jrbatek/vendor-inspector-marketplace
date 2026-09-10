@@ -30,7 +30,7 @@ test("client profile demo covers requested identity, preference, role and approv
   assert.match(page, /Login email/);
   assert.match(page, /Phone \/ SMS/);
   assert.match(page, /Preferred contact/);
-  assert.match(page, /coarse city-level only/);
+  assert.match(page, /Coarse suggested location/);
   assert.match(page, /Title \/ department/);
   assert.match(page, /Timezone/);
   assert.match(page, /Notifications/);
@@ -40,10 +40,22 @@ test("client profile demo covers requested identity, preference, role and approv
   assert.match(page, /precise geolocation is not collected/);
 });
 
-test("client operations demo is explicitly synthetic and read-only", () => {
+test("coarse suggested location is editable only in local synthetic demo state", () => {
+  assert.match(page, /useState\("Houston, Texas, USA"\)/);
+  assert.match(page, /id="coarse-location"/);
+  assert.match(page, /onChange=\{\(event\)=>setCoarseLocation\(event\.target\.value\)\}/);
+  assert.match(page, /City \/ region \/ country/);
+  assert.match(page, /Not saved or geocoded/);
+  assert.match(page, /never write to production/);
+  assert.doesNotMatch(page, /navigator\.geolocation/);
+  assert.doesNotMatch(page, /supabaseBrowser/);
+  assert.doesNotMatch(page, /\.from\(/);
+});
+
+test("client operations demo keeps sensitive operations synthetic and non-executing", () => {
   assert.match(page, /Client Demo · Synthetic data/);
-  assert.match(page, /read-only/i);
-  assert.match(page, /never writes to production/);
+  assert.match(page, /No payment credentials/);
+  assert.match(page, /no e-signature/i);
   assert.doesNotMatch(page, /supabaseBrowser/);
   assert.doesNotMatch(page, /\.from\(/);
 });
