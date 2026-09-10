@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-10 - Made coarse Client Profile location demo-editable
+- Audited the specified Client Profile backlog and found the coarse suggested location was present but explicitly disabled, so the demo did not satisfy the requested editable coarse-location experience.
+- Replaced the disabled control with a browser-session-only city/region/country text field backed only by local React state. Added explicit guidance that the value is not saved, geocoded, or written to production and that precise geolocation is neither collected nor requested.
+- Added regression coverage for editability, city/region/country guidance, absence of browser geolocation access, absence of Supabase access, and the synthetic production-isolation boundary.
+- Validate application and Autonomous QA both passed. The Vercel preview for PR #57 reached READY and production runtime review before merge found no errors in the preceding 24 hours.
+- PR #57 was squash-merged after all gates passed. No authentication/authorization policy, production profile persistence, privacy/PII collection, geolocation integration, billing/payment execution, matching/business rules, or production data semantics changed; no synthetic records were inserted into production.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-10 - Made Client Demo the canonical synthetic experience
 - Audited the merged next-24-hour UX/demo backlog and found `/demo/client` still redirected into the legacy `/demo-showcase` route, leaving the supposedly dedicated Client Demo dependent on an obsolete URL.
 - Moved the full synthetic Client Demo request-intake and portfolio experience to `/demo/client` and converted `/demo-showcase` into a compatibility redirect back to the canonical Client Demo route.
