@@ -6,6 +6,7 @@ import { isDemoExperiencePath } from "../lib/demoExperience";
 
 const inspectorDemoEntry = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector/page.tsx"), "utf8");
 const inspectorHub = fs.readFileSync(path.join(process.cwd(), "app/inspectorhub/page.tsx"), "utf8");
+const findInspectors = fs.readFileSync(path.join(process.cwd(), "app/find-inspectors/page.tsx"), "utf8");
 
 test("only explicit synthetic experiences qualify for the global demo banner", () => {
   for (const route of [
@@ -46,4 +47,9 @@ test("authenticated InspectorHub remains live-data scoped and separate from synt
   assert.match(inspectorHub, /setMode\("live"\)/);
   assert.match(inspectorHub, /from\("inspector_work_activities"\)/);
   assert.match(inspectorHub, /\.eq\("inspector_id",a\.user\.id\)/);
+});
+
+test("public Find Inspectors search does not persist request text without an authenticated client", () => {
+  assert.match(findInspectors, /const \{ data: auth \} = await supabase\.auth\.getUser\(\);\s*if \(auth\.user\) \{\s*await supabase\.from\("client_search_requests"\)\.insert\(\{ client_id: auth\.user\.id,/s);
+  assert.doesNotMatch(findInspectors, /client_id:\s*auth\.user\?\.id\s*\|\|\s*null/);
 });
