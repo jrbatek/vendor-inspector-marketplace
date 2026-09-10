@@ -68,7 +68,9 @@ export default function FindInspectorsPage() {
     const recommendation = coordinateProject(text, inspectors);
     setParsed(recommendation.brief); setResults(recommendation.shortlist); setSearching(false);
     const { data: auth } = await supabase.auth.getUser();
-    await supabase.from("client_search_requests").insert({ client_id: auth.user?.id || null, request_text: text, parsed_request: recommendation.brief, result_count: recommendation.shortlist.length, status: "draft" });
+    if (auth.user) {
+      await supabase.from("client_search_requests").insert({ client_id: auth.user.id, request_text: text, parsed_request: recommendation.brief, result_count: recommendation.shortlist.length, status: "draft" });
+    }
   }
 
   async function createRequest() {

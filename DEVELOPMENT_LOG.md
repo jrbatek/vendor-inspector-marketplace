@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-10 - Guarded anonymous Find Inspectors search persistence
+- Audited the requested demo/live isolation boundary and found the public `/find-inspectors` search persisted `client_search_requests` with `client_id: null` when no client was authenticated.
+- Changed the search flow so anonymous users can still search and receive recommendations, but request text is persisted only when an authenticated client exists; authenticated draft-search persistence remains unchanged.
+- Added regression coverage that requires the authenticated guard and rejects the prior nullable-client write pattern.
+- The first CI pass failed only because the new test used a regular-expression `s` flag not supported by the repository TypeScript target. Replaced it with a target-compatible multiline pattern; the application code did not need correction.
+- Final Validate application and Autonomous QA passed, including regression/unit tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke routes. The final Vercel preview reached READY and production runtime review found no errors in the preceding 24 hours.
+- Because this changes production request persistence and is privacy/auth-adjacent, PR #56 remains open for product-owner review rather than being auto-merged. No RLS/auth policy, schema, matching/business rules, billing/payment behavior, or synthetic production records changed.
+
+### Product-owner review queue
+Review PR #56 before merge because it changes when public search text is persisted to production.
+
 ## 2026-09-10 - Made Client Demo the canonical synthetic experience
 - Audited the merged next-24-hour UX/demo backlog and found `/demo/client` still redirected into the legacy `/demo-showcase` route, leaving the supposedly dedicated Client Demo dependent on an obsolete URL.
 - Moved the full synthetic Client Demo request-intake and portfolio experience to `/demo/client` and converted `/demo-showcase` into a compatibility redirect back to the canonical Client Demo route.
