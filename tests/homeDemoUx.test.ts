@@ -7,6 +7,7 @@ const home = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
 const nav = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf8");
 const layout = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
 const demoBanner = fs.readFileSync(path.join(process.cwd(), "components/DemoModeBanner.tsx"), "utf8");
+const whatWeDoPage = path.join(process.cwd(), "app/what-we-do/page.tsx");
 
 test("home page uses the exact InspectSource brand line and separates client and inspector paths", () => {
   assert.match(home, /InspectSource — Eyes, Ears, and Expertise, Everywhere\./);
@@ -36,9 +37,10 @@ test("client and inspector logins live inside their respective navigation dropdo
   assert.doesNotMatch(nav, /className="loginNav"/);
 });
 
-test("What We Do is not a top-level navigation link", () => {
+test("What We Do is fully removed from navigation and routing", () => {
   assert.doesNotMatch(nav, />What We Do<\/Link>/);
   assert.doesNotMatch(nav, /href="\/what-we-do"/);
+  assert.equal(fs.existsSync(whatWeDoPage), false);
 });
 
 test("demo banner is authentication-aware and restricted to explicit synthetic experiences", () => {
