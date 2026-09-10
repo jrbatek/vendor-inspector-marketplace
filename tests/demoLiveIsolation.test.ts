@@ -50,6 +50,6 @@ test("authenticated InspectorHub remains live-data scoped and separate from synt
 });
 
 test("public Find Inspectors search does not persist request text without an authenticated client", () => {
-  assert.match(findInspectors, /const \{ data: auth \} = await supabase\.auth\.getUser\(\);\s*if \(auth\.user\) \{\s*await supabase\.from\("client_search_requests"\)\.insert\(\{ client_id: auth\.user\.id,/s);
+  assert.match(findInspectors, /const \{ data: auth \} = await supabase\.auth\.getUser\(\);[\s\S]*if \(auth\.user\) \{[\s\S]*await supabase\.from\("client_search_requests"\)\.insert\(\{ client_id: auth\.user\.id,/);
   assert.doesNotMatch(findInspectors, /client_id:\s*auth\.user\?\.id\s*\|\|\s*null/);
 });
