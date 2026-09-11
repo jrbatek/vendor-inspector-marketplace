@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 const registerSource = fs.readFileSync(path.join(process.cwd(), "app/register/page.tsx"), "utf8");
+const loginSource = fs.readFileSync(path.join(process.cwd(), "app/login/page.tsx"), "utf8");
 const navSource = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf8");
 
 test("registration password guidance matches the enforced client-side minimum", () => {
@@ -11,6 +12,17 @@ test("registration password guidance matches the enforced client-side minimum", 
   assert.match(registerSource, /minLength=\{MIN_PASSWORD_LENGTH\}/);
   assert.match(registerSource, /Use at least \{MIN_PASSWORD_LENGTH\} characters/);
   assert.match(registerSource, /aria-describedby="password-policy"/);
+});
+
+test("client and inspector navigation use distinct login entry points without changing role enforcement", () => {
+  assert.match(navSource, /\["Client Login", "\/login\?role=client"\]/);
+  assert.match(navSource, /\["Inspector Login", "\/login\?role=inspector"\]/);
+  assert.match(loginSource, /searchParams\?\.role === "client"/);
+  assert.match(loginSource, /searchParams\?\.role === "inspector"/);
+  assert.match(loginSource, /Client Login/);
+  assert.match(loginSource, /Inspector Login/);
+  assert.match(loginSource, /routes you according to the role on your account/);
+  assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
 
 test("authenticated navigation identifies the live-data session without changing auth policy", () => {
