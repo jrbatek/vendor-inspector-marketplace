@@ -10,7 +10,7 @@ export default function ClientWorkspaceSidebar({demo=false}:{demo?:boolean}){
   useEffect(()=>{const sync=()=>setQuery(window.location.search);sync();window.addEventListener("popstate",sync);return()=>window.removeEventListener("popstate",sync)},[]);
   const params=new URLSearchParams(query);
   const activePath=(path:string)=>pathname===path;
-  const requestHref=demo?"/demo-showcase":"/client-dashboard";
+  const requestHref=demo?"/demo/client":"/client-dashboard";
   const naturalHref=demo?"/find-inspectors?demo=1":"/find-inspectors";
   const emailHref=demo?"/email-requirements?demo=1":"/email-requirements";
   const structuredHref=demo?"/inspectors?demo=1":"/inspectors";
@@ -20,7 +20,7 @@ export default function ClientWorkspaceSidebar({demo=false}:{demo?:boolean}){
   const billingHref=demo?"/demo/client-operations?tab=billing":"/client-dashboard?section=billing";
   const contractsHref=demo?"/demo/client-operations?tab=contracts":"/client-dashboard?section=contracts";
   const profileHref=demo?"/demo/client-operations?tab=profile":"/client-dashboard?section=profile";
-  const requestActive=activePath("/demo-showcase")||activePath("/find-inspectors")||activePath("/email-requirements")||activePath("/inspectors")||(!demo&&activePath("/client-dashboard")&&!params.get("section"));
+  const requestActive=activePath("/demo/client")||activePath("/find-inspectors")||activePath("/email-requirements")||activePath("/inspectors")||(!demo&&activePath("/client-dashboard")&&!params.get("section"));
   const analyticsActive=activePath("/demo/client-analytics")||(!demo&&params.get("section")==="analytics");
   const view=params.get("view");
   const historyActive=(activePath("/demo/client-history")&&view!=="active")||(!demo&&params.get("section")==="history");
