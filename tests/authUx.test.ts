@@ -26,11 +26,15 @@ test("client and inspector navigation use distinct login entry points without ch
   assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
 
-test("authenticated navigation identifies the live-data session without changing auth policy", () => {
+test("authenticated navigation identifies the live-data session and exposes a safe logout control", () => {
   assert.match(navSource, /supabase\.auth\.getUser\(\)/);
   assert.match(navSource, /supabase\.auth\.onAuthStateChange/);
   assert.match(navSource, /Logged in as/);
   assert.match(navSource, /Live data/);
   assert.match(navSource, /Authenticated live-data session/);
-  assert.doesNotMatch(navSource, /signOut\(/);
+  assert.match(navSource, /supabase\.auth\.signOut\(\)/);
+  assert.match(navSource, /disabled=\{loggingOut\}/);
+  assert.match(navSource, /loggingOut \? "Logging out…" : "Log out"/);
+  assert.match(navSource, /router\.push\("\/"\)/);
+  assert.match(navSource, /router\.refresh\(\)/);
 });
