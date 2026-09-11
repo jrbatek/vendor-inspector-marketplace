@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-11 - Repaired authenticated logout regression coverage
+- Audited the accelerated UX/demo backlog, recent direct-main commits, open PRs, GitHub CI, and Vercel. The newest direct-main change added a logout control to the authenticated `Logged in as` / `Live data` banner.
+- Found a concrete regression contract break: `tests/authUx.test.ts` still explicitly rejected any `signOut()` call, so current `main` no longer satisfied the protected auth UX test even though the production Vercel deployment was READY.
+- Updated the regression test to protect the intended logout behavior instead: existing Supabase session detection remains required, logout must use `supabase.auth.signOut()`, the action is disabled while in flight, progress copy is shown, and successful logout returns to `/` and refreshes the router.
+- This was a test-only repair; authentication/authorization policy and application behavior were not changed.
+- Validate application and Autonomous QA both passed completely, including regression/unit tests, migration safety, synthetic-corpus generation/validation, TypeScript, production build, and smoke routes. The PR #62 Vercel preview reached READY and production runtime review found no errors in the preceding 24 hours.
+- PR #62 was squash-merged after all gates passed. No schema, billing/payment, API credentials, matching/business rules, production-data semantics, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-11 - Restored demo UX contracts after direct-main regression drift
 - Audited the current UX/demo backlog, GitHub/CI, open PRs, and Vercel after a burst of direct `main` commits added sample PDF reports, richer Inspector Demo workspace content, client contract budget/spend detail, and analytics changes. Several intermediate production builds failed before the latest main deployment recovered to READY.
 - Repository validation exposed 13 regressions against the protected synthetic-demo contract: Client Analytics had lost Project Type, Non-conformance, and NCR Type filtering plus related KPI/trend/detail/connectivity views; Client Demo and its sidebar bypassed the Email Requirements instruction path and lost isolation/intake wording; Client Operations lost explicit billing/contracts/coarse-location safety disclosures; Inspector Demo wording drifted while remaining technically isolated from production data.
