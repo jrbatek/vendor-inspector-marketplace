@@ -32,7 +32,7 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
 
 test("Inspector Demo is a standalone synthetic experience isolated from production inspector data", () => {
   assert.match(inspectorDemoEntry, /Inspector Demo · Synthetic data/);
-  assert.match(inspectorDemoEntry, /No production inspector data or database tables are used/);
+  assert.match(inspectorDemoEntry, /No production inspector records are used/);
   assert.match(inspectorDemoEntry, /PROFILES/);
   assert.doesNotMatch(inspectorDemoEntry, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
