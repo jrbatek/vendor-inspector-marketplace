@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-10 - Locked matching hard gates with explicit regression coverage
+- Audited the P0 matching reliability backlog after the currently specified UX/demo backlog was substantially complete and found the engine already enforced the intended hard gates, but several gates were not independently protected by regression tests.
+- Added explicit regression coverage for required certification, minimum-experience boundary behavior, requested-start-date availability, explicit unavailable status, and cross-country international-travel capability.
+- Kept matching/ranking implementation unchanged; this cycle only locks existing behavior against regression and therefore does not alter marketplace eligibility or business rules.
+- Validate application and Autonomous QA both passed. The Vercel preview for PR #58 reached READY, production runtime review found no error/fatal logs in the preceding 24 hours, and PR #58 was squash-merged after all gates passed.
+- The merged production deployment reached READY. No auth/RLS, billing/payment, API credentials, matching/business-rule behavior, production data, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-10 - Made coarse Client Profile location demo-editable
 - Audited the specified Client Profile backlog and found the coarse suggested location was present but explicitly disabled, so the demo did not satisfy the requested editable coarse-location experience.
 - Replaced the disabled control with a browser-session-only city/region/country text field backed only by local React state. Added explicit guidance that the value is not saved, geocoded, or written to production and that precise geolocation is neither collected nor requested.
