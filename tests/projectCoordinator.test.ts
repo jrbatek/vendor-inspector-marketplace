@@ -62,6 +62,50 @@ test("structured day-rate cap excludes over-budget inspectors", () => {
   assert.equal(result.ranked[0].inspector_id, withinBudget.inspector_id);
 });
 
+test("required certifications are hard eligibility gates", () => {
+  const qualified = inspector();
+  const missingApi570 = inspector({
+    inspector_id: crypto.randomUUID(),
+    certifications: [],
+  });
+
+  const result = coordinateProject(STRUCTURED_REQUEST, [missingApi570, qualified]);
+  assert.deepEqual(result.ranked.map((candidate) => candidate.inspector_id), [qualified.inspector_id]);
+});
+
+test("minimum experience is a hard eligibility gate at the stated boundary", () => {
+  const boundaryMatch = inspector({ years_experience: 5 });
+  const belowMinimum = inspector({ inspector_id: crypto.randomUUID(), years_experience: 4 });
+
+  const result = coordinateProject(STRUCTURED_REQUEST, [belowMinimum, boundaryMatch]);
+  assert.deepEqual(result.ranked.map((candidate) => candidate.inspector_id), [boundaryMatch.inspector_id]);
+});
+
+test("requested start date excludes inspectors who become available too late", () => {
+  const availableOnTime = inspector({ available_from: "2026-09-14" });
+  const availableTooLate = inspector({ inspector_id: crypto.randomUUID(), available_from: "2026-09-15" });
+
+  const result = coordinateProject(STRUCTURED_REQUEST, [availableTooLate, availableOnTime]);
+  assert.deepEqual(result.ranked.map((candidate) => candidate.inspector_id), [availableOnTime.inspector_id]);
+});
+
+test("explicit unavailable status is a hard eligibility gate", () => {
+  const available = inspector();
+  const unavailable = inspector({ inspector_id: crypto.randomUUID(), availability_status: "Unavailable" });
+
+  const result = coordinateProject(STRUCTURED_REQUEST, [unavailable, available]);
+  assert.deepEqual(result.ranked.map((candidate) => candidate.inspector_id), [available.inspector_id]);
+});
+
+test("cross-country assignments require international travel capability when international travel is requested", () => {
+  const request = "Need an API 570 inspector in Singapore starting 2026-09-14 for 3 weeks. TWIC required. International travel required. maximum day rate USD 950.";
+  const internationalTraveler = inspector({ international_travel: true });
+  const domesticOnly = inspector({ inspector_id: crypto.randomUUID(), international_travel: false });
+
+  const result = coordinateProject(request, [domesticOnly, internationalTraveler]);
+  assert.deepEqual(result.ranked.map((candidate) => candidate.inspector_id), [internationalTraveler.inspector_id]);
+});
+
 test("coordinator excludes candidates that fail required eligibility gates", () => {
   const strong = inspector();
   const ineligible = inspector({
