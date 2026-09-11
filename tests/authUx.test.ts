@@ -19,8 +19,9 @@ test("client and inspector navigation use distinct login entry points without ch
   assert.match(navSource, /\["Inspector Login", "\/login\?role=inspector"\]/);
   assert.match(loginSource, /searchParams\?\.role === "client"/);
   assert.match(loginSource, /searchParams\?\.role === "inspector"/);
-  assert.match(loginSource, /Client Login/);
-  assert.match(loginSource, /Inspector Login/);
+  assert.match(loginSource, /\? "Client"/);
+  assert.match(loginSource, /\? "Inspector"/);
+  assert.match(loginSource, /`\$\{audienceLabel\} Login`/);
   assert.match(loginSource, /routes you according to the role on your account/);
   assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
