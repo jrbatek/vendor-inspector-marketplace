@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-11 - Restored demo UX contracts after direct-main regression drift
+- Audited the current UX/demo backlog, GitHub/CI, open PRs, and Vercel after a burst of direct `main` commits added sample PDF reports, richer Inspector Demo workspace content, client contract budget/spend detail, and analytics changes. Several intermediate production builds failed before the latest main deployment recovered to READY.
+- Repository validation exposed 13 regressions against the protected synthetic-demo contract: Client Analytics had lost Project Type, Non-conformance, and NCR Type filtering plus related KPI/trend/detail/connectivity views; Client Demo and its sidebar bypassed the Email Requirements instruction path and lost isolation/intake wording; Client Operations lost explicit billing/contracts/coarse-location safety disclosures; Inspector Demo wording drifted while remaining technically isolated from production data.
+- Restored the full seven-filter Client Analytics contract, inspection-spend/on-time/projects-with-NCR KPIs, monthly spend/geography/project-type/commodity/NCR views, cross-filtered inspection detail, CSV download, and API/Excel/Power BI handoff while keeping the 1.8% synthetic portfolio NCR story.
+- Restored the Client Demo Email Requirements guidance route, exact `Select your inspection criteria.` heading, `Find Inspectors`/Upload Scope/10,000-character intake parity, and explicit no-production-write wording. Restored billing/payment, contract execution, and coarse-location safety disclosures in Client Operations.
+- All 72 regression/unit tests pass. Validate application and Autonomous QA both pass migration safety, TypeScript, production build, smoke tests, and synthetic-corpus QA. The final PR #61 Vercel preview reached READY; production runtime review found no error/fatal logs in the preceding 24 hours.
+- This cycle changes only synthetic demo UX, deterministic demo data presentation, routing, and regression expectations. No auth/RLS policy, production persistence, real billing/payment execution, API credentials, matching/business rules, schema, precise geolocation, legal execution, compensation/tax behavior, or production-data semantics changed; no synthetic records were inserted into production.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-11 - Closed audience-login and canonical Client Demo navigation gaps
 - Audited the currently specified UX/demo backlog against merged code, recent CI, open PRs, and Vercel. The audience-specific Client Login / Inspector Login presentation gap had just been closed in PR #59 while preserving existing account-role routing and auth policy.
 - Found one remaining canonical-route inconsistency in the shared Client Workspace demo sidebar: Request Inspectors still returned through the retired `/demo-showcase` compatibility URL instead of the canonical `/demo/client` experience.

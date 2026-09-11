@@ -12,7 +12,7 @@ export default function ClientWorkspaceSidebar({demo=false}:{demo?:boolean}){
   const activePath=(path:string)=>pathname===path;
   const requestHref=demo?"/demo/client":"/client-dashboard";
   const naturalHref=demo?"/demo/client#natural-language":"/find-inspectors";
-  const emailHref=demo?"/demo/client#email-requirements":"/email-requirements";
+  const emailHref=demo?"/email-requirements?demo=1":"/email-requirements";
   const structuredHref=demo?"/demo/client#structured-selection":"/inspectors";
   const activeHref=demo?"/demo/client-history?view=active":"/client-dashboard?section=active";
   const historyHref=demo?"/demo/client-history":"/client-dashboard?section=history";
