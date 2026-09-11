@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-11 - Closed audience-login and canonical Client Demo navigation gaps
+- Audited the currently specified UX/demo backlog against merged code, recent CI, open PRs, and Vercel. The audience-specific Client Login / Inspector Login presentation gap had just been closed in PR #59 while preserving existing account-role routing and auth policy.
+- Found one remaining canonical-route inconsistency in the shared Client Workspace demo sidebar: Request Inspectors still returned through the retired `/demo-showcase` compatibility URL instead of the canonical `/demo/client` experience.
+- Updated the shared sidebar to link and mark active state against `/demo/client`, and added regression coverage that rejects future `demo-showcase` references in that component.
+- Validate application and Autonomous QA both passed, including regression/unit tests, migration safety, synthetic corpus QA, TypeScript, production build, and smoke tests. The Vercel preview reached READY and production runtime review found no errors in the preceding 24 hours.
+- PR #60 was squash-merged and its production deployment reached READY. No auth/RLS policy, billing/payment execution, API credentials, matching/business rules, schema, production-data semantics, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-10 - Locked matching hard gates with explicit regression coverage
 - Audited the P0 matching reliability backlog after the currently specified UX/demo backlog was substantially complete and found the engine already enforced the intended hard gates, but several gates were not independently protected by regression tests.
 - Added explicit regression coverage for required certification, minimum-experience boundary behavior, requested-start-date availability, explicit unavailable status, and cross-country international-travel capability.
