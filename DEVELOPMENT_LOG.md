@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-11 - Aligned Client Demo Inspection History API promotion with live workspace
+- Audited the accelerated UX/demo backlog, current roadmap/protocol, recent GitHub changes, open PRs, CI, and Vercel production health.
+- Found a remaining demo/live parity gap: the authenticated Client Workspace already had the requested dismissible right-side `Inspection History API` promotion, while the synthetic Client History page did not surface the same experience.
+- Added the dismissible responsive API highlight to `/demo/client-history`, linking to the existing synthetic Data & Integrations demo and explicitly stating that no credentials or production data are exposed.
+- Added `aria-expanded` to demo history rows and regression coverage that protects the API highlight, dismiss action, right-side layout, integration route, and absence of Supabase/environment credential access in the synthetic page.
+- Validate application and Autonomous QA both passed completely, including regression/unit tests, migration safety, deterministic synthetic-corpus QA, TypeScript, production build, and route smoke tests. The PR #63 Vercel preview reached READY and production runtime review found no errors in the preceding 24 hours.
+- PR #63 was squash-merged after all gates passed. No auth/RLS policy, billing/payment execution, API credentials, matching/business rules, production schema/data semantics, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-11 - Repaired authenticated logout regression coverage
 - Audited the accelerated UX/demo backlog, recent direct-main commits, open PRs, GitHub CI, and Vercel. The newest direct-main change added a logout control to the authenticated `Logged in as` / `Live data` banner.
 - Found a concrete regression contract break: `tests/authUx.test.ts` still explicitly rejected any `signOut()` call, so current `main` no longer satisfied the protected auth UX test even though the production Vercel deployment was READY.
