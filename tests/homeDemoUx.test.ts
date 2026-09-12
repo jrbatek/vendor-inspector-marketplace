@@ -37,6 +37,11 @@ test("client and inspector logins live inside their respective navigation dropdo
   assert.doesNotMatch(nav, /className="loginNav"/);
 });
 
+test("Find Inspectors navigation stays on the canonical Client Demo route", () => {
+  assert.match(nav, /\["Find Inspectors", "\/demo\/client"\]/);
+  assert.doesNotMatch(nav, /\["Find Inspectors", "\/demo-showcase"\]/);
+});
+
 test("What We Do is fully removed from navigation and routing", () => {
   assert.doesNotMatch(nav, />What We Do<\/Link>/);
   assert.doesNotMatch(nav, /href="\/what-we-do"/);
