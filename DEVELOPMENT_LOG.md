@@ -2,6 +2,28 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-12 - Kept global Find Inspectors navigation on canonical Client Demo
+- Audited the accelerated UX/demo backlog, roadmap/protocol, development log, open PRs, recent GitHub/CI state, and Vercel production health.
+- Found one remaining canonical-route inconsistency in the global Clients dropdown: `Find Inspectors` still pointed to the retired `/demo-showcase` compatibility route even though `/demo/client` is now the canonical synthetic client experience.
+- Routed `Find Inspectors` directly to `/demo/client` and changed dropdown link keys from URL-only to label-plus-URL so the intentional shared destination with `Client Demo` does not create duplicate React keys.
+- Added regression coverage that requires the canonical route and rejects a return to the legacy `/demo-showcase` destination.
+- Validate application and Autonomous QA both passed regression/unit tests, migration safety, TypeScript, production build, smoke routes, and deterministic synthetic-corpus QA. The final Vercel preview reached READY, and production `/demo/client` returned HTTP 200 after release. Production runtime review found no errors in the preceding 24 hours.
+- PR #66 was squash-merged after all gates passed. No auth/RLS policy, production persistence, billing/payment execution, API credentials, matching/business rules, schema, production-data semantics, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
+## 2026-09-12 - Improved Client Workspace navigation accessibility
+- Added a labeled `Client Workspace navigation` landmark, a labeled nested navigation region for request methods, and `aria-current="page"` on the active Client Workspace destination.
+- Added regression coverage across Request Inspectors, Inspections in Progress, Inspection History, Analytics, Billing & Payment, Contracts, and Profile so the active-state and navigation semantics cannot silently regress.
+- Validate application and Autonomous QA passed. The PR #65 preview and merged production deployment reached READY; `/demo/client` returned HTTP 200 and the deployed navigation semantics were verified. Production runtime review found no errors in the preceding 24 hours.
+- PR #65 was squash-merged. No auth/RLS policy, production persistence, billing/payment execution, API credentials, matching/business rules, schema, or synthetic production records changed.
+- PR #56 remained review-gated because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-12 - Expanded dedicated Inspector Demo selection insights and feedback
 - Audited the accelerated UX/demo backlog, roadmap/protocol, open PRs, recent GitHub state, CI, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
 - Found a remaining dedicated-demo parity gap: `/demo/inspector` covered opportunities, calendar, qualifications, reports, work history, and earnings concepts but did not expose the fuller InspectorHub roadmap experience for Active Assignments, Selection Insights, and client feedback/ratings.
