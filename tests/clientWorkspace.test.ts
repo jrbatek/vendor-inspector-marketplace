@@ -29,3 +29,15 @@ test("demo workspace navigation returns to the canonical Client Demo", () => {
   assert.match(sidebarSource, /const requestActive=activePath\("\/demo\/client"\)/);
   assert.doesNotMatch(sidebarSource, /demo-showcase/);
 });
+
+test("client workspace navigation exposes landmarks and current-page state to assistive technology", () => {
+  assert.match(sidebarSource, /aria-label="Client Workspace navigation"/);
+  assert.match(sidebarSource, /<nav className="subnav" aria-label="Request inspector methods">/);
+  assert.match(sidebarSource, /aria-current=\{requestActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{progressActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{historyActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{analyticsActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{billingActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{contractsActive\?"page":undefined\}/);
+  assert.match(sidebarSource, /aria-current=\{profileActive\?"page":undefined\}/);
+});
