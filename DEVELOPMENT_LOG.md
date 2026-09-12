@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-12 - Expanded dedicated Inspector Demo selection insights and feedback
+- Audited the accelerated UX/demo backlog, roadmap/protocol, open PRs, recent GitHub state, CI, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
+- Found a remaining dedicated-demo parity gap: `/demo/inspector` covered opportunities, calendar, qualifications, reports, work history, and earnings concepts but did not expose the fuller InspectorHub roadmap experience for Active Assignments, Selection Insights, and client feedback/ratings.
+- Expanded the standalone synthetic Inspector Demo with populated Active Assignments, explainable Selection Insights, client feedback and ratings detail, document-center preview, report/billing context, and demo-only interaction notices. Selection Insights explicitly avoid exposing competing inspector identities.
+- Kept the experience isolated from production: the dedicated demo has no Supabase/database access, its actions do not write production records, and payment execution, tax filing, bank credentials, and inspector compensation rules remain out of scope.
+- Added regression coverage protecting the expanded dedicated Inspector Demo and its production-isolation boundaries. Validate application and Autonomous QA both passed regression/unit tests, migration safety, TypeScript, production build, smoke routes, and deterministic synthetic-corpus QA. The PR #64 Vercel preview reached READY and `/demo/inspector` returned HTTP 200 with the expanded navigation.
+- PR #64 was squash-merged after all gates passed. No auth/RLS policy, production persistence, real billing/payment execution, API credentials, matching/business rules, schema, compensation/tax behavior, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-11 - Aligned Client Demo Inspection History API promotion with live workspace
 - Audited the accelerated UX/demo backlog, current roadmap/protocol, recent GitHub changes, open PRs, CI, and Vercel production health.
 - Found a remaining demo/live parity gap: the authenticated Client Workspace already had the requested dismissible right-side `Inspection History API` promotion, while the synthetic Client History page did not surface the same experience.
