@@ -11,7 +11,7 @@ const groups = [
     ["Client Demo", "/demo/client"],
     ["Project Coordinator", "/project-coordinator"],
     ["Client Dashboard", "/client-dashboard"],
-    ["Find Inspectors", "/demo-showcase"],
+    ["Find Inspectors", "/demo/client"],
     ["Client Inspection History Demo", "/demo/client-history"],
     ["Client Analytics Demo", "/demo/client-analytics"],
     ["Client Operations Demo", "/demo/client-operations"],
@@ -100,7 +100,7 @@ export default function Nav() {
             {group.label}<span aria-hidden="true">▾</span>
           </button>
           {openMenu === group.label && <div className="navMenu" id={menuId}>
-            {group.links.map(([label, href], index) => <Link className={index === 0 ? "loginLink" : ""} href={href} key={href} onClick={() => setOpenMenu(null)}>{label}</Link>)}
+            {group.links.map(([label, href], index) => <Link className={index === 0 ? "loginLink" : ""} href={href} key={`${label}-${href}`} onClick={() => setOpenMenu(null)}>{label}</Link>)}
           </div>}
         </div>;
       })}
