@@ -35,19 +35,19 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
 });
 
 test("demo banner remains visible on synthetic routes even when a user is authenticated", () => {
-  assert.match(demoBanner, /useSearchParams/);
-  assert.match(demoBanner, /isDemoExperiencePath\(pathname, searchParams\.get\("demo"\)\)/);
+  assert.match(demoBanner, /URLSearchParams\(window\.location\.search\)\.get\("demo"\)/);
+  assert.match(demoBanner, /isDemoExperiencePath\(pathname, demoParam\)/);
   assert.match(demoBanner, /Demo pages stay synthetic even when you're signed in/);
-  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange|isDemo !== true/);
+  assert.doesNotMatch(demoBanner, /useSearchParams|auth\.getUser|onAuthStateChange|isDemo !== true/);
 });
 
 test("demo email requirements retain synthetic workspace context without production persistence", () => {
-  assert.match(emailRequirements, /searchParams\.get\("demo"\) === "1"/);
+  assert.match(emailRequirements, /URLSearchParams\(window\.location\.search\)\.get\("demo"\) === "1"/);
   assert.match(emailRequirements, /<ClientWorkspaceSidebar demo=\{demo\}/);
   assert.match(emailRequirements, /Demo guidance only/);
   assert.match(emailRequirements, /does not create or persist an InspectSource production request/);
   assert.match(emailRequirements, /Copy Sample Request/);
-  assert.doesNotMatch(emailRequirements, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
+  assert.doesNotMatch(emailRequirements, /useSearchParams|supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 
 test("Inspector Demo is a standalone synthetic experience isolated from production inspector data", () => {
