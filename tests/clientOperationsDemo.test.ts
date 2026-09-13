@@ -18,7 +18,7 @@ test("client operations demo exposes populated synthetic billing", () => {
 test("client operations demo exposes accessible tab semantics", () => {
   assert.match(page, /role="tablist"/);
   assert.match(page, /role="tab"/);
-  assert.match(page, /aria-selected=\{tab===?"billing"|aria-selected=\{tab==="billing"\}/);
+  assert.match(page, /aria-selected=\{tab==="billing"\}/);
   assert.match(page, /aria-controls="billing-panel"/);
   assert.match(page, /role="tabpanel"/);
   assert.match(page, /id="billing-panel"/);
