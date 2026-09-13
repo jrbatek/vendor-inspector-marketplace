@@ -15,6 +15,18 @@ test("client operations demo exposes populated synthetic billing", () => {
   assert.match(page, /No payment credentials, bank data or real financial account details/);
 });
 
+test("client operations demo exposes accessible tab semantics", () => {
+  assert.match(page, /role="tablist"/);
+  assert.match(page, /role="tab"/);
+  assert.match(page, /aria-selected=\{tab==="billing"\}/);
+  assert.match(page, /aria-controls="billing-panel"/);
+  assert.match(page, /role="tabpanel"/);
+  assert.match(page, /id="billing-panel"/);
+  assert.match(page, /aria-labelledby="billing-tab"/);
+  assert.match(page, /aria-label="Contract relationship types"/);
+  assert.match(page, /aria-selected=\{contractTab===t\}/);
+});
+
 test("client operations demo structures contracts by relationship type with expandable synthetic detail", () => {
   assert.match(page, /InspectSource/);
   assert.match(page, /Agencies/);
