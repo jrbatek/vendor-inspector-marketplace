@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 
 const mailto = "mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request";
@@ -17,8 +16,14 @@ Additional notes: Day shift; client safety orientation required.`;
 
 export default function EmailRequirementsPage() {
   const [copyStatus, setCopyStatus] = useState("");
-  const searchParams = useSearchParams();
-  const demo = searchParams.get("demo") === "1";
+  const [demo, setDemo] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setDemo(new URLSearchParams(window.location.search).get("demo") === "1");
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, []);
 
   async function copySampleRequest() {
     try {
