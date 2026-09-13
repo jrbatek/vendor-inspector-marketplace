@@ -2,6 +2,17 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-12 - Added accessible Client Operations tab semantics
+- Audited the accelerated UX/demo backlog, roadmap/protocol, full development log, recent commits/open PRs, CI, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
+- Found a remaining accessibility gap in the synthetic Client Operations experience: Billing & Payment, Contracts, Client Profile, and contract relationship controls behaved visually as tabs without exposing selected/tab-panel relationships to assistive technology.
+- Added tablist/tab/tabpanel semantics, linked `aria-controls` / `aria-labelledby`, selected state, and roving tab focus to the Client Operations and contract-category controls without changing demo data or workflow logic.
+- Added regression coverage protecting the new semantics. Validate application and Autonomous QA both passed regression/unit tests, migration safety, TypeScript, production build, smoke routes, and deterministic synthetic-corpus QA. The PR #67 Vercel preview reached READY and `/demo/client-operations` returned HTTP 200 with the semantics verified.
+- PR #67 was squash-merged after all gates passed. No auth/RLS policy, production persistence, billing/payment execution, API credentials, matching/business rules, schema, geolocation, legal execution, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-12 - Kept global Find Inspectors navigation on canonical Client Demo
 - Audited the accelerated UX/demo backlog, roadmap/protocol, development log, open PRs, recent GitHub/CI state, and Vercel production health.
 - Found one remaining canonical-route inconsistency in the global Clients dropdown: `Find Inspectors` still pointed to the retired `/demo-showcase` compatibility route even though `/demo/client` is now the canonical synthetic client experience.
