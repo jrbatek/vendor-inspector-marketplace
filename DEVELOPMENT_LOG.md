@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-13 - Corrected authenticated demo versus live-data labeling
+- Audited the accelerated UX/demo backlog, roadmap/protocol, development log, recent GitHub/CI state, open PRs, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
+- Found a misleading demo/live boundary: authenticated visitors opening an explicit `/demo/...` synthetic route lost the global Demo Mode banner while the authenticated header still labeled the session `Live data`.
+- Made Demo Mode route-driven rather than authentication-driven so explicit synthetic demo routes remain clearly labeled even when a user is signed in. Authenticated demo pages retain `Logged in as` and logout controls but show `Demo view`; non-demo authenticated routes retain `Live data`.
+- Added regression coverage across auth UX, demo/live isolation, and homepage demo UX. The first Autonomous QA run exposed a stale test that still required authentication-dependent banner hiding; that regression contract was corrected and the full suite rerun.
+- Validate application and Autonomous QA both passed regression/unit tests, migration safety, deterministic synthetic-corpus QA, TypeScript, production build, and smoke routes. The Vercel preview reached READY, PR #68 was merged from the fully validated head, and the production deployment reached READY. Production `/demo/client` returned HTTP 200 with the route-driven Demo Mode banner verified.
+- No auth/RLS policy, production persistence, real billing/payment execution, API credentials, matching/business rules, schema, or production-data semantics changed. No synthetic records were seeded into production.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-12 - Added accessible Client Operations tab semantics
 - Audited the accelerated UX/demo backlog, roadmap/protocol, full development log, recent commits/open PRs, CI, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
 - Found a remaining accessibility gap in the synthetic Client Operations experience: Billing & Payment, Contracts, Client Profile, and contract relationship controls behaved visually as tabs without exposing selected/tab-panel relationships to assistive technology.
