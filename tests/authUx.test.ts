@@ -30,7 +30,8 @@ test("authenticated navigation identifies live sessions without labeling synthet
   assert.match(navSource, /supabase\.auth\.getUser\(\)/);
   assert.match(navSource, /supabase\.auth\.onAuthStateChange/);
   assert.match(navSource, /const pathname = usePathname\(\)/);
-  assert.match(navSource, /const isDemoView = isDemoExperiencePath\(pathname\)/);
+  assert.match(navSource, /URLSearchParams\(window\.location\.search\)\.get\("demo"\)/);
+  assert.match(navSource, /const isDemoView = isDemoExperiencePath\(pathname, demoParam\)/);
   assert.match(navSource, /Logged in as/);
   assert.match(navSource, /isDemoView \? "Demo view" : "Live data"/);
   assert.match(navSource, /isDemoView \? "Authenticated session viewing synthetic demo data" : "Authenticated live-data session"/);
