@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-13 - Preserved Client Demo context through Email Requirements
+- Audited the accelerated UX/demo backlog, roadmap/protocol, development log, recent GitHub/CI state, open PRs, and Vercel production health.
+- Found a remaining demo/live isolation inconsistency: Client Demo intentionally linked to `/email-requirements?demo=1`, but the Email Requirements page rendered with live-workspace navigation and was not recognized by the global Demo Mode / authenticated `Demo view` labeling.
+- Extended the demo-route classifier to recognize only the explicit `?demo=1` Email Requirements entry, retained the synthetic Client Workspace sidebar and added clear demo-only/no-production-persistence guidance. Ordinary `/email-requirements` remains a non-demo route and mailto behavior is unchanged.
+- An initial `useSearchParams()` implementation correctly failed Vercel production-build prerendering across the shared layout. Replaced it with the existing client-side `window.location.search` synchronization pattern, preserving static prerendering. The next CI run exposed two stale regex-only regression expectations; those were tightened to the new query-aware demo contract rather than weakening coverage.
+- Final Validate application and Autonomous QA both passed all 79 regression/unit tests, migration safety, deterministic synthetic-corpus QA, TypeScript, production build, and smoke routes. The final Vercel preview reached READY, PR #69 was squash-merged, and the production deployment reached READY. Production `/email-requirements?demo=1` returned HTTP 200 and Vercel reported no production runtime errors in the preceding 24 hours.
+- No auth/RLS policy, production persistence, real billing/payment execution, API credentials, matching/business rules, schema, or production-data semantics changed. No synthetic records were seeded into production.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-13 - Corrected authenticated demo versus live-data labeling
 - Audited the accelerated UX/demo backlog, roadmap/protocol, development log, recent GitHub/CI state, open PRs, and Vercel production health. Production had no runtime errors in the preceding 24 hours.
 - Found a misleading demo/live boundary: authenticated visitors opening an explicit `/demo/...` synthetic route lost the global Demo Mode banner while the authenticated header still labeled the session `Live data`.
@@ -347,7 +359,7 @@ No decision required.
 - Routed only the dedicated `Open Client Demo` CTA to the existing `/demo-showcase` synthetic environment so an unauthenticated visitor immediately sees populated demo data.
 - Left `Explore Client Workspace` and all authenticated client-dashboard live-data behavior unchanged; this cycle did not alter authentication policy, RLS, matching rules, billing, or production data semantics.
 - Added regression coverage requiring the Client Demo CTA to target the synthetic demo route.
-- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic QA, TypeScript, production build, and smoke tests; the final Vercel preview reached READY.
+- Validate application and Autonomous QA both passed, including regression tests, migration checks, synthetic QA, TypeScript, production build, and smoke routes; the final Vercel preview reached READY.
 - PR #36 was squash-merged after all gates passed. Production runtime-error review found no errors in the preceding 24 hours, and no synthetic records were inserted into production.
 
 ### Product-owner review queue
