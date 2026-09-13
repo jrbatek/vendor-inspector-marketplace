@@ -30,13 +30,13 @@ test("production smoke protects the synthetic/live boundary instead of checking 
   assert.match(workflow, /demo=1/);
 });
 
-test("production smoke verifies route-specific client and inspector experience markers", () => {
+test("production smoke verifies stable route-specific client and inspector experience markers", () => {
   for (const marker of [
     "Client Demo",
     "Analytics",
     "Inspection History",
-    "Billing & Payment",
-    "Data & Integrations",
+    "Commercial and account management",
+    "InspectSource API",
     "Inspector Demo",
     "Email Requirements",
   ]) {
