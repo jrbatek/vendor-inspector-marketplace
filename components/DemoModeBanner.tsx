@@ -1,12 +1,13 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { isDemoExperiencePath } from "@/lib/demoExperience";
 
 export default function DemoModeBanner() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  if (!isDemoExperiencePath(pathname)) return null;
+  if (!isDemoExperiencePath(pathname, searchParams.get("demo"))) return null;
 
   return (
     <div className="demoBanner" role="status" aria-label="Demo mode">
