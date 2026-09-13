@@ -2,6 +2,18 @@
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
 
+## 2026-09-13 - Expanded production smoke QA across full synthetic demos
+- Audited the accelerated UX/demo backlog, roadmap/protocol, development log, recent commits/open PRs, GitHub CI, and Vercel production health. The major currently specified Client Demo, Inspector Demo, client operations, analytics, intake, navigation, and demo/live isolation UX is already represented in the merged product.
+- Found a remaining release-safety gap: the production smoke workflow only checked `/`, `/project-coordinator`, and `/inspectors`, so successful deployment did not continuously verify the separate Client Demo, Client Analytics, Inspection History, Client Operations, Data & Integrations, Inspector Demo, or demo-aware Email Requirements surfaces.
+- Expanded production smoke coverage across `/demo/client`, `/demo/client-analytics`, `/demo/client-history`, `/demo/client-operations`, `/demo/client-data`, `/demo/inspector`, and `/email-requirements?demo=1`, with route-specific content markers and explicit `Demo Mode` boundary checks on server-rendered `/demo/*` pages. Added regression tests protecting the expanded runtime QA contract.
+- The first production pass exposed two QA false-negative assumptions rather than application defects: raw HTML escapes ampersands in two human-readable markers, and `?demo=1` Email Requirements applies demo context after client hydration to preserve static prerendering. PRs #71 and #72 tightened the smoke contract to stable rendered markers and to server-rendered demo-boundary assertions while retaining Email Requirements route/content coverage and its existing application-level query-state regression protection.
+- PRs #70, #71, and #72 were squash-merged after their required Validate application and Autonomous QA gates passed and Vercel previews reached READY. The final merged production smoke run passed the expanded route set; post-merge Validate application and Autonomous QA also passed. The final production deployment reached READY, and Vercel reported no production runtime errors in the preceding 24 hours.
+- This cycle changed QA/test workflow coverage only. No application behavior, auth/RLS policy, production persistence, real billing/payment execution, API credentials, matching/business rules, schema, production-data semantics, or synthetic production records changed.
+- PR #56 remains open for product-owner review because it changes production request persistence and is privacy/auth-adjacent.
+
+### Product-owner review queue
+- PR #56: review the proposed guard that prevents anonymous Find Inspectors searches from persisting request text while preserving authenticated client draft persistence.
+
 ## 2026-09-13 - Preserved Client Demo context through Email Requirements
 - Audited the accelerated UX/demo backlog, roadmap/protocol, development log, recent GitHub/CI state, open PRs, and Vercel production health.
 - Found a remaining demo/live isolation inconsistency: Client Demo intentionally linked to `/email-requirements?demo=1`, but the Email Requirements page rendered with live-workspace navigation and was not recognized by the global Demo Mode / authenticated `Demo view` labeling.
