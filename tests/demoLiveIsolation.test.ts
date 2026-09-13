@@ -6,6 +6,7 @@ import { isDemoExperiencePath } from "../lib/demoExperience";
 
 const inspectorDemoEntry = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector/page.tsx"), "utf8");
 const inspectorHub = fs.readFileSync(path.join(process.cwd(), "app/inspectorhub/page.tsx"), "utf8");
+const demoBanner = fs.readFileSync(path.join(process.cwd(), "components/DemoModeBanner.tsx"), "utf8");
 
 test("only explicit synthetic experiences qualify for the global demo banner", () => {
   for (const route of [
@@ -28,6 +29,12 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
     "/what-we-do",
     "/inspection-intelligence",
   ]) assert.equal(isDemoExperiencePath(route), false, route);
+});
+
+test("demo banner remains visible on synthetic routes even when a user is authenticated", () => {
+  assert.match(demoBanner, /if \(!isDemoExperiencePath\(pathname\)\) return null/);
+  assert.match(demoBanner, /Demo pages stay synthetic even when you're signed in/);
+  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange|isDemo !== true/);
 });
 
 test("Inspector Demo is a standalone synthetic experience isolated from production inspector data", () => {
