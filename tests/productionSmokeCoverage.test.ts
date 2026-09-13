@@ -8,6 +8,8 @@ const workflow = fs.readFileSync(
   "utf8",
 );
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 test("production smoke continuously covers the complete synthetic client and inspector demo surfaces", () => {
   for (const route of [
     "/demo/client",
@@ -18,12 +20,12 @@ test("production smoke continuously covers the complete synthetic client and ins
     "/demo/inspector",
     "/email-requirements?demo=1",
   ]) {
-    assert.match(workflow, new RegExp(route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(workflow, new RegExp(escapeRegex(route)));
   }
 });
 
 test("production smoke protects the synthetic/live boundary instead of checking HTTP status alone", () => {
-  assert.match(workflow, /grep -Fqi '\?Demo Mode'?/);
+  assert.match(workflow, /grep -Fqi 'Demo Mode'/);
   assert.match(workflow, /route" == \/demo\/\*/);
   assert.match(workflow, /demo=1/);
 });
@@ -38,6 +40,6 @@ test("production smoke verifies route-specific client and inspector experience m
     "Inspector Demo",
     "Email Requirements",
   ]) {
-    assert.match(workflow, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(workflow, new RegExp(escapeRegex(marker)));
   }
 });
