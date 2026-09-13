@@ -51,8 +51,9 @@ test("What We Do is fully removed from navigation and routing", () => {
 test("demo banner is route-aware and remains explicit for every synthetic experience", () => {
   assert.match(layout, /<DemoModeBanner \/>/);
   assert.match(demoBanner, /usePathname/);
-  assert.match(demoBanner, /if \(!isDemoExperiencePath\(pathname\)\) return null/);
-  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange/);
+  assert.match(demoBanner, /URLSearchParams\(window\.location\.search\)\.get\("demo"\)/);
+  assert.match(demoBanner, /if \(!isDemoExperiencePath\(pathname, demoParam\)\) return null/);
+  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange|useSearchParams/);
   assert.match(demoBanner, /Demo Mode/);
   assert.match(demoBanner, /synthetic data/);
   assert.match(demoBanner, /Demo pages stay synthetic even when you're signed in/);

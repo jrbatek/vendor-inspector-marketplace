@@ -1,12 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isDemoExperiencePath } from "@/lib/demoExperience";
 
 export default function DemoModeBanner() {
   const pathname = usePathname();
+  const [demoParam, setDemoParam] = useState<string | null>(null);
 
-  if (!isDemoExperiencePath(pathname)) return null;
+  useEffect(() => {
+    const sync = () => setDemoParam(new URLSearchParams(window.location.search).get("demo"));
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, [pathname]);
+
+  if (!isDemoExperiencePath(pathname, demoParam)) return null;
 
   return (
     <div className="demoBanner" role="status" aria-label="Demo mode">

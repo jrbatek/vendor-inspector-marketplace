@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 
 const mailto = "mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request";
@@ -16,6 +16,14 @@ Additional notes: Day shift; client safety orientation required.`;
 
 export default function EmailRequirementsPage() {
   const [copyStatus, setCopyStatus] = useState("");
+  const [demo, setDemo] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setDemo(new URLSearchParams(window.location.search).get("demo") === "1");
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, []);
 
   async function copySampleRequest() {
     try {
@@ -26,11 +34,12 @@ export default function EmailRequirementsPage() {
     }
   }
 
-  return <main className="shell"><ClientWorkspaceSidebar/><section className="workspace">
+  return <main className="shell"><ClientWorkspaceSidebar demo={demo}/><section className="workspace">
     <section className="hero">
-      <p className="eyebrow">Email Requirements</p>
+      <p className="eyebrow">{demo ? "Client Demo · Email Requirements" : "Email Requirements"}</p>
       <h1>Send an inspection request by email</h1>
       <p>Use the guide below so InspectSource can turn your email into the same structured request used by the Natural Language and Structured Selection workflows.</p>
+      {demo && <p className="demoNote"><strong>Demo guidance only.</strong> This page keeps the Client Demo navigation and synthetic-data context. Opening your email client does not create or persist an InspectSource production request.</p>}
       <a className="emailButton" href={mailto}>Open Email</a>
     </section>
 
@@ -76,5 +85,5 @@ export default function EmailRequirementsPage() {
       <div><strong>Ready?</strong><span> Your email client will open with the InspectSource subject already filled in.</span></div>
       <a className="emailButton" href={mailto}>Open Email</a>
     </section>
-  </section><style jsx>{`.shell{max-width:1440px;margin:auto;padding:24px 18px 80px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.hero,.card,.footerCallout{border:1px solid #dbe3ea;border-radius:18px;background:#fff}.hero{padding:30px;background:linear-gradient(135deg,#f8fbff,#f0fdfa);box-shadow:0 12px 34px rgba(15,23,42,.06)}.eyebrow{margin:0 0 6px;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0f766e}.hero h1{margin:0;font-size:2rem}.hero p{max-width:820px;color:#526174;line-height:1.65}.emailButton{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;padding:11px 16px;border-radius:10px;background:#0f766e;color:#fff;text-decoration:none;font-weight:800}.grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;margin-top:18px}.card{padding:22px}.card h2{margin:0 0 12px}.card p,.card li{color:#526174;line-height:1.55}.card ul{padding-left:20px;margin:10px 0 0}.card li{margin-bottom:8px}.sampleHead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.copyButton{border:1px solid #0f766e;border-radius:9px;background:#fff;color:#0f766e;padding:9px 12px;font-weight:800;cursor:pointer;white-space:nowrap}.copyButton:hover,.copyButton:focus-visible{background:#f0fdfa}.sample pre{margin:14px 0 10px;padding:16px;border-radius:12px;background:#0f172a;color:#e2e8f0;white-space:pre-wrap;font:500 .86rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.hint{font-size:.9rem}.copyStatus{min-height:1.25rem;margin:8px 0 0;font-size:.84rem}.footerCallout{margin-top:18px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}.footerCallout .emailButton{margin-top:0;white-space:nowrap}@media(max-width:1050px){.grid{grid-template-columns:1fr}.shell{grid-template-columns:1fr}}@media(max-width:620px){.footerCallout,.sampleHead{align-items:flex-start;flex-direction:column}.copyButton{white-space:normal}}`}</style></main>;
+  </section><style jsx>{`.shell{max-width:1440px;margin:auto;padding:24px 18px 80px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px}.workspace{min-width:0}.hero,.card,.footerCallout{border:1px solid #dbe3ea;border-radius:18px;background:#fff}.hero{padding:30px;background:linear-gradient(135deg,#f8fbff,#f0fdfa);box-shadow:0 12px 34px rgba(15,23,42,.06)}.eyebrow{margin:0 0 6px;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0f766e}.hero h1{margin:0;font-size:2rem}.hero p{max-width:820px;color:#526174;line-height:1.65}.demoNote{padding:10px 12px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;color:#334155!important;font-size:.88rem}.emailButton{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;padding:11px 16px;border-radius:10px;background:#0f766e;color:#fff;text-decoration:none;font-weight:800}.grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;margin-top:18px}.card{padding:22px}.card h2{margin:0 0 12px}.card p,.card li{color:#526174;line-height:1.55}.card ul{padding-left:20px;margin:10px 0 0}.card li{margin-bottom:8px}.sampleHead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.copyButton{border:1px solid #0f766e;border-radius:9px;background:#fff;color:#0f766e;padding:9px 12px;font-weight:800;cursor:pointer;white-space:nowrap}.copyButton:hover,.copyButton:focus-visible{background:#f0fdfa}.sample pre{margin:14px 0 10px;padding:16px;border-radius:12px;background:#0f172a;color:#e2e8f0;white-space:pre-wrap;font:500 .86rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.hint{font-size:.9rem}.copyStatus{min-height:1.25rem;margin:8px 0 0;font-size:.84rem}.footerCallout{margin-top:18px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}.footerCallout .emailButton{margin-top:0;white-space:nowrap}@media(max-width:1050px){.grid{grid-template-columns:1fr}.shell{grid-template-columns:1fr}}@media(max-width:620px){.footerCallout,.sampleHead{align-items:flex-start;flex-direction:column}.copyButton{white-space:normal}}`}</style></main>;
 }

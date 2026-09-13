@@ -7,6 +7,7 @@ import { isDemoExperiencePath } from "../lib/demoExperience";
 const inspectorDemoEntry = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector/page.tsx"), "utf8");
 const inspectorHub = fs.readFileSync(path.join(process.cwd(), "app/inspectorhub/page.tsx"), "utf8");
 const demoBanner = fs.readFileSync(path.join(process.cwd(), "components/DemoModeBanner.tsx"), "utf8");
+const emailRequirements = fs.readFileSync(path.join(process.cwd(), "app/email-requirements/page.tsx"), "utf8");
 
 test("only explicit synthetic experiences qualify for the global demo banner", () => {
   for (const route of [
@@ -20,6 +21,8 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
     "/inspectorhub",
   ]) assert.equal(isDemoExperiencePath(route), true, route);
 
+  assert.equal(isDemoExperiencePath("/email-requirements", "1"), true, "demo email requirements");
+
   for (const route of [
     "/",
     "/login",
@@ -32,9 +35,19 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
 });
 
 test("demo banner remains visible on synthetic routes even when a user is authenticated", () => {
-  assert.match(demoBanner, /if \(!isDemoExperiencePath\(pathname\)\) return null/);
+  assert.match(demoBanner, /URLSearchParams\(window\.location\.search\)\.get\("demo"\)/);
+  assert.match(demoBanner, /isDemoExperiencePath\(pathname, demoParam\)/);
   assert.match(demoBanner, /Demo pages stay synthetic even when you're signed in/);
-  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange|isDemo !== true/);
+  assert.doesNotMatch(demoBanner, /useSearchParams|auth\.getUser|onAuthStateChange|isDemo !== true/);
+});
+
+test("demo email requirements retain synthetic workspace context without production persistence", () => {
+  assert.match(emailRequirements, /URLSearchParams\(window\.location\.search\)\.get\("demo"\) === "1"/);
+  assert.match(emailRequirements, /<ClientWorkspaceSidebar demo=\{demo\}/);
+  assert.match(emailRequirements, /Demo guidance only/);
+  assert.match(emailRequirements, /does not create or persist an InspectSource production request/);
+  assert.match(emailRequirements, /Copy Sample Request/);
+  assert.doesNotMatch(emailRequirements, /useSearchParams|supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 
 test("Inspector Demo is a standalone synthetic experience isolated from production inspector data", () => {
