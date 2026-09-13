@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isDemoExperiencePath } from "@/lib/demoExperience";
 import { supabaseBrowser } from "@/lib/supabase";
@@ -41,7 +41,8 @@ export default function Nav() {
   const supabase = useMemo(() => supabaseBrowser(), []);
   const router = useRouter();
   const pathname = usePathname();
-  const isDemoView = isDemoExperiencePath(pathname);
+  const searchParams = useSearchParams();
+  const isDemoView = isDemoExperiencePath(pathname, searchParams.get("demo"));
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
