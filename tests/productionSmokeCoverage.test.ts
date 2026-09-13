@@ -24,10 +24,10 @@ test("production smoke continuously covers the complete synthetic client and ins
   }
 });
 
-test("production smoke protects the synthetic/live boundary instead of checking HTTP status alone", () => {
+test("production smoke protects server-rendered demo boundaries without misreading hydrated query state", () => {
   assert.match(workflow, /grep -Fqi 'Demo Mode'/);
   assert.match(workflow, /route" == \/demo\/\*/);
-  assert.match(workflow, /demo=1/);
+  assert.doesNotMatch(workflow, /route" == \/demo\/\* \|\| "\$route" == \*"demo=1"\*/);
 });
 
 test("production smoke verifies stable route-specific client and inspector experience markers", () => {
