@@ -22,24 +22,58 @@ jobs:
       - name: Wait for deployment and verify live routes
         run: |
           set -euo pipefail
-          routes=("/" "/project-coordinator" "/inspectors")
+
+          routes=(
+            "/"
+            "/project-coordinator"
+            "/inspectors"
+            "/demo/client"
+            "/demo/client-analytics"
+            "/demo/client-history"
+            "/demo/client-operations"
+            "/demo/client-data"
+            "/demo/inspector"
+            "/email-requirements?demo=1"
+          )
+
+          expected=(
+            "InspectSource"
+            "InspectSource"
+            "InspectSource"
+            "Client Demo"
+            "Analytics"
+            "Inspection History"
+            "Billing & Payment"
+            "Data & Integrations"
+            "Inspector Demo"
+            "Email Requirements"
+          )
+
           for attempt in $(seq 1 12); do
             echo "Production smoke attempt $attempt of 12"
             all_ok=true
-            for route in "${routes[@]}"; do
+
+            for i in "${!routes[@]}"; do
+              route="${routes[$i]}"
+              marker="${expected[$i]}"
               body="$(mktemp)"
               status="$(curl -L -sS -o "$body" -w '%{http_code}' "$PRODUCTION_URL$route" || true)"
-              if [ "$status" -lt 200 ] || [ "$status" -ge 400 ] || ! grep -qi 'InspectSource' "$body"; then
-                echo "Not ready: $route returned HTTP $status or expected content was absent."
+
+              if [ "$status" -lt 200 ] || [ "$status" -ge 400 ] || ! grep -Fqi "$marker" "$body"; then
+                echo "Not ready: $route returned HTTP $status or marker '$marker' was absent."
+                all_ok=false
+              elif [[ "$route" == /demo/* || "$route" == *"demo=1"* ]] && ! grep -Fqi 'Demo Mode' "$body"; then
+                echo "Not ready: $route returned HTTP $status but the Demo Mode boundary was absent."
                 all_ok=false
               else
-                echo "OK: $route ($status)"
+                echo "OK: $route ($status, marker: $marker)"
               fi
+
               rm -f "$body"
             done
 
             if [ "$all_ok" = true ]; then
-              echo "Production deployment passed smoke testing."
+              echo "Production deployment passed live and synthetic-demo smoke testing."
               exit 0
             fi
 
