@@ -48,14 +48,14 @@ test("What We Do is fully removed from navigation and routing", () => {
   assert.equal(fs.existsSync(whatWeDoPage), false);
 });
 
-test("demo banner is authentication-aware and restricted to explicit synthetic experiences", () => {
+test("demo banner is route-aware and remains explicit for every synthetic experience", () => {
   assert.match(layout, /<DemoModeBanner \/>/);
   assert.match(demoBanner, /usePathname/);
-  assert.match(demoBanner, /isDemoExperiencePath\(pathname\)/);
-  assert.match(demoBanner, /setIsDemo\(!data\.user\)/);
-  assert.match(demoBanner, /setIsDemo\(!session\?\.user\)/);
+  assert.match(demoBanner, /if \(!isDemoExperiencePath\(pathname\)\) return null/);
+  assert.doesNotMatch(demoBanner, /auth\.getUser|onAuthStateChange/);
   assert.match(demoBanner, /Demo Mode/);
   assert.match(demoBanner, /synthetic data/);
+  assert.match(demoBanner, /Demo pages stay synthetic even when you're signed in/);
 });
 
 test("home page keeps the brand and audience sections compact while preserving client and inspector color cues", () => {
