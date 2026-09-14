@@ -7,6 +7,13 @@ import { DEMO_INSPECTIONS, type DemoInspection } from "@/lib/clientDemoInspectio
 type FilterKey="project"|"projectType"|"country"|"commodity"|"timing"|"ncrType";
 const ALL="All";
 
+const geoPoints:Record<string,{x:number;y:number}>={
+  USA:{x:18,y:40},Canada:{x:17,y:25},Mexico:{x:17,y:51},Brazil:{x:31,y:69},
+  "United Kingdom":{x:46,y:31},Norway:{x:49,y:20},Netherlands:{x:49,y:33},Germany:{x:51,y:33},Italy:{x:52,y:42},Spain:{x:47,y:42},Poland:{x:54,y:31},Turkey:{x:58,y:42},
+  "Saudi Arabia":{x:60,y:51},Qatar:{x:62,y:50},UAE:{x:64,y:50},Oman:{x:65,y:55},India:{x:70,y:53},Singapore:{x:79,y:66},Malaysia:{x:78,y:62},Indonesia:{x:81,y:72},
+  "South Korea":{x:87,y:39},China:{x:82,y:39},Japan:{x:91,y:39},Australia:{x:88,y:80},"South Africa":{x:53,y:80},Nigeria:{x:49,y:61},Mozambique:{x:59,y:77},
+};
+
 const money=(value:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(value);
 const unique=(key:FilterKey)=>[ALL,...Array.from(new Set(DEMO_INSPECTIONS.map(row=>row[key]))).sort()];
 
@@ -75,7 +82,7 @@ export default function ClientAnalyticsDemo(){
 
     <section className="grid">
       <Panel title="Monthly spend trend" subtitle="Synthetic inspection spend by month"><Bars rows={monthly} moneyValues/></Panel>
-      <Panel title="Geography / map view" subtitle="Countries represented in the current selection"><Bars rows={geography} onSelect={setCountry}/></Panel>
+      <Panel title="Geography / map view" subtitle="Select a country marker to cross-filter the analytics"><GeographyMap rows={geography} onSelect={setCountry}/></Panel>
       <Panel title="Project type" subtitle="Inspection mix by project type"><Bars rows={byProjectType} onSelect={setProjectType}/></Panel>
       <Panel title="Commodity" subtitle="Inspection mix by equipment / commodity"><Bars rows={byCommodity} onSelect={setCommodity}/></Panel>
       <Panel title="NCR type" subtitle="Non-conformance mix in the current selection"><Bars rows={byNcrType} onSelect={setNcrType} empty="No NCRs in this selection."/></Panel>
@@ -101,6 +108,18 @@ function Bars({rows,onSelect,moneyValues=false,empty="No records in this selecti
   if(!rows.length)return <p className="empty">{empty}</p>;
   const max=Math.max(...rows.map(row=>row.value),1);
   return <div className="bars">{rows.slice(0,10).map(row=>{const content=<><span className="barLabel">{row.name}</span><span className="track"><span className="fill" style={{width:`${row.value/max*100}%`}}/></span><strong>{moneyValues?money(row.value):row.value}</strong></>;return onSelect?<button type="button" className="barRow clickable" key={row.name} onClick={()=>onSelect(row.name)}>{content}</button>:<div className="barRow" key={row.name}>{content}</div>})}</div>;
+}
+function GeographyMap({rows,onSelect}:{rows:{name:string;value:number}[];onSelect:(name:string)=>void}){
+  if(!rows.length)return <p className="empty">No countries in this selection.</p>;
+  const max=Math.max(...rows.map(row=>row.value),1);
+  return <div className="geoWrap">
+    <div className="geoMap" role="img" aria-label="Interactive geography map of synthetic inspection activity by country">
+      <span className="continent americas">Americas</span><span className="continent europe">Europe</span><span className="continent africa">Africa</span><span className="continent asia">Asia</span><span className="continent oceania">Oceania</span>
+      {rows.map((row,index)=>{const point=geoPoints[row.name]??{x:50+(index%5)*4,y:48+Math.floor(index/5)*4};const size=28+Math.round(row.value/max*18);return <button type="button" className="geoMarker" key={row.name} style={{left:`${point.x}%`,top:`${point.y}%`,width:size,height:size}} onClick={()=>onSelect(row.name)} aria-label={`${row.name}: ${row.value} synthetic inspections. Filter analytics to this country.`}><span>{row.value}</span></button>})}
+    </div>
+    <div className="geoLegend" aria-label="Countries represented">{rows.slice(0,8).map(row=><button type="button" key={row.name} onClick={()=>onSelect(row.name)}><span>{row.name}</span><strong>{row.value}</strong></button>)}</div>
+    <style jsx>{`.geoWrap{display:grid;gap:12px;margin-top:14px}.geoMap{position:relative;min-height:260px;border:1px solid #cbd5e1;border-radius:14px;overflow:hidden;background:linear-gradient(#eff6ff,#f8fafc);background-image:linear-gradient(rgba(148,163,184,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.14) 1px,transparent 1px);background-size:20% 25%}.geoMap:before,.geoMap:after{content:"";position:absolute;border-radius:50%;background:rgba(15,118,110,.08);filter:blur(.2px)}.geoMap:before{width:44%;height:60%;left:7%;top:18%;transform:rotate(-14deg)}.geoMap:after{width:52%;height:64%;right:4%;top:18%;transform:rotate(10deg)}.continent{position:absolute;z-index:1;font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#64748b}.americas{left:12%;top:10%}.europe{left:45%;top:10%}.africa{left:46%;top:58%}.asia{right:20%;top:12%}.oceania{right:4%;bottom:7%}.geoMarker{position:absolute;z-index:2;transform:translate(-50%,-50%);display:grid;place-items:center;padding:0;border:2px solid #fff;border-radius:999px;background:#0f766e;color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.22);cursor:pointer;font-size:.72rem;font-weight:900}.geoMarker:hover,.geoMarker:focus-visible{outline:3px solid #93c5fd;outline-offset:2px;background:#115e59}.geoLegend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.geoLegend button{display:flex;justify-content:space-between;gap:10px;border:0;border-radius:8px;background:#f8fafc;padding:7px 9px;cursor:pointer;color:#334155;text-align:left}.geoLegend button:hover,.geoLegend button:focus-visible{background:#ecfdf5}.geoLegend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.geoLegend strong{color:#0f766e}@media(max-width:680px){.geoMap{min-height:230px}.geoLegend{grid-template-columns:1fr}}`}</style>
+  </div>;
 }
 function group(rows:DemoInspection[],label:(row:DemoInspection)=>string,value:(row:DemoInspection)=>number=()=>1){
   const totals=new Map<string,number>();

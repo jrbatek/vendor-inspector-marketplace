@@ -23,9 +23,13 @@ test("client analytics demo restores meaningful spend, timing and NCR KPIs", () 
   assert.match(data, /timing:"On time"\|"Late"\|"Upcoming"/);
 });
 
-test("client analytics demo includes trends, geography, project type, commodity and NCR analysis", () => {
+test("client analytics demo includes trends, interactive geography, project type, commodity and NCR analysis", () => {
   assert.match(page, /Monthly spend trend/);
   assert.match(page, /Geography \/ map view/);
+  assert.match(page, /<GeographyMap rows=\{geography\} onSelect=\{setCountry\}/);
+  assert.match(page, /Interactive geography map of synthetic inspection activity by country/);
+  assert.match(page, /geoPoints:Record<string,\{x:number;y:number\}>/);
+  assert.match(page, /Filter analytics to this country/);
   assert.match(page, /Project type/);
   assert.match(page, /Commodity/);
   assert.match(page, /NCR type/);
