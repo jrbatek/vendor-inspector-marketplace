@@ -12,7 +12,19 @@ test("client operations demo exposes populated synthetic billing", () => {
   assert.match(page, /Awaiting approval/);
   assert.match(page, /Open balance/);
   assert.match(page, /Purchase order/);
+  assert.match(page, /Approval workflow/);
+  assert.match(page, /Approval history/);
+  assert.match(page, /Payment history/);
+  assert.match(page, /Demo reference/);
+  assert.match(page, /Invoice submitted → authority check → client approval → payment status → history/);
   assert.match(page, /No payment credentials, bank data or real financial account details/);
+});
+
+test("expanded billing and contract records expose accessible detail relationships", () => {
+  assert.match(page, /aria-controls=\{detailsId\}/);
+  assert.match(page, /id=\{detailsId\}/);
+  assert.match(page, /aria-expanded=\{openRow\}/);
+  assert.match(page, /aria-hidden="true"/);
 });
 
 test("client operations demo exposes accessible tab semantics", () => {
@@ -66,6 +78,7 @@ test("coarse suggested location is editable only in local synthetic demo state",
 
 test("client operations demo keeps sensitive operations synthetic and non-executing", () => {
   assert.match(page, /Client Demo · Synthetic data/);
+  assert.match(page, /no payment is executed/);
   assert.match(page, /No payment credentials/);
   assert.match(page, /no e-signature/i);
   assert.doesNotMatch(page, /supabaseBrowser/);
