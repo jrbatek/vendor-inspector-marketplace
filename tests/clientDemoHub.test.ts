@@ -31,3 +31,13 @@ test("Client Demo request intake remains aligned with the production-facing back
   assert.match(clientDemo, /Email Requirements/);
   assert.match(clientDemo, /Structured selection/);
 });
+
+test("Client Demo Upload Scope is functional, capped, accessible, and browser-local", () => {
+  assert.match(clientDemo, /async function loadScope/);
+  assert.match(clientDemo, /file\.text\(\)/);
+  assert.match(clientDemo, /slice\(0,MAX_REQUEST_CHARS\)/);
+  assert.match(clientDemo, /accept="\.txt,\.md,\.csv,\.json"/);
+  assert.match(clientDemo, /role="status"/);
+  assert.match(clientDemo, /Demo uploads stay in this browser and are not sent to production/);
+  assert.doesNotMatch(clientDemo, /fetch\(|XMLHttpRequest|FormData|supabase|createClient/i);
+});
