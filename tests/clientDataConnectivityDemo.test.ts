@@ -6,6 +6,13 @@ import test from "node:test";
 const page = fs.readFileSync(path.join(process.cwd(), "app/demo/client-data/page.tsx"), "utf8");
 const nav = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf8");
 
+test("client data demo stays inside the persistent Client Workspace", () => {
+  assert.match(page, /import ClientWorkspaceSidebar from "@\/components\/ClientWorkspaceSidebar"/);
+  assert.match(page, /<ClientWorkspaceSidebar demo \/>/);
+  assert.match(page, /grid-template-columns:250px minmax\(0,1fr\)/);
+  assert.match(page, /@media\(max-width:980px\)\{\.shell\{grid-template-columns:1fr\}\}/);
+});
+
 test("client demo exposes downloadable synthetic inspection data", () => {
   assert.match(page, /Demo Mode/);
   assert.match(page, /Synthetic inspection data only/);
