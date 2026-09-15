@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase";
@@ -17,6 +17,13 @@ export default function RegisterPage() {
   const [role, setRole] = useState<AccountRole>("client");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const requestedRole = new URLSearchParams(window.location.search).get("role");
+    if (requestedRole === "client" || requestedRole === "inspector") {
+      setRole(requestedRole);
+    }
+  }, []);
 
   async function register(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +91,7 @@ export default function RegisterPage() {
       </form>
 
       {message && <p className="notice">{message}</p>}
-      <p className="muted">Already have an account? <Link href="/login">Log in</Link></p>
+      <p className="muted">Already have an account? <Link href={`/login?role=${role}`}>Log in as a {role === "inspector" ? "Inspector" : "Client"}</Link></p>
     </section>
   );
 }
