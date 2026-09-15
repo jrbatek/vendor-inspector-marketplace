@@ -26,6 +26,16 @@ test("client and inspector navigation use distinct login entry points without ch
   assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
 
+test("role-specific auth entry points preserve audience context without enforcing role from the URL", () => {
+  assert.match(loginSource, /const registerHref = requestedRole \? `\/register\?role=\$\{requestedRole\}` : "\/register"/);
+  assert.match(loginSource, /href=\{registerHref\}/);
+  assert.match(registerSource, /new URLSearchParams\(window\.location\.search\)\.get\("role"\)/);
+  assert.match(registerSource, /requestedRole === "client" \|\| requestedRole === "inspector"/);
+  assert.match(registerSource, /setRole\(requestedRole\)/);
+  assert.match(registerSource, /href=\{`\/login\?role=\$\{role\}`\}/);
+  assert.match(registerSource, /options: \{ data: \{ name, full_name: name, role \} \}/);
+});
+
 test("authenticated navigation identifies live sessions without labeling synthetic demo pages as live data", () => {
   assert.match(navSource, /supabase\.auth\.getUser\(\)/);
   assert.match(navSource, /supabase\.auth\.onAuthStateChange/);
