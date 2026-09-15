@@ -30,6 +30,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     : requestedRole === "inspector"
       ? "Inspector"
       : null;
+  const registerHref = requestedRole ? `/register?role=${requestedRole}` : "/register";
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -69,7 +70,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
         <button type="submit" disabled={saving}>{saving ? "Logging in..." : "Log in"}</button>
       </form>
       {message && <p className="notice">{message}</p>}
-      <p className="muted">Need an account? <Link href="/register">Register</Link></p>
+      <p className="muted">Need an account? <Link href={registerHref}>{audienceLabel ? `Register as a ${audienceLabel}` : "Register"}</Link></p>
     </section>
   );
 }
