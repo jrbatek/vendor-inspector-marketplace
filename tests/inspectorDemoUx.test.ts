@@ -49,6 +49,11 @@ test("dedicated Inspector Demo exposes selection insights, feedback, assignments
   assert.doesNotMatch(dedicatedDemo, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 
+test("dedicated Inspector Demo exposes accessible workspace navigation state", () => {
+  assert.match(dedicatedDemo, /aria-label="Inspector Workspace navigation"/);
+  assert.match(dedicatedDemo, /aria-current=\{section===s\?"page":undefined\}/);
+});
+
 test("demo InspectorHub blocks writes while keeping controls visible", () => {
   assert.match(inspectorHub, /if\(mode!=="live"\)\{demoNotice\(\);return;\}/);
   assert.match(inspectorHub, /Preview Add Activity/);
