@@ -5,7 +5,7 @@ import path from "node:path";
 
 const read = (file: string) => fs.readFileSync(path.join(process.cwd(), file), "utf8");
 const home = read("app/page.tsx");
-const layout = read("app/layout.tsx");
+const nav = read("components/Nav.tsx");
 const client = read("app/demo/client/page.tsx");
 const history = read("app/demo/client-history/page.tsx");
 const analytics = read("app/demo/client-analytics/page.tsx");
@@ -18,8 +18,8 @@ const email = read("app/email-requirements/page.tsx");
 test("accelerated client and inspector demo backlog remains represented", () => {
   assert.match(home, /Eyes, Ears, and Expertise, Everywhere/);
   assert.doesNotMatch(home, /What We Do/);
-  assert.match(layout, /Client Login/);
-  assert.match(layout, /Inspector Login/);
+  assert.match(nav, /Client Login/);
+  assert.match(nav, /Inspector Login/);
   assert.match(client, /10,000|10000/);
   assert.match(client, /Select your inspection criteria/);
   assert.match(history, /Active Inspections/);
