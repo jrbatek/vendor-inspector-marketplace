@@ -47,7 +47,7 @@ test("demo surfaces retain explicit synthetic-data boundaries", () => {
 
 test("auth and email guidance preserve the requested safe UX contract", () => {
   assert.match(register, /MIN_PASSWORD_LENGTH/);
-  assert.match(register, /currently enforced by InspectSource registration/);
+  assert.match(register, /minimum currently enforced by InspectSource registration/);
   assert.match(email, /InspectSource/);
   assert.match(email, /attachment|Attachment/);
   assert.match(email, /Copy Sample Request/);
