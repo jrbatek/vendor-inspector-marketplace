@@ -21,6 +21,14 @@ const groups = [
     ["Equipment Intelligence", "/equipment-intelligence"],
     ["Asset Intelligence", "/asset-intelligence"],
   ]},
+  { label: "Agencies", links: [
+    ["Agency Login", "/login?role=agency"],
+    ["Agency Demo", "/demo/agency"],
+    ["Agency Workspace", "/demo/agency"],
+    ["Resource Pool", "/demo/agency#resource-pool"],
+    ["Opportunities", "/demo/agency#opportunities"],
+    ["Find Inspectors / Recruiting", "/demo/agency#find-inspectors-recruiting"],
+  ]},
   { label: "Inspectors", links: [
     ["Inspector Login", "/login?role=inspector"],
     ["Inspector Demo", "/demo/inspector"],
@@ -107,6 +115,7 @@ export default function Nav() {
         </div>;
       })}
       <Link className="topLink demoLink" href="/demo/client" onClick={() => setOpenMenu(null)}>Client Demo</Link>
+      <Link className="topLink demoLink" href="/demo/agency" onClick={() => setOpenMenu(null)}>Agency Demo</Link>
       <Link className="topLink demoLink" href="/demo/inspector" onClick={() => setOpenMenu(null)}>Inspector Demo</Link>
     </nav>
     {userEmail && <div className={isDemoView ? "liveSession demoSession" : "liveSession"} aria-live="polite" aria-label={isDemoView ? "Authenticated session viewing synthetic demo data" : "Authenticated live-data session"}>
