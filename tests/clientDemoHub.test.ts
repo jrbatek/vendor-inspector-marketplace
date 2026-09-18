@@ -15,11 +15,12 @@ test("Client Demo is the canonical full synthetic client experience", () => {
 
 test("Client Demo hub exposes the complete requested synthetic client experience", () => {
   assert.match(clientDemo, /Full client experience/);
+  assert.match(clientDemo, /\/demo\/client-agency-sourcing/);
   assert.match(clientDemo, /\/demo\/client-history/);
   assert.match(clientDemo, /\/demo\/client-analytics/);
   assert.match(clientDemo, /\/demo\/client-operations/);
   assert.match(clientDemo, /\/demo\/client-data/);
-  assert.match(clientDemo, /Switch to Inspector Demo/);
+  assert.match(clientDemo, /Switch to Agency Demo/);
   assert.match(clientDemo, /never writes synthetic records to production/);
 });
 
