@@ -23,6 +23,16 @@ test("client analytics demo restores meaningful spend, timing and NCR KPIs", () 
   assert.match(data, /timing:"On time"\|"Late"\|"Upcoming"/);
 });
 
+test("synthetic analytics data carries agency and independent sourcing provenance", () => {
+  assert.match(data, /sourceType:"Agency"\|"Independent"/);
+  assert.match(data, /agency:string/);
+  assert.match(data, /Northstar Inspection Group/);
+  assert.match(data, /Meridian Quality Services/);
+  assert.match(data, /Atlas Technical Assurance/);
+  assert.match(data, /Independent marketplace/);
+  assert.match(data, /sourceType===\"Agency\"\?agencies/);
+});
+
 test("client analytics demo includes trends, interactive geography, project type, commodity and NCR analysis", () => {
   assert.match(page, /Monthly spend trend/);
   assert.match(page, /Geography \/ map view/);
