@@ -8,6 +8,8 @@ export type DemoInspection={
   commodity:string;
   inspectionType:string;
   inspector:string;
+  sourceType:"Agency"|"Independent";
+  agency:string;
   date:string;
   status:"Completed"|"In Progress"|"Pending";
   timing:"On time"|"Late"|"Upcoming";
@@ -31,6 +33,7 @@ const locations=[
 const suppliers=["Atlas Process Systems","Bluewater Subsea Fabrication","Northstar Valve Works","Meridian Rotating Equipment","Gulf Alloy Piping","Pacific Heat Transfer","Nordic Steel Structures","Harbor Electrical Systems","Crescent Pressure Equipment","Oceanic Cable Systems","Vector Turbine Components","Summit Instrumentation","Global Forging Works","Seaboard Fabrication","Prime Pump Systems"];
 const inspectionTypes=["Vendor surveillance","Hold-point witness","FAT witness","Material verification","Welding inspection","Final release inspection","Expediting visit"];
 const inspectors=["Inspector IS-1042","Inspector IS-1187","Inspector IS-1239","Inspector IS-1314","Inspector IS-1426","Inspector IS-1508","Inspector IS-1671","Inspector IS-1733"];
+const agencies=["Northstar Inspection Group","Meridian Quality Services","Atlas Technical Assurance"];
 const ncrTypes=["Material traceability","Welding","Documentation","Dimensional","Coating"];
 
 export const DEMO_INSPECTIONS:DemoInspection[]=Array.from({length:60},(_,i)=>{
@@ -44,7 +47,9 @@ export const DEMO_INSPECTIONS:DemoInspection[]=Array.from({length:60},(_,i)=>{
   const timing:DemoInspection["timing"]=status!=="Completed"?"Upcoming":i%9===4?"Late":"On time";
   const spendUsd=status==="Pending"?0:1650+((i*487)%6200);
   const ncrType=ncr?ncrTypes[i%ncrTypes.length]:"None";
-  return {id:`IS-${String(5001+i)}`,project:p.name,projectType:p.type,supplier:suppliers[(i*5)%suppliers.length],city:loc[0],country:loc[1],commodity:p.commodities[i%p.commodities.length],inspectionType:inspectionTypes[i%inspectionTypes.length],inspector:inspectors[i%inspectors.length],date,status,timing,spendUsd,ncr,ncrType,reportId:`RPT-${String(260001+i)}`,reportSummary:ncr?`Inspection completed with one ${ncrType.toLowerCase()} non-conformance. Corrective action requested and follow-up verification required.`:"Inspection completed with no non-conformances. Required documents and release evidence were reviewed and accepted for this inspection stage."};
+  const sourceType:DemoInspection["sourceType"]=i%4===0?"Independent":"Agency";
+  const agency=sourceType==="Agency"?agencies[i%agencies.length]:"Independent marketplace";
+  return {id:`IS-${String(5001+i)}`,project:p.name,projectType:p.type,supplier:suppliers[(i*5)%suppliers.length],city:loc[0],country:loc[1],commodity:p.commodities[i%p.commodities.length],inspectionType:inspectionTypes[i%inspectionTypes.length],inspector:inspectors[i%inspectors.length],sourceType,agency,date,status,timing,spendUsd,ncr,ncrType,reportId:`RPT-${String(260001+i)}`,reportSummary:ncr?`Inspection completed with one ${ncrType.toLowerCase()} non-conformance. Corrective action requested and follow-up verification required.`:"Inspection completed with no non-conformances. Required documents and release evidence were reviewed and accepted for this inspection stage."};
 });
 export const DEMO_COMPLETED=DEMO_INSPECTIONS.filter(x=>x.status==="Completed");
 export const DEMO_NCR_RATE=DEMO_COMPLETED.length?DEMO_COMPLETED.filter(x=>x.ncr).length/DEMO_COMPLETED.length*100:0;
