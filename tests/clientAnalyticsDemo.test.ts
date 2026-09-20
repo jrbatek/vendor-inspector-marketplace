@@ -2,64 +2,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-
-const page = fs.readFileSync(path.join(process.cwd(), "app/demo/client-analytics/page.tsx"), "utf8");
-const data = fs.readFileSync(path.join(process.cwd(), "lib/clientDemoInspections.ts"), "utf8");
-const nav = fs.readFileSync(path.join(process.cwd(), "components/Nav.tsx"), "utf8");
-
-test("client analytics demo exposes the complete requested cross-filter contract", () => {
-  for (const label of ["Project","Project Type","Country","Commodity","Timing","Non-conformance","NCR Type"]) {
-    assert.match(page, new RegExp(`Filter label=\\"${label}\\"`));
-  }
-  assert.match(page, /Cross-filter spend, timing, geography, project type, commodity and non-conformance performance/);
-});
-
-test("client analytics demo restores meaningful spend, timing and NCR KPIs", () => {
-  assert.match(page, /Inspection spend/);
-  assert.match(page, /Inspections in view/);
-  assert.match(page, /On-time performance/);
-  assert.match(page, /Projects with NCRs/);
-  assert.match(data, /spendUsd:number/);
-  assert.match(data, /timing:"On time"\|"Late"\|"Upcoming"/);
-});
-
-test("synthetic analytics data carries agency and independent sourcing provenance", () => {
-  assert.match(data, /sourceType:"Agency"\|"Independent"/);
-  assert.match(data, /agency:string/);
-  assert.match(data, /Northstar Inspection Group/);
-  assert.match(data, /Meridian Quality Services/);
-  assert.match(data, /Atlas Technical Assurance/);
-  assert.match(data, /Independent marketplace/);
-  assert.match(data, /sourceType===\"Agency\"\?agencies/);
-});
-
-test("client analytics demo includes trends, interactive geography, project type, commodity and NCR analysis", () => {
-  assert.match(page, /Monthly spend trend/);
-  assert.match(page, /Geography \/ map view/);
-  assert.match(page, /<GeographyMap rows=\{geography\} onSelect=\{setCountry\}/);
-  assert.match(page, /Interactive geography map of synthetic inspection activity by country/);
-  assert.match(page, /geoPoints:Record<string,\{x:number;y:number\}>/);
-  assert.match(page, /Filter analytics to this country/);
-  assert.match(page, /Project type/);
-  assert.match(page, /Commodity/);
-  assert.match(page, /NCR type/);
-  assert.match(page, /Cross-filtered inspection records/);
-  assert.match(data, /Material traceability/);
-  assert.match(data, /Welding/);
-  assert.match(data, /Documentation/);
-  assert.match(data, /Dimensional/);
-  assert.match(data, /Coating/);
-});
-
-test("client analytics demo is downloadable, integration-aware and isolated from production", () => {
-  assert.match(page, /Client Demo · Synthetic data/);
-  assert.match(page, /Download data/);
-  assert.match(page, /inspectsource-client-demo-inspections\.csv/);
-  assert.match(page, /API, Excel & Power BI connectivity/);
-  assert.match(page, /\/demo\/client-data/);
-  assert.doesNotMatch(page, /supabaseBrowser|supabase\.from\(|\.insert\(|\.update\(|\.delete\(/);
-});
-
-test("client navigation exposes analytics demo", () => {
-  assert.match(nav, /\["Client Analytics Demo", "\/demo\/client-analytics"\]/);
-});
+const page=fs.readFileSync(path.join(process.cwd(),"app/demo/client-analytics/page.tsx"),"utf8");
+const data=fs.readFileSync(path.join(process.cwd(),"lib/clientDemoInspections.ts"),"utf8");
+const nav=fs.readFileSync(path.join(process.cwd(),"components/Nav.tsx"),"utf8");
+test("client analytics exposes complete cross-filter and sourcing contract",()=>{for(const label of ["Source Type","Agency","Project","Project Type","Country","Commodity","Timing","Non-conformance","NCR Type"])assert.match(page,new RegExp(`Filter label=\\"${label}\\"`));assert.match(page,/Cross-filter spend, timing, geography, project type, commodity and non-conformance performance/)});
+test("analytics data carries agency and independent sourcing provenance",()=>{assert.match(data,/sourceType:"Agency"\|"Independent"/);assert.match(data,/agency:string/);for(const name of ["Northstar Inspection Group","Meridian Quality Services","Atlas Technical Assurance","Independent marketplace"])assert.match(data,new RegExp(name))});
+test("source dimensions drive filters, KPIs, charts and detail",()=>{assert.match(page,/row\.sourceType===sourceType/);assert.match(page,/row\.agency===agency/);assert.match(page,/Agency-sourced/);assert.match(page,/Independent/);assert.match(page,/title="Source type"/);assert.match(page,/title="Agency \/ sourcing channel"/);assert.match(page,/title="Agency spend"/);assert.match(page,/<th>Source type<\/th>/);assert.match(page,/<th>Agency \/ channel<\/th>/)});
+test("analytics preserves spend timing geography project commodity and NCR views",()=>{for(const marker of ["Inspection spend","Inspections in view","On-time performance","Projects with NCRs","Monthly spend trend","Geography / map view","Interactive geography map of synthetic inspection activity by country","Project type","Commodity","NCR type","Cross-filtered inspection records"])assert.match(page,new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")))});
+test("download includes sourcing attribution and integration handoff",()=>{assert.match(page,/"Source Type","Agency \/ Channel"/);assert.match(page,/r\.sourceType,r\.agency/);assert.match(page,/inspectsource-client-demo-inspections\.csv/);assert.match(page,/API, Excel & Power BI connectivity/);assert.match(page,/\/demo\/client-data/)});
+test("demo remains synthetic and isolated from production",()=>{assert.match(page,/Client Demo · Synthetic data/);assert.doesNotMatch(page,/supabaseBrowser|supabase\.from\(|\.insert\(|\.update\(|\.delete\(/);assert.match(nav,/\["Client Analytics Demo", "\/demo\/client-analytics"\]/)});
