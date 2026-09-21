@@ -28,10 +28,14 @@ jobs:
             "/project-coordinator"
             "/inspectors"
             "/demo/client"
+            "/demo/client-agency-sourcing"
             "/demo/client-analytics"
             "/demo/client-history"
             "/demo/client-operations"
             "/demo/client-data"
+            "/demo/agency"
+            "/demo/agency-affiliations"
+            "/demo/agency-commercials"
             "/demo/inspector"
             "/email-requirements?demo=1"
           )
@@ -41,10 +45,14 @@ jobs:
             "InspectSource"
             "InspectSource"
             "Client Demo"
+            "Contracted Agency Sourcing"
             "Analytics"
             "Inspection History"
             "Commercial and account management"
             "InspectSource API"
+            "Agency Workspace"
+            "Agency Resource Affiliations"
+            "Contracts, Commercials & Analytics"
             "Inspector Demo"
             "Email Requirements"
           )
@@ -73,7 +81,7 @@ jobs:
             done
 
             if [ "$all_ok" = true ]; then
-              echo "Production deployment passed live and synthetic-demo smoke testing."
+              echo "Production deployment passed live and three-sided synthetic-demo smoke testing."
               exit 0
             fi
 
