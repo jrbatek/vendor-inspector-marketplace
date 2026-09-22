@@ -14,26 +14,20 @@ test("registration password guidance matches the enforced client-side minimum", 
   assert.match(registerSource, /aria-describedby="password-policy"/);
 });
 
-test("client and inspector navigation use distinct login entry points without changing role enforcement", () => {
-  assert.match(navSource, /\["Client Login", "\/login\?role=client"\]/);
-  assert.match(navSource, /\["Inspector Login", "\/login\?role=inspector"\]/);
-  assert.match(loginSource, /searchParams\?\.role === "client"/);
-  assert.match(loginSource, /searchParams\?\.role === "inspector"/);
-  assert.match(loginSource, /\? "Client"/);
-  assert.match(loginSource, /\? "Inspector"/);
-  assert.match(loginSource, /`\$\{audienceLabel\} Login`/);
-  assert.match(loginSource, /routes you according to the role on your account/);
+test("marketplace navigation uses one global login entry without changing authorization enforcement", () => {
+  assert.match(navSource, /href="\/login"/);
+  assert.doesNotMatch(navSource, /Client Login|Agency Login|Inspector Login/);
+  assert.doesNotMatch(navSource, /\/login\?role=(client|agency|inspector)/);
+  assert.doesNotMatch(navSource, /role_id|user_roles|setRole|assignRole/);
   assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
 
-test("role-specific auth entry points preserve audience context without enforcing role from the URL", () => {
-  assert.match(loginSource, /const registerHref = requestedRole \? `\/register\?role=\$\{requestedRole\}` : "\/register"/);
-  assert.match(loginSource, /href=\{registerHref\}/);
+test("legacy role-aware login and registration handling remains isolated from global navigation pending reviewed auth policy", () => {
+  assert.match(loginSource, /searchParams\?\.role === "client"/);
+  assert.match(loginSource, /searchParams\?\.role === "inspector"/);
   assert.match(registerSource, /new URLSearchParams\(window\.location\.search\)\.get\("role"\)/);
-  assert.match(registerSource, /requestedRole === "client" \|\| requestedRole === "inspector"/);
-  assert.match(registerSource, /setRole\(requestedRole\)/);
-  assert.match(registerSource, /href=\{`\/login\?role=\$\{role\}`\}/);
   assert.match(registerSource, /options: \{ data: \{ name, full_name: name, role \} \}/);
+  assert.doesNotMatch(navSource, /requestedRole|profile\?\.role|options: \{ data/);
 });
 
 test("authenticated navigation identifies live sessions without labeling synthetic demo pages as live data", () => {
