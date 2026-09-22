@@ -15,11 +15,17 @@ const inspector = read("app/demo/inspector/page.tsx");
 const register = read("app/register/page.tsx");
 const email = read("app/email-requirements/page.tsx");
 
-test("accelerated client and inspector demo backlog remains represented", () => {
+test("accelerated three-sided demo backlog remains represented", () => {
   assert.match(home, /Eyes, Ears, and Expertise, Everywhere/);
   assert.doesNotMatch(home, /What We Do/);
-  assert.match(nav, /Client Login/);
-  assert.match(nav, /Inspector Login/);
+  assert.match(nav, /href="\/login"/);
+  assert.doesNotMatch(nav, /Client Login|Agency Login|Inspector Login/);
+  assert.match(home, /For Clients/);
+  assert.match(home, /For Agencies/);
+  assert.match(home, /For Inspectors/);
+  assert.match(nav, /Client Demo/);
+  assert.match(nav, /Agency Demo/);
+  assert.match(nav, /Inspector Demo/);
   assert.match(client, /10,000|10000/);
   assert.match(client, /Select your inspection criteria/);
   assert.match(history, /Active Inspections/);
