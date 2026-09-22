@@ -1,33 +1,32 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import test from "node:test";
+import assert from "node:assert/strict";
 
 const nav = readFileSync("components/Nav.tsx", "utf8");
 const home = readFileSync("app/page.tsx", "utf8");
 
-describe("unified marketplace entry", () => {
-  it("uses one global login rather than role-specific auth entry points", () => {
-    expect(nav).toContain('href="/login"');
-    expect(nav).not.toContain("/login?role=client");
-    expect(nav).not.toContain("/login?role=agency");
-    expect(nav).not.toContain("/login?role=inspector");
-    expect(nav).toContain("Logged in as");
-    expect(nav).toContain("Live data");
-    expect(nav).toContain("Demo view");
-  });
+test("unified marketplace entry uses one global login rather than role-specific auth entry points", () => {
+  assert.ok(nav.includes('href="/login"'));
+  assert.ok(!nav.includes("/login?role=client"));
+  assert.ok(!nav.includes("/login?role=agency"));
+  assert.ok(!nav.includes("/login?role=inspector"));
+  assert.ok(nav.includes("Logged in as"));
+  assert.ok(nav.includes("Live data"));
+  assert.ok(nav.includes("Demo view"));
+});
 
-  it("presents clients, agencies and inspectors as equal homepage audiences", () => {
-    expect(home).toContain('label:"For Clients"');
-    expect(home).toContain('label:"For Agencies"');
-    expect(home).toContain('label:"For Inspectors"');
-    expect(home).toContain('grid-template-columns:repeat(3');
-    expect(home).toContain("One InspectSource sign-in.");
-    expect(home).toContain("/demo/client");
-    expect(home).toContain("/demo/agency");
-    expect(home).toContain("/demo/inspector");
-  });
+test("unified marketplace entry presents clients, agencies and inspectors as equal homepage audiences", () => {
+  assert.ok(home.includes('label:"For Clients"'));
+  assert.ok(home.includes('label:"For Agencies"'));
+  assert.ok(home.includes('label:"For Inspectors"'));
+  assert.ok(home.includes('grid-template-columns:repeat(3'));
+  assert.ok(home.includes("One InspectSource sign-in."));
+  assert.ok(home.includes("/demo/client"));
+  assert.ok(home.includes("/demo/agency"));
+  assert.ok(home.includes("/demo/inspector"));
+});
 
-  it("does not move role authorization into homepage or navigation UX", () => {
-    expect(home).not.toMatch(/supabase|auth\.signIn|role_id|user_roles/);
-    expect(nav).not.toMatch(/role_id|user_roles|setRole|assignRole/);
-  });
+test("unified marketplace entry does not move role authorization into homepage or navigation UX", () => {
+  assert.ok(!/supabase|auth\.signIn|role_id|user_roles/.test(home));
+  assert.ok(!/role_id|user_roles|setRole|assignRole/.test(nav));
 });
