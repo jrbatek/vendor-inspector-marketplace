@@ -53,3 +53,5 @@ test("client navigation uses the Client blue identity with visible interaction s
   assert.match(sidebarSource, /background:#2563eb;color:#fff/);
   assert.match(sidebarSource, /:focus-visible/);
 });
+
+// Keep this low-risk contract on the stacked branch so retargeting onto the unified-entry PR receives fresh CI validation.
