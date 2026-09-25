@@ -14,7 +14,7 @@ test("three-sided marketplace exposes client, agency and inspector demo entry po
   assert.match(nav, /Client Demo/);
   assert.match(nav, /Agency Demo/);
   assert.match(nav, /Inspector Demo/);
-  assert.match(nav, /Agency Login/);
+  assert.match(nav, /globalLogin/);
   assert.match(agency, /Agency Workspace/);
 });
 
