@@ -14,25 +14,21 @@ test("registration password guidance matches the enforced client-side minimum", 
   assert.match(registerSource, /aria-describedby="password-policy"/);
 });
 
-test("client and inspector navigation use distinct login entry points without changing role enforcement", () => {
-  assert.match(navSource, /\["Client Login", "\/login\?role=client"\]/);
-  assert.match(navSource, /\["Inspector Login", "\/login\?role=inspector"\]/);
-  assert.match(loginSource, /searchParams\?\.role === "client"/);
-  assert.match(loginSource, /searchParams\?\.role === "inspector"/);
-  assert.match(loginSource, /\? "Client"/);
-  assert.match(loginSource, /\? "Inspector"/);
-  assert.match(loginSource, /`\$\{audienceLabel\} Login`/);
+test("navigation uses one global login while authentication still routes by account role", () => {
+  assert.match(navSource, /className="globalLogin" href="\/login"/);
+  assert.doesNotMatch(navSource, /Client Login|Inspector Login|Agency Login/);
   assert.match(loginSource, /routes you according to the role on your account/);
   assert.match(loginSource, /profile\?\.role === "inspector" \? "\/dashboard" : "\/client-dashboard"/);
 });
 
-test("role-specific auth entry points preserve audience context without enforcing role from the URL", () => {
+test("legacy role-aware auth URLs preserve context without becoming separate login entry points", () => {
+  assert.match(loginSource, /searchParams\?\.role === "client"/);
+  assert.match(loginSource, /searchParams\?\.role === "inspector"/);
   assert.match(loginSource, /const registerHref = requestedRole \? `\/register\?role=\$\{requestedRole\}` : "\/register"/);
   assert.match(loginSource, /href=\{registerHref\}/);
   assert.match(registerSource, /new URLSearchParams\(window\.location\.search\)\.get\("role"\)/);
   assert.match(registerSource, /requestedRole === "client" \|\| requestedRole === "inspector"/);
   assert.match(registerSource, /setRole\(requestedRole\)/);
-  assert.match(registerSource, /href=\{`\/login\?role=\$\{role\}`\}/);
   assert.match(registerSource, /options: \{ data: \{ name, full_name: name, role \} \}/);
 });
 

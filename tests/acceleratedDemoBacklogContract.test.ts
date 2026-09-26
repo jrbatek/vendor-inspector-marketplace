@@ -18,8 +18,8 @@ const email = read("app/email-requirements/page.tsx");
 test("accelerated client and inspector demo backlog remains represented", () => {
   assert.match(home, /Eyes, Ears, and Expertise, Everywhere/);
   assert.doesNotMatch(home, /What We Do/);
-  assert.match(nav, /Client Login/);
-  assert.match(nav, /Inspector Login/);
+  assert.match(nav, /className="globalLogin" href="\/login"/);
+  assert.doesNotMatch(nav, /Client Login|Agency Login|Inspector Login/);
   assert.match(client, /10,000|10000/);
   assert.match(client, /Select your inspection criteria/);
   assert.match(history, /Active Inspections/);
