@@ -14,7 +14,7 @@ export default function HomePage() {
       <section className="audienceGrid" aria-label="InspectSource experiences">
         <article className="audienceCard clientCard">
           <div className="cardLabel">For Clients</div>
-          <h2>Find, coordinate, and manage qualified inspectors.</h2>
+          <h2>Find, recruit, and manage qualified inspectors.</h2>
           <p>Describe what you need, compare anonymous qualified professionals, manage active inspections, and keep project history and intelligence in one place.</p>
           <div className="featureList">
             <span>Natural language, email, or structured requests</span>
