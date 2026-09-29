@@ -20,6 +20,14 @@ test("agency demo exposes the complete operational workspace spine", () => {
   ]) assert.match(source, new RegExp(marker.replace(/[&/]/g, "\\$&")));
 });
 
+test("agency sidebar uses one purple workspace navigation with real active state", () => {
+  assert.match(source, /useState\("overview"\)/);
+  assert.match(source, /setActiveSection\(anchor\)/);
+  assert.match(source, /aria-current=\{activeSection === anchor \? "page" : undefined\}/);
+  assert.match(source, /\.side a\[aria-current=page\]\{background:#6d28d9;color:#fff/);
+  assert.doesNotMatch(source, /View Client Demo|View Inspector Demo/);
+});
+
 test("capacity and inspection operations are populated synthetic examples", () => {
   assert.match(source, /30-day view/);
   assert.match(source, /Gulf Coast/);
