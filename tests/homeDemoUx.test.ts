@@ -9,9 +9,10 @@ const layout = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8
 const demoBanner = fs.readFileSync(path.join(process.cwd(), "components/DemoModeBanner.tsx"), "utf8");
 const whatWeDoPage = path.join(process.cwd(), "app/what-we-do/page.tsx");
 
-test("home page uses the exact InspectSource brand line and separates client and inspector paths", () => {
+test("home page uses the exact InspectSource brand line and separates client, agency and inspector paths", () => {
   assert.match(home, /InspectSource — Eyes, Ears, and Expertise, Everywhere\./);
   assert.match(home, /For Clients/);
+  assert.match(home, /For Agencies/);
   assert.match(home, /For Inspectors/);
   assert.match(home, /Find Inspectors/);
   assert.match(home, /Explore InspectorHub/);
@@ -31,10 +32,15 @@ test("home page exposes clearly labeled client and inspector demo entry points",
   assert.match(home, /href="\/demo\/inspector">Open Inspector Demo/);
 });
 
-test("client and inspector logins live inside their respective navigation dropdowns", () => {
-  assert.match(nav, /\{ label: "Clients", links: \[\s*\["Client Login", "\/login\?role=client"\]/);
-  assert.match(nav, /\{ label: "Inspectors", links: \[\s*\["Inspector Login", "\/login\?role=inspector"\]/);
-  assert.doesNotMatch(nav, /className="loginNav"/);
+test("one global login serves all marketplace roles", () => {
+  assert.match(nav, /className="globalLogin" href="\/login"/);
+  assert.match(nav, /\{ label: "Clients", links:/);
+  assert.match(nav, /\{ label: "Agencies", links:/);
+  assert.match(nav, /\{ label: "Inspectors", links:/);
+  assert.doesNotMatch(nav, /Client Login/);
+  assert.doesNotMatch(nav, /Agency Login/);
+  assert.doesNotMatch(nav, /Inspector Login/);
+  assert.doesNotMatch(nav, /\/login\?role=(client|agency|inspector)/);
 });
 
 test("Find Inspectors navigation stays on the canonical Client Demo route", () => {
