@@ -14,16 +14,7 @@ test("unauthenticated InspectorHub uses synthetic demo records instead of live a
 });
 
 test("inspector demo covers the end-to-end professional workspace", () => {
-  for (const label of [
-    "Matched inspection opportunities",
-    "Active assignments",
-    "Schedule & availability",
-    "Selection Insights",
-    "Client feedback",
-    "Document center",
-    "Reports & billing",
-    "My Work History",
-  ]) assert.match(inspectorHub, new RegExp(label.replace(/[&]/g, "&")));
+  for (const label of ["Matched inspection opportunities","Active assignments","Schedule & availability","Selection Insights","Client feedback","Document center","Reports & billing","My Work History"]) assert.match(inspectorHub, new RegExp(label.replace(/[&]/g, "&")));
   assert.match(inspectorHub, /DEMO_OPPORTUNITIES/);
   assert.match(inspectorHub, /DEMO_ASSIGNMENTS/);
   assert.match(inspectorHub, /DEMO_DOCUMENTS/);
@@ -31,16 +22,7 @@ test("inspector demo covers the end-to-end professional workspace", () => {
 });
 
 test("dedicated Inspector Demo exposes selection insights, feedback, assignments and safety boundaries", () => {
-  for (const label of [
-    "Active Assignments",
-    "Selection Insights & Feedback",
-    "Selection Insights",
-    "Client feedback",
-    "Ratings detail",
-    "Document center",
-    "Reports & billing",
-    "My Work History",
-  ]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
+  for (const label of ["Active Assignments","Selection Insights & Feedback","Selection Insights","Client feedback","Ratings detail","Document center","Reports & billing","My Work History"]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
   assert.match(dedicatedDemo, /Insights never expose competing inspector identities/);
   assert.match(dedicatedDemo, /deterministic synthetic demo content/);
   assert.match(dedicatedDemo, /No production inspector records are used/);
@@ -52,6 +34,16 @@ test("dedicated Inspector Demo exposes selection insights, feedback, assignments
 test("dedicated Inspector Demo exposes accessible workspace navigation state", () => {
   assert.match(dedicatedDemo, /aria-label="Inspector Workspace navigation"/);
   assert.match(dedicatedDemo, /aria-current=\{section===s\?"page":undefined\}/);
+});
+
+test("dedicated Inspector Demo controls remain visible on white surfaces", () => {
+  assert.match(dedicatedDemo, /\.panel button,.row button,.actions button,.iconButton\{[^}]*background:#0f766e[^}]*color:#fff/);
+  assert.match(dedicatedDemo, /\.panel button:hover[^}]*background:#115e59/);
+  assert.match(dedicatedDemo, /button:focus-visible[^}]*outline:3px solid #5eead4/);
+  assert.match(dedicatedDemo, /button:disabled[^}]*background:#cbd5e1[^}]*color:#475569/);
+  assert.match(dedicatedDemo, /\.actions \.secondaryButton\{background:#fff;color:#0f766e/);
+  assert.match(dedicatedDemo, /\.side button\.active\{background:#ccfbf1;color:#134e4a/);
+  assert.match(dedicatedDemo, /className="iconButton" aria-label="Close opportunity preview"/);
 });
 
 test("demo InspectorHub blocks writes while keeping controls visible", () => {
