@@ -21,7 +21,7 @@ const REPORTS:Report[]=[
 
 export default function InspectorReportsDemo(){
  const [client,setClient]=useState("All clients"); const [industry,setIndustry]=useState("All industries"); const [commodity,setCommodity]=useState("All commodities"); const [open,setOpen]=useState<Report|null>(null);
- const values=(key:"client"|"industry"|"commodity")=>[...new Set(REPORTS.map(r=>r[key]))].sort();
+ const values=(key:"client"|"industry"|"commodity"):string[]=>Array.from(new Set(REPORTS.map(r=>r[key]))).sort();
  const filtered=useMemo(()=>REPORTS.filter(r=>(client==="All clients"||r.client===client)&&(industry==="All industries"||r.industry===industry)&&(commodity==="All commodities"||r.commodity===commodity)),[client,industry,commodity]);
  return <main className="shell"><header><p className="eyebrow">InspectorHub · Synthetic demo</p><h1>Inspection Reports</h1><p>Latest submitted inspection reports for this synthetic inspector profile. Demo records only; no production report or client data is used.</p></header>
  <section className="filters" aria-label="Report filters"><label>Client<select value={client} onChange={e=>setClient(e.target.value)}><option>All clients</option>{values("client").map(x=><option key={x}>{x}</option>)}</select></label><label>Industry<select value={industry} onChange={e=>setIndustry(e.target.value)}><option>All industries</option>{values("industry").map(x=><option key={x}>{x}</option>)}</select></label><label>Commodity<select value={commodity} onChange={e=>setCommodity(e.target.value)}><option>All commodities</option>{values("commodity").map(x=><option key={x}>{x}</option>)}</select></label></section>
