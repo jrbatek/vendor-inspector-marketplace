@@ -18,7 +18,8 @@ function sourceFiles(root: string): string[] {
   return discovered;
 }
 
-const files = ROOTS.flatMap((root) => sourceFiles(root));
+const files: string[] = [];
+for (const root of ROOTS) files.push(...sourceFiles(root));
 
 test("no JSX button is literally blank", () => {
   const offenders = files.filter((file) => {
@@ -40,7 +41,8 @@ test("no inline/style-jsx rule makes controls white on white", () => {
       if (whiteBackground && whiteText) offenders.push(file);
     }
   }
-  assert.deepEqual([...new Set(offenders)], [], `White-on-white control styling found in: ${[...new Set(offenders)].join(", ")}`);
+  const uniqueOffenders = Array.from(new Set<string>(offenders));
+  assert.deepEqual(uniqueOffenders, [], `White-on-white control styling found in: ${uniqueOffenders.join(", ")}`);
 });
 
 test("Inspector demo keeps explicit selected, hover, focus and disabled button states", () => {
