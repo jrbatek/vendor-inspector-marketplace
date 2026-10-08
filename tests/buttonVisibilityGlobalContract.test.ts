@@ -9,14 +9,16 @@ const SOURCE_EXTENSIONS = new Set([".tsx", ".ts", ".css"]);
 function sourceFiles(root: string): string[] {
   const full = path.join(process.cwd(), root);
   if (!fs.existsSync(full)) return [];
-  return fs.readdirSync(full, { withFileTypes: true }).flatMap((entry) => {
+  const discovered: string[] = [];
+  for (const entry of fs.readdirSync(full, { withFileTypes: true })) {
     const relative = path.join(root, entry.name);
-    if (entry.isDirectory()) return sourceFiles(relative);
-    return SOURCE_EXTENSIONS.has(path.extname(entry.name)) ? [relative] : [];
-  });
+    if (entry.isDirectory()) discovered.push(...sourceFiles(relative));
+    else if (SOURCE_EXTENSIONS.has(path.extname(entry.name))) discovered.push(relative);
+  }
+  return discovered;
 }
 
-const files = ROOTS.flatMap(sourceFiles);
+const files = ROOTS.flatMap((root) => sourceFiles(root));
 
 test("no JSX button is literally blank", () => {
   const offenders = files.filter((file) => {
