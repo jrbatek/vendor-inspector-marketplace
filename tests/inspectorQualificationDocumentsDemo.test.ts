@@ -13,10 +13,12 @@ describe("Inspector qualification document center", () => {
 
   it("provides working certificate preview controls", () => {
     expect(source).toContain("View certificate");
-    expect(source).toContain('role="dialog"');
-    expect(source).toContain('aria-modal="true"');
+    expect(source).toContain('role=\"dialog\"');
+    expect(source).toContain('aria-modal=\"true\"');
     expect(source).toContain("Close certificate preview");
-    expect(source).toContain("PDF preview");
+    expect(source).toContain('{selected.format} preview');
+    expect(source).toContain('format: \"PDF\"');
+    expect(source).toContain('format: \"Image\"');
   });
 
   it("keeps document sharing permission-gated and non-production", () => {
