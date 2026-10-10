@@ -1,39 +1,39 @@
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import test from "node:test";
 
-describe("Inspector qualification document center", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector-documents/page.tsx"), "utf8");
+const source = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector-documents/page.tsx"), "utf8");
 
-  it("uses only explicit synthetic qualification evidence", () => {
-    expect(source).toContain("INSPECTSOURCE SYNTHETIC DEMO");
-    expect(source).toContain("not a real credential");
-    expect(source).toContain("no production certificates or personal data are used");
-    expect(source).not.toMatch(/supabaseBrowser|\.from\(|storage\.from|fetch\(/);
-  });
+test("qualification documents use only explicit synthetic evidence", () => {
+  assert.match(source, /INSPECTSOURCE SYNTHETIC DEMO/);
+  assert.match(source, /not a real credential/);
+  assert.match(source, /no production certificates or personal data are used/);
+  assert.doesNotMatch(source, /supabaseBrowser|\.from\(|storage\.from|fetch\(/);
+});
 
-  it("provides working certificate preview controls", () => {
-    expect(source).toContain("View certificate");
-    expect(source).toContain('role=\"dialog\"');
-    expect(source).toContain('aria-modal=\"true\"');
-    expect(source).toContain("Close certificate preview");
-    expect(source).toContain('{selected.format} preview');
-    expect(source).toContain('format: \"PDF\"');
-    expect(source).toContain('format: \"Image\"');
-  });
+test("qualification documents provide working certificate preview controls", () => {
+  assert.match(source, /View certificate/);
+  assert.match(source, /role="dialog"/);
+  assert.match(source, /aria-modal="true"/);
+  assert.match(source, /Close certificate preview/);
+  assert.match(source, /\{selected\.format\} preview/);
+  assert.match(source, /format: "PDF"/);
+  assert.match(source, /format: "Image"/);
+});
 
-  it("keeps document sharing permission-gated and non-production", () => {
-    expect(source).toContain("Share securely");
-    expect(source).toContain("authorized client");
-    expect(source).toContain("authorized agency");
-    expect(source).toContain("verify inspector ownership, recipient authorization");
-    expect(source).toContain("No public link is created");
-    expect(source).toContain("does not perform a production share");
-  });
+test("qualification document sharing stays permission-gated and non-production", () => {
+  assert.match(source, /Share securely/);
+  assert.match(source, /authorized client/);
+  assert.match(source, /authorized agency/);
+  assert.match(source, /verify inspector ownership, recipient authorization/);
+  assert.match(source, /No public link is created/);
+  assert.match(source, /does not perform a production share/);
+});
 
-  it("protects visible interactive states", () => {
-    expect(source).toMatch(/button:hover\{background:/);
-    expect(source).toMatch(/button:focus-visible\{outline:/);
-    expect(source).toMatch(/\.secondary,.close\{background:#fff;color:/);
-    expect(source).toMatch(/\.secondary:hover,.close:hover\{background:/);
-  });
+test("qualification document controls protect visible interactive states", () => {
+  assert.match(source, /button:hover\{background:/);
+  assert.match(source, /button:focus-visible\{outline:/);
+  assert.match(source, /\.secondary,.close\{background:#fff;color:/);
+  assert.match(source, /\.secondary:hover,.close:hover\{background:/);
 });
