@@ -550,3 +550,34 @@ rejection, service-command failure propagation, hosted-only enforcement, and
 retained workflow security settings. Workflow YAML, all seven shell steps,
 and `git diff --check` passed. Actual systemd/Codex integration remains pending
 the GitHub-hosted manual pilot; local tests do not establish that it succeeds.
+
+## 2026-11-04 — Reproduced the runner socket-check compatibility failure
+
+The D-Bus workaround exposed the same failure on the DHCP socket; stopping
+individual services did not address the underlying cause. Reproduced the
+Codex action's O_PATH descriptor, named-user ACL and setpriv/test sequence in
+isolated Ubuntu 26.04 and 24.04 containers. Ubuntu 26.04 uses uutils/Rust
+`/usr/bin/test`, which reports the ACL-denied socket as writable. Ubuntu 24.04's
+GNU test correctly reports denial. The named-user ACL is effective at the
+kernel connection layer; the newer utility's permission check is the problem.
+The upstream action currently retains the affected verification path.
+
+Pin the coding job to `ubuntu-24.04`, remove the D-Bus stop/mask workaround,
+and leave D-Bus, DHCP and other runner services running. Avoid replacing
+essential utility packages or weakening the action's protections. Retain the
+pinned Codex action, explicit `drop-sudo` and `:workspace` profile. Add a
+fail-closed preflight using only a temporary root-owned socket: it checks
+initial access, applies the ACL, verifies actual kernel connection denial and
+then checks the same descriptor-based test command used by the action.
+Recurrence remains commented out; publishing and the existing Dev Loop are
+unchanged. The complete GitHub-hosted coding pilot still needs to be rerun
+after review/merge; local containers verify the compatibility fix, not the
+entire GitHub Actions integration.
+
+Validation: `npm run validate` passed all 133 tests, migration safety,
+synthetic QA, TypeScript, production build and all four route smoke checks.
+The final preflight passed in the Ubuntu 24.04 container with networking
+disabled. On Ubuntu 26.04 it confirmed kernel connection denial but failed
+at the permission utility, with `expected exit 1, got 0`, reproducing the
+incompatibility. YAML/shell checks and `git diff --check` passed. No live
+runner services were changed during this investigation.

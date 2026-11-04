@@ -23,7 +23,8 @@ concurrency:
 jobs:
   develop:
     if: github.event_name == 'workflow_dispatch' || vars.INSPECTSOURCE_DEV_LOOP_ENABLED == 'true'
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04 uutils test(1) misreports ACL-denied sockets as writable.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
       contents: read
@@ -53,27 +54,12 @@ jobs:
         run: |
           cp .github/codex/dev-loop.md "$RUNNER_TEMP/queue.md"
           gh pr list --state open --limit 200 --json number,title,headRefName,files >> "$RUNNER_TEMP/queue.md"
-      # The hosted image's system D-Bus socket failed the action's ACL denial
-      # check. This job does not use D-Bus: remove that privileged endpoint
-      # before Codex starts, rather than bypassing drop-sudo protections.
-      - name: Disable unused system D-Bus before Codex
+      - name: Verify socket ACL permission checks before Codex
         if: inputs.mode != 'check'
         run: |
           set -euo pipefail
           test "$RUNNER_ENVIRONMENT" = 'github-hosted'
-          sudo systemctl mask --runtime --now dbus.socket dbus.service
-          # Root systemctl uses systemd's private socket after D-Bus stops.
-          for unit in dbus.socket dbus.service; do
-            state="$(sudo systemctl show "$unit" --property=ActiveState --value)"
-            case "$state" in
-              inactive|failed) ;;
-              *) echo "::error::$unit is still $state; refusing to start Codex."; exit 1 ;;
-            esac
-          done
-          # systemd may leave the socket pathname after stopping the listener.
-          sudo rm -f -- /run/dbus/system_bus_socket
-          test ! -e /run/dbus/system_bus_socket
-          test ! -L /run/dbus/system_bus_socket
+          sudo "$(command -v node)" .github/scripts/check-codex-socket-acl.cjs "$(id -u)" "$(id -g)"
       - uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675 # v1
         if: inputs.mode != 'check'
         with:
