@@ -521,3 +521,32 @@ QA, TypeScript, production build and all four local route smoke checks.
 Workflow YAML and six shell steps passed parsing/syntax checks; the only
 active trigger is `workflow_dispatch`. The GitHub Actions manual pilot has
 not been run. Existing Dev Loop settings were not changed.
+
+
+## 2026-11-04 — Manual runner pilot: D-Bus security setup failure
+
+The first coding pilot failed before Codex could edit the checkout:
+`Could not restrict access to /run/dbus/system_bus_socket`, followed by
+`/usr/bin/sudo exited with code 1`. The current upstream action still uses
+this ACL verification path; an action version bump is not a demonstrated fix.
+
+Added a hosted-runner-only preparation step that stops and runtime-masks both
+system D-Bus units, verifies they are inactive, and removes the unused socket
+pathname before Codex starts. Failures stop the job. The job does not need
+system D-Bus; masking prevents socket activation while Codex runs. The action
+continues to use its pinned revision, explicit `drop-sudo`, and `:workspace`
+permission profile, including its checks on other privileged service sockets.
+The separate publishing job runs on a fresh host and is unchanged.
+
+Recurrence remains commented out, and the existing Dev Loop is unchanged.
+This is a candidate fix for the hosted runner: the manual `develop` pilot must
+be rerun after review/merge to verify the actual image and action integration.
+
+Local validation: `npm run validate` passed 134 tests, migration safety,
+synthetic QA, typecheck, production build and four route smoke checks. Five
+runner regressions exercise the preparation shell with fake service commands
+and a real temporary Unix socket, including successful cleanup, active-unit
+rejection, service-command failure propagation, hosted-only enforcement, and
+retained workflow security settings. Workflow YAML, all seven shell steps,
+and `git diff --check` passed. Actual systemd/Codex integration remains pending
+the GitHub-hosted manual pilot; local tests do not establish that it succeeds.
