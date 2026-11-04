@@ -18,9 +18,11 @@ test("calendar exposes all required InspectSource availability states", () => {
 
 test("external demo events protect private calendar detail", () => {
   assert.match(calendar, /external: true/);
-  assert.match(calendar, /event\.external \? "Busy" : event\.label/);
+  assert.match(calendar, /Inspector only; client view: Busy/);
   assert.match(calendar, /private details hidden/);
   assert.match(calendar, /never private event details/);
+  assert.match(calendar, /Doctor Appointment/);
+  assert.match(calendar, /Our Anniversary · All day/);
 });
 
 test("calendar integrations are explicitly synthetic and do not claim live sync", () => {
@@ -35,4 +37,15 @@ test("availability controls have visible interaction states", () => {
   assert.match(calendar, /button:hover\{background:#115e59/);
   assert.match(calendar, /button:focus-visible\{outline:3px solid #5eead4/);
   assert.match(calendar, /\.viewTabs button\.selected\{background:#0f766e;color:#fff/);
+});
+
+
+test("demo calendar is wired and date blocking protects assignments", () => {
+  const demo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector/page.tsx"), "utf8");
+  assert.match(demo, /<InspectorAvailabilityCalendar onOpenAssignment=/);
+  assert.match(calendar, /start > end/);
+  assert.match(calendar, /events.some\(event => dates.includes\(event.date\) && event.state === "Assigned"\)/);
+  assert.match(calendar, /setEvents\(previous/);
+  assert.match(calendar, /Link Other Calendar/);
+  assert.match(calendar, /Open assignment/);
 });

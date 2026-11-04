@@ -581,3 +581,48 @@ disabled. On Ubuntu 26.04 it confirmed kernel connection denial but failed
 at the permission utility, with `expected exit 1, got 0`, reproducing the
 incompatibility. YAML/shell checks and `git diff --check` passed. No live
 runner services were changed during this investigation.
+
+## 2026-11-04 — Control visibility and connected Inspector Demo workflow
+
+Open PR exclusions: #101 already owns Client Demo inspections in progress,
+entry paths, live/dashboard routing and audience navigation; no overlapping
+implementation was attempted. #56 owns anonymous search write protection.
+Client Demo's owner-reported empty inspections page remains dependent on #101;
+this batch does not claim that pending PR has shipped.
+
+Fixed inherited white button labels on pale/transparent surfaces in Source of
+Inspectors, inspector affiliation tabs/actions, Client Analytics export actions,
+history project cards and Equipment Intelligence. Added explicit input text,
+placeholder and shared interaction styling, plus regression checks for those
+local background/label pairs. Calendar hover now also pairs its dark background
+with white text.
+
+Connected the previously unused Month/Week/List calendar to Inspector Demo.
+October 2026 is an explicitly fixed synthetic sample month. Added inspector-only
+Doctor Appointment and full-day Our Anniversary titles, simulated Other Calendar
+linking, session-local date-range availability updates and protection against
+replacing assigned dates. External personal events remain present when updating
+availability. No OAuth, production calendar persistence or privacy rules changed.
+Calendar assignment events and Active Assignments now open three synthetic detail
+workspaces with client/vendor/site/contact, scope/PO, equipment, dates, completed
+actions, outstanding tasks/owners/due dates and contextual synthetic report PDFs.
+Section navigation clears opportunity outcome notices to prevent banner leakage.
+
+Validation: all 138 tests passed using `node --import tsx --test
+--test-isolation=none --test-reporter=tap tests/*.test.ts`; TypeScript, migration
+safety (10 files), full synthetic QA and final production build passed.
+`git diff --check` passed. Standard `npm run validate` cannot run its tsx CLI
+in this sandbox because opening its IPC pipe returns EPERM; direct loading
+ran the full suite successfully. Local route smoke failed to start its server;
+a direct Next start confirmed TCP listen EPERM. The publishing workflow must
+rerun normal validation and smoke tests outside this restriction. No commits,
+pushes, CI edits, production mutations or deployment verification occurred.
+Preview READY and production READY remain unverified; do not report deployed.
+
+Next: finish calendar navigation beyond the fixed sample month and meaningful
+interaction/browser contrast tests in a server-capable runner, then continue
+Selection Insights and Feedback. Production parity backlog: authenticated calendar
+editing and assignment details should use the same UI with authorized real data;
+private-event visibility, live synchronization and persistence remain review-only.
+Keep #101's Client Demo inspections and routing validation ahead of shipping this
+batch. Existing automation settings are unchanged.
