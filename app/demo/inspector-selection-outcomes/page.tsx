@@ -1,55 +1,27 @@
 "use client";
 
-const outcomes = [
-  { period: "Last 90 days", presented: 18, shortlisted: 11, selected: 6 },
-  { period: "Prior 90 days", presented: 15, shortlisted: 8, selected: 4 },
-];
+import Link from "next/link";
+import { useState } from "react";
+import { GEOGRAPHIES, EXPERTISES, INSPECTION_TYPES, MIN_PEER_COHORT, peerPositioning, type PeerFilters } from "@/lib/inspectorPeerPositioning";
 
-const differentiators = [
-  { label: "Required qualifications documented", detail: "Your recorded qualifications matched required credentials more often on selected opportunities.", evidence: "5 of 6 selected opportunities" },
-  { label: "Local or low-travel availability", detail: "Your recorded availability and location reduced travel needs on several selections.", evidence: "4 of 6 selected opportunities" },
-  { label: "Recent relevant work evidence", detail: "Recent work-history records aligned with the requested equipment or inspection activity.", evidence: "4 of 6 selected opportunities" },
-];
+const INITIAL_FILTERS: PeerFilters = { geography: GEOGRAPHIES[0], expertise: EXPERTISES[0], inspectionType: INSPECTION_TYPES[0] };
 
 export default function InspectorSelectionOutcomesDemo() {
-  const current = outcomes[0];
-  const shortlistRate = Math.round((current.shortlisted / current.presented) * 100);
-  const selectionRate = Math.round((current.selected / current.presented) * 100);
-  const shortlistedConversion = Math.round((current.selected / current.shortlisted) * 100);
-
-  return <main className="page">
-    <header className="hero">
-      <p className="eyebrow">InspectorHub · Synthetic demo</p>
-      <h1>Selection Outcomes</h1>
-      <p>Understand how often your profile progresses and which evidence-supported factors are associated with selections.</p>
-      <div className="boundary" role="note"><strong>Demo Mode · Synthetic data</strong><span>These counts and observations are deterministic examples. Live outcomes must be calculated only from the authenticated inspector&apos;s own selection history.</span></div>
-    </header>
-
-    <section className="metrics" aria-label="Selection outcome metrics">
-      <article><span>Presented</span><strong>{current.presented}</strong><small>{current.period}</small></article>
-      <article><span>Shortlisted</span><strong>{current.shortlisted}</strong><small>{shortlistRate}% of presentations</small></article>
-      <article><span>Selected</span><strong>{current.selected}</strong><small>{selectionRate}% of presentations</small></article>
-      <article><span>Shortlist → selection</span><strong>{shortlistedConversion}%</strong><small>{current.selected} of {current.shortlisted} shortlists</small></article>
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const summary = peerPositioning(filters);
+  const update = (key: keyof PeerFilters, value: string) => setFilters(current => ({ ...current, [key]: value }));
+  return <section className="insightsPage">
+    <header><p className="eyebrow">InspectorHub · Demo Mode · Synthetic data</p><h1>Selection Insights &amp; Feedback</h1><p>Understand your profile through aggregate peer positioning and practical improvement guidance. No individual selection decisions or competing inspectors are shown.</p><Link href="/demo/inspector">Back to Inspector Demo</Link></header>
+    <section className="ratings" aria-labelledby="ratings-title"><p className="eyebrow">Client feedback</p><h2 id="ratings-title">Ratings &amp; feedback</h2><strong className="score">4.9 / 5</strong><p>18 fictional ratings · Synthetic snapshot: November 4, 2026</p><div className="feedback"><blockquote>“Clear reporting and strong document review.”</blockquote><blockquote>“Dependable communication throughout the inspection.”</blockquote></div><p>All ratings, feedback and comparisons are deterministic synthetic examples. They do not describe real inspectors or clients.</p></section>
+    <section className="comparison" aria-labelledby="comparison-title"><h2 id="comparison-title">Compare relevant peer groups</h2><p>Choose geography, expertise and inspection type. Availability compares applicable scheduled dates; credential coverage compares documented requested qualifications. These examples do not guarantee eligibility or selection.</p>
+      <div className="filters"><label>Geography<select aria-label="Geography" value={filters.geography} onChange={e => update("geography", e.target.value)}>{GEOGRAPHIES.map(value => <option key={value}>{value}</option>)}</select></label><label>Expertise<select aria-label="Expertise" value={filters.expertise} onChange={e => update("expertise", e.target.value)}>{EXPERTISES.map(value => <option key={value}>{value}</option>)}</select></label><label>Inspection type<select aria-label="Inspection type" value={filters.inspectionType} onChange={e => update("inspectionType", e.target.value)}>{INSPECTION_TYPES.map(value => <option key={value}>{value}</option>)}</select></label><button type="button" onClick={() => setFilters(INITIAL_FILTERS)}>Reset comparison</button></div>
+      <div role="status" aria-live="polite">{summary.available ? `${summary.size} synthetic peers in this comparison` : `Comparison unavailable: at least ${MIN_PEER_COHORT} peers are required.`}</div>
+      {summary.available ? <><article className="rate"><h3>Day-rate percentile</h3><strong>{summary.ratePercentile}th percentile</strong><p>Your fictional day rate is higher than approximately {summary.ratePercentile}% of this comparable peer group. Rates are compared within the same geography and currency. This is a commercial reference, not a recommendation to lower your rate.</p></article><div className="metrics">{summary.metrics.map(metric => <article key={metric.label}><h3>{metric.label}</h3><strong>{metric.own}</strong><p>{metric.comparison}</p><p>{metric.guidance}</p></article>)}</div></> : <section className="suppressed"><h3>Not enough peers for a useful comparison</h3><p>Percentiles and comparative metrics are hidden for this selection. Broaden your comparison or reset the filters.</p></section>}
     </section>
-
-    <section className="card">
-      <div className="sectionHead"><div><p className="eyebrow">Trend</p><h2>Recent conversion</h2></div><span className="badge">Aggregate outcomes only</span></div>
-      <div className="trend" role="table" aria-label="Selection outcome trend">
-        <div className="trendHead" role="row"><span>Period</span><span>Presented</span><span>Shortlisted</span><span>Selected</span></div>
-        {outcomes.map(row => <div className="trendRow" role="row" key={row.period}><strong>{row.period}</strong><span>{row.presented}</span><span>{row.shortlisted}</span><span>{row.selected}</span></div>)}
-      </div>
-    </section>
-
-    <section className="card">
-      <p className="eyebrow">Evidence-supported differentiators</p>
-      <h2>What is associated with stronger outcomes</h2>
-      <p className="intro">These observations summarize your own profile and outcome history. They are not guarantees, eligibility claims, or rankings against named inspectors.</p>
-      <div className="signals">{differentiators.map(item => <article key={item.label}><div><strong>{item.label}</strong><p>{item.detail}</p></div><span>{item.evidence}</span></article>)}</div>
-      <div className="privacy" role="note"><strong>Privacy boundary</strong><p>Competing inspector identities, profiles, rates, rankings, and individual outcomes are never exposed. Comparisons are aggregate and evidence-supported only.</p></div>
-    </section>
-
+    <section className="guidance"><h2>Improve your supporting evidence</h2><p>Start with accurate qualifications and relevant work evidence. Keep availability, travel preferences and response details current. Never claim experience or credentials you cannot support.</p><Link href="/demo/inspector-documents">Review qualification documents</Link></section>
+    <aside className="boundary" role="note"><strong>Privacy boundary</strong><p>No peer names, profiles, individual rates, individual outcomes or selected-inspector identities are exposed. Live comparisons require authorized server-side aggregation and minimum-cohort protections before any data reaches the browser. This demo does not implement or change production matching, ranking, compensation, verification or privacy policy.</p></aside>
     <style jsx>{`
-      .page{max-width:1100px;margin:auto;padding:32px 18px 72px;background:#f8fafc;min-height:100vh;color:#16302d}.hero,.card,.metrics article{background:#fff;border:1px solid #dbe5e4;border-radius:18px}.hero,.card{padding:26px}.hero h1{margin:4px 0 8px;font-size:38px}.eyebrow{margin:0;color:#0f766e;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.boundary,.privacy{margin-top:18px;padding:14px 16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px}.boundary span{display:block;margin-top:4px;color:#47615e}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.metrics article{padding:18px}.metrics span,.metrics small{display:block;color:#64748b}.metrics strong{display:block;font-size:30px;margin:5px 0;color:#0f766e}.card{margin-top:18px}.sectionHead{display:flex;justify-content:space-between;gap:16px;align-items:start}.badge{background:#f0fdfa;color:#115e59;border-radius:999px;padding:7px 10px;font-weight:700;font-size:12px}.trend{margin-top:16px;border:1px solid #dbe5e4;border-radius:12px;overflow:hidden}.trendHead,.trendRow{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:10px;padding:12px 14px}.trendHead{background:#f1f5f9;font-weight:700}.trendRow+ .trendRow{border-top:1px solid #e2e8f0}.signals{display:grid;gap:10px;margin-top:16px}.signals article{display:flex;justify-content:space-between;gap:24px;padding:15px;border:1px solid #dbe5e4;border-radius:12px}.signals p,.privacy p,.intro{color:#526a67}.signals p,.privacy p{margin:5px 0 0}.signals span{min-width:180px;text-align:right;font-weight:800;color:#0f766e}.privacy strong{color:#065f46}@media(max-width:760px){.metrics{grid-template-columns:1fr 1fr}.signals article{display:block}.signals span{display:block;text-align:left;margin-top:8px}.trendHead,.trendRow{grid-template-columns:1.5fr repeat(3,1fr);font-size:13px}}@media(max-width:480px){.metrics{grid-template-columns:1fr}.hero h1{font-size:32px}}
+      .insightsPage{display:grid;gap:18px;max-width:1100px;margin:auto;color:#0f172a}header,.ratings,.comparison,.guidance,.boundary{padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:#fff}.eyebrow{color:#115e59}h1{font-size:2rem;margin:8px 0}h2{margin-top:0}p{line-height:1.6;color:#475569}a{color:#115e59;font-weight:800;text-decoration:underline}.score{font-size:2rem;color:#115e59}.feedback{display:grid;grid-template-columns:1fr 1fr;gap:14px}blockquote{margin:0;padding:16px;background:#f0fdfa;color:#134e4a;border-radius:10px}.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.filters select{color:#0f172a;background:#fff;border-color:#64748b}.filters button{background:#115e59;color:#fff;border:1px solid #115e59;min-height:44px}.filters button:hover{background:#134e4a;color:#fff}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #2563eb;outline-offset:3px}[role=status]{font-weight:800;color:#115e59}.rate,.metrics article{padding:18px;border:1px solid #cbd5e1;border-radius:12px;margin-top:16px}.rate strong,.metrics strong{font-size:1.35rem;color:#115e59}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.suppressed,.boundary{background:#f0fdfa}.suppressed{margin-top:16px;padding:18px;border-radius:12px}@media(max-width:700px){.filters,.metrics,.feedback{grid-template-columns:1fr}header,.ratings,.comparison,.guidance,.boundary{padding:18px}}
     `}</style>
-  </main>;
+  </section>;
 }

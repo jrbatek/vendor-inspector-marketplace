@@ -60,6 +60,15 @@ Client request -> source strategy (contracted agencies / independents / both) ->
 - Demonstrate bulk upload and API integration concepts using synthetic/non-production data only.
 - Demonstrate a client request restricted to contracted agencies, then the same request expanded to include independent inspectors.
 
+## Current delivery order — owner update, November 4, 2026
+
+Calendar views are deferred while PR #105's assignment/calendar state issues are
+investigated. Keep that batch on hold. Advance independent Selection Insights &
+Feedback, Qualifications & Documents, Work History/report consolidation, and the
+synthetic Income & Tax Center in that order. Continue avoiding work already owned
+by open PRs, including #101's client inspection/routing changes. The manual runner
+pilot succeeded, but recurrence stays disabled pending explicit authorization.
+
 ## Priority backlog
 ### P0 - Reliability and consistency
 - Keep Client Workspace navigation persistent across all client workflows.

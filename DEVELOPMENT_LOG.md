@@ -581,3 +581,33 @@ disabled. On Ubuntu 26.04 it confirmed kernel connection denial but failed
 at the permission utility, with `expected exit 1, got 0`, reproducing the
 incompatibility. YAML/shell checks and `git diff --check` passed. No live
 runner services were changed during this investigation.
+
+## 2026-11-04 — Accelerate independent inspector insights; defer calendar views
+
+Owner direction: deprioritize calendar views and advance other development while
+assignment/calendar issues are investigated. Updated the approved queue and
+roadmap accordingly. PR #105 remains on hold; its calendar/assignment files are
+not changed by this batch. Recurrence remains disabled, and existing scheduling
+settings are unchanged.
+
+Reworked the existing standalone Selection Insights demo with ratings first,
+aggregate peer positioning by geography/expertise/inspection type, day-rate
+percentile context, six evidence/behavior dimensions and improvement guidance.
+Small or invalid cohorts suppress comparative metrics and counts. All examples
+are synthetic; production enforcement must happen in an authorized backend and
+is not introduced here. Added a demo-only InspectorHub entry point, accessible
+comparison filters/reset and regression coverage. No auth, matching, compensation,
+database or live privacy policies are changed. The canonical Inspector Demo's
+held assignment/calendar sections remain untouched; further integration can be
+reviewed independently after the held work is resolved.
+
+Next independent priority: Qualifications & Documents, then Work History/report
+consolidation and synthetic Income & Tax Center. Do not restart calendar expansion
+or duplicate work owned by open PRs.
+
+Validation: `npm run validate` passed all 135 tests, migration safety, synthetic
+QA, typecheck, production build and five route smoke checks. Browser checks
+passed for the demo-only entry, ratings-first order, all three filters, changing
+percentile examples, small-cohort metric/count suppression, reset, keyboard
+focus and mobile layout; no page errors. `git diff --check` passed. Live peer
+aggregation remains unimplemented and unchanged; this is a synthetic UI batch.
