@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 
 const port = 3100;
 const base = `http://127.0.0.1:${port}`;
-const routes = ["/", "/project-coordinator", "/inspectors", "/client-dashboard"];
+const routes = ["/", "/project-coordinator", "/inspectors", "/client-dashboard", "/demo/client", "/demo/client-inspections", "/demo/email-requirements"];
 
 const child = spawn(
   process.execPath,
@@ -44,8 +44,17 @@ try {
     if (!body || !body.toLowerCase().includes("inspectsource")) {
       throw new Error(`${route} did not render expected InspectSource content`);
     }
+    if (route === "/demo/client-inspections" && (body.match(/<article class="[^"]*\binspection\b/g) || []).length !== 7) {
+      throw new Error("Active demo must render exactly seven inspection records");
+    }
     console.log(`Smoke OK: ${route} (${response.status})`);
   }
+  const pdf = await fetch(base + "/api/demo/report?id=SAMPLE-ACT-1&download=1");
+  const bytes = new Uint8Array(await pdf.arrayBuffer());
+  if (!pdf.ok || !pdf.headers.get("content-type")?.includes("application/pdf") || new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-") {
+    throw new Error("Synthetic PDF download failed");
+  }
+  console.log("Synthetic PDF smoke passed.");
   console.log("Local route smoke tests passed.");
 } catch (error) {
   exitCode = 1;

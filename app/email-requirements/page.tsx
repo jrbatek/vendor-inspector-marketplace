@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 
@@ -16,7 +17,9 @@ Additional notes: Day shift; client safety orientation required.`;
 
 export default function EmailRequirementsPage() {
   const [copyStatus, setCopyStatus] = useState("");
-  const [demo, setDemo] = useState(false);
+  const pathname = usePathname();
+  const [demoParam, setDemo] = useState(false);
+  const demo = pathname.startsWith("/demo/") || demoParam;
 
   useEffect(() => {
     const sync = () => setDemo(new URLSearchParams(window.location.search).get("demo") === "1");

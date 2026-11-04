@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase";
 import { clientWorkspaceHref, parseClientWorkspaceSection, type ClientWorkspaceSection as Section } from "@/lib/clientWorkspace";
@@ -9,6 +10,8 @@ type SearchRow={id:string;request_text:string;result_count:number;status:string;
 type InquiryRow={id:string;inspector_id:string;request_text:string;match_score:number|null;status:string;created_at:string};
 
 export default function ClientDashboardPage(){
+ const router=useRouter();
+ const [authenticated,setAuthenticated]=useState(false);
  const supabase=useMemo(()=>supabaseBrowser(),[]);
  const [section,setSection]=useState<Section>("request");
  const [searches,setSearches]=useState<SearchRow[]>([]);
@@ -32,7 +35,8 @@ export default function ClientDashboardPage(){
  }
  async function load(){
   const {data:auth}=await supabase.auth.getUser();
-  if(!auth.user){setMessage("Log in to view the client workspace.");setLoading(false);return;}
+  if(!auth.user){router.replace("/login");return;}
+  setAuthenticated(true);
   const [s,i]=await Promise.all([
    supabase.from("client_search_requests").select("id,request_text,result_count,status,created_at").eq("client_id",auth.user.id).order("created_at",{ascending:false}),
    supabase.from("client_inquiries").select("id,inspector_id,request_text,match_score,status,created_at").eq("client_id",auth.user.id).order("created_at",{ascending:false})
@@ -46,6 +50,8 @@ export default function ClientDashboardPage(){
  const avgMatch=inquiries.length?Math.round(inquiries.reduce((s,x)=>s+(x.match_score||0),0)/inquiries.length):0;
  const completionRate=inquiries.length?Math.round(history.length/inquiries.length*100):0;
 
+ if(!authenticated)return <main className="panel" role="status">Checking your client session…</main>;
+
  return <main className="shell">
   <aside className="sidebar">
    <div className="sideTitle"><span>Client Workspace</span><strong>InspectSource</strong></div>
@@ -56,7 +62,6 @@ export default function ClientDashboardPage(){
     <Link href="/inspectors">Structured selection</Link>
    </div>
    <SideButton active={section==="active"} onClick={()=>selectSection("active")} label={`Inspections in Progress (${active.length})`} />
-   <SideButton active={section==="history"} onClick={()=>selectSection("history")} label="Inspection History" />
    <SideButton active={section==="analytics"} onClick={()=>selectSection("analytics")} label="Analytics" />
    <SideButton active={section==="billing"} onClick={()=>selectSection("billing")} label="Billing & Payment" />
    <SideButton active={section==="contracts"} onClick={()=>selectSection("contracts")} label="Contracts" />
@@ -67,13 +72,13 @@ export default function ClientDashboardPage(){
    <header className="workspaceHeader"><p className="eyebrow">InspectSource client workspace</p><h1>{sectionTitle(section)}</h1></header>
    {message&&<p className="notice">{message}</p>}
    {!loading&&!message&&<section className="content">
-    {section==="request"&&<RequestSection searches={searches}/>} 
-    {section==="active"&&<ActiveSection active={active} history={history} avgMatch={avgMatch} expanded={expanded} setExpanded={setExpanded}/>} 
-    {section==="history"&&<HistorySection history={history} apiHighlightVisible={apiHighlightVisible} dismissApiHighlight={()=>setApiHighlightVisible(false)}/>} 
-    {section==="analytics"&&<AnalyticsSection searches={searches} inquiries={inquiries} active={active} history={history} avgMatch={avgMatch} completionRate={completionRate}/>} 
-    {section==="billing"&&<PlaceholderSection eyebrow="Billing & Payment" title="Transparent billing and payment management" text="This area will show inspection charges, platform fees, invoices, payment status, purchase-order references, payment methods and downloadable billing records. InspectSource pricing will be shown clearly with no hidden inspector deductions." cards={["Invoices & statements","Payment methods","Purchase orders","Fee transparency"]}/>} 
-    {section==="contracts"&&<PlaceholderSection eyebrow="Contracts" title="Inspection agreements in one place" text="Clients will be able to review, approve and retrieve master agreements, assignment-specific terms, statements of work and related documents here." cards={["Master service agreements","Statements of work","Assignment terms","Document archive"]}/>} 
-    {section==="profile"&&<PlaceholderSection eyebrow="Profile" title="Organization and user profile" text="Manage company details, locations, users, roles, notification preferences, integrations and security settings." cards={["Company profile","Users & permissions","Notifications","Integrations & API"]}/>} 
+    {section==="request"&&<RequestSection searches={searches}/>}
+    {section==="active"&&<ActiveSection active={active} history={history} avgMatch={avgMatch} expanded={expanded} setExpanded={setExpanded}/>}
+    {section==="history"&&<HistorySection history={history} apiHighlightVisible={apiHighlightVisible} dismissApiHighlight={()=>setApiHighlightVisible(false)}/>}
+    {section==="analytics"&&<><HistorySection history={history} apiHighlightVisible={apiHighlightVisible} dismissApiHighlight={()=>setApiHighlightVisible(false)}/><AnalyticsSection searches={searches} inquiries={inquiries} active={active} history={history} avgMatch={avgMatch} completionRate={completionRate}/></>}
+    {section==="billing"&&<PlaceholderSection eyebrow="Billing & Payment" title="Transparent billing and payment management" text="This area will show inspection charges, platform fees, invoices, payment status, purchase-order references, payment methods and downloadable billing records. InspectSource pricing will be shown clearly with no hidden inspector deductions." cards={["Invoices & statements","Payment methods","Purchase orders","Fee transparency"]}/>}
+    {section==="contracts"&&<PlaceholderSection eyebrow="Contracts" title="Inspection agreements in one place" text="Clients will be able to review, approve and retrieve master agreements, assignment-specific terms, statements of work and related documents here." cards={["Master service agreements","Statements of work","Assignment terms","Document archive"]}/>}
+    {section==="profile"&&<PlaceholderSection eyebrow="Profile" title="Organization and user profile" text="Manage company details, locations, users, roles, notification preferences, integrations and security settings." cards={["Company profile","Users & permissions","Notifications","Integrations & API"]}/>}
    </section>}
   </section>
 

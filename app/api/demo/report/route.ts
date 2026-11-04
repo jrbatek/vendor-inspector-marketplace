@@ -47,5 +47,5 @@ export async function GET(request:NextRequest){
   page.drawText("This document contains fictional data and is not valid for release, acceptance, payment or certification.",{x:44,y:62,size:8,font:regular,color:gray,maxWidth:520});
 
   const bytes=await pdf.save();
-  return new NextResponse(Buffer.from(bytes),{headers:{"Content-Type":"application/pdf","Content-Disposition":`inline; filename="${id}-SAMPLE.pdf"`,"Cache-Control":"no-store"}});
+  return new NextResponse(Buffer.from(bytes),{headers:{"Content-Type":"application/pdf","Content-Disposition":`${q.get("download")==="1"?"attachment":"inline"}; filename="${id.replace(/[^A-Za-z0-9_-]/g,"_")}-SAMPLE.pdf"`,"Cache-Control":"no-store"}});
 }
