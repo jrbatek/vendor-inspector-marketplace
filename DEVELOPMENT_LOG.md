@@ -503,3 +503,21 @@ No decision required.
 ### Current focus
 1. Stabilize the client Request Inspectors workflow across natural language, email, and structured selection.
 2. Maintain demo/production parity.
+
+## 2026-11-04 — GitHub-hosted development runner
+
+Added a manual validation-only check and a manual coding mode. The proposed
+04:00, 08:00, 14:00 and 20:00 America/Chicago recurring trigger is commented
+out until the manual pilot succeeds. The coding job reads the approved queue
+and open PRs. A separate job publishes validated patches for review.
+Run the manual check first, configure the Actions secret OPENAI_API_KEY and
+allow Actions to create pull requests, then dispatch develop. Enable recurrence
+only after a successful pilot by restoring the commented trigger in a reviewed
+change and setting the Actions variable INSPECTSOURCE_DEV_LOOP_ENABLED=true.
+Retire the previous scheduler only after verifying the replacement.
+
+Validation: `npm run validate` passed 129 tests, migration safety, synthetic
+QA, TypeScript, production build and all four local route smoke checks.
+Workflow YAML and six shell steps passed parsing/syntax checks; the only
+active trigger is `workflow_dispatch`. The GitHub Actions manual pilot has
+not been run. Existing Dev Loop settings were not changed.

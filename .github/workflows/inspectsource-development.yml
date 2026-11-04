@@ -1,0 +1,119 @@
+name: InspectSource development
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Run validation alone or develop a batch
+        type: choice
+        options: [check, develop]
+        default: check
+  # Recurrence stays disabled until the manual pilot succeeds.
+  # After the pilot, restore this trigger in a reviewed change and opt in
+  # with INSPECTSOURCE_DEV_LOOP_ENABLED=true.
+  # schedule:
+  #   - cron: '0 4,8,14,20 * * *'
+  #     timezone: America/Chicago
+
+permissions:
+  contents: read
+concurrency:
+  group: inspectsource-development
+  cancel-in-progress: false
+
+jobs:
+  develop:
+    if: github.event_name == 'workflow_dispatch' || vars.INSPECTSOURCE_DEV_LOOP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      pull-requests: read
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+      NEXT_TELEMETRY_DISABLED: '1'
+    outputs:
+      changed: ${{ steps.patch.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: test "$GITHUB_REF" = "refs/heads/$DEFAULT_BRANCH"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-package-lock --no-audit --no-fund
+      - name: Prepare approved queue and open PR context
+        if: inputs.mode != 'check'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp .github/codex/dev-loop.md "$RUNNER_TEMP/queue.md"
+          gh pr list --state open --limit 200 --json number,title,headRefName,files >> "$RUNNER_TEMP/queue.md"
+      - uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675 # v1
+        if: inputs.mode != 'check'
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ':workspace'
+          prompt-file: ${{ runner.temp }}/queue.md
+      - name: Capture proposed changes before QA produces generated files
+        id: patch
+        run: |
+          git add -A
+          git diff --cached --check
+          if ! git diff --cached --quiet -- .github; then
+            echo "::error::Workflow and agent instruction changes require separate review."
+            exit 1
+          fi
+          if ! git diff --cached --quiet; then
+            git diff --cached --binary > "$RUNNER_TEMP/changes.patch"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - run: npm run validate
+      - uses: actions/upload-artifact@v4
+        if: steps.patch.outputs.changed == 'true'
+        with:
+          name: validated-changes-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/changes.patch
+          retention-days: 7
+
+  publish:
+    needs: develop
+    if: needs.develop.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: validated-changes-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/validated
+      - name: Open review PR from validated patch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          branch="inspectsource-loop/$GITHUB_RUN_ID"
+          git fetch origin "$BASE"
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" || { echo "::error::Base changed during validation. Start a fresh run."; exit 1; }
+          git switch -c "$branch"
+          git apply --index "$RUNNER_TEMP/validated/changes.patch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "InspectSource development batch $GITHUB_RUN_ID"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            git fetch origin "$branch"
+            git diff --quiet HEAD FETCH_HEAD
+          else
+            git push origin "HEAD:refs/heads/$branch"
+          fi
+          if [ -z "$(gh pr list --head "$branch" --state all --json number --jq '.[0].number // empty')" ]; then
+            gh pr create --base "$BASE" --head "$branch" --title "InspectSource development batch $GITHUB_RUN_ID" --body "Passed npm run validate. [Workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID). Review changes and verify the Vercel preview before merge."
+          fi
