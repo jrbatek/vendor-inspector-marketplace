@@ -581,3 +581,36 @@ disabled. On Ubuntu 26.04 it confirmed kernel connection denial but failed
 at the permission utility, with `expected exit 1, got 0`, reproducing the
 incompatibility. YAML/shell checks and `git diff --check` passed. No live
 runner services were changed during this investigation.
+
+## 2026-11-05 — Independent Qualifications & Documents demo
+
+Opened the previously validated insights batch as PR #106 after the published
+network fix restored GitHub API access. This confirms actual automated PR
+creation, rather than only read permissions.
+
+Continued with the next owner-approved independent priority: Add Qualification
+& Upload Documentation in the existing standalone document demo. Sample PDF,
+PNG, JPEG and WebP files stay in page memory; metadata/signature/size and date
+validation run before adding evidence. Added files remain Pending verification,
+can be previewed/downloaded/removed, and clear on refresh. Object URLs are revoked
+on preview close. Preview/share dialogs support Escape, focus trapping and focus
+restoration. Sharing is still a non-production permission-check preview.
+
+Added expiry badges using an explicit synthetic snapshot, and ranked additional
+qualification leads using fictional regional request mentions and chosen profile
+focus. Recommendations reuse the public catalogue's issuing-body requirement
+links and evidence hints. Pending/expired evidence cannot suppress a lead as a
+verified held credential. This is not production eligibility, verification,
+matching or earnings guidance. The demo-only InspectorHub links to this page.
+PR #105's calendar/assignment code is untouched, recurrence stays disabled, and
+no live document storage, auth, sharing permissions or database behavior changes.
+
+Validation: `npm run validate` passed all 140 tests, migration safety,
+synthetic QA, TypeScript, production build and five local route smoke checks.
+Browser checks on the production build passed invalid signature/date rejection,
+local PNG add/preview/download/removal, PDF preview/download, pending status,
+object-URL revocation, Escape/focus trapping/restoration, non-writing share
+preview, region/focus recommendations, evidence-form navigation, expired evidence,
+refresh cleanup and mobile layout with no page errors. `git diff --check` passed.
+No new environment or API blocker was identified. PR #106's CI and Vercel checks
+are green. Further work may continue independently while review remains pending.
