@@ -4,17 +4,26 @@ import { useState } from "react";
 
 type View = "Month" | "Week" | "List";
 type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavailable" | "Busy";
-type CalendarEvent = { date: string; state: AvailabilityState; label: string; external?: boolean };
+type CalendarEvent = { date: string; state: AvailabilityState; label: string; external?: boolean; project?: string };
 
 const DEMO_EVENTS: CalendarEvent[] = [
-  { date: "2026-10-05", state: "Assigned", label: "Orion Deepwater Platform · FAT" },
-  { date: "2026-10-06", state: "Assigned", label: "Orion Deepwater Platform · FAT" },
+  { date: "2026-10-05", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
+  { date: "2026-10-06", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
   { date: "2026-10-09", state: "Busy", label: "Doctor Appointment · 10:00–11:00", external: true },
   { date: "2026-10-18", state: "Busy", label: "Our Anniversary · All day", external: true },
   { date: "2026-10-12", state: "Tentative / Hold", label: "Client hold" },
   { date: "2026-10-20", state: "Available", label: "Available" },
   { date: "2026-10-21", state: "Available", label: "Available" },
   { date: "2026-10-26", state: "Unavailable", label: "Blocked by inspector" },
+  { date: "2026-11-09", state: "Assigned", label: "Gulf Horizon Refinery Upgrade · Piping surveillance", project: "Gulf Horizon Refinery Upgrade" },
+  { date: "2026-11-10", state: "Assigned", label: "Gulf Horizon Refinery Upgrade · Piping surveillance", project: "Gulf Horizon Refinery Upgrade" },
+  { date: "2026-11-12", state: "Assigned", label: "LNG Compressor Package · Factory acceptance test", project: "LNG Compressor Package" },
+  { date: "2026-11-13", state: "Assigned", label: "LNG Compressor Package · Factory acceptance test", project: "LNG Compressor Package" },
+  { date: "2026-11-16", state: "Tentative / Hold", label: "Client request · Hold" },
+  { date: "2026-11-18", state: "Busy", label: "Our Anniversary · All day", external: true },
+  { date: "2026-11-20", state: "Busy", label: "Doctor Appointment · 10:00–11:00", external: true },
+  { date: "2026-11-23", state: "Available", label: "Available" },
+  { date: "2026-11-24", state: "Unavailable", label: "Blocked by inspector" },
 ];
 
 // Use UTC date arithmetic to avoid locale/DST shifts in the static demo.
@@ -41,8 +50,8 @@ const stateClass = (state: AvailabilityState) => state.toLowerCase().replaceAll(
 
 export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { onOpenAssignment?: (project: string) => void }) {
   const [view, setView] = useState<View>("Month");
-  const [month,setMonth] = useState("2026-10");
-  const [weekAnchor,setWeekAnchor]=useState("2026-10-05");
+  const [month,setMonth] = useState("2026-11");
+  const [weekAnchor,setWeekAnchor]=useState("2026-11-09");
   const days=monthDays(month);
   const [year,monthNumber]=month.split("-").map(Number);
   const monthLabel=new Date(Date.UTC(year,monthNumber-1,1)).toLocaleDateString("en-US",{timeZone:"UTC",month:"long",year:"numeric"});
@@ -57,8 +66,8 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
   };
   const stepWeek=(delta:number)=>setWeekAnchor(current=>shiftIsoDate(current,delta*7));
   const [events, setEvents] = useState(DEMO_EVENTS);
-  const [start, setStart] = useState("2026-10-22");
-  const [end, setEnd] = useState("2026-10-23");
+  const [start, setStart] = useState("2026-11-22");
+  const [end, setEnd] = useState("2026-11-23");
   const [blockState, setBlockState] = useState<AvailabilityState>("Unavailable");
   const [notice, setNotice] = useState("");
   const eventFor = (day: number) => events.filter((event) => event.date === dateForDay(day));
@@ -77,13 +86,13 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     {view === "Month" && <div className="month" aria-label={monthLabel+" month view"}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => <strong className="weekday" key={d}>{d}</strong>)}
       {Array.from({ length: monthOffset }, (_, i) => <span key={`blank-${i}`} aria-hidden="true" />)}
-      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><b>{day}</b>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && <button onClick={() => onOpenAssignment?.("Orion Deepwater Platform")}>Open assignment</button>}</span>)}</article>; })}
+      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><b>{day}</b>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}</article>; })}
     </div>}
     {view === "Week" && <><div className="weekControls"><button type="button" onClick={()=>stepWeek(-1)}>Previous week</button><label>Week containing<input type="date" value={weekAnchor} onChange={e=>setWeekAnchor(e.target.value)}/></label><button type="button" onClick={()=>stepWeek(1)}>Next week</button></div><div className="week" aria-label="Week view">{weekDates(weekAnchor).map(date=>{
       const dayEvents=events.filter(event=>event.date===date);
-      return <article key={date}><strong>{date}</strong>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&<button type="button" onClick={()=>onOpenAssignment?.("Orion Deepwater Platform")}>Open assignment</button>}</span>):<span className="available">Available</span>}</article>;
+      return <article key={date}><strong>{date}</strong>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="available">Available</span>}</article>;
     })}</div></>}
-    {view === "List" && <div className="list" aria-label="List view">{events.filter(event=>event.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)).map((event, i) => <article key={`${event.date}-${i}`}><strong>{event.date}</strong><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && <button onClick={() => onOpenAssignment?.("Orion Deepwater Platform")}>Open assignment</button>}</span></article>)}</div>}
+    {view === "List" && <div className="list" aria-label="List view">{events.filter(event=>event.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)).map((event, i) => <article key={`${event.date}-${i}`}><strong>{event.date}</strong><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span></article>)}</div>}
     <form onSubmit={e => {
       e.preventDefault();
       if (start > end) { setNotice("Choose an ordered date range."); return; }
