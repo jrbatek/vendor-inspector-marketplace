@@ -35,6 +35,28 @@ export default function HomePage() {
           </div>
         </article>
 
+        <article className="audienceCard inspectorCard">
+          <div className="cardLabel">For Inspectors</div>
+          <h2>Build your profile and run your inspection work.</h2>
+          <p>Show verified qualifications, manage availability and opportunities, complete reports, and keep your professional inspection activity organized.</p>
+          <div className="featureList">
+            <span>Qualifications and professional profile</span>
+            <span>Opportunities, schedule, and assignments</span>
+            <span>Reports, history, and selection insights</span>
+            <span>Manage billing, documentation, and tax reporting</span>
+          </div>
+          <div className="actions">
+            <Link className="button inspectorButton" href="/inspectorhub">Explore InspectorHub</Link>
+            <Link className="textLink" href="/register">Join as an Inspector →</Link>
+          </div>
+          <div className="demoEntry inspectorDemo">
+            <div>
+              <strong>Inspector Demo</strong>
+              <span>See InspectorHub populated with synthetic work history and activity.</span>
+            </div>
+            <Link href="/demo/inspector">Open Inspector Demo →</Link>
+          </div>
+        </article>
         <article className="audienceCard agencyCard">
           <div className="cardLabel">For Agencies</div>
           <h2>Manage your inspection resources and extend your reach.</h2>
@@ -58,28 +80,6 @@ export default function HomePage() {
           </div>
         </article>
 
-        <article className="audienceCard inspectorCard">
-          <div className="cardLabel">For Inspectors</div>
-          <h2>Build your profile and run your inspection work.</h2>
-          <p>Show verified qualifications, manage availability and opportunities, complete reports, and keep your professional inspection activity organized.</p>
-          <div className="featureList">
-            <span>Qualifications and professional profile</span>
-            <span>Opportunities, schedule, and assignments</span>
-            <span>Reports, history, and selection insights</span>
-            <span>Manage billing, documentation, and tax reporting</span>
-          </div>
-          <div className="actions">
-            <Link className="button inspectorButton" href="/inspectorhub">Explore InspectorHub</Link>
-            <Link className="textLink" href="/register">Join as an Inspector →</Link>
-          </div>
-          <div className="demoEntry inspectorDemo">
-            <div>
-              <strong>Inspector Demo</strong>
-              <span>See InspectorHub populated with synthetic work history and activity.</span>
-            </div>
-            <Link href="/demo/inspector">Open Inspector Demo →</Link>
-          </div>
-        </article>
       </section>
 
       <section className="trustStrip">

@@ -1,3 +1,13 @@
+## 2026-11-04 - Issue #100: usable active client inspection demo
+- Added `/demo/client-inspections` with exactly seven separate synthetic active inspections, stage/project/inspector and inclusive schedule-range filters, empty/reset states, and expandable details.
+- Details include client/project/vendor/site/contact, scope/PO, equipment, inspector, schedule, milestones, downloadable sample PDFs, NCRs, and actions with owners and due dates.
+- Routed the client hub/sidebar to the active workspace and kept demo audience navigation and email guidance under `/demo/*`. Ordered global audiences Clients, Inspectors, Agencies.
+- Unauthenticated live workspace visitors are redirected to Login before workspace content renders. Removed its obsolete History navigation and included historical records within Analytics; existing history deep links remain compatible.
+- Added filter/data/navigation/contrast regressions and extended local smoke coverage to the demo routes and sample PDF endpoint.
+- Pre-push validation: `npm run validate` passed all 136 tests (no failures/skips), 10-file migration safety scan, full synthetic QA corpus, TypeScript, production build, seven local routes, and a sample PDF request. `git diff --check` passed.
+- Browser validation against the production build passed all seven stage/project/inspector choices, schedule boundaries, combined/empty/reset states, all seven detail panels and PDF downloads, demo navigation, unauthenticated live Login redirect, mobile layout, and computed control contrast of at least 4.5:1 in default/hover/keyboard-focus states; no page errors.
+- Live Supabase credentials were not supplied; build/browser checks used the documented CI placeholders. GitHub API reads currently return `Forbidden`; PR creation and Vercel preview verification may require restored API access. This branch does not use the automatic-merge prefix and must remain reviewable, including the authentication redirect.
+
 # InspectSource Development Log
 
 This file is maintained by the autonomous development loop. Keep entries concise and factual.
