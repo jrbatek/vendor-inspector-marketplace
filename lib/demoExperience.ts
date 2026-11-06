@@ -11,7 +11,7 @@ export function isDemoExperiencePath(pathname: string, demoParam?: string | null
 export function demoNavigationHref(href: string): string {
   if (href.startsWith("/demo/")) return href;
   const routes: Record<string, string> = {
-    "/client-dashboard": "/demo/client", "/project-coordinator": "/demo/client",
+    "/client-dashboard": "/demo/client", "/project-coordinator": "/demo/client", "/find-inspectors": "/demo/client",
     "/inspection-intelligence": "/demo/client-analytics", "/equipment-intelligence": "/demo/client-analytics",
     "/asset-intelligence": "/demo/client-analytics", "/inspectorhub": "/demo/inspector",
     "/inspectorhub/schedule": "/demo/inspector", "/dashboard": "/demo/inspector",

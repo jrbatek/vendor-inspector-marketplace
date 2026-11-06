@@ -11,7 +11,7 @@ const groups = [
     ["Client Demo", "/demo/client"],
     ["Project Coordinator", "/project-coordinator"],
     ["Client Dashboard", "/client-dashboard"],
-    ["Find Inspectors", "/demo/client"],
+    ["Find Inspectors", "/find-inspectors"],
     ["Inspections in Progress Demo", "/demo/client-inspections"],
     ["Client Analytics Demo", "/demo/client-analytics"],
     ["Client Operations Demo", "/demo/client-operations"],
