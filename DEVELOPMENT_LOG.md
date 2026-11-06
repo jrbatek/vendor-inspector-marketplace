@@ -1,3 +1,9 @@
+## 2026-11-06 - Synthetic Work History consolidation (proposed branch)
+- Added a dedicated Inspector Demo Work History workspace combining ten fictional completed assignments and associated submitted reports with client, industry, commodity, closeout status and inclusive completion-date filtering.
+- Assignment details open in place; submitted reports use existing watermarked synthetic PDF endpoint for both viewing and downloading. Old /demo/inspector-reports links redirect to the consolidated workspace; redundant Inspector Demo Reports navigation removed.
+- Added deterministic data/filter/PDF/navigation contract tests and local smoke route coverage. No auth, Supabase, external API, production record, bank or payment changes, and no synthetic database seed.
+- GitHub-hosted validation, preview READY, and production release must be confirmed before merge; local container checkout is unavailable. This entry documents the proposed change, not a deployed feature.
+
 ## 2026-11-04 - Issue #100: usable active client inspection demo
 - Added `/demo/client-inspections` with exactly seven separate synthetic active inspections, stage/project/inspector and inclusive schedule-range filters, empty/reset states, and expandable details.
 - Details include client/project/vendor/site/contact, scope/PO, equipment, inspector, schedule, milestones, downloadable sample PDFs, NCRs, and actions with owners and due dates.

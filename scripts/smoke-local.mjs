@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 
 const port = 3100;
 const base = `http://127.0.0.1:${port}`;
-const routes = ["/", "/project-coordinator", "/inspectors", "/client-dashboard", "/demo/client", "/demo/client-inspections", "/demo/inspector-selection-outcomes", "/demo/inspector-documents", "/demo/email-requirements"];
+const routes = ["/", "/project-coordinator", "/inspectors", "/client-dashboard", "/demo/client", "/demo/client-inspections", "/demo/inspector-selection-outcomes", "/demo/inspector-documents", "/demo/inspector-work-history", "/demo/email-requirements"];
 
 const child = spawn(
   process.execPath,
@@ -46,6 +46,9 @@ try {
     }
     if (route === "/demo/client-inspections" && (body.match(/<article class="[^"]*\binspection\b/g) || []).length !== 7) {
       throw new Error("Active demo must render exactly seven inspection records");
+    }
+    if (route === "/demo/inspector-work-history" && !body.includes("Assignments Performed")) {
+      throw new Error("Consolidated synthetic Work History did not render");
     }
     console.log(`Smoke OK: ${route} (${response.status})`);
   }
