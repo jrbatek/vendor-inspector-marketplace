@@ -20,6 +20,9 @@ test("production smoke continuously covers the complete synthetic client and ins
     "/demo/client-operations",
     "/demo/client-data",
     "/demo/inspector",
+    "/demo/inspector-selection-outcomes",
+    "/demo/inspector-documents",
+    "/demo/inspector-income",
     "/email-requirements?demo=1",
   ]) {
     assert.match(workflow, new RegExp(escapeRegex(route)));
@@ -44,6 +47,9 @@ test("production smoke verifies stable route-specific client and inspector exper
     "Commercial and account management",
     "InspectSource API",
     "Inspector Demo",
+    "Selection Insights",
+    "Qualification Documents",
+    "Assignment earnings",
     "Email Requirements",
   ]) {
     assert.match(workflow, new RegExp(escapeRegex(marker)));
@@ -57,4 +63,9 @@ test("production smoke uses stable rendered client/agency headings, not stale or
   assert.match(workflow,/Client contracts/);
   assert.match(workflow,/Inspections in Progress/);
   assert.match(workflow,/Work History/);
+});
+
+test("production smoke also checks synthetic Inspector financial, qualifications and insights entry routes",()=>{
+ for(const route of ["/demo/inspector-income","/demo/inspector-documents","/demo/inspector-selection-outcomes"])
+  assert.ok(workflow.includes('"' + route + '"'),route);
 });
