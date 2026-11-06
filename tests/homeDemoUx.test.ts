@@ -43,8 +43,9 @@ test("one global login serves all marketplace roles", () => {
   assert.doesNotMatch(nav, /\/login\?role=(client|agency|inspector)/);
 });
 
-test("Find Inspectors navigation stays on the canonical Client Demo route", () => {
-  assert.match(nav, /\["Find Inspectors", "\/demo\/client"\]/);
+test("Find Inspectors uses the live request page while preserving the Client Demo route in demo mode", () => {
+  assert.match(nav, /\["Find Inspectors", "\/find-inspectors"\]/);
+  assert.match(nav, /href=\{isDemoView \? demoNavigationHref\(href\) : href\}/);
   assert.doesNotMatch(nav, /\["Find Inspectors", "\/demo-showcase"\]/);
 });
 
