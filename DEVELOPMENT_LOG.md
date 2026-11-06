@@ -675,3 +675,8 @@ The homepage already renders the approved audience order Clients → Inspectors 
 ## 2026-11-06 — Consolidated global demo history navigation
 
 Aligned the global audience menu with already-shipped Client Analytics and Inspector Work History product decisions. Removed the redundant Client Inspection History Demo menu entry (the Analytics entry remains), replaced the Inspector Inspection Reports menu item with Work History Demo, and mapped old in-demo `/inspection-reports` navigation to `/demo/inspector-work-history`. The live `/inspection-reports` route is not deleted, and live authorization is unchanged. Added regression checks for global Clients → Inspectors → Agencies order, navigation, and legacy demo remapping. No production data, privacy, payments, matching, or database changes. Merge only after passing GitHub validation plus READY Vercel preview and verify production READY and smoke.
+
+
+## 2026-11-06 — Client Demo inspection count screen-reader grammar
+
+A read-only browser smoke of the deployed seven-record Client Demo verified the no-login experience, expandable inspection milestones/reports/NCRs/outstanding actions and the stage filter. It also exposed a small accessibility regression: filtering to one NCR follow-up record left the Active Inspections count aria-label saying `1 items`. Changed the accessible label to `1 inspection` or `N inspections` as appropriate, without affecting the visible count, data, filters or live application. Added regression coverage. Requires full GitHub checks and Vercel preview READY before merge, then production READY and smoke; no production data modification.
