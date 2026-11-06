@@ -16,5 +16,6 @@ test("synthetic assignment workspace includes evidence and next actions", () => 
   assert.match(detail, /new URLSearchParams\(\{ project, supplier: detail.vendor/);
 });
 test("section navigation clears opportunity outcome banners", () => {
-  assert.match(demo, /onClick=\{\(\)=>\{setNotice\(""\);setSection\(s\)\}\}/);
+  assert.match(demo, /onClick=\{\(\)=>\{setNotice\(""\);setNoticeSection\(null\);setOpp\(null\);setSection\(s\)\}\}/);
+  assert.match(demo, /notice && noticeSection === section/);
 });
