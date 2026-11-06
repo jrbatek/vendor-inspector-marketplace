@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 const page=fs.readFileSync("app/demo/inspector-income/page.tsx","utf8");
+const hub=fs.readFileSync("app/demo/inspector/page.tsx","utf8");
 test("Income & Tax Center has fixed YTD snapshot and selectable completed years",()=>{
  assert.match(page,/2026-11-01T23:59:59-06:00/);
+ assert.match(hub,/href="\/demo\/inspector-income"/);
  for(const x of ['2026 · YTD','2025','2024','Earnings Statements','Work Verification','Verified Income Reports','1099-NEC','W-2'])assert.ok(page.includes(x),x);
  assert.equal((page.match(/id:"S-\d+/g)||[]).length,9);
 });

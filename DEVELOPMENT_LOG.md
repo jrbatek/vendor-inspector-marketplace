@@ -1,3 +1,15 @@
+## 2026-11-06 - Income & Tax Center demo (branch pending release checks)
+- Added isolated Inspector Demo /demo/inspector-income with fictional 2024-2026 earnings statements and independent-contractor/employee totals, fixed 2026 YTD snapshot through 2026-11-01T23:59:59-06:00, simulated work/income verification and historical 1099-NEC/W-2 informational summaries.
+- Functional sample text downloads are explicitly labeled invalid for filing, credit or employment, while the payment-details demo changes only an in-page fictional preference and accepts no bank credentials.
+- Linked it from Inspector Demo, extended synthetic-only contract tests and the local route smoke suite. No live payments, tax forms, payroll, authentication, RLS, privacy, production database or external integration changes.
+- Feature is proposed in a PR and is not claimed deployed until GitHub-hosted validation, Vercel preview READY, merge and production READY smoke are confirmed.
+
+## 2026-11-06 - Synthetic Work History consolidation (proposed branch)
+- Added a dedicated Inspector Demo Work History workspace combining ten fictional completed assignments and associated submitted reports with client, industry, commodity, closeout status and inclusive completion-date filtering.
+- Assignment details open in place; submitted reports use existing watermarked synthetic PDF endpoint for both viewing and downloading. Old /demo/inspector-reports links redirect to the consolidated workspace; redundant Inspector Demo Reports navigation removed.
+- Added deterministic data/filter/PDF/navigation contract tests and local smoke route coverage. No auth, Supabase, external API, production record, bank or payment changes, and no synthetic database seed.
+- GitHub-hosted validation, preview READY, and production release must be confirmed before merge; local container checkout is unavailable. This entry documents the proposed change, not a deployed feature.
+
 ## 2026-11-04 - Issue #100: usable active client inspection demo
 - Added `/demo/client-inspections` with exactly seven separate synthetic active inspections, stage/project/inspector and inclusive schedule-range filters, empty/reset states, and expandable details.
 - Details include client/project/vendor/site/contact, scope/PO, equipment, inspector, schedule, milestones, downloadable sample PDFs, NCRs, and actions with owners and due dates.
