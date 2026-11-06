@@ -28,6 +28,7 @@ jobs:
             "/project-coordinator"
             "/inspectors"
             "/demo/client"
+            "/demo/client-inspections"
             "/demo/client-agency-sourcing"
             "/demo/client-analytics"
             "/demo/client-history"
@@ -37,6 +38,7 @@ jobs:
             "/demo/agency-affiliations"
             "/demo/agency-commercials"
             "/demo/inspector"
+            "/demo/inspector-work-history"
             "/email-requirements?demo=1"
           )
 
@@ -45,15 +47,17 @@ jobs:
             "InspectSource"
             "InspectSource"
             "Client Demo"
-            "Contracted Agency Sourcing"
+            "Inspections in Progress"
+            "Choose how to source inspectors"
             "Analytics"
             "Inspection History"
             "Commercial and account management"
             "InspectSource API"
             "Agency Workspace"
             "Agency Resource Affiliations"
-            "Contracts, Commercials & Analytics"
+            "Client contracts"
             "Inspector Demo"
+            "Work History"
             "Email Requirements"
           )
 
