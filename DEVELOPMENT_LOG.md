@@ -646,3 +646,5 @@ Rebased the safe Selection Insights & Feedback demo from former PR #106 onto mai
 ## 2026-11-06 — Qualifications & Documents safe reconciliation after #108
 
 Rebased standalone demo-only Qualifications & Documents workflow from #107 onto merged #108. Browser-local pending sample evidence, expiry metadata, public qualification requirements, focused regional recommendation examples and regression tests, with no live data writes. Preserved Calendar-first priority, current InspectorHub insights link, all prior smoke routes and unchanged recurring automation. Requires passing CI and READY Vercel preview prior to merge.
+
+CI recheck: this rebased qualification patch requires successful GitHub Actions and READY Vercel preview before merging; no tests are bypassed.
