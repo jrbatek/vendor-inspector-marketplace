@@ -670,3 +670,8 @@ Updated the synthetic Inspector Demo green navigation to use flat text links wit
 ## 2026-11-06 — Public homepage demo exploration navigation
 
 The homepage already renders the approved audience order Clients → Inspectors → Agencies. Its prominent Client Workspace and InspectorHub Explore links formerly opened authenticated live routes, which could send unauthenticated demo reviewers to login instead of the synthetic showcase. The Explore links now route to `/demo/client` and `/demo/inspector` with explicit Demo labels; Agency Explore was already synthetic. Intentional live request and registration actions remain separate. Adds navigation/order regression checks. No authentication, database, matching, payment, or sensitive state changes. Complete GitHub CI and Vercel preview READY are mandatory before merge; verify production READY and smoke afterward.
+
+
+## 2026-11-06 — Consolidated global demo history navigation
+
+Aligned the global audience menu with already-shipped Client Analytics and Inspector Work History product decisions. Removed the redundant Client Inspection History Demo menu entry (the Analytics entry remains), replaced the Inspector Inspection Reports menu item with Work History Demo, and mapped old in-demo `/inspection-reports` navigation to `/demo/inspector-work-history`. The live `/inspection-reports` route is not deleted, and live authorization is unchanged. Added regression checks for global Clients → Inspectors → Agencies order, navigation, and legacy demo remapping. No production data, privacy, payments, matching, or database changes. Merge only after passing GitHub validation plus READY Vercel preview and verify production READY and smoke.

@@ -13,7 +13,6 @@ const groups = [
     ["Client Dashboard", "/client-dashboard"],
     ["Find Inspectors", "/demo/client"],
     ["Inspections in Progress Demo", "/demo/client-inspections"],
-    ["Client Inspection History Demo", "/demo/client-history"],
     ["Client Analytics Demo", "/demo/client-analytics"],
     ["Client Operations Demo", "/demo/client-operations"],
     ["Data & Integrations Demo", "/demo/client-data"],
@@ -27,7 +26,7 @@ const groups = [
     ["My Schedule", "/inspectorhub/schedule"],
     ["My Profile", "/dashboard"],
     ["Inspector Requests", "/inspector-inquiries"],
-    ["Inspection Reports", "/inspection-reports"],
+    ["Work History Demo", "/demo/inspector-work-history"],
     ["Browse Qualifications", "/inspectors"],
   ]},
   { label: "Agencies", links: [
