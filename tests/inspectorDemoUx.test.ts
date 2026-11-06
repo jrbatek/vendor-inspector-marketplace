@@ -42,7 +42,7 @@ test("dedicated Inspector Demo controls remain visible on white surfaces", () =>
   assert.match(dedicatedDemo, /button:focus-visible[^}]*outline:3px solid #5eead4/);
   assert.match(dedicatedDemo, /button:disabled[^}]*background:#cbd5e1[^}]*color:#475569/);
   assert.match(dedicatedDemo, /\.actions \.secondaryButton\{background:#fff;color:#0f766e/);
-  assert.match(dedicatedDemo, /\.side button\.active\{background:#ccfbf1;color:#134e4a/);
+  assert.match(dedicatedDemo, /\.side button\.active\{background:transparent;color:#99f6e4;border-left-color:#5eead4/);
   assert.match(dedicatedDemo, /className="iconButton" aria-label="Close opportunity preview"/);
 });
 
