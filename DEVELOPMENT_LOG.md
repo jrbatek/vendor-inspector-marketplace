@@ -665,3 +665,8 @@ CI recheck: this rebased qualification patch requires successful GitHub Actions 
 ## 2026-11-06 — Independent InspectorHub sidebar accessibility improvement
 
 Updated the synthetic Inspector Demo green navigation to use flat text links with a visible left-edge active indicator instead of rounded filled buttons. Preserved keyboard focus visibility, clear hover styling and current navigation behavior. Added regression coverage. No production authentication, data, payments or matching changes. CI and Vercel preview required before merging.
+
+
+## 2026-11-06 — Public homepage demo exploration navigation
+
+The homepage already renders the approved audience order Clients → Inspectors → Agencies. Its prominent Client Workspace and InspectorHub Explore links formerly opened authenticated live routes, which could send unauthenticated demo reviewers to login instead of the synthetic showcase. The Explore links now route to `/demo/client` and `/demo/inspector` with explicit Demo labels; Agency Explore was already synthetic. Intentional live request and registration actions remain separate. Adds navigation/order regression checks. No authentication, database, matching, payment, or sensitive state changes. Complete GitHub CI and Vercel preview READY are mandatory before merge; verify production READY and smoke afterward.
