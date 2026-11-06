@@ -37,7 +37,7 @@ export default function EmailRequirementsPage() {
     }
   }
 
-  return <main className="shell"><ClientWorkspaceSidebar demo={demo}/><section className="workspace">
+  return <main className="shell"><ClientWorkspaceSidebar demo={demo || pathname === "/email-requirements"}/><section className="workspace">
     <section className="hero">
       <p className="eyebrow">{demo ? "Client Demo · Email Requirements" : "Email Requirements"}</p>
       <h1>Send an inspection request by email</h1>
