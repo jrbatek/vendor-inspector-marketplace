@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
 
 type View = "Month" | "Week" | "List";
 type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavailable" | "Busy";
@@ -99,6 +100,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       const dates=dateRange(start,end);
       if(dates.length===0){setNotice("Choose a valid date range of no more than 62 days.");return;}
       if (events.some(event => dates.includes(event.date) && event.state === "Assigned")) { setNotice("This range includes an assignment. Open the assignment to resolve the conflict first."); return; }
+      if (overlapsPrivateDemoEvent(events, dates)) { setNotice("This range overlaps a linked personal Busy event. Choose other dates; private calendar events cannot be overridden in this demo."); return; }
       setEvents(previous => [...previous.filter(event => !dates.includes(event.date) || event.external), ...dates.map(date => ({ date, state: blockState, label: blockState === "Busy" ? "Personal Busy · Inspector only" : blockState }))]);
       setNotice(`${dates.length} dates updated in this synthetic session only.`);
     }}><div className="availabilityActions"><label>Start date<input type="date" required value={start} onChange={e => setStart(e.target.value)}/></label><label>End date<input type="date" required value={end} onChange={e => setEnd(e.target.value)}/></label><label>Availability<select value={blockState} onChange={e => setBlockState(e.target.value as AvailabilityState)}>{["Available", "Tentative / Hold", "Busy", "Unavailable"].map(state => <option key={state}>{state}</option>)}</select></label><button>Block dates / Update availability</button></div></form>
