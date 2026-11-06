@@ -38,6 +38,9 @@ jobs:
             "/demo/agency-affiliations"
             "/demo/agency-commercials"
             "/demo/inspector"
+            "/demo/inspector-selection-outcomes"
+            "/demo/inspector-documents"
+            "/demo/inspector-income"
             "/demo/inspector-work-history"
             "/email-requirements?demo=1"
           )
@@ -57,6 +60,9 @@ jobs:
             "Agency Resource Affiliations"
             "Client contracts"
             "Inspector Demo"
+            "Selection Insights"
+            "Qualification Documents"
+            "Assignment earnings"
             "Work History"
             "Email Requirements"
           )
