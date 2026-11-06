@@ -648,3 +648,8 @@ Rebased the safe Selection Insights & Feedback demo from former PR #106 onto mai
 Rebased standalone demo-only Qualifications & Documents workflow from #107 onto merged #108. Browser-local pending sample evidence, expiry metadata, public qualification requirements, focused regional recommendation examples and regression tests, with no live data writes. Preserved Calendar-first priority, current InspectorHub insights link, all prior smoke routes and unchanged recurring automation. Requires passing CI and READY Vercel preview prior to merge.
 
 CI recheck: this rebased qualification patch requires successful GitHub Actions and READY Vercel preview before merging; no tests are bypassed.
+
+
+## 2026-11-06 — Independent InspectorHub sidebar accessibility improvement
+
+Updated the synthetic Inspector Demo green navigation to use flat text links with a visible left-edge active indicator instead of rounded filled buttons. Preserved keyboard focus visibility, clear hover styling and current navigation behavior. Added regression coverage. No production authentication, data, payments or matching changes. CI and Vercel preview required before merging.
