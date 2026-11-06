@@ -28,7 +28,7 @@ export default function ClientInspectionsDemo() {
     {invalidDates && <p role="alert">The start of the date range must be on or before its end.</p>}
     <p role="status" className="resultCount">{rows.length} of {ACTIVE_DEMO_INSPECTIONS.length} synthetic in-progress inspections</p>
     {rows.length === 0 && <section className="empty"><h2>No inspections match these filters</h2><p>Change the filters or reset to see all seven inspections.</p><button type="button" onClick={reset}>Show all inspections</button></section>}
-    <section className="progressGroup"><div className="groupHead"><h3>Active Inspections</h3><span aria-label={`${rows.length} items`}>{rows.length}</span></div><div className="groupBody"><div className="inspectionList">{rows.map(row => {
+    <section className="progressGroup"><div className="groupHead"><h3>Active Inspections</h3><span aria-label={`${rows.length} ${rows.length === 1 ? "inspection" : "inspections"}`}>{rows.length}</span></div><div className="groupBody"><div className="inspectionList">{rows.map(row => {
       const open = expanded === row.id;
       return <article className="inspection" key={row.id}>
         <div className="inspectionSummary"><div><small>Synthetic · {row.id}</small><strong className="inspectionTitle">{row.project}</strong><span>{row.vendor} · {row.site}</span><span>{row.inspector} · {row.start} to {row.end}</span><strong className="stage">{row.stage}</strong></div><button type="button" aria-expanded={open} aria-controls={`details-${row.id}`} onClick={() => setExpanded(open ? null : row.id)}>{open ? "Close Inspection −" : "Open Inspection +"}<span className="srOnly"> {row.id}</span></button></div>
