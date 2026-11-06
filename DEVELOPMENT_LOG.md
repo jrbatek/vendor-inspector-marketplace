@@ -641,3 +641,10 @@ batch. Existing automation settings are unchanged.
 ## 2026-11-06 — Reconcile synthetic Selection Insights onto main
 
 Rebased the safe Selection Insights & Feedback demo from former PR #106 onto main after PR #105. Kept calendar-first priorities and existing automation enabled; discarded PR #106's conflicting roadmap and recurrence changes. Demo-only peer comparisons and minimum-cohort suppression, regression tests, InspectorHub demo link, and additive smoke route retained. No live data, production auth, matching or database changes. GitHub Actions and Vercel verification required before merge.
+
+
+## 2026-11-06 — Qualifications & Documents safe reconciliation after #108
+
+Rebased standalone demo-only Qualifications & Documents workflow from #107 onto merged #108. Browser-local pending sample evidence, expiry metadata, public qualification requirements, focused regional recommendation examples and regression tests, with no live data writes. Preserved Calendar-first priority, current InspectorHub insights link, all prior smoke routes and unchanged recurring automation. Requires passing CI and READY Vercel preview prior to merge.
+
+CI recheck: this rebased qualification patch requires successful GitHub Actions and READY Vercel preview before merging; no tests are bypassed.
