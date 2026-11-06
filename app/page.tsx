@@ -24,7 +24,7 @@ export default function HomePage() {
           </div>
           <div className="actions">
             <Link className="button clientButton" href="/find-inspectors">Find Inspectors</Link>
-            <Link className="textLink" href="/client-dashboard">Explore Client Workspace →</Link>
+            <Link className="textLink" href="/demo/client">Explore Client Workspace Demo →</Link>
           </div>
           <div className="demoEntry clientDemo">
             <div>
@@ -46,7 +46,7 @@ export default function HomePage() {
             <span>Manage billing, documentation, and tax reporting</span>
           </div>
           <div className="actions">
-            <Link className="button inspectorButton" href="/inspectorhub">Explore InspectorHub</Link>
+            <Link className="button inspectorButton" href="/demo/inspector">Explore InspectorHub Demo</Link>
             <Link className="textLink" href="/register">Join as an Inspector →</Link>
           </div>
           <div className="demoEntry inspectorDemo">
