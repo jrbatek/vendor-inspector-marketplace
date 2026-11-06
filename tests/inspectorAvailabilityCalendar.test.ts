@@ -49,3 +49,20 @@ test("demo calendar is wired and date blocking protects assignments", () => {
   assert.match(calendar, /Link Other Calendar/);
   assert.match(calendar, /Open assignment/);
 });
+
+test("calendar navigates real months and seven-day selected weeks across month boundaries",()=>{
+ assert.match(calendar,/monthDays\(month\)/);
+ assert.match(calendar,/getUTCDate/);
+ assert.match(calendar,/getUTCDay/);
+ assert.match(calendar,/stepMonth\(-1\)/);
+ assert.match(calendar,/stepMonth\(1\)/);
+ assert.match(calendar,/weekDates\(weekAnchor\)/);
+ assert.match(calendar,/stepWeek\(1\)/);
+ assert.match(calendar,/dateForDay\(day\)/);
+});
+test("block dates support cross-month ranges and protect assigned/private events",()=>{
+ assert.match(calendar,/dateRange\(start,end\)/);
+ assert.match(calendar,/length>62/);
+ assert.match(calendar,/event\.external/);
+ assert.doesNotMatch(calendar,/max="2026-10-31"/);
+});
