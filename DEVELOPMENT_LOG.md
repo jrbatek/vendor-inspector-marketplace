@@ -636,3 +636,8 @@ editing and assignment details should use the same UI with authorized real data;
 private-event visibility, live synchronization and persistence remain review-only.
 Keep #101's Client Demo inspections and routing validation ahead of shipping this
 batch. Existing automation settings are unchanged.
+
+
+## 2026-11-06 — Reconcile synthetic Selection Insights onto main
+
+Rebased the safe Selection Insights & Feedback demo from former PR #106 onto main after PR #105. Kept calendar-first priorities and existing automation enabled; discarded PR #106's conflicting roadmap and recurrence changes. Demo-only peer comparisons and minimum-cohort suppression, regression tests, InspectorHub demo link, and additive smoke route retained. No live data, production auth, matching or database changes. GitHub Actions and Vercel verification required before merge.
