@@ -15,7 +15,7 @@ export function demoNavigationHref(href: string): string {
     "/inspection-intelligence": "/demo/client-analytics", "/equipment-intelligence": "/demo/client-analytics",
     "/asset-intelligence": "/demo/client-analytics", "/inspectorhub": "/demo/inspector",
     "/inspectorhub/schedule": "/demo/inspector", "/dashboard": "/demo/inspector",
-    "/inspector-inquiries": "/demo/inspector", "/inspection-reports": "/demo/inspector-reports",
+    "/inspector-inquiries": "/demo/inspector", "/inspection-reports": "/demo/inspector-work-history",
     "/inspectors": "/demo/inspector", "/email-requirements?demo=1": "/demo/email-requirements",
   };
   return routes[href] || "/demo/client";
