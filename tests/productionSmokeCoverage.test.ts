@@ -13,6 +13,8 @@ const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$
 test("production smoke continuously covers the complete synthetic client and inspector demo surfaces", () => {
   for (const route of [
     "/demo/client",
+    "/demo/client-inspections",
+    "/demo/inspector-work-history",
     "/demo/client-analytics",
     "/demo/client-history",
     "/demo/client-operations",
@@ -33,6 +35,10 @@ test("production smoke protects server-rendered demo boundaries without misreadi
 test("production smoke verifies stable route-specific client and inspector experience markers", () => {
   for (const marker of [
     "Client Demo",
+    "Inspections in Progress",
+    "Choose how to source inspectors",
+    "Client contracts",
+    "Work History",
     "Analytics",
     "Inspection History",
     "Commercial and account management",
@@ -42,4 +48,13 @@ test("production smoke verifies stable route-specific client and inspector exper
   ]) {
     assert.match(workflow, new RegExp(escapeRegex(marker)));
   }
+});
+
+test("production smoke uses stable rendered client/agency headings, not stale or HTML-escaped markers",()=>{
+  assert.doesNotMatch(workflow,/Contracted Agency Sourcing/);
+  assert.doesNotMatch(workflow,/Contracts, Commercials & Analytics/);
+  assert.match(workflow,/Choose how to source inspectors/);
+  assert.match(workflow,/Client contracts/);
+  assert.match(workflow,/Inspections in Progress/);
+  assert.match(workflow,/Work History/);
 });
