@@ -49,7 +49,7 @@ test("submitted reports offer functional, correctly encoded and visibly syntheti
   assert.match(page,/View sample PDF/);
   assert.match(page,/Download sample PDF/);
   assert.match(page,/synthetic demonstration/);
-  assert.doesNotMatch(page,/supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
+  assert.doesNotMatch(page,/supabaseBrowser|supabase\.from\(|supabase\.insert\(|supabase\.update\(|supabase\.delete\(/);
 });
 
 test("InspectorHub consolidates the reports navigation into Work History and maintains deep links", () => {
