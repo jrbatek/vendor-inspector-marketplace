@@ -690,3 +690,8 @@ A second live read-only filter smoke confirmed Project and Inspector selections 
 ## 2026-11-06 — Resolve global Find Inspectors live/demo navigation ambiguity
 
 The global Clients → Find Inspectors menu incorrectly pointed to the Client Demo even outside a synthetic session. Updated the live menu destination to the existing public `/find-inspectors` page while adding an explicit demo navigation mapping back to `/demo/client` when browsing a demo experience. The standalone homepage Find Inspectors action and other demo entry points are unchanged. Added regression tests for each mode and the existing pages. This is navigation-only; no live matching/persistence, auth/RLS, payment or privacy code changed. Requires all GitHub checks, Vercel preview READY, current-head validation and post-merge READY/smoke.
+
+
+## 2026-11-06 — Eliminate individual-selection outcomes from dedicated Inspector Demo
+
+The Inspector Demo home and embedded Selection Insights still displayed fictional individual Selected/Shortlisted outcomes even though the new aggregate peer comparison already suppresses them. Removed those outcome-specific cards and counts from the dedicated Inspector Demo, retained ratings and feedback, and linked directly to the existing synthetic, minimum-cohort-protected peer comparison at /demo/inspector-selection-outcomes. Added independent regression tests for the no-individual-outcomes policy and synthetic-only boundary. No live inspector data, client decisions, authentication, RLS, matching, financial, or external integration changes. Validate both GitHub workflows and Vercel preview READY against the current main before merge; verify production READY and smoke afterward.
