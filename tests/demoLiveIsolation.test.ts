@@ -43,7 +43,7 @@ test("demo banner remains visible on synthetic routes even when a user is authen
 
 test("demo email requirements retain synthetic workspace context without production persistence", () => {
   assert.match(emailRequirements, /URLSearchParams\(window\.location\.search\)\.get\("demo"\) === "1"/);
-  assert.match(emailRequirements, /<ClientWorkspaceSidebar demo=\{demo\}/);
+  assert.match(emailRequirements, /<ClientWorkspaceSidebar demo=\{demo \|\| pathname === "\/email-requirements"\}/);
   assert.match(emailRequirements, /Demo guidance only/);
   assert.match(emailRequirements, /does not create or persist an InspectSource production request/);
   assert.match(emailRequirements, /Copy Sample Request/);
