@@ -52,3 +52,18 @@ test("Inspector demo keeps explicit selected, hover, focus and disabled button s
   assert.match(source, /button:focus-visible/);
   assert.match(source, /button:disabled/);
 });
+
+test("locally styled pale control surfaces explicitly pair background and label color", () => {
+  const cases: [string, string][] = [
+    ["app/demo/client-agency-sourcing/page.tsx", ".seg button,.channels button,.independent button"],
+    ["app/demo/inspector-affiliations/page.tsx", ".tabs button,.actions button"],
+    ["app/demo/client-analytics/page.tsx", ".actions button"],
+    ["app/demo/client-history/page.tsx", ".projectCards button"],
+    ["app/equipment-intelligence/page.tsx", ".family"],
+  ];
+  for (const [file, selector] of cases) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    const rule = source.slice(source.lastIndexOf(`${selector}{`) + selector.length + 1).split("}")[0];
+    assert.match(rule, /(?:^|;)color:#0f172a(?:;|$)/, `${file}: ${selector} needs a legible label`);
+  }
+});
