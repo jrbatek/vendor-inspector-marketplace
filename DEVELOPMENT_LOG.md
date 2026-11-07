@@ -725,3 +725,8 @@ The dedicated Inspector Demo sidebar's Qualifications & Documents section had a 
 ## 2026-11-06 — Work History NCR findings filter for synthetic inspection reports
 
 Extended the existing Inspector Demo Work History filters with an NCR findings choice (All reports, NCR raised, No NCR raised), shared by Assignments Performed and Reports Submitted. The filter composes with client, industry, commodity, closeout status and inclusive completion dates, and Reset filters clears it. Added regression tests for both NCR branches, empty results and source-level selector wiring. All fixtures remain fictional and all report PDFs use the existing synthetic demo endpoint; no live reports, authentication, RLS, bank, payment or production data pathways changed. This is an isolated next-priority usability improvement after the approved report consolidation; require GitHub-hosted full validation and Vercel preview READY before merge, then production READY and smoke.
+
+
+## 2026-11-06 — Keyboard-accessible synthetic Income & Tax payment preference dialog
+
+Hardened the existing browser-local Income & Tax Center's simulated payment preference dialog for keyboard use. Opening it moves focus to Cancel, Escape dismisses and restores focus to the trigger, Tab and Shift+Tab remain inside the dialog, and both Save/Cancel restore focus. Added contextual aria-describedby copy and source-level regression tests. The preference remains a fictional selection only; no bank account/routing/card inputs, real payment changes, external calls, live authentication or production data are involved. Validate via GitHub full CI and Vercel preview READY; verify post-merge production READY and demo smoke.

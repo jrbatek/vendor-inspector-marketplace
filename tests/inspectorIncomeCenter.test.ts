@@ -17,6 +17,17 @@ test("synthetic document downloads are functional without touching services or o
  assert.match(page,/no real financial statements/i);
  assert.doesNotMatch(page,/supabaseBrowser|axios|fetch\(|\.insert\(|\.update\(/);
 });
+test("payment preference dialog supports keyboard dismissal, focus restoration and a Tab trap",()=>{
+ assert.match(page,/paymentCancel\.current\?\.focus\(\)/);
+ assert.match(page,/paymentTrigger\.current\?\.focus\(\)/);
+ assert.match(page,/onKeyDown=\{e=>\{/);
+ assert.match(page,/e\.key==="Escape"/);
+ assert.match(page,/e\.key==="Tab"/);
+ assert.match(page,/e\.shiftKey/);
+ assert.match(page,/aria-describedby="payment-demo-note"/);
+ assert.match(page,/ref=\{paymentCancel\}/);
+});
+
 test("payment details are safely simulated with no collection of actual credentials",()=>{
  assert.match(page,/Preview payment details update/);
  assert.match(page,/Save demo preference/);
