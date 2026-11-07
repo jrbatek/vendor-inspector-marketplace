@@ -8,8 +8,8 @@ const calendar = fs.readFileSync(path.join(process.cwd(), "components/InspectorA
 test("Inspector availability calendar defaults to Month and offers Week/List", () => {
   assert.match(calendar, /useState<View>\("Month"\)/);
   for (const view of ["Month", "Week", "List"]) assert.match(calendar, new RegExp(`"${view}"`));
-  assert.match(calendar, /role="tablist"/);
-  assert.match(calendar, /aria-selected=\{view === item\}/);
+  assert.match(calendar, /role="group" aria-label="Calendar view"/);
+  assert.match(calendar, /aria-pressed=\{view === item\}/);
 });
 
 test("calendar exposes all required InspectSource availability states", () => {
@@ -65,4 +65,16 @@ test("block dates support cross-month ranges and protect assigned/private events
  assert.match(calendar,/length>62/);
  assert.match(calendar,/event\.external/);
  assert.doesNotMatch(calendar,/max="2026-10-31"/);
+});
+
+
+test("calendar week navigation follows the selected month and has accessible view controls",()=>{
+ assert.match(calendar,/const selectWeek=\(anchor:string\)=>/);
+ assert.match(calendar,/setMonth\(anchor\.slice\(0,7\)\)/);
+ assert.match(calendar,/selectWeek\(shiftIsoDate\(weekAnchor,delta\*7\)\)/);
+ assert.match(calendar,/onChange=\{e=>selectWeek\(e\.target\.value\)\}/);
+ assert.match(calendar,/if\(!\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\/\.test\(anchor\)\)return/);
+ assert.match(calendar,/role="group" aria-label="Calendar view"/);
+ assert.match(calendar,/aria-pressed=\{view === item\}/);
+ assert.doesNotMatch(calendar,/role="tablist"|role="tab"|aria-selected/);
 });
