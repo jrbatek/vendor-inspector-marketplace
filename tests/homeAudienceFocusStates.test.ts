@@ -5,8 +5,12 @@ import test from "node:test";
 const source = fs.readFileSync("app/page.tsx", "utf8");
 
 test("homepage retains Clients, Inspectors, Agencies order and synthetic demo entry paths", () => {
-  const cards = [...source.matchAll(/<article className="audienceCard (clientCard|inspectorCard|agencyCard)"/g)].map(match => match[1]);
-  assert.deepEqual(cards, ["clientCard", "inspectorCard", "agencyCard"]);
+  const cards = source.match(/<article className="audienceCard (?:clientCard|inspectorCard|agencyCard)"/g) || [];
+  assert.deepEqual(cards, [
+    '<article className="audienceCard clientCard"',
+    '<article className="audienceCard inspectorCard"',
+    '<article className="audienceCard agencyCard"',
+  ]);
   for (const path of ["/demo/client", "/demo/inspector", "/demo/agency"]) {
     assert.ok(source.includes('href="' + path + '"'), path);
   }
