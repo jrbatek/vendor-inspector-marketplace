@@ -782,3 +782,8 @@ The public InspectorHub fallback demo still displayed already-past September/Oct
 - Wire All/Pending/Verified/Expiring/Disputed/Ended controls to actual fictional status filtering, with `aria-pressed`, visible result counts and focus/hover color states.
 - Replace inert Claim/add action with a toggled fictional affiliation workflow explanation; no collection or updates of real PII and no production matching, authorization or persistence changes.
 - Add deterministic regression tests and preserve existing dual-confirmation guardrails. Requires CI, READY preview, merge and READY production before release.
+
+## 2026-11-07 — Homepage audience-card focus and hover visibility (proposed)
+- Add explicit high-contrast keyboard focus rings to every audience-card action, including the per-audience demo entry links, and visible hover styles to primary and text links without white-on-white states.
+- Retain Clients → Inspectors → Agencies order and existing synthetic demo entry paths; add deterministic regression protection. No routing, live auth, API, payments, data writes, credentials or matching changes.
+- GitHub-hosted typecheck, full tests, synthetic validation, migration checks, production build and head-matched READY Vercel preview required before autonomous merge; verify production READY and demo-entry smoke afterward.
