@@ -1,3 +1,9 @@
+## 2026-11-07 - Client Analytics filter focus and meaningful empty-state metrics (proposed)
+- Found a P0-B accessibility/interpretability gap in synthetic Client Analytics: interactive chart filters had no visible hover/focus/selected styles, native filter colors were browser-dependent, zero completed inspections appeared as a misleading 0.0% on-time rate, and the detail table showed only the first 30 rows without disclosing the preview limit.
+- Added pressed-state semantics and contrast-safe interaction states to chart filters; explicit selector colors/focus; N/A for an empty completed cohort; an accessible preview count and no-results message. Full filtered CSV download is retained.
+- Added regression tests for visibility, filtered selection, zero-denominator metrics and 30-row disclosure. This changes only synthetic client analytics presentation and tests, with no auth, RLS, production records, matching/business rules, payments or migrations.
+- Release pending full GitHub validation, build, head-matched Vercel READY preview and production smoke.
+
 ## 2026-11-07 - Calendar distinguishes unmarked dates from confirmed availability (proposed)
 - Found a synthetic Inspector Demo calendar inconsistency: Week view labeled every unconfigured day "Available" although no availability had been declared, while Month showed those dates as blank. This could suggest inspector capacity that was never confirmed.
 - Added an explicit "Not set" state for unmarked Month and Week cells, a legend and clear guidance. Explicit Available/Assigned/Hold/Busy/Unavailable records, date-block safeguards, private events and assignment-opening behavior are unchanged.
