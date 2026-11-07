@@ -1,3 +1,9 @@
+## 2026-11-07 - Client sourcing selected-channel toggle and result-count feedback (proposed)
+- Client Demo Source of Inspectors now announces the number of matching fictional inspectors for each selected source. The existing buttons retain legible selected/unselected/hover/focus states.
+- Clicking a selected agency or independent channel a second time deselects it without clearing the source filter; browser-only channel confirmation remains synthetic. Extended selection and count contract coverage.
+- Managed sandbox validation passed 238 tests, deterministic synthetic QA, migration checks, TypeScript, production build and local routes/PDF checks. Real Chromium exercised all three source modes (4, 2 and 2 records), count announcements, both channel toggle-offs, and found no browser page errors.
+- No production channel routing, independent eligibility/matching rules, Supabase writes, auth, privacy, bank/payment or real inspection data changed. Must pass both CI workflows and head-matched preview READY before merge, followed by production READY and browser smoke.
+
 ## 2026-11-07 - Full anonymous Client Demo inspection browser regression (proposed)
 - Added real Chromium end-to-end checks of the synthetic Client Demo entry route, seven distinct inspection stages, every Open Inspection detail panel, milestones/reports/NCRs/outstanding actions, two valid sample PDFs, status/project/inspector/date filters, empty/reset state, cross-demo Analytics navigation, and unauthenticated live workspace Login redirection.
 - Wired the smoke test into both Validate application and Autonomous QA workflows after production build and Chromium install, and exposed `npm run smoke:client-inspections` for repeatable preview/production checks.
