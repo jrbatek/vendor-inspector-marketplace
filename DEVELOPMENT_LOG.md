@@ -787,3 +787,8 @@ The public InspectorHub fallback demo still displayed already-past September/Oct
 - Add explicit high-contrast keyboard focus rings to every audience-card action, including the per-audience demo entry links, and visible hover styles to primary and text links without white-on-white states.
 - Retain Clients → Inspectors → Agencies order and existing synthetic demo entry paths; add deterministic regression protection. No routing, live auth, API, payments, data writes, credentials or matching changes.
 - GitHub-hosted typecheck, full tests, synthetic validation, migration checks, production build and head-matched READY Vercel preview required before autonomous merge; verify production READY and demo-entry smoke afterward.
+
+## 2026-11-07 — Refresh overdue synthetic Agency resource and NCR schedules (proposed)
+- Advance four fictional resource-available dates and the five sample inspection/report/NCR activity deadlines from outdated September windows to coherent November 2026 dates, preserving project/vendor, status and sourcing examples.
+- Add deterministic contract coverage for dates and no-production-write boundaries. Static demo UI only; no actual scheduling, calendar API, production persistence, client/inspector identity or payment changes.
+- Validate both GitHub workflows, synthetic corpus, migration checks, typecheck, production build and exact-head Vercel preview READY before release; smoke affected Agency Demo after production READY.

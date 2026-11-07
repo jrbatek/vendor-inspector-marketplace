@@ -36,9 +36,9 @@ test("capacity and inspection operations are populated synthetic examples", () =
   assert.match(source, /West Africa/);
   assert.match(source, /tentative/);
   assert.match(source, /blocked/);
-  assert.match(source, /report due Sep 21/);
+  assert.match(source, /report due Nov 16, 2026/);
   assert.match(source, /NCR-204/);
-  assert.match(source, /Reinspection Sep 23/);
+  assert.match(source, /Reinspection Nov 20, 2026/);
   assert.match(source, /agency\/source attribution/);
 });
 
