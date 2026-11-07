@@ -810,3 +810,7 @@ The public InspectorHub fallback demo still displayed already-past September/Oct
 - Advance four fictional resource-available dates and the five sample inspection/report/NCR activity deadlines from outdated September windows to coherent November 2026 dates, preserving project/vendor, status and sourcing examples.
 - Add deterministic contract coverage for dates and no-production-write boundaries. Static demo UI only; no actual scheduling, calendar API, production persistence, client/inspector identity or payment changes.
 - Validate both GitHub workflows, synthetic corpus, migration checks, typecheck, production build and exact-head Vercel preview READY before release; smoke affected Agency Demo after production READY.
+
+## 2026-11-07 — Keep Client Demo intake sample request in a future November window
+
+Independent safe workstream while P0 Client Analytics Source Type = Independent crash is diagnosed in PR #155. Updated the fictional client request from September 14 to November 16, 2026, both in the natural-language sample and structured preview; added regression coverage that both examples stay aligned. No actual matching, sourcing, live client request, auth, payments or database changes. Require both CI workflows, preview READY and production READY before declaring shipped.
