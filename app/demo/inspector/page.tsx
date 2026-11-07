@@ -16,9 +16,9 @@ export default function InspectorDemo(){
  const [assignment,setAssignment]=useState<string|null>(null);
  const opportunityTrigger=useRef<HTMLButtonElement>(null);
  const opportunityClose=useRef<HTMLButtonElement>(null);
+ const [section,setSection]=useState<Section>("home"); const [region,setRegion]=useState<Region>("USA"); const [opp,setOpp]=useState<Opportunity|null>(null); const [notice,setNotice]=useState(""); const [noticeSection,setNoticeSection]=useState<Section|null>(null); const p=PROFILES[region];
  useEffect(()=>{if(opp)opportunityClose.current?.focus();},[opp]);
  const closeOpportunity=()=>{setOpp(null);opportunityTrigger.current?.focus();};
- const [section,setSection]=useState<Section>("home"); const [region,setRegion]=useState<Region>("USA"); const [opp,setOpp]=useState<Opportunity|null>(null); const [notice,setNotice]=useState(""); const [noticeSection,setNoticeSection]=useState<Section|null>(null); const p=PROFILES[region];
  const nav=(s:Section,label:string)=><button type="button" className={section===s?"active":""} aria-current={section===s?"page":undefined} onClick={()=>{setNotice("");setNoticeSection(null);setOpp(null);setSection(s)}}>{label}</button>;
  const demoAction=(message:string)=>{setNotice(`${message} — demo only; no production record was changed.`);setNoticeSection(section);};
  return <main className="shell">
