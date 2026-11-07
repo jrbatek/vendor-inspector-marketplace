@@ -735,3 +735,8 @@ Hardened the existing browser-local Income & Tax Center's simulated payment pref
 ## 2026-11-06 — Keyboard and focus accessibility for synthetic Inspector opportunities
 
 Extended the standalone Inspector Demo opportunity-preview dialog with Escape close, focus on the accessible close control at open, Tab/Shift+Tab containment and restoration to the invoking Preview Opportunity button after any action or dismissal. The notice is still section-scoped, and every opportunity action remains fictional. Added source-level regressions covering modal keyboard handling, synthetic boundaries and section-scoped notices. No live inspector decisions, authentication/RLS, production matching, payment, financial records or external API changes. Validate GitHub-hosted checks and Vercel preview READY before merge, then production READY and demo smoke.
+
+
+## 2026-11-06 — Align Inspector Demo calendar blocks with Active Assignment milestones
+
+Production browser smoke found the November Calendar correctly linked to matching synthetic project detail panels, but the assignment details still displayed stale October inspection dates and overdue action timelines. Updated the three fictional active assignments to coherent November schedules: Gulf Horizon Nov 9–10, LNG Compressor Package Nov 12–13, Orion Deepwater Platform Nov 26–27. Updated calendar Orion blocks, completion timelines, upcoming action due dates, and LNG's status from misleading "Report due" to "FAT scheduled". Added deterministic date-consistency regression checks. No real calendar sync, auth/RLS, production matching, inspection records, payment, banking or external API changes. Require full GitHub CI and Vercel preview READY before merge; verify production READY and interactive demo smoke afterward.
