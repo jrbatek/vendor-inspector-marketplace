@@ -25,3 +25,17 @@ test("live account links remain available independently from synthetic demo navi
  assert.match(nav,/\["Client Dashboard", "\/client-dashboard"\]/);
  assert.match(nav,/\["InspectorHub", "\/inspectorhub"\]/);
 });
+
+
+test("client demo keeps completed inspection history inside Analytics rather than a separate hub card",()=>{
+ const hub=fs.readFileSync("app/demo/client/page.tsx","utf8");
+ const analytics=fs.readFileSync("app/demo/client-analytics/page.tsx","utf8");
+ const sidebar=fs.readFileSync("components/ClientWorkspaceSidebar.tsx","utf8");
+ assert.doesNotMatch(hub,/title:"Inspection history"/);
+ assert.match(hub,/title:"Analytics"/);
+ assert.match(analytics,/className="historyLink" href="\/demo\/client-history"/);
+ assert.match(analytics,/Browse completed inspection history/);
+ assert.match(analytics,/\.actions \.historyLink:focus-visible/);
+ assert.match(sidebar,/Analytics<\/Link>/);
+ assert.doesNotMatch(sidebar,/>Inspection History<\/Link>/);
+});
