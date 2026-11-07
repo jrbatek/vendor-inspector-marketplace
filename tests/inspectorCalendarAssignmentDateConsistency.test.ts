@@ -16,7 +16,10 @@ test("Inspector Demo calendar assigned date blocks agree with synthetic assignme
   const record=details.match(new RegExp('"'+item.project.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+'": \\{([^\\n]+)'));
   assert.ok(record, item.project+" assignment detail missing");
   assert.ok(record[1].includes('dates: "'+item.dates+'"'),item.project+" date mismatch");
-  for(const day of item.days) assert.ok(calendar.includes('date: "'+day+'", state: "Assigned"') && calendar.includes(item.project),day);
+  for(const day of item.days){
+   const eventLine=calendar.split("\n").find(line=>line.includes('date: "'+day+'", state: "Assigned"'));
+   assert.ok(eventLine?.includes('project: "'+item.project+'"'),item.project+" calendar day "+day+" mismatched");
+  }
  }
  assert.doesNotMatch(details,/dates: "October (?:1–3|12–14|5–6), 2026"/);
 });
