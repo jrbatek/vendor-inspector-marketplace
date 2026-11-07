@@ -1,0 +1,90 @@
+import { spawn } from "node:child_process";
+import { chromium } from "playwright";
+
+const port=3103, base=process.env.CLIENT_DEMO_BASE_URL || "http://127.0.0.1:"+port;
+const child=process.env.CLIENT_DEMO_BASE_URL ? null : spawn(process.execPath,["node_modules/next/dist/bin/next","start","-p",String(port)],{
+ env:{...process.env,NEXT_PUBLIC_SUPABASE_URL:process.env.NEXT_PUBLIC_SUPABASE_URL||"https://ci-placeholder.supabase.co",NEXT_PUBLIC_SUPABASE_ANON_KEY:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||"ci-placeholder-anon-key"},stdio:["ignore","pipe","pipe"]
+});
+let serverOutput="",browser;const errors=[];
+child?.stdout.on("data",x=>serverOutput+=x.toString());
+child?.stderr.on("data",x=>serverOutput+=x.toString());
+const assert=(value,message)=>{if(!value)throw new Error(message)};
+async function ready(){
+ for(let i=0;i<35;i++){try{if((await fetch(base+"/demo/client-inspections")).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}
+ throw new Error("Demo server not ready: "+serverOutput.slice(-2000));
+}
+let failed=false;
+try{
+ if(child)await ready();
+ browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
+ const page=await browser.newPage();
+ page.on("pageerror",e=>errors.push(e.stack||String(e)));
+ await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+ const entry=page.locator('a[href="/demo/client-inspections"]').first();
+ assert(await entry.count()===1,"Client Demo entry link to synthetic inspections missing");
+ await entry.click();
+ await page.waitForURL("**/demo/client-inspections");
+ await page.locator("article.inspection").first().waitFor();
+ assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
+ assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
+ assert(await page.getByText("Demo mode · No login required").count()===1,"Missing unauthenticated demo context");
+ assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Authenticated workspace leaked into Client Demo");
+ const stages=await page.locator("article.inspection .stage").allTextContents();
+ assert(new Set(stages.map(s=>s.trim())).size===7,"Expected seven distinct inspection stages");
+ for(let i=0;i<7;i++){
+   const card=page.locator("article.inspection").nth(i);
+   const open=card.getByRole("button",{name:/Open Inspection/});
+   await open.click();
+   const details=card.locator(".details");
+   await details.waitFor();
+   for(const heading of ["Client, project and site","Milestones","Reports · SAMPLE ONLY","NCRs","Outstanding actions"]){
+     assert(await details.getByRole("heading",{name:heading}).count()===1,"Missing detail heading: "+heading+" in inspection "+i);
+   }
+   const href=await details.locator('a[href^="/api/demo/report"]').first().getAttribute("href");
+   assert(href?.includes("download=1"),"Missing synthetic report download for inspection "+i);
+   if(i===0 || i===6){
+     const pdf=await page.request.get(base+href);
+     assert(pdf.ok(),"Synthetic inspection report failed: "+pdf.status());
+     assert((pdf.headers()["content-type"]||"").includes("application/pdf"),"Report is not a PDF");
+     assert((await pdf.body()).subarray(0,5).toString()==="%PDF-","Report lacks valid PDF header");
+   }
+   await card.getByRole("button",{name:/Close Inspection/}).click();
+   assert(await card.locator(".details").count()===0,"Inspection details did not close");
+ }
+ const status=page.getByLabel("Status / stage"),project=page.getByLabel("Project",{exact:true}),inspector=page.getByLabel("Inspector",{exact:true});
+ await status.selectOption({index:1});
+ assert(await page.locator("article.inspection").count()===1,"Status filter should show one inspection");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ await project.selectOption({index:1});
+ assert(await page.locator("article.inspection").count()===1,"Project filter should show one inspection");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ await inspector.selectOption({index:1});
+ assert(await page.locator("article.inspection").count()===1,"Inspector filter should show one inspection");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ await page.getByLabel("Scheduled from").fill("2026-11-20");
+ await page.getByLabel("Scheduled through").fill("2026-11-20");
+ assert(await page.locator("article.inspection").count()===1,"Inclusive date-overlap filter should show one inspection");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ await page.getByLabel("Scheduled from").fill("2027-01-01");
+ assert(await page.locator("article.inspection").count()===0,"Empty future date should yield zero inspections");
+ assert(await page.getByText("No inspections match these filters").count()===1,"No-results explanation missing");
+ await page.getByRole("button",{name:"Show all inspections"}).click();
+ assert(await page.locator("article.inspection").count()===7,"Reset should restore all seven inspections");
+ await page.getByLabel("Scheduled from").fill("2026-11-10");
+ await page.getByLabel("Scheduled through").fill("2026-11-01");
+ assert(await page.getByRole("alert").count()>=1,"Reversed date range needs accessible warning");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ assert(await page.locator("article.inspection").count()===7,"Second reset did not restore all inspections");
+ const analytics=page.locator('a[href="/demo/client-analytics"]').first();
+ assert(await analytics.count()===1,"Cross-demo Analytics navigation missing");
+ await analytics.click();
+ await page.waitForURL("**/demo/client-analytics");
+ assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Cross-demo link led to authenticated shell");
+ await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
+ await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
+ assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
+ assert(errors.length===0,"Browser page errors: "+errors.join("\n"));
+ console.log("Client Demo browser OK: seven inspections, details, PDF, filters, cross-demo navigation and live Login redirect.");
+}catch(e){failed=true;console.error(e instanceof Error?e.stack:String(e));console.error("Local server tail:",serverOutput.slice(-1800))}
+finally{if(browser)await browser.close();if(child){child.kill("SIGTERM");await new Promise(r=>setTimeout(r,250));if(!child.killed)child.kill("SIGKILL")}}
+if(failed)process.exitCode=1;
