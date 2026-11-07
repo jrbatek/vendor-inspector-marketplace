@@ -48,8 +48,19 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
 
+      - name: Install Chromium for client interaction regression
+        run: npx playwright install --with-deps chromium
+
       - name: Smoke-test built routes
         run: npm run smoke:local
+
+      - name: Exercise client analytics in real Chromium
+        run: npm run smoke:client-analytics
+
+      - name: Diagnose current public production filters (non-blocking)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: ANALYTICS_BASE_URL=https://vendor-inspector-marketplace.vercel.app npm run smoke:client-analytics
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
