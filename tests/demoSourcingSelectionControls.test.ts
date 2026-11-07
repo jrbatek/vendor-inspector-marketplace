@@ -28,3 +28,12 @@ test("independent and agency channel controls wrap safely rather than disappear 
  assert.match(page,/Samira Costa/);
  assert.match(page,/Use independent channel/);
 });
+
+test("source toggles stay fully visible at intermediate widths and explicitly announce selection",()=>{
+ assert.match(page,/@media\(max-width:1180px\)\{\.sectionHead\{display:block\}/);
+ assert.match(page,/\.seg\{display:flex;flex-wrap:wrap;gap:6px;min-width:0;max-width:100%\}/);
+ assert.match(page,/\.seg button\{max-width:100%;white-space:normal;overflow-wrap:anywhere;text-align:left\}/);
+ assert.match(page,/\.seg button\[aria-pressed=true\]\{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:900;box-shadow:/);
+ assert.match(page,/className="sourceSummary" role="status">Current source:/);
+ assert.match(page,/source==="independent"\?"Independent inspectors only"/);
+});
