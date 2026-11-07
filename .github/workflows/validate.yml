@@ -57,6 +57,9 @@ jobs:
       - name: Exercise client analytics in real Chromium
         run: npm run smoke:client-analytics
 
+      - name: Exercise active Client Demo in real Chromium
+        run: npm run smoke:client-inspections
+
       - name: Diagnose current public production filters (non-blocking)
         if: github.event_name == 'pull_request'
         continue-on-error: true

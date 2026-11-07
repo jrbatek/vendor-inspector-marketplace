@@ -1,3 +1,9 @@
+## 2026-11-07 - Full anonymous Client Demo inspection browser regression (proposed)
+- Added real Chromium end-to-end checks of the synthetic Client Demo entry route, seven distinct inspection stages, every Open Inspection detail panel, milestones/reports/NCRs/outstanding actions, two valid sample PDFs, status/project/inspector/date filters, empty/reset state, cross-demo Analytics navigation, and unauthenticated live workspace Login redirection.
+- Wired the smoke test into both Validate application and Autonomous QA workflows after production build and Chromium install, and exposed `npm run smoke:client-inspections` for repeatable preview/production checks.
+- In a managed Vercel sandbox on current main, `npm run validate` passed 237 tests, migration safety, 5k/500/2k/10k/5k/3k synthetic QA counts, TypeScript, production build and route/PDF smoke; the new Chromium smoke passed against the production build and public READY site. The repository has no lockfile, so the sandbox used npm install without a lockfile.
+- This batch adds QA only: no production auth, RLS, sensitive data, matching, banking, payments, schema or synthetic DB writes. Merge requires both CI workflows, head-matched READY preview and final production READY smoke.
+
 ## 2026-11-07 - Analytics source bar deselection and Chromium browser coverage (proposed)
 - Reproduced the 15 Independent / 45 Agency client analytics filtering against READY production using a managed Vercel Chromium sandbox, with no JavaScript page errors; the previous external browser-agent exception remains unconfirmed.
 - Updated synthetic chart bars so clicking an already selected source toggles back to All, without clearing unrelated slicers; expanded production-browser regression to check selected state, both source categories, deselection, counts, and page errors.
