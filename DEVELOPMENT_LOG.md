@@ -814,3 +814,7 @@ The public InspectorHub fallback demo still displayed already-past September/Oct
 ## 2026-11-07 — Keep Client Demo intake sample request in a future November window
 
 Independent safe workstream while P0 Client Analytics Source Type = Independent crash is diagnosed in PR #155. Updated the fictional client request from September 14 to November 16, 2026, both in the natural-language sample and structured preview; added regression coverage that both examples stay aligned. No actual matching, sourcing, live client request, auth, payments or database changes. Require both CI workflows, preview READY and production READY before declaring shipped.
+
+## 2026-11-07 — Visible keyboard focus for Client Demo Upload Scope
+
+Independent P0-B accessibility work while the Client Analytics Independent Source Type runtime exception (#154 / PR #155) is being diagnosed. The keyboard-focusable hidden file input now produces a high-contrast visible focus-within ring on its Upload Scope label, and the hover state remains legible. Added regression coverage. Browser-local synthetic upload only; no data persistence, auth, RLS, matching, PII or financial change. Require both GitHub CI workflows, READY preview, merge, READY production and focused smoke before claiming deployment.
