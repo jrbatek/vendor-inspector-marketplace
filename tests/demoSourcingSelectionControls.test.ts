@@ -13,8 +13,8 @@ test("sourcing selectors have legible unselected, selected, hover and keyboard-f
 test("agency and independent selection buttons provide browser-only demo confirmation",()=>{
  assert.match(page,/selectedChannel,setSelectedChannel/);
  assert.match(page,/role="status"/);
- assert.match(page,/setSelectedChannel\(\{inspectorId:p.id,channel:c.agency\}\)/);
- assert.match(page,/setSelectedChannel\(\{inspectorId:p.id,channel:"Independent"\}\)/);
+ assert.match(page,/setSelectedChannel\(current=>current\?\.inspectorId===p.id&&current.channel===c.agency\?null:/);
+ assert.match(page,/setSelectedChannel\(current=>current\?\.inspectorId===p.id&&current.channel==="Independent"\?null:/);
  assert.match(page,/Clear selection/);
  assert.match(page,/no assignment, commercial routing or production match was created/);
  assert.doesNotMatch(page,/supabaseBrowser|fetch\(|\.insert\(|\.update\(/);
@@ -36,4 +36,11 @@ test("source toggles stay fully visible at intermediate widths and explicitly an
  assert.match(page,/\.seg button\[aria-pressed=true\]\{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:900;box-shadow:/);
  assert.match(page,/className="sourceSummary" role="status">Current source:/);
  assert.match(page,/source==="independent"\?"Independent inspectors only"/);
+});
+
+test("current Source of Inspectors segment announces visible count and selected channels toggle off",()=>{
+ assert.match(page,/visible.length\} \{visible.length === 1 \? "inspector" : "inspectors"\} shown/);
+ assert.match(page,/current\?\.inspectorId===p.id&&current.channel===c.agency\?null:/);
+ assert.match(page,/current\?\.inspectorId===p.id&&current.channel==="Independent"\?null:/);
+ assert.match(page,/setSelectedChannel\(null\)/);
 });
