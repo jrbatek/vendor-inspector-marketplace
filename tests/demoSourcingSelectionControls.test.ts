@@ -19,3 +19,12 @@ test("agency and independent selection buttons provide browser-only demo confirm
  assert.match(page,/no assignment, commercial routing or production match was created/);
  assert.doesNotMatch(page,/supabaseBrowser|fetch\(|\.insert\(|\.update\(/);
 });
+
+test("independent and agency channel controls wrap safely rather than disappear off-screen",()=>{
+ assert.match(page,/\.channels\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(page,/\.channels div,.independent\{display:grid;gap:5px;min-width:0/);
+ assert.match(page,/\.channels button,.independent button\{width:fit-content;max-width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere/);
+ assert.match(page,/@media\(max-width:560px\)\{\.person\{display:grid\}/);
+ assert.match(page,/Samira Costa/);
+ assert.match(page,/Use independent channel/);
+});
