@@ -16,7 +16,8 @@
     "validate": "npm run test && npm run check:migrations && npm run qa:synthetic && npm run typecheck && npm run build && npm run smoke:local",
     "start": "next start",
     "smoke:client-analytics": "node scripts/smoke-client-analytics.mjs",
-    "smoke:client-inspections": "node scripts/smoke-client-inspections.mjs"
+    "smoke:client-inspections": "node scripts/smoke-client-inspections.mjs",
+    "smoke:inspector-demo": "node scripts/smoke-inspector-demo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
