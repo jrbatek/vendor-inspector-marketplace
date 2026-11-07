@@ -745,3 +745,8 @@ Production browser smoke found the November Calendar correctly linked to matchin
 ## 2026-11-06 — Refresh Inspector Demo matched opportunities to future inspection windows
 
 A public production browser smoke showed the Inspector Demo's three 'Matched inspection work' opportunities still had September–October 2026 date ranges, already past as of the November 2026 client demo. Updated their fictional windows to November–December 2026, distinct from currently assigned November inspection blocks; retained project identity, scope and synthetic rates. Added fixture regression tests for all three windows and synthetic-only access. No live opportunities, inspector matching, rate calculations, auth/RLS, financial or external calendar data altered. Full CI validation and preview READY required before merge; verify production READY and smoke afterward.
+
+
+## 2026-11-06 — Keep Source of Inspectors action controls visible on narrow screens
+
+Public Client Demo browser smoke confirmed high-contrast Source of Inspectors selected/unselected toggles and synthetic agency/independent filtering. It noted a possible second independent-inspector action visibility problem at narrow viewport sizes. Replaced intrinsic max-content action width with content-fitting, 100%-bounded, wrapped text buttons; set minmax(0,1fr) channels, min-width:0 cards and a small-screen stacked person header and bounded selector buttons. Added source-level responsive regression checks. Client Demo retains static synthetic inspector fixtures and browser-only channel selection feedback. No production matching/commercial affiliation, authentication/RLS, real records or payment changes. Require both GitHub-hosted workflows and preview READY, then production READY and responsive smoke.
