@@ -772,3 +772,8 @@ A public synthetic Client Demo browser check at ~992px confirmed that independen
 ## 2026-11-07 — Refresh legacy InspectorHub unauthenticated synthetic opportunities and calendar
 
 The public InspectorHub fallback demo still displayed already-past September/October opportunity windows and assignment/calendar cards, even after the dedicated Inspector Demo was refreshed. Updated only fictional opportunity, assignment and next-30-day schedule date labels to coherent November/December 2026 windows, retaining live authentication, persistence and commercial calculations unchanged. Added deterministic regression checks for upcoming labels, assignment/calendar consistency and synthetic-data isolation. This does not touch live account workflows, authentication/RLS, external calendar sync, payments or banking; full CI and a head-matched READY Vercel preview remain mandatory before merge, followed by production READY and demo smoke.
+
+## 2026-11-06 - Agency Demo actionable synthetic recruiting and resource controls (proposed)
+- Replace inert Add/Claim resource and Search marketplace controls with stateful, accessible in-page synthetic previews; keep affiliation claims and marketplace matching informational only and never submit private data.
+- Make Download synthetic template deliver a browser-only, fictitious CSV roster with no production API, inspector personal information or database write. Preserve clear disabled-live-data wording and focus styles.
+- Add deterministic contract tests for all three actions. Demo only; require GitHub validation, READY preview, merge, READY production and external smoke before release claims.

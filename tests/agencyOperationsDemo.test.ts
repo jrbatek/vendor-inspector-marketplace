@@ -47,3 +47,19 @@ test("agency demo remains isolated from production and precise location", () => 
   assert.match(source, /does not collect precise inspector location/);
   assert.doesNotMatch(source, /supabaseBrowser|createClient|process\.env|navigator\.geolocation/);
 });
+
+
+test("agency demo primary actions are usable and always synthetic",()=>{
+ assert.match(source,/const syntheticRosterHref = `data:text\/csv;charset=utf-8,/);
+ assert.match(source,/download="inspectsource-agency-synthetic-roster.csv"/);
+ assert.match(source,/SYN-1001,Sample Inspector A/);
+ assert.match(source,/aria-expanded=\{claimOpen\}/);
+ assert.match(source,/setClaimOpen\(current => !current\)/);
+ assert.match(source,/href="\/demo\/agency-affiliations"/);
+ assert.match(source,/aria-expanded=\{marketplaceOpen\}/);
+ assert.match(source,/setMarketplaceOpen\(current => !current\)/);
+ assert.match(source,/Available synthetic inspector matches/);
+ assert.match(source,/no live availability/);
+ assert.match(source,/\.actionLink:focus-visible/);
+ assert.doesNotMatch(source,/<button>Search marketplace<\/button>|<button>Download synthetic template<\/button>/);
+});
