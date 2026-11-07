@@ -730,3 +730,8 @@ Extended the existing Inspector Demo Work History filters with an NCR findings c
 ## 2026-11-06 — Keyboard-accessible synthetic Income & Tax payment preference dialog
 
 Hardened the existing browser-local Income & Tax Center's simulated payment preference dialog for keyboard use. Opening it moves focus to Cancel, Escape dismisses and restores focus to the trigger, Tab and Shift+Tab remain inside the dialog, and both Save/Cancel restore focus. Added contextual aria-describedby copy and source-level regression tests. The preference remains a fictional selection only; no bank account/routing/card inputs, real payment changes, external calls, live authentication or production data are involved. Validate via GitHub full CI and Vercel preview READY; verify post-merge production READY and demo smoke.
+
+
+## 2026-11-06 — Keyboard and focus accessibility for synthetic Inspector opportunities
+
+Extended the standalone Inspector Demo opportunity-preview dialog with Escape close, focus on the accessible close control at open, Tab/Shift+Tab containment and restoration to the invoking Preview Opportunity button after any action or dismissal. The notice is still section-scoped, and every opportunity action remains fictional. Added source-level regressions covering modal keyboard handling, synthetic boundaries and section-scoped notices. No live inspector decisions, authentication/RLS, production matching, payment, financial records or external API changes. Validate GitHub-hosted checks and Vercel preview READY before merge, then production READY and demo smoke.
