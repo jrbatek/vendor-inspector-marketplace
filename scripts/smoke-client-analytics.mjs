@@ -43,6 +43,24 @@ try{
  await verify(page,"Independent",15);
  await verify(page,"Agency",30); // first 30 of 45 are rendered
  await page.getByRole("button",{name:"Reset filters"}).click();
+ const chart=page.locator(".grid .panel").first();
+ const independent=chart.getByRole("button",{name:/Independent/});
+ await independent.click();
+ await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===15);
+ if((await page.locator(".filters select").first().inputValue())!=="Independent")throw new Error("Chart click did not update Source Type selector");
+ if((await independent.getAttribute("aria-pressed"))!=="true")throw new Error("Selected Independent bar lacks pressed state");
+ await independent.click(); // toggle the currently selected source back to All
+ await page.waitForFunction(()=>document.querySelector(".filters select")?.value==="All");
+ await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===30);
+ const agencyBar=chart.getByRole("button",{name:/Agency/});
+ await agencyBar.click();
+ await page.waitForFunction(()=>document.querySelector(".filters select")?.value==="Agency");
+ if(!((await page.locator(".resultsSummary").innerText()).includes("of 45")))throw new Error("Agency source chart filtering lost its 45-record total");
+ await agencyBar.click();
+ await page.waitForFunction(()=>document.querySelector(".filters select")?.value==="All");
+ await page.waitForTimeout(1200);
+ if(exceptions.length)throw new Error("Chart filter browser exceptions: "+exceptions.join("\n"));
+ console.log("Client Analytics source chart selection and deselection passed.");
  await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===30);
  if(await page.getByText(/Application error: a client-side exception/i).count())throw new Error("Client error on reset");
  if(exceptions.length)throw new Error(exceptions.join("\n"));
