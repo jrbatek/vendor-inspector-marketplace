@@ -72,9 +72,21 @@ test("InspectorHub consolidates the reports navigation into Work History and mai
   assert.match(hub,/href="\/demo\/inspector-work-history"/);
   assert.match(page,/Assignments Performed/);
   assert.match(page,/Reports Submitted/);
-  assert.match(page,/role="tablist"/);
+  assert.match(page,/role="group" aria-label="Work History views"/);
+  assert.match(page,/aria-pressed=\{view === "assignments"\}/);
+  assert.match(page,/aria-pressed=\{view === "reports"\}/);
   assert.match(page,/Open assignment/);
   assert.match(page,/Reset filters/);
   assert.match(page,/button:focus-visible/);
   assert.match(legacy,/redirect\("\/demo\/inspector-work-history"\)/);
+});
+
+
+test("Work History filters expose invalid date ranges to keyboard and screen-reader users", () => {
+  assert.match(page,/const invalidDates = Boolean\(filters\.from && filters\.to && filters\.from > filters\.to\)/);
+  assert.equal((page.match(/aria-invalid=\{invalidDates\}/g) || []).length, 2);
+  assert.equal((page.match(/aria-describedby="work-history-date-help"/g) || []).length, 2);
+  assert.match(page,/id="work-history-date-help"/);
+  assert.match(page,/invalidDates && <p role="alert">/);
+  assert.doesNotMatch(page,/role="tablist"|aria-selected=\{view ===/);
 });
