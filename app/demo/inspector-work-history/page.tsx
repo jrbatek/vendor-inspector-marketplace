@@ -23,6 +23,7 @@ export default function InspectorWorkHistoryDemo() {
   const reset = () => { setFilters(EMPTY_WORK_HISTORY_FILTERS); setOpen(null); };
   const reviewed = rows.filter(row => row.status === "Client reviewed").length;
   const ncrs = rows.filter(row => row.ncr).length;
+  const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
 
   return <main className="historyPage">
     <header className="hero">
@@ -45,14 +46,15 @@ export default function InspectorWorkHistoryDemo() {
           </select>
         </label>)}
         <label>NCR findings<select aria-label="NCR findings" value={filters.ncr} onChange={event => choose("ncr",event.target.value)}><option value="">All reports</option><option value="with">NCR raised</option><option value="without">No NCR raised</option></select></label>
-        <label>Completed from<input type="date" value={filters.from} onChange={event => choose("from",event.target.value)} /></label>
-        <label>Completed through<input type="date" value={filters.to} onChange={event => choose("to",event.target.value)} /></label>
+        <label>Completed from<input type="date" value={filters.from} aria-invalid={invalidDates} aria-describedby="work-history-date-help" onChange={event => choose("from",event.target.value)} /></label>
+        <label>Completed through<input type="date" value={filters.to} aria-invalid={invalidDates} aria-describedby="work-history-date-help" onChange={event => choose("to",event.target.value)} /></label>
       </div>
-      {filters.from && filters.to && filters.from > filters.to && <p role="alert">The start date must not be after the end date.</p>}
+      <p id="work-history-date-help">Dates include completed work on both endpoints of the selected range.</p>
+      {invalidDates && <p role="alert">The start date must not be after the end date.</p>}
     </section>
-    <div className="tabs" role="tablist" aria-label="Work History views">
-      <button type="button" role="tab" aria-selected={view === "assignments"} className={view === "assignments" ? "selected" : ""} onClick={() => setView("assignments")}>Assignments Performed</button>
-      <button type="button" role="tab" aria-selected={view === "reports"} className={view === "reports" ? "selected" : ""} onClick={() => setView("reports")}>Reports Submitted</button>
+    <div className="tabs" role="group" aria-label="Work History views">
+      <button type="button" aria-pressed={view === "assignments"} className={view === "assignments" ? "selected" : ""} onClick={() => setView("assignments")}>Assignments Performed</button>
+      <button type="button" aria-pressed={view === "reports"} className={view === "reports" ? "selected" : ""} onClick={() => setView("reports")}>Reports Submitted</button>
     </div>
     <p className="resultCount" role="status">Showing {shown.length} of {rows.length} synthetic {view === "assignments" ? "completed assignments" : "submitted reports"}</p>
     {shown.length === 0 && <section className="empty"><h2>No matching work history</h2><p>Try another client, industry, commodity, status, NCR finding or completed-date range.</p><button type="button" onClick={reset}>Clear filters</button></section>}
