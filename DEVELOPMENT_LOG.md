@@ -768,3 +768,7 @@ A public synthetic Client Demo browser check at ~992px confirmed that independen
 ## 2026-11-06 - Consolidate completed inspection entry under Client Analytics (proposed)
 - Remove a separate Client Demo landing-page Inspection history card and bring that historic-record entry inside the Analytics page with a clearly labeled, keyboard-focusable link. Existing `/demo/client-history` deep links remain functional and the sidebar continues to mark the Analytics section active.
 - Keep in-progress inspections independent from historical intelligence. Add navigation/contrast regression coverage; no auth, RLS, production data or persistence changes. Validate CI and Vercel preview/production before release.
+
+## 2026-11-07 — Refresh legacy InspectorHub unauthenticated synthetic opportunities and calendar
+
+The public InspectorHub fallback demo still displayed already-past September/October opportunity windows and assignment/calendar cards, even after the dedicated Inspector Demo was refreshed. Updated only fictional opportunity, assignment and next-30-day schedule date labels to coherent November/December 2026 windows, retaining live authentication, persistence and commercial calculations unchanged. Added deterministic regression checks for upcoming labels, assignment/calendar consistency and synthetic-data isolation. This does not touch live account workflows, authentication/RLS, external calendar sync, payments or banking; full CI and a head-matched READY Vercel preview remain mandatory before merge, followed by production READY and demo smoke.
