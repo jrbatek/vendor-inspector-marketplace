@@ -1,3 +1,9 @@
+## 2026-11-07 - Inspector Demo assignment stages and readable detail actions (proposed)
+- Production browser review found the synthetic Open Assignment detail used generic "Demo profile inspector" rather than the current fictional regional inspector, did not repeat each assignment's varying stage, and relied on global button styling unlike the green InspectorHub workspace.
+- Passed the selected fictional inspector through to assignment details and the sample PDF link, added consistent stage badges for Scheduled/FAT scheduled/Travel pending and styled Back and sample report controls with explicit contrast, hover and keyboard-focus states.
+- Added scoped synthetic regression checks for stages, PDF metadata and visible actions. No production inspector identity, auth, RLS, assignment persistence, bank/payment, vendor data, external integrations or migrations.
+- Release pending GitHub-hosted validation, head-matched READY preview and production READY browser smoke.
+
 ## 2026-11-07 - Client Analytics filter focus and meaningful empty-state metrics (proposed)
 - Found a P0-B accessibility/interpretability gap in synthetic Client Analytics: interactive chart filters had no visible hover/focus/selected styles, native filter colors were browser-dependent, zero completed inspections appeared as a misleading 0.0% on-time rate, and the detail table showed only the first 30 rows without disclosing the preview limit.
 - Added pressed-state semantics and contrast-safe interaction states to chart filters; explicit selector colors/focus; N/A for an empty completed cohort; an accessible preview count and no-results message. Full filtered CSV download is retained.
