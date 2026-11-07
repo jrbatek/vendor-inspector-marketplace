@@ -65,7 +65,12 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     setStart(next);
     setEnd(shiftIsoDate(next,1));
   };
-  const stepWeek=(delta:number)=>setWeekAnchor(current=>shiftIsoDate(current,delta*7));
+  const selectWeek=(anchor:string)=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(anchor))return;
+    setWeekAnchor(anchor);
+    setMonth(anchor.slice(0,7));
+  };
+  const stepWeek=(delta:number)=>selectWeek(shiftIsoDate(weekAnchor,delta*7));
   const [events, setEvents] = useState(DEMO_EVENTS);
   const [start, setStart] = useState("2026-11-22");
   const [end, setEnd] = useState("2026-11-23");
@@ -80,8 +85,8 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       <div className="connectors"><button onClick={() => connect("Google Calendar")}>Google Calendar · Connected (demo)</button><button onClick={() => connect("Outlook Calendar")}>Connect Outlook Calendar</button><button onClick={() => connect("Other Calendar")}>Link Other Calendar</button></div>
     </div>
     {notice && <p role="status" className="notice">{notice}</p>}
-    <div className="viewTabs" role="tablist" aria-label="Calendar view">
-      {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} role="tab" aria-selected={view === item} className={view === item ? "selected" : ""} onClick={() => setView(item)}>{item}</button>)}
+    <div className="viewTabs" role="group" aria-label="Calendar view">
+      {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => setView(item)}>{item}</button>)}
     </div>
     <div className="legend" aria-label="Availability states">{["Available", "Tentative / Hold", "Assigned", "Unavailable", "Busy"].map((state) => <span key={state} className={stateClass(state as AvailabilityState)}>{state}</span>)}</div>
     {view === "Month" && <div className="month" aria-label={monthLabel+" month view"}>
@@ -89,7 +94,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       {Array.from({ length: monthOffset }, (_, i) => <span key={`blank-${i}`} aria-hidden="true" />)}
       {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><b>{day}</b>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}</article>; })}
     </div>}
-    {view === "Week" && <><div className="weekControls"><button type="button" onClick={()=>stepWeek(-1)}>Previous week</button><label>Week containing<input type="date" value={weekAnchor} onChange={e=>setWeekAnchor(e.target.value)}/></label><button type="button" onClick={()=>stepWeek(1)}>Next week</button></div><div className="week" aria-label="Week view">{weekDates(weekAnchor).map(date=>{
+    {view === "Week" && <><div className="weekControls"><button type="button" onClick={()=>stepWeek(-1)}>Previous week</button><label>Week containing<input type="date" value={weekAnchor} onChange={e=>selectWeek(e.target.value)}/></label><button type="button" onClick={()=>stepWeek(1)}>Next week</button></div><div className="week" aria-label="Week view">{weekDates(weekAnchor).map(date=>{
       const dayEvents=events.filter(event=>event.date===date);
       return <article key={date}><strong>{date}</strong>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="available">Available</span>}</article>;
     })}</div></>}

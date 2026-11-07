@@ -755,3 +755,8 @@ A public production browser smoke showed the Inspector Demo's three 'Matched ins
 ## 2026-11-06 — Keep Source of Inspectors action controls visible on narrow screens
 
 Public Client Demo browser smoke confirmed high-contrast Source of Inspectors selected/unselected toggles and synthetic agency/independent filtering. It noted a possible second independent-inspector action visibility problem at narrow viewport sizes. Replaced intrinsic max-content action width with content-fitting, 100%-bounded, wrapped text buttons; set minmax(0,1fr) channels, min-width:0 cards and a small-screen stacked person header and bounded selector buttons. Added source-level responsive regression checks. Client Demo retains static synthetic inspector fixtures and browser-only channel selection feedback. No production matching/commercial affiliation, authentication/RLS, real records or payment changes. Require both GitHub-hosted workflows and preview READY, then production READY and responsive smoke.
+
+## 2026-11-06 - Calendar cross-month navigation and accessible view switcher (proposed)
+- Keep the selected month synchronized with Week navigation and direct week-date selection, so switching back to Month/List does not silently show stale dates. Ignore cleared date inputs to preserve a valid week anchor.
+- Replace Calendar Month/Week/List's misleading ARIA tablist without arrow-key behavior with keyboard-reachable pressed buttons; add contract tests.
+- Static fictional events only, no external calendar OAuth or live inspector availability changes. GitHub CI and preview/production READY required before release.
