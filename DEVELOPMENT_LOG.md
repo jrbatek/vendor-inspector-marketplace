@@ -777,3 +777,8 @@ The public InspectorHub fallback demo still displayed already-past September/Oct
 - Replace inert Add/Claim resource and Search marketplace controls with stateful, accessible in-page synthetic previews; keep affiliation claims and marketplace matching informational only and never submit private data.
 - Make Download synthetic template deliver a browser-only, fictitious CSV roster with no production API, inspector personal information or database write. Preserve clear disabled-live-data wording and focus styles.
 - Add deterministic contract tests for all three actions. Demo only; require GitHub validation, READY preview, merge, READY production and external smoke before release claims.
+
+## 2026-11-06 - Functional synthetic Agency Affiliation filters and claim preview (proposed)
+- Wire All/Pending/Verified/Expiring/Disputed/Ended controls to actual fictional status filtering, with `aria-pressed`, visible result counts and focus/hover color states.
+- Replace inert Claim/add action with a toggled fictional affiliation workflow explanation; no collection or updates of real PII and no production matching, authorization or persistence changes.
+- Add deterministic regression tests and preserve existing dual-confirmation guardrails. Requires CI, READY preview, merge and READY production before release.
