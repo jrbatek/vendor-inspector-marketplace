@@ -40,3 +40,7 @@ test("analytics discloses the 30-row preview limit while keeping full CSV export
   assert.match(page, /filtered\.slice\(0,30\)/);
   assert.match(page, /const download=\(\)=>/);
 });
+
+test("selected analytics bar can be deselected without resetting unrelated slicers", () => {
+  assert.match(page, /onClick=\{\(\)=>onSelect\(selected===r\.name\?ALL:r\.name\)\}/);
+});
