@@ -8,8 +8,8 @@ type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavai
 type CalendarEvent = { date: string; state: AvailabilityState; label: string; external?: boolean; project?: string };
 
 const DEMO_EVENTS: CalendarEvent[] = [
-  { date: "2026-10-05", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
-  { date: "2026-10-06", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
+  { date: "2026-11-26", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
+  { date: "2026-11-27", state: "Assigned", label: "Orion Deepwater Platform · FAT", project: "Orion Deepwater Platform" },
   { date: "2026-10-09", state: "Busy", label: "Doctor Appointment · 10:00–11:00", external: true },
   { date: "2026-10-18", state: "Busy", label: "Our Anniversary · All day", external: true },
   { date: "2026-10-12", state: "Tentative / Hold", label: "Client hold" },
