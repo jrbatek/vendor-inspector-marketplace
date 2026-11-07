@@ -14,7 +14,8 @@
     "qa:synthetic": "npm run synthetic:generate && npm run synthetic:validate",
     "smoke:local": "node scripts/smoke-local.mjs",
     "validate": "npm run test && npm run check:migrations && npm run qa:synthetic && npm run typecheck && npm run build && npm run smoke:local",
-    "start": "next start"
+    "start": "next start",
+    "smoke:client-analytics": "node scripts/smoke-client-analytics.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
@@ -29,6 +30,7 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "playwright": "^1.56.1"
   }
 }

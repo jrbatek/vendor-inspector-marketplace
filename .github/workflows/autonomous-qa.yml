@@ -50,8 +50,14 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Install Chromium for client interaction regression
+        run: npx playwright install --with-deps chromium
+
       - name: Smoke-test built routes
         run: npm run smoke:local
+
+      - name: Exercise client analytics in real Chromium
+        run: npm run smoke:client-analytics
 
       - name: Upload synthetic summary
         if: always()
