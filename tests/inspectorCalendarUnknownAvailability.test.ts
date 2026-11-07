@@ -6,9 +6,9 @@ const calendar = fs.readFileSync("components/InspectorAvailabilityCalendar.tsx",
 
 test("Calendar does not advertise unknown dates as confirmed inspector availability", () => {
   assert.match(calendar, /Unmarked dates are not confirmed available/);
-  assert.match(calendar, /const UnmarkedDate = \(\) => <span className="not-set"/);
-  assert.match(calendar, /dayEvents\.length === 0 && <UnmarkedDate \/>/);
-  assert.match(calendar, /:<UnmarkedDate \/>/);
+  assert.doesNotMatch(calendar, /const UnmarkedDate/);
+  assert.match(calendar, /dayEvents\.length === 0 && <span className="not-set"/);
+  assert.match(calendar, /:<span className="not-set"/);
   assert.doesNotMatch(calendar, /<span className="available">Available<\/span>/);
 });
 

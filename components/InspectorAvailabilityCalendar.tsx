@@ -49,7 +49,7 @@ const dateRange = (start: string,end: string) => {
 };
 const stateClass = (state: AvailabilityState) => state.toLowerCase().replaceAll(" / ", "-").replaceAll(" ", "-");
 // Unscheduled is not equivalent to an inspector declaring the day Available.
-const UnmarkedDate = () => <span className="not-set" title="No inspector availability confirmed for this date">Not set</span>;
+
 
 export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { onOpenAssignment?: (project: string) => void }) {
   const [view, setView] = useState<View>("Month");
@@ -94,11 +94,11 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     {view === "Month" && <div className="month" aria-label={monthLabel+" month view"}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => <strong className="weekday" key={d}>{d}</strong>)}
       {Array.from({ length: monthOffset }, (_, i) => <span key={`blank-${i}`} aria-hidden="true" />)}
-      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><b>{day}</b>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}{dayEvents.length === 0 && <UnmarkedDate />}</article>; })}
+      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><b>{day}</b>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}{dayEvents.length === 0 && <span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>; })}
     </div>}
     {view === "Week" && <><div className="weekControls"><button type="button" onClick={()=>stepWeek(-1)}>Previous week</button><label>Week containing<input type="date" value={weekAnchor} onChange={e=>selectWeek(e.target.value)}/></label><button type="button" onClick={()=>stepWeek(1)}>Next week</button></div><div className="week" aria-label="Week view">{weekDates(weekAnchor).map(date=>{
       const dayEvents=events.filter(event=>event.date===date);
-      return <article key={date}><strong>{date}</strong>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<UnmarkedDate />}</article>;
+      return <article key={date}><strong>{date}</strong>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>;
     })}</div></>}
     {view === "List" && <div className="list" aria-label="List view">{events.filter(event=>event.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)).map((event, i) => <article key={`${event.date}-${i}`}><strong>{event.date}</strong><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span></article>)}</div>}
     <form onSubmit={e => {
