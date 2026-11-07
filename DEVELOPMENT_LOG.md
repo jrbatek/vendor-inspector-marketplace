@@ -1,3 +1,7 @@
+## 2026-11-07 - InspectorHub anonymous Chromium regression (proposed)
+- Added real-browser testing for green sidebar ordering, consolidated Work History, no leaked Declined banner, Month/Week/List calendar, fictional private personal events, appointment-conflict protection, synthetic date blocking, calendar-to-assignment opening and simulated Outlook connection.
+- Synthetic browser-only checks; no production auth, RLS, persistence, calendar API credentials, bank/payment or matching changes. Managed sandbox full validation and Chromium smoke passed with placeholder Supabase environment, including public production browser smoke. Release requires head-matched CI, READY preview, and READY production smoke.
+
 ## 2026-11-07 - Client sourcing selected-channel toggle and result-count feedback (proposed)
 - Client Demo Source of Inspectors now announces the number of matching fictional inspectors for each selected source. The existing buttons retain legible selected/unselected/hover/focus states.
 - Clicking a selected agency or independent channel a second time deselects it without clearing the source filter; browser-only channel confirmation remains synthetic. Extended selection and count contract coverage.

@@ -60,6 +60,9 @@ jobs:
       - name: Exercise active Client Demo in real Chromium
         run: npm run smoke:client-inspections
 
+      - name: Exercise InspectorHub demo routing, calendar, availability and notice isolation
+        run: npm run smoke:inspector-demo
+
       - name: Diagnose current public production filters (non-blocking)
         if: github.event_name == 'pull_request'
         continue-on-error: true
