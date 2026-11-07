@@ -1,3 +1,9 @@
+## 2026-11-07 - Calendar distinguishes unmarked dates from confirmed availability (proposed)
+- Found a synthetic Inspector Demo calendar inconsistency: Week view labeled every unconfigured day "Available" although no availability had been declared, while Month showed those dates as blank. This could suggest inspector capacity that was never confirmed.
+- Added an explicit "Not set" state for unmarked Month and Week cells, a legend and clear guidance. Explicit Available/Assigned/Hold/Busy/Unavailable records, date-block safeguards, private events and assignment-opening behavior are unchanged.
+- Added regression contracts for unmarked versus explicitly available dates, assigned/private conflicts and legible new status styling. Demo-only UI/QA; no production calendar, matching, auth, RLS, real scheduling, external OAuth or database changes.
+- Release pending full GitHub CI, production build, head-matched Vercel READY preview and merged production READY smoke.
+
 ## 2026-11-06 - Work History accessible view selectors and date filter guidance (proposed)
 - Replace incorrectly advertised ARIA tab widgets with a native keyboard-reachable pressed-button group for Assignments Performed / Reports Submitted, preserving click behavior without pretending arrow-key tab navigation exists.
 - Mark both completed-date controls invalid when the date range is reversed and give both a shared inclusive-range help description. Keep the existing alert and no-results handling.
