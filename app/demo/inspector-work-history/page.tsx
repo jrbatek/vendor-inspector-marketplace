@@ -44,6 +44,7 @@ export default function InspectorWorkHistoryDemo() {
             {options(key).map(value => <option key={value} value={value}>{value}</option>)}
           </select>
         </label>)}
+        <label>NCR findings<select aria-label="NCR findings" value={filters.ncr} onChange={event => choose("ncr",event.target.value)}><option value="">All reports</option><option value="with">NCR raised</option><option value="without">No NCR raised</option></select></label>
         <label>Completed from<input type="date" value={filters.from} onChange={event => choose("from",event.target.value)} /></label>
         <label>Completed through<input type="date" value={filters.to} onChange={event => choose("to",event.target.value)} /></label>
       </div>
@@ -54,7 +55,7 @@ export default function InspectorWorkHistoryDemo() {
       <button type="button" role="tab" aria-selected={view === "reports"} className={view === "reports" ? "selected" : ""} onClick={() => setView("reports")}>Reports Submitted</button>
     </div>
     <p className="resultCount" role="status">Showing {shown.length} of {rows.length} synthetic {view === "assignments" ? "completed assignments" : "submitted reports"}</p>
-    {shown.length === 0 && <section className="empty"><h2>No matching work history</h2><p>Try another client, industry, commodity, status or completed-date range.</p><button type="button" onClick={reset}>Clear filters</button></section>}
+    {shown.length === 0 && <section className="empty"><h2>No matching work history</h2><p>Try another client, industry, commodity, status, NCR finding or completed-date range.</p><button type="button" onClick={reset}>Clear filters</button></section>}
     <section className="records" aria-label={view === "assignments" ? "Assignments Performed" : "Reports Submitted"}>
       {shown.map(row => <article className="record" key={row.id}>
         <div className="recordTop"><div><p className="eyebrow">{view === "assignments" ? row.id : row.reportId} · {row.status}</p><h2>{view === "assignments" ? row.project : row.assignmentType}</h2><p>{row.client} · {row.industry} · {row.commodity}</p><p>{row.location} · Completed {row.completed}</p></div><span className="status">Synthetic record</span></div>
