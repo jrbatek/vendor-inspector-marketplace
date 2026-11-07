@@ -21,12 +21,13 @@ export type WorkHistoryFilters = {
   industry: string;
   commodity: string;
   status: string;
+  ncr: string;
   from: string;
   to: string;
 };
 
 export const EMPTY_WORK_HISTORY_FILTERS: WorkHistoryFilters = {
-  client: "", industry: "", commodity: "", status: "", from: "", to: "",
+  client: "", industry: "", commodity: "", status: "", ncr: "", from: "", to: "",
 };
 
 // All names, schedules, references, and results are fictional; no live records are loaded.
@@ -53,6 +54,7 @@ export function filterInspectorWorkHistory(
     (!filters.industry || row.industry === filters.industry) &&
     (!filters.commodity || row.commodity === filters.commodity) &&
     (!filters.status || row.status === filters.status) &&
+    (!filters.ncr || (filters.ncr === "with" && row.ncr) || (filters.ncr === "without" && !row.ncr)) &&
     (!filters.from || row.completed >= filters.from) &&
     (!filters.to || row.completed <= filters.to)
   );
