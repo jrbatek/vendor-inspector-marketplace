@@ -8,8 +8,7 @@ const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in
 const portfolioAreas=[
  {title:"Inspections in Progress",description:"Open seven synthetic inspections with schedules, milestones, sample reports, NCRs and client actions.",href:"/demo/client-inspections",cta:"Open inspections"},
  {title:"Contracted Agencies & sourcing",description:"Compare contracted agency coverage, capacity and commercial channels with eligible independent inspectors.",href:"/demo/client-agency-sourcing",cta:"Explore sourcing"},
- {title:"Inspection history",description:"Search completed work, reports, budgets, NCRs, suppliers, locations, and project history.",href:"/demo/client-history",cta:"View history"},
- {title:"Analytics",description:"Cross-filter spend, schedule, geography, commodity, project type, and non-conformance trends.",href:"/demo/client-analytics",cta:"Open analytics"},
+ {title:"Analytics",description:"Explore completed inspection history, reports, supplier performance, budgets, NCRs, and project-level trends.",href:"/demo/client-analytics",cta:"Open analytics"},
  {title:"Billing, contracts & profile",description:"Review populated invoices, balances, approvals, contracts, roles, preferences, and account concepts.",href:"/demo/client-operations",cta:"Open operations"},
  {title:"Data & integrations",description:"Export synthetic client data and explore API, Excel, Power BI, ERP, and procurement connectivity.",href:"/demo/client-data",cta:"Explore integrations"},
 ];
