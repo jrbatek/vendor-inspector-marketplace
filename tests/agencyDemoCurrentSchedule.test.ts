@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+const page = fs.readFileSync("app/demo/agency/page.tsx", "utf8");
+
+test("Agency Demo synthetic resource availability is aligned to November 2026", () => {
+  for (const date of ["Nov 12, 2026", "Nov 14, 2026", "Nov 16, 2026", "Nov 19, 2026"]) {
+    assert.ok(page.includes("Available " + date), date);
+  }
+  assert.doesNotMatch(page, /Available Sep \d{1,2}/);
+});
+
+test("Agency Demo inspection and NCR workflow dates are future windows, not stale September labels", () => {
+  for (const label of ["report due Nov 16, 2026", "field visit Nov 17, 2026", "NCR follow-up Nov 20, 2026", "Draft due Nov 16, 2026", "Reinspection Nov 20, 2026"]) {
+    assert.ok(page.includes(label), label);
+  }
+  assert.doesNotMatch(page, /\bSep \d{1,2}\b/);
+});
+
+test("Agency Demo date fixture changes remain synthetic and read-only", () => {
+  assert.match(page, /Demo Mode/);
+  assert.match(page, /Nothing on this page reads from or writes to production/);
+  assert.match(page, /syntheticRosterHref/);
+  assert.doesNotMatch(page, /supabaseBrowser|createClient|navigator\.geolocation/);
+});
