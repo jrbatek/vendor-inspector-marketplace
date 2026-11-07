@@ -1,3 +1,8 @@
+## 2026-11-06 - Work History accessible view selectors and date filter guidance (proposed)
+- Replace incorrectly advertised ARIA tab widgets with a native keyboard-reachable pressed-button group for Assignments Performed / Reports Submitted, preserving click behavior without pretending arrow-key tab navigation exists.
+- Mark both completed-date controls invalid when the date range is reversed and give both a shared inclusive-range help description. Keep the existing alert and no-results handling.
+- Expand Work History contract tests for the view-toggle state and date validation. Demo-only presentation change; no live authorization, production data, persistence, payments, or migrations. GitHub CI/preview and production verification required before claiming release.
+
 ## 2026-11-06 - Income & Tax Center demo (branch pending release checks)
 - Added isolated Inspector Demo /demo/inspector-income with fictional 2024-2026 earnings statements and independent-contractor/employee totals, fixed 2026 YTD snapshot through 2026-11-01T23:59:59-06:00, simulated work/income verification and historical 1099-NEC/W-2 informational summaries.
 - Functional sample text downloads are explicitly labeled invalid for filing, credit or employment, while the payment-details demo changes only an in-page fictional preference and accepts no bank credentials.
