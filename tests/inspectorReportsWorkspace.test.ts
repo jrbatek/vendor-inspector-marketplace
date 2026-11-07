@@ -36,6 +36,20 @@ test("Work History filters by client, industry, commodity, status and inclusive 
   assert.equal(filterInspectorWorkHistory(rows,empty).length,rows.length);
 });
 
+test("NCR findings filter works across both Work History views and composes with other filters", () => {
+  const withNcr = rows.filter(row => row.ncr);
+  const withoutNcr = rows.filter(row => !row.ncr);
+  assert.deepEqual(filterInspectorWorkHistory(rows, {...empty, ncr:"with"}), withNcr);
+  assert.deepEqual(filterInspectorWorkHistory(rows, {...empty, ncr:"without"}), withoutNcr);
+  assert.deepEqual(filterInspectorWorkHistory(rows, {...empty, ncr:""}), rows);
+  assert.equal(filterInspectorWorkHistory(rows, {...empty, ncr:"with", client:"NONEXISTENT"}).length, 0);
+  assert.equal(withNcr.length + withoutNcr.length, rows.length);
+  assert.match(page, /NCR findings/);
+  assert.match(page, /value="with">NCR raised/);
+  assert.match(page, /value="without">No NCR raised/);
+  assert.match(page, /choose\("ncr",event\.target\.value\)/);
+});
+
 test("submitted reports offer functional, correctly encoded and visibly synthetic PDFs", () => {
   for (const row of rows) {
     const pdf = new URL(inspectorWorkReportHref(row), "https://example.test");
