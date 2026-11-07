@@ -1,3 +1,9 @@
+## 2026-11-07 - Analytics source bar deselection and Chromium browser coverage (proposed)
+- Reproduced the 15 Independent / 45 Agency client analytics filtering against READY production using a managed Vercel Chromium sandbox, with no JavaScript page errors; the previous external browser-agent exception remains unconfirmed.
+- Updated synthetic chart bars so clicking an already selected source toggles back to All, without clearing unrelated slicers; expanded production-browser regression to check selected state, both source categories, deselection, counts, and page errors.
+- Managed sandbox validation passed the full unit/migration/synthetic/TypeScript/build/local smoke suite and a production-build Chromium analytics interaction smoke; sandbox used npm install because this repo has no lockfile. No production data, auth, RLS, payments, or migrations changed.
+- Merge requires fresh GitHub CI and head-matched Vercel preview READY; keep issue #154 open pending repeated interactive production verification.
+
 ## 2026-11-07 - Inspector Demo assignment stages and readable detail actions (proposed)
 - Production browser review found the synthetic Open Assignment detail used generic "Demo profile inspector" rather than the current fictional regional inspector, did not repeat each assignment's varying stage, and relied on global button styling unlike the green InspectorHub workspace.
 - Passed the selected fictional inspector through to assignment details and the sample PDF link, added consistent stage badges for Scheduled/FAT scheduled/Travel pending and styled Back and sample report controls with explicit contrast, hover and keyboard-focus states.
