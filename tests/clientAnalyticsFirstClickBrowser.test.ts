@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-test("P0 analytics smoke covers graphical browser's first quick Independent click and recovery sequence",()=>{
- const src=fs.readFileSync("scripts/smoke-client-analytics.mjs","utf8");
- assert.match(src,/A separate graphical browser observed an exception/);
- assert.match(src,/firstClick\.goto\(base\+"\/demo\/client-analytics",\{waitUntil:"domcontentloaded"\}\)/);
- assert.match(src,/firstQuick\.getByRole\("button",\{name:"Independent",exact:true\}\)\.click\(\)/);
- assert.match(src,/Fresh first-click Independent filter triggered demo analytics recovery boundary/);
- assert.match(src,/firstQuick\.getByRole\("button",\{name:"All sources"\}\)\.click\(\)/);
- assert.match(src,/firstClick\.locator\("\.filters select"\)\.first\(\)\.selectOption/);
- assert.match(src,/firstErrors\.length/);
+
+const src=fs.readFileSync("scripts/smoke-client-analytics.mjs","utf8");
+test("P0 analytics smoke validates first source-button click without native Source Type selector",()=>{
+  assert.match(src,/getByRole\("group",\{name:"Quick source type filters"\}\)/);
+  assert.match(src,/getByRole\("button",\{name:"Independent",exact:true\}\)\.click/);
+  assert.match(src,/assertCohort\(page,"Independent",15\)/);
+  assert.match(src,/assertCohort\(page,"Agency",45\)/);
+  assert.match(src,/assertCohort\(page,"All",60\)/);
+  assert.match(src,/Obsolete graphical-browser-crashing Source Type native selector remains/);
+  assert.match(src,/page\.keyboard\.press\("Enter"\)/);
+  assert.match(src,/getByRole\("heading", \{name:"Analytics view could not load"\}\)/);
+  assert.match(src,/errors\.length/);
+  assert.match(src,/waitForEvent\("download"\)/);
 });

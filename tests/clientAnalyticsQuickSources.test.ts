@@ -4,9 +4,9 @@ import test from "node:test";
 
 const source=fs.readFileSync("app/demo/client-analytics/page.tsx","utf8");
 
-test("Quick source controls provide visible, accessible alternatives to native slicer",()=>{
+test("Visible Source Type segmented controls replace the unreliable native source selector",()=>{
   assert.match(source,/aria-label="Quick source type filters"/);
-  assert.match(source,/Quick source filters/);
+  assert.match(source,/<strong>Source Type<\/strong>/);
   for(const name of ['All sources','Agency','Independent']){
     assert.ok(source.includes('label:"'+name+'"'));
   }
@@ -18,9 +18,9 @@ test("Quick source controls provide visible, accessible alternatives to native s
   assert.match(source,/synthetic inspections match current filters/);
 });
 
-test("Quick source controls use the same synthetic filtering as source chart and selector",()=>{
+test("Source Type segmented controls share state with the synthetic source chart",()=>{
   assert.match(source,/sourceType===ALL\|\|row.sourceType===sourceType/);
-  assert.match(source,/label="Source Type" value=\{sourceType\}/);
+  assert.doesNotMatch(source,/<Filter label="Source Type"/);
   assert.match(source,/onSelect=\{setSourceType\}/);
   assert.doesNotMatch(source,/supabaseBrowser/);
 });
