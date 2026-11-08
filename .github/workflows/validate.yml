@@ -57,6 +57,9 @@ jobs:
       - name: Exercise client analytics in real Chromium
         run: npm run smoke:client-analytics
 
+      - name: Exercise Client Analytics in headed Chromium (Xvfb)
+        run: ANALYTICS_HEADED=1 xvfb-run -a npm run smoke:client-analytics
+
       - name: Exercise active Client Demo in real Chromium
         run: npm run smoke:client-inspections
 

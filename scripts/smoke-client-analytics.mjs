@@ -45,7 +45,7 @@ let browser, page, failed=false;
 const errors=[];
 try {
   if (!process.env.ANALYTICS_BASE_URL) await ready();
-  browser = await chromium.launch({headless:true,args:["--no-sandbox"]});
+  browser = await chromium.launch({headless:process.env.ANALYTICS_HEADED !== "1",args:["--no-sandbox"]});
   page = await browser.newPage({acceptDownloads:true});
   // Record even a short-lived recovery boundary, which final-state assertions miss.
   await page.addInitScript(() => {
