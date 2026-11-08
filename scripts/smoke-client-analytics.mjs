@@ -87,6 +87,17 @@ try{
  await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===30);
  if(await page.getByText(/Application error: a client-side exception/i).count())throw new Error("Client error on reset");
  if(exceptions.length)throw new Error(exceptions.join("\n"));
+ // Deliberately do not wait for hydration: the disabled SSR controls must become
+ // enabled only after React attaches its handlers, then produce the right cohort.
+ const early=await browser.newPage();
+ early.on("pageerror",e=>exceptions.push("Early interaction: "+(e.stack||String(e))));
+ await early.goto(base+"/demo/client-analytics",{waitUntil:"domcontentloaded"});
+ await early.locator(".filters select").first().selectOption({label:"Independent"});
+ await early.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===15);
+ if((await early.locator(".resultsSummary").innerText()).includes("60 filtered"))throw new Error("Hydration lost the early independent filter");
+ if(exceptions.length)throw new Error("Hydration interaction error: "+exceptions.join("\\n"));
+ await early.close();
+ console.log("Client Analytics early-hydration selection passed.");
  console.log("Client Analytics source-type interaction smoke passed.");
 }catch(error){failed=true;console.error(error instanceof Error?error.stack:String(error));console.error("Next server tail:",serverOutput.slice(-3000))}
 finally{if(browser)await browser.close();if(child){child.kill("SIGTERM");await new Promise(r=>setTimeout(r,200));if(!child.killed)child.kill("SIGKILL")}}
