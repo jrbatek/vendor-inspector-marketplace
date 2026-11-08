@@ -904,3 +904,11 @@ Independent P0-B accessibility work while the Client Analytics Independent Sourc
 ## 2026-11-07 — Chromium regression for client analytics Independent filtering (PR #155)
 
 The public synthetic Client Analytics Source Type=Independent control reproducibly caused a Next.js client-side exception in remote UI browser checks (#154). Implemented local built-app Chromium regression in Validate application and Autonomous QA, with post-update settling, 15 independent records, 45 agency records (30-row preview), reset, and page-error logging. Added a non-blocking headless Chromium run against the deployed public production page during PR validation to collect a real production browser stack without making an already-broken production deployment block all future demo validation. No production records or sensitive changes. This branch was rebased onto main after synthetic Client Demo request date (#156) and upload focus visibility (#157) improvements. Do not close #154 until a public browser verifies the Independent interaction is fixed; do not merge this diagnostic PR until release safeguards and review of actual issue evidence.
+
+
+## 2026-11-08 — Browser-generated fictional Income & Tax Center PDF (safe independent workstream)
+
+- Continue Income & Tax Center demo after #172 CSV export with a downloadable PDF report for the chosen synthetic year, generated entirely in the browser with the existing pdf-lib dependency. Includes gross/contractor/employee totals, fictional payment entries, fixed YTD data-through timestamp, and prominent SAMPLE / NOT VERIFIED warning.
+- Leave official 1099/W-2 examples as text-only informational previews; do not create realistic tax forms or represent income as verified. No bank numbers, real financial records, API calls, live clients, databases or credentials involved.
+- Add test coverage for year isolation, PDF byte validity and metadata, and browser-only safety. This branch deliberately does not touch the unresolved Client Analytics cross-browser P0 issue #154; maintain independent diagnosis and do not report that issue fixed.
+- Require GitHub-hosted test/migration/synthetic/typecheck/build/browser validation and matching-head READY Vercel preview before merge, production READY and smoke after.
