@@ -1,3 +1,8 @@
+## 2026-11-07 - Client Demo filtered in-progress inspections CSV export (proposed)
+- Added a synthetic-only CSV download of the currently filtered seven sample Inspections in Progress, including stage, client, dates, inspector, project/vendor/site, sample PO, milestone/report/NCR counts and next action.
+- Only browser-side fictional fixtures are used; exported rows explicitly state SYNTHETIC - NOT VERIFIED and neutralize spreadsheet formula-leading values. No production database, actual inspectors, real account information or credentials accessed.
+- Unit tests cover filtered row isolation, all seven distinct demo records and spreadsheet-safe CSV quoting. Full validation, browser smoke and Vercel/GitHub release checks are required.
+
 ## 2026-11-07 - Filtered synthetic Work History CSV export (proposed)
 - Inspector Demo Work History now exports the *currently visible, filtered* Assignments Performed or Reports Submitted, with report IDs, submitted/completed dates, NCR indicators and closeout findings.
 - Every exported row is explicitly labeled SYNTHETIC - NOT VERIFIED; no live inspection or account data is accessed. Values are CSV-quoted and spreadsheet-formula escapes are applied for safe download.

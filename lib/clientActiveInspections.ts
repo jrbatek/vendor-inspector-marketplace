@@ -51,3 +51,26 @@ export function activeInspectionReportHref(row: ActiveInspection, report: Active
     inspector: row.inspector, ncr: row.ncrs.length ? "1" : "0", download: "1" });
   return `/api/demo/report?${query}`;
 }
+
+
+/** Download-safe snapshot of filtered, fictional Client Demo in-progress inspections. */
+export function exportActiveDemoInspectionsCsv(rows: ActiveInspection[]): string {
+  const cell = (value: string | number) => {
+    const raw = String(value);
+    const safe = /^\s*[=+\-@]/.test(raw) ? "'" + raw : raw;
+    return '"' + safe.replace(/"/g, '""') + '"';
+  };
+  const columns = [
+    "Demo Only", "Inspection ID", "Client", "Project", "Vendor", "Site", "Inspector",
+    "Status / Stage", "Start Date", "End Date", "Sample PO", "Scope", "Equipment",
+    "Milestones", "Sample Reports", "NCR Examples", "Outstanding Actions", "Next Action",
+    "Next Action Owner", "Next Action Due",
+  ];
+  const records = rows.map(row => [
+    "SYNTHETIC - NOT VERIFIED", row.id, row.client, row.project, row.vendor, row.site, row.inspector,
+    row.stage, row.start, row.end, row.po, row.scope, row.equipment, row.milestones.length,
+    row.reports.length, row.ncrs.length, row.actions.length, row.actions[0]?.task ?? "",
+    row.actions[0]?.owner ?? "", row.actions[0]?.due ?? "",
+  ]);
+  return "\uFEFF" + [columns, ...records].map(line => line.map(cell).join(",")).join("\r\n") + "\r\n";
+}
