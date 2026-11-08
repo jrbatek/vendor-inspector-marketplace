@@ -46,6 +46,13 @@ export function filterActiveInspections(rows: ActiveInspection[], filters: Inspe
 }
 
 /** Client Demo action triage does not mutate synthetic fixtures or affect production data. */
+export const DEMO_ACTION_REFERENCE_DATE = "2026-11-08";
+/** Fixed fictional as-of date prevents real-time clock changes in investor demo results. */
+export function filterActiveInspectionsByActionDue(rows: ActiveInspection[], dueOnly: boolean, asOf = DEMO_ACTION_REFERENCE_DATE): ActiveInspection[] {
+  if (!dueOnly) return [...rows];
+  return rows.filter(row => row.actions.some(action => action.due <= asOf));
+}
+
 export type ActiveInspectionSort = "due" | "start" | "stage";
 export function sortActiveInspections(rows: ActiveInspection[], sort: ActiveInspectionSort): ActiveInspection[] {
   if (sort === "stage") return [...rows];

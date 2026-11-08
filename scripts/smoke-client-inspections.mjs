@@ -44,6 +44,14 @@ try{
  await dueButton.click();
  assert(await page.locator("article.inspection .nextAction").count()===7,"Next-action text and due dates must be visible on every card");
  assert(await page.locator("article.inspection").count()===7,"Sorting must not change results count");
+ // Fixed fictional demo reference date: 1 overdue (Nov 7) and 1 due today (Nov 8).
+ const dueFocus=page.getByRole("group",{name:"Outstanding-action urgency"});
+ await dueFocus.getByRole("button",{name:"Due or overdue (2)"}).click();
+ assert(await page.locator("article.inspection").count()===2,"Due-action focus must show exactly two synthetic inspections");
+ assert(await dueFocus.getByRole("button",{name:"Due or overdue (2)"}).getAttribute("aria-pressed")==="true","Due-action filter selected state missing");
+ assert((await page.locator("article.inspection").allInnerTexts()).every(text=>text.includes("Atlantic LNG Terminal")||text.includes("Pacific Hydrogen Hub")),"Incorrect due-action cohort");
+ await dueFocus.getByRole("button",{name:"All active"}).click();
+ assert(await page.locator("article.inspection").count()===7,"Due-action clear did not restore seven inspections");
 
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Authenticated workspace leaked into Client Demo");
  const stages=await page.locator("article.inspection .stage").allTextContents();
@@ -101,7 +109,7 @@ try{
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
  assert(errors.length===0,"Browser page errors: "+errors.join("\n"));
- console.log("Client Demo browser OK: seven inspections, details, PDF, filters, cross-demo navigation and live Login redirect.");
+ console.log("Client Demo browser OK: seven inspections, due/overdue action focus, details, PDF, filters, cross-demo navigation and live Login redirect.");
 }catch(e){failed=true;console.error(e instanceof Error?e.stack:String(e));console.error("Local server tail:",serverOutput.slice(-1800))}
 finally{if(browser)await browser.close();if(child){child.kill("SIGTERM");await new Promise(r=>setTimeout(r,250));if(!child.killed)child.kill("SIGKILL")}}
 if(failed)process.exitCode=1;
