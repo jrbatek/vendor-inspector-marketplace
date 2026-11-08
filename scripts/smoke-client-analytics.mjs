@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 
 const port = 3102;
@@ -37,13 +38,26 @@ async function assertCohort(page, label, expected) {
     throw new Error(label + " filter did not expose pressed state");
   if (await page.getByRole("heading", {name:"Analytics view could not load"}).count())
     throw new Error("Client Analytics recovery error after selecting " + label);
+  if (await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
+    throw new Error("Transient Client Analytics recovery panel was observed after selecting " + label);
 }
-let browser, failed=false;
+let browser, page, failed=false;
 const errors=[];
 try {
   if (!process.env.ANALYTICS_BASE_URL) await ready();
   browser = await chromium.launch({headless:true,args:["--no-sandbox"]});
-  const page = await browser.newPage({acceptDownloads:true});
+  page = await browser.newPage({acceptDownloads:true});
+  // Record even a short-lived recovery boundary, which final-state assertions miss.
+  await page.addInitScript(() => {
+    window.__analyticsRecoverySeen = false;
+    document.addEventListener("DOMContentLoaded", () => {
+      const record = () => {
+        if (document.querySelector(".analyticsRecovery")) window.__analyticsRecoverySeen = true;
+      };
+      new MutationObserver(record).observe(document.documentElement, {subtree:true, childList:true});
+      record();
+    }, {once:true});
+  });
   page.on("pageerror",e => errors.push(e.stack || String(e)));
   page.on("console",m => {if(m.type()==="error")console.log("Console:",m.text().slice(0,1000));});
   await page.goto(base+"/demo/client-analytics",{waitUntil:"domcontentloaded"});
@@ -77,16 +91,43 @@ try {
   await independent.focus();
   await page.keyboard.press("Enter");
   await assertCohort(page,"Independent",15);
+  // Repeated source transitions and fresh-document first clicks reproduce intermittent
+  // failures that a single successful final state cannot detect.
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.reload({waitUntil:"domcontentloaded"});
+    await assertCohort(page,"All",60);
+    const transitions = [
+      ["Independent",15], ["Agency",45], ["All",60],
+      ["Independent",15], ["All",60], ["Agency",45], ["Independent",15],
+    ];
+    for (const [label,expected] of transitions) {
+      await source.getByRole("button",{name:label==="All"?"All sources":label,exact:true}).click();
+      await assertCohort(page,label,expected);
+      // Catch a delayed React boundary between state transitions, not just the count.
+      await page.waitForTimeout(120);
+      if (await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
+        throw new Error("Transient analytics recovery after "+label+" on fresh reload "+attempt);
+      if (errors.length) throw new Error("Browser exception after "+label+":\n"+errors.join("\n"));
+    }
+  }
   const downloadPromise=page.waitForEvent("download");
   await page.getByRole("button",{name:/Download data/}).click();
   const download=await downloadPromise;
   if(download.suggestedFilename()!=="inspectsource-client-demo-inspections.csv")
     throw new Error("Filtered Analytics CSV download unavailable");
   if(errors.length)throw new Error("Analytics browser exceptions:\n"+errors.join("\n"));
-  console.log("Client Analytics segmented Source Type pointer, keyboard, chart, reset, 15/45/60 counts, and CSV download passed.");
+  console.log("Client Analytics: fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.");
 }catch(e){
   failed=true;
   console.error(e instanceof Error ? e.stack : String(e));
+  if(errors.length) console.error("Captured client-side exception stacks:",errors.join("\n"));
+  if(page){
+    try{
+      mkdirSync("artifacts",{recursive:true});
+      await page.screenshot({path:"artifacts/client-analytics-browser-failure.png",fullPage:true});
+      console.error("Saved synthetic demo screenshot to artifacts/client-analytics-browser-failure.png");
+    }catch(screenshotError){console.error("Unable to save failure screenshot:",String(screenshotError));}
+  }
   console.error("Server tail:",serverOutput.slice(-3000));
 }finally{
   if(browser)await browser.close();

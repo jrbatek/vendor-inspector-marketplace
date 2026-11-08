@@ -1,3 +1,9 @@
+## 2026-11-08 — P0 Client Analytics intermittent source-filter diagnostics (proposed)
+- Independently reviewed Issue #154: #178 replaced the native Source Type selector, and latest graphical session still observed a transient recovery panel during a later Independent transition. Do **not** call the issue fixed; live auth/matching/production records remain untouched.
+- Added three fresh-document Chromium replay cycles (seven All/Agency/Independent transitions per cycle), retaining 15/45/60 count, accessibility and CSV checks. A MutationObserver records transient recovery panels even when the final state looks correct; pageerror stacks and screenshot evidence are collected on failure.
+- Both GitHub QA workflows now preserve the synthetic Analytics failure screenshot as an artifact. This is a test-only P0 branch; if external-browser-only exceptions remain unreproduced in CI, report the environmental discrepancy and leave #154 open.
+- Local checkout remains blocked by github.com DNS; use exact-head GitHub-hosted typecheck/tests/synthetic/migration/build and Chromium smoke, plus READY Vercel preview before any merge. Following merge, require production READY and smoke. Continue isolated demo features while issue diagnosis proceeds.
+
 ### 2026-11-08 — Client Demo in-progress action triage (safe synthetic UX)
 - Built from production main ae864444bec6b3bfca68ac2b14576d60975ad965 on isolated feature branch; priority remains P0 demo utility.
 - Seven fictional active inspections now have distinct sample action deadlines; the release-preparation scenario's scheduled end no longer predates November 8. The action and due date are visible before opening an inspection.
