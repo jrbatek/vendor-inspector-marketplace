@@ -919,3 +919,10 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 - Broaden the existing built-app Chromium contrast audit from its initial 12 public routes to every published Client, Inspector and Agency demo page, including commercial analytics, income, affiliations, client data/operations and legacy deep links. Continue testing desktop (1440 px) and mobile (390 px) plus pageerror and no-login invariants.
 - Add a dynamic source-tree regression contract so new `app/demo/*/page.tsx` routes cannot silently escape the browser audit. Test-only, synthetic/no-login browsing, with no auth, RLS, finances, data writes, matching or environment changes.
 - Independent of #173 PDF feature and of open P0 Client Analytics browser discrepancy #154. Require full CI, preview READY, sequential merge, production READY and smoke before release claims.
+
+
+## 2026-11-08 — Browser-level regression for synthetic Income PDF exports
+
+- Build on the validated browser-generated Income & Tax PDF from #173. Add a real Chromium download/parse check for each 2024, 2025 and 2026 fictional cohort, verifying the file name, PDF signature, PDF metadata, selected-year record count, no browser exceptions, no live workspace navigation or bank inputs.
+- Run the deterministic smoke against the built app in both Validate application and Autonomous QA. Uses only fake records and public routes; no production writes, tax-filing or bank collection. Separate from the all-route contrast audit in #174 and unresolved Client Analytics issue #154.
+- Require CI, synthetic data, migration, typecheck and build gates plus matching-head READY preview before merge and post-merge production READY and smoke.

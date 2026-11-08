@@ -69,6 +69,9 @@ jobs:
       - name: Audit visible demo controls on desktop and mobile
         run: npm run smoke:demo-controls
 
+      - name: Verify fictional income report PDF download in Chromium
+        run: npm run smoke:inspector-income
+
       - name: Diagnose current public production filters (non-blocking)
         if: github.event_name == 'pull_request'
         continue-on-error: true
