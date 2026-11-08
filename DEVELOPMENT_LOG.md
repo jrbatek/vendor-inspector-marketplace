@@ -1,3 +1,8 @@
+## 2026-11-07 - P0 Client Analytics guarded recovery (proposed)
+- Added a route-local Next.js client error boundary specifically for synthetic Client Analytics. Browser-side exceptions should no longer strand a reviewer in a dead generic application shell: accessible Try Again, full reload/reset, In-progress Inspections and Client Demo home, all demo-only with visible text/keyboard focus and no authenticated live-workspace link.
+- **Usability mitigation only**, not a verified root-cause fix for issue #154. Independent graphical Source Type = Independent crash remains OPEN and reproducible; actual JS stack unavailable.
+- Managed Vercel sandbox npm run validate passed 251/251 unit tests, migration checks, deterministic synthetic QA, typecheck, production build, route/PDF smoke in the combined independent development workspace. This branch includes only these two new files + log note based on current main. Exact-head CI and READY preview required before merge; production READY and actual recovery testing after.
+
 ## 2026-11-07 - Client Data & Integrations: synthetic JSON export and safer CSV (proposed)
 - Extended the existing synthetic Client Data & Integrations page with a working browser-local JSON download of the same five clearly fictional records used by its CSV preview, marked SYNTHETIC DEMO - NOT VERIFIED, with liveIntegration=false and record count. The on-page sample GET endpoint is now explicitly labeled illustrative/not live, and clipboard denial has an accessible fallback message.
 - Hardened the existing CSV serialization against spreadsheet formula injection (including whitespace-prefixed =,+,-,@), quotes and embedded delimiters. Added focused serialization tests and updated legacy page contracts to match the shared download helper.
