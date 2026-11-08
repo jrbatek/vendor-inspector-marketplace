@@ -28,6 +28,23 @@ try{
  assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
  assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
  assert(await page.getByText("Demo mode · No login required").count()===1,"Missing unauthenticated demo context");
+ // Action triage is synthetic-only; order changes without losing any records.
+ const actionGroup=page.getByRole("group",{name:"Sort synthetic inspections"});
+ const dueButton=actionGroup.getByRole("button",{name:"Next action due"});
+ const startButton=actionGroup.getByRole("button",{name:"Scheduled start"});
+ const stageButton=actionGroup.getByRole("button",{name:"Delivery stage"});
+ assert(await dueButton.getAttribute("aria-pressed")==="true","Action due sort must be selected by default");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Pacific Hydrogen Hub"),"Earliest next action must appear first");
+ await startButton.click();
+ assert(await startButton.getAttribute("aria-pressed")==="true","Scheduled start sort not selected");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Coral Offshore Development"),"Earliest scheduled start must appear first");
+ await stageButton.click();
+ assert(await stageButton.getAttribute("aria-pressed")==="true","Delivery stage sort not selected");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Gulf Horizon Refinery Upgrade"),"Delivery stage order did not restore the workflow");
+ await dueButton.click();
+ assert(await page.locator("article.inspection .nextAction").count()===7,"Next-action text and due dates must be visible on every card");
+ assert(await page.locator("article.inspection").count()===7,"Sorting must not change results count");
+
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Authenticated workspace leaked into Client Demo");
  const stages=await page.locator("article.inspection .stage").allTextContents();
  assert(new Set(stages.map(s=>s.trim())).size===7,"Expected seven distinct inspection stages");

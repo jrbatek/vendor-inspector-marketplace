@@ -1,3 +1,9 @@
+### 2026-11-08 — Client Demo in-progress action triage (safe synthetic UX)
+- Built from production main ae864444bec6b3bfca68ac2b14576d60975ad965 on isolated feature branch; priority remains P0 demo utility.
+- Seven fictional active inspections now have distinct sample action deadlines; the release-preparation scenario's scheduled end no longer predates November 8. The action and due date are visible before opening an inspection.
+- Added three accessible sort controls (next action due, scheduled start, delivery stage), visible active state and keyboard focus, reset behavior, pure nonmutating sorting, and deterministic tests plus real Chromium interaction checks in both GitHub validation workflows.
+- No live-account, authentication, production database, RLS, privacy, payment, or matching changes; all dates, clients and work items synthetic. Release only after pre-push validation, exact-head GitHub CI, READY Vercel preview, and production READY plus route smoke.
+
 ## 2026-11-08 - P0 Client Analytics Source Type control reliability (proposed)
 - Replaced the problematic redundant native **Source Type** dropdown with a prominently labeled, keyboard-accessible segmented source filter (All sources / Agency / Independent). The existing quick-filter state and source chart remain synchronized; other eight native slicers remain unchanged. This mitigates the repeatedly reproduced graphical-browser native-dropdown crash (#154) without touching live authentication, RLS, production data, matching rules, payments or banking.
 - Expanded browser regression to verify first-click Independent 15/60, Agency 45/60, reset, source chart toggles, keyboard action, CSV download and browser exceptions. Update source control tests and hydration counts. **Do not close #154 or assert the root cause is fixed until exact-head CI, preview READY, production READY and an independent graphical browser check demonstrate no crash on the new controls.**
