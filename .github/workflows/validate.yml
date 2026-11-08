@@ -63,6 +63,9 @@ jobs:
       - name: Exercise InspectorHub demo routing, calendar, availability and notice isolation
         run: npm run smoke:inspector-demo
 
+      - name: Audit visible demo controls on desktop and mobile
+        run: npm run smoke:demo-controls
+
       - name: Diagnose current public production filters (non-blocking)
         if: github.event_name == 'pull_request'
         continue-on-error: true

@@ -1,3 +1,9 @@
+## 2026-11-07 - Cross-demo visible-control browser QA (proposed)
+- Added a 12-route, two-viewport (1440px desktop / 390px mobile) real Chromium smoke that audits visible Client, Inspector, Agency and shared interactive controls. It fails on blank accessible names, effectively invisible opacity, foreground/background contrast under 3:1 (2:1 for explicitly disabled controls), client JavaScript crashes or demo routes sending anonymous reviewers to Login.
+- Native label/aria-label/title/text/image-alt resolution handles named date and file inputs correctly. The audit covers 24 page/viewport combinations and does not touch production data. Both GitHub validation workflows execute this after production build; it has its own npm command.
+- Managed Vercel sandbox passed npm run validate and its 24-route real-browser control scan. No source changes to live auth/RLS, personal records, production matching, payments or DB contents.
+- Release requires GitHub checks and exact-head Vercel preview READY before merge, followed by production READY and demo smoke.
+
 ## 2026-11-07 - Client Analytics native keyboard/pointer regression (proposed)
 - Expanded CI's real Chromium Client Analytics smoke beyond selectOption: ordinary native keyboard focus and pointer-opened selection must render 15 Independent synthetic inspections without JS/page errors. Both required GitHub workflows already execute this post-build smoke.
 - Managed Vercel sandbox full npm run validate passed unit tests, migration safety, deterministic synthetic QA, TypeScript, production build and route/PDF smoke. New native Chromium tests passed against built app and public production. Exploratory public tests in Chromium 158, Firefox 159 and WebKit 27.2 passed native pointer/keyboard selection (15/15; zero pageerrors).
