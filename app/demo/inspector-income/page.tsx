@@ -26,6 +26,7 @@ function sampleDocument(title:string,year:Year,lines:string[]){
 }
 export default function InspectorIncomeDemo(){
  const [year,setYear]=useState<Year>(2026);
+ const [pdfBusy,setPdfBusy]=useState(false);
  const [paymentOpen,setPaymentOpen]=useState(false);
  const [method,setMethod]=useState("Synthetic direct deposit preference");
  const [draft,setDraft]=useState(method);
@@ -40,6 +41,24 @@ export default function InspectorIncomeDemo(){
  const employed=data.filter(a=>a.type==="Employee").reduce((s,a)=>s+a.gross,0);
  const reportLines=data.map(a=>a.id+" | "+a.project+" | "+a.client+" | "+money(a.gross)+" | "+a.type);
  const documentLink=(title:string,lines:string[])=>sampleDocument(title,year,lines);
+ const downloadSyntheticPdf=async()=>{
+   setPdfBusy(true);
+   setMessage("");
+   try {
+     const { createSyntheticIncomeReportPdf } = await import("@/lib/inspectorIncomePdf");
+     const dataUri=await createSyntheticIncomeReportPdf(ACTIVITIES,year,DATA_THROUGH);
+     const anchor=document.createElement("a");
+     anchor.href=dataUri;
+     anchor.download="inspectsource-synthetic-income-report-"+year+".pdf";
+     document.body.appendChild(anchor);
+     anchor.click();
+     anchor.remove();
+   } catch {
+     setMessage("The fictional income PDF could not be prepared. Try again or use the sample text report.");
+   } finally {
+     setPdfBusy(false);
+   }
+ };
  return <main className="incomePage">
    <header className="hero"><p className="eyebrow">InspectorHub · Demo Mode</p><h1>Income &amp; Tax Center</h1>
     <p>Explore fictional earnings, work verification, tax-document summaries and sample income reports. No personal, payroll, tax or banking records are connected.</p>
@@ -54,7 +73,7 @@ export default function InspectorIncomeDemo(){
    </section>
    <div className="cards">
     <section className="card"><p className="eyebrow">Employment / Work Verification</p><h2>Work verification</h2><p>Illustrative assignment activity letter; not signed or independently verified.</p><a download={"sample-work-verification-"+year+".txt"} href={documentLink("Work Verification SAMPLE",reportLines)}>Download sample verification</a></section>
-    <section className="card"><p className="eyebrow">Verified Income Reports</p><h2>Income report preview</h2><p>Sample report layout only. No income was independently verified.</p><a download={"sample-income-report-"+year+".txt"} href={documentLink("Income Verification SAMPLE",["Gross "+money(gross),"Contractor "+money(contract),"Employee "+money(employed),...reportLines])}>Download sample income report</a></section>
+    <section className="card"><p className="eyebrow">Verified Income Reports</p><h2>Income report preview</h2><p>Sample report layout only. No income was independently verified.</p><a download={"sample-income-report-"+year+".txt"} href={documentLink("Income Verification SAMPLE",["Gross "+money(gross),"Contractor "+money(contract),"Employee "+money(employed),...reportLines])}>Download sample income report (text)</a><button type="button" disabled={pdfBusy} onClick={downloadSyntheticPdf}>{pdfBusy?"Preparing fictional PDF...":"Download synthetic income report PDF"}</button><p>PDF preview is marked SAMPLE / NOT VERIFIED. It is not usable as income or employment evidence.</p></section>
     <section className="card"><p className="eyebrow">Tax documents</p><h2>Applicable 1099-NEC / W-2</h2>
       {year===2026?<p>Current-year tax statements are not yet issued. Select a completed year to preview sample summaries.</p>:<><p>Informational sample summaries, not official IRS forms or tax documents for filing.</p><div className="downloads">
         {contract>0&&<a download={"sample-1099-nec-"+year+".txt"} href={documentLink("1099-NEC informational SAMPLE",["Fictional independent contractor gross: "+money(contract)])}>Sample 1099-NEC</a>}
