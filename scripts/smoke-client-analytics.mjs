@@ -29,6 +29,27 @@ async function verify(page,label,count){
   if(exceptions.length)throw new Error("Browser exceptions on "+label+":\n"+exceptions.join("\n"));
   console.log("Analytics browser OK:",label,count);
 }
+// Unlike selectOption(), these paths exercise ordinary keyboard/pointer native-select events.
+async function verifyNativeSourceFilter(page, interaction) {
+  await page.getByRole("button", { name: "Reset filters" }).click();
+  const selector = page.locator(".filters select").first();
+  await page.waitForFunction(() => document.querySelector(".filters select")?.value === "All");
+  if (interaction === "pointer") await selector.click();
+  else await selector.focus();
+  await page.keyboard.press("End"); // All, Agency, Independent => final option
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.querySelector(".filters select")?.value === "Independent");
+  await page.waitForFunction(() => document.querySelectorAll(".records tbody tr").length === 15);
+  await page.waitForTimeout(1500);
+  if (!(await page.locator(".resultsSummary").innerText()).includes("15 of 15")) {
+    throw new Error("Native " + interaction + " selection lost the full Independent count");
+  }
+  if (await page.getByText(/Application error: a client-side exception/i).count()) {
+    throw new Error("Next.js client error after native " + interaction + " select");
+  }
+  if (exceptions.length) throw new Error("Browser exception after native " + interaction + ":\n" + exceptions.join("\n"));
+  console.log("Analytics native " + interaction + " select passed: Independent 15");
+}
 let failed=false;
 try{
  if(!process.env.ANALYTICS_BASE_URL)await ready();
@@ -42,6 +63,8 @@ try{
  if((await page.locator(".records tbody tr").count())!==30)throw new Error("Expected initial 30-row preview");
  await verify(page,"Independent",15);
  await verify(page,"Agency",30); // first 30 of 45 are rendered
+ await verifyNativeSourceFilter(page,"keyboard");
+ await verifyNativeSourceFilter(page,"pointer");
  await page.getByRole("button",{name:"Reset filters"}).click();
  const chart=page.locator(".grid .panel").first();
  const independent=chart.getByRole("button",{name:/Independent/});

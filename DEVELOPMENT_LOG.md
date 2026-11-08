@@ -1,3 +1,9 @@
+## 2026-11-07 - Client Analytics native keyboard/pointer regression (proposed)
+- Expanded CI's real Chromium Client Analytics smoke beyond selectOption: ordinary native keyboard focus and pointer-opened selection must render 15 Independent synthetic inspections without JS/page errors. Both required GitHub workflows already execute this post-build smoke.
+- Managed Vercel sandbox full npm run validate passed unit tests, migration safety, deterministic synthetic QA, TypeScript, production build and route/PDF smoke. New native Chromium tests passed against built app and public production. Exploratory public tests in Chromium 158, Firefox 159 and WebKit 27.2 passed native pointer/keyboard selection (15/15; zero pageerrors).
+- Independent external graphical browser exceptions are still unaccounted for. Issue #154 remains OPEN; this QA improvement is not represented as a root-cause fix. No live authentication/RLS, bank/payments, private production records, production matching, DB writes or synthetic production seed.
+- Release still requires head-matched GitHub CI, Vercel preview READY, merged production READY and smoke tests.
+
 ## 2026-11-07 - InspectorHub anonymous Chromium regression (proposed)
 - Added real-browser testing for green sidebar ordering, consolidated Work History, no leaked Declined banner, Month/Week/List calendar, fictional private personal events, appointment-conflict protection, synthetic date blocking, calendar-to-assignment opening and simulated Outlook connection.
 - Synthetic browser-only checks; no production auth, RLS, persistence, calendar API credentials, bank/payment or matching changes. Managed sandbox full validation and Chromium smoke passed with placeholder Supabase environment, including public production browser smoke. Release requires head-matched CI, READY preview, and READY production smoke.
