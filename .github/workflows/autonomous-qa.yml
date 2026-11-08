@@ -85,3 +85,12 @@ jobs:
           path: .synthetic/summary.json
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Preserve Client Analytics failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-analytics-browser-failure-qa
+          path: artifacts/client-analytics-browser-failure.png
+          if-no-files-found: ignore
+          retention-days: 14

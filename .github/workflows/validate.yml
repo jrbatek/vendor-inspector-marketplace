@@ -82,3 +82,12 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+
+      - name: Preserve Client Analytics failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-analytics-browser-failure-validate
+          path: artifacts/client-analytics-browser-failure.png
+          if-no-files-found: ignore
+          retention-days: 14

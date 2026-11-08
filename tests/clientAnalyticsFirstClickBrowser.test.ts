@@ -14,4 +14,8 @@ test("P0 analytics smoke validates first source-button click without native Sour
   assert.match(src,/getByRole\("heading", \{name:"Analytics view could not load"\}\)/);
   assert.match(src,/errors\.length/);
   assert.match(src,/waitForEvent\("download"\)/);
+  assert.match(src,/attempt <= 3/);
+  assert.match(src,/Transient analytics recovery after/);
+  assert.match(src,/MutationObserver\(record\)/);
+  assert.match(src,/client-analytics-browser-failure\.png/);
 });
