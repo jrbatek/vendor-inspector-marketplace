@@ -65,6 +65,9 @@ jobs:
       - name: Exercise InspectorHub demo routing, calendar, availability and notice isolation
         run: npm run smoke:inspector-demo
 
+      - name: Audit visible demo controls on desktop and mobile
+        run: npm run smoke:demo-controls
+
       - name: Upload synthetic summary
         if: always()
         uses: actions/upload-artifact@v4
