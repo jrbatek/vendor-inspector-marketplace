@@ -1,3 +1,8 @@
+### 2026-11-08 — Inspector Income PDF busy-button contrast (independent safe P0-B)
+- Explicitly styled synthetic Income & Tax Center PDF-download button while disabled/busy, including disabled hover: high-contrast dark text on light gray background, visible border, preserved full opacity and a waiting cursor. Prevents native browser disabled styles from making the control unreadable during PDF generation.
+- Added a focused style/behavior contract test and a programmatic WCAG AA contrast assertion. Demo-only styling, no payment credentials/financial record writes, RLS/auth/matching, or database migrations.
+- Batch commit through Git data APIs on current main; local network checkout still DNS-blocked. Exact-head GitHub tests/migrations/synthetic/typecheck/build/smoke and READY Vercel preview required before merge, then production READY/smoke.
+
 ### 2026-11-08 — Client Analytics spreadsheet-safe CSV export (safe P0 regression)
 - Replaced the Analytics demo's duplicated naive quoted-field CSV builder with the already-tested shared `buildDemoCsv` utility. Preserves filtered synthetic records and source/agency attribution; disarms spreadsheet-formula prefixes including leading whitespace/control characters, quotes safely, and uses CRLF lines.
 - Added targeted unit/integration-contract tests for the Analytics export path and hostile synthetic formula-like fields. No production records, auth, RLS, matching, banking, payments, API credentials, or database writes were changed.
