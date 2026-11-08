@@ -2,7 +2,7 @@ name: Auto-merge validated autonomous releases
 
 on:
   workflow_run:
-    workflows: ["Validate application"]
+    workflows: ["Validate application", "Autonomous QA"]
     types: [completed]
 
 permissions:

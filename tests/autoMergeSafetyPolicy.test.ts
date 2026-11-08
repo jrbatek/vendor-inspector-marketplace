@@ -14,6 +14,7 @@ test("autonomous merge requires explicit low-risk label and exact head/base", ()
 });
 
 test("autonomous merge requires both passed CI jobs and READY Vercel status", () => {
+  assert.match(source, /workflows: \["Validate application", "Autonomous QA"\]/);
   for (const marker of ['.name == "validate"', '.name == "synthetic-and-app-validation"',
     '.conclusion == "success"', '.context == "Vercel"', '.state == "success"']) {
     assert.ok(source.includes(marker), marker);
