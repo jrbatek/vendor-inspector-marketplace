@@ -1,3 +1,8 @@
+### 2026-11-08 — Client Analytics spreadsheet-safe CSV export (safe P0 regression)
+- Replaced the Analytics demo's duplicated naive quoted-field CSV builder with the already-tested shared `buildDemoCsv` utility. Preserves filtered synthetic records and source/agency attribution; disarms spreadsheet-formula prefixes including leading whitespace/control characters, quotes safely, and uses CRLF lines.
+- Added targeted unit/integration-contract tests for the Analytics export path and hostile synthetic formula-like fields. No production records, auth, RLS, matching, banking, payments, API credentials, or database writes were changed.
+- Requires GitHub-hosted test, migration, synthetic-data validation, typecheck, production build, browser smoke, READY preview and production READY/smoke before merging. Local checkout/network restriction is not considered repaired.
+
 ### 2026-11-08 — Source of Inspectors real-browser accessibility regression (safe P0-B)
 - Added an anonymous Chromium smoke test for the Client Sourcing Demo's three Source of Inspectors buttons: keyboard/focus, selected/unselected/hover text contrast, exclusive pressed state, accurate 4/2/2/4 synthetic record counts, agency-channel preview isolation, and login-shell absence.
 - Runs in both required GitHub CI workflows alongside the existing demo-wide control audit. It does not alter source eligibility, commercial rules, production matching, or account permissions. Must pass mandatory local/CI validation and READY Vercel preview before merge.
