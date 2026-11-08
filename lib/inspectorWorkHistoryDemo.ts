@@ -69,3 +69,31 @@ export function inspectorWorkReportHref(row: InspectionWorkHistory, download = f
   });
   return "/api/demo/report?" + q.toString();
 }
+
+
+export type WorkHistoryCsvView = "assignments" | "reports";
+
+/** Only fictional records from Inspector Demo may be passed to this renderer. */
+export function exportInspectorWorkHistoryCsv(
+  rows: InspectionWorkHistory[],
+  view: WorkHistoryCsvView,
+): string {
+  const quote = (value: string | boolean) => {
+    const raw = typeof value === "boolean" ? (value ? "Yes" : "No") : value;
+    // Guard CSV spreadsheet imports against formula execution, even in demo fixtures.
+    const safe = /^[\s]*[=+\-@]/.test(raw) ? "'" + raw : raw;
+    return '"' + safe.replace(/"/g, '""') + '"';
+  };
+  const headings = [
+    "Demo Only", "Record Type", "Record ID", "Client", "Project", "Vendor / Site",
+    "Industry", "Commodity", "Location", "Inspection Scope", "Started", "Completed",
+    "Closeout Status", "Report ID", "Report Submitted", "NCR Example", "Closeout Finding",
+  ];
+  const data = rows.map(row => [
+    "SYNTHETIC - NOT VERIFIED", view === "assignments" ? "Assignment performed" : "Report submitted",
+    view === "assignments" ? row.id : row.reportId, row.client, row.project, row.vendor,
+    row.industry, row.commodity, row.location, row.assignmentType, row.start, row.completed,
+    row.status, row.reportId, row.submitted, row.ncr, row.finding,
+  ]);
+  return "\uFEFF" + [headings, ...data].map(cells => cells.map(quote).join(",")).join("\r\n") + "\r\n";
+}
