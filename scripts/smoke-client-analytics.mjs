@@ -63,6 +63,26 @@ try{
  if((await page.locator(".records tbody tr").count())!==30)throw new Error("Expected initial 30-row preview");
  await verify(page,"Independent",15);
  await verify(page,"Agency",30); // first 30 of 45 are rendered
+ // Direct, keyboard-accessible quick source controls provide a non-native
+ // alternative if a particular browser cannot operate the Source Type selector.
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ const quick=page.getByRole("group",{name:"Quick source type filters"});
+ const quickIndependent=quick.getByRole("button",{name:"Independent",exact:true});
+ await quickIndependent.click();
+ await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===15);
+ if((await page.locator(".filters select").first().inputValue())!=="Independent")throw new Error("Quick source filter failed to synchronize the native selector");
+ if((await quickIndependent.getAttribute("aria-pressed"))!=="true")throw new Error("Quick Independent filter missing pressed state");
+ await quick.getByRole("button",{name:"All sources"}).click();
+ await page.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===30);
+ const quickAgency=quick.getByRole("button",{name:"Agency",exact:true});
+ await quickAgency.click();
+ await page.waitForFunction(()=>document.querySelector(".filters select")?.value==="Agency");
+ if(!(await page.locator(".resultsSummary").innerText()).includes("of 45"))throw new Error("Quick Agency filter lost 45-record cohort");
+ if((await quickAgency.getAttribute("aria-pressed"))!=="true")throw new Error("Quick Agency filter missing pressed state");
+ await quick.getByRole("button",{name:"All sources"}).click();
+ await page.waitForFunction(()=>document.querySelector(".filters select")?.value==="All");
+ if(exceptions.length)throw new Error("Quick source filter browser exception: "+exceptions.join("\n"));
+ console.log("Client Analytics quick source filter browser controls passed.");
  await verifyNativeSourceFilter(page,"keyboard");
  await verifyNativeSourceFilter(page,"pointer");
  await page.getByRole("button",{name:"Reset filters"}).click();
