@@ -60,6 +60,9 @@ jobs:
       - name: Exercise active Client Demo in real Chromium
         run: npm run smoke:client-inspections
 
+      - name: Exercise Source of Inspectors selection and contrast in Chromium
+        run: npm run smoke:client-sourcing
+
       - name: Exercise synthetic Agency Commercials region filters in Chromium
         run: npm run smoke:agency-commercials
 
