@@ -18,7 +18,9 @@ test("client demo exposes downloadable synthetic inspection data", () => {
   assert.match(page, /Synthetic inspection data only/);
   assert.match(page, /Download synthetic client data \(\.CSV\)/);
   assert.match(page, /inspectsource-client-demo-data\.csv/);
-  assert.match(page, /new Blob\(\[csv\]/);
+  assert.match(page, /downloadFile\(csv,/);
+  assert.match(page, /downloadFile\(json,/);
+  assert.match(page, /Download synthetic JSON/);
 });
 
 test("client demo shows API, Excel, Power BI and ERP connectivity concepts", () => {
