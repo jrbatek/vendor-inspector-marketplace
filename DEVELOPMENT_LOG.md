@@ -1,3 +1,8 @@
+### 2026-11-08 — GitHub auto-merge release safeguard (defense-in-depth)
+- Identified that the existing `autonomous-*` branch GitHub Actions merger was triggered by a successful Validate application run without explicitly verifying the second Autonomous QA workflow, matching-head Vercel READY, safe diff scope, or current main SHA. This could bypass owner-required release gates on a matching branch.
+- Tightened autonomous-branch merging to require an explicit `safe-demo-auto-merge` label, matching workflow/PR head, unchanged main base, both named exact-head successful GitHub checks, successful exact-head Vercel deployment status, and a conservative sensitive-file denylist. Uses `--match-head-commit` for the final merge lease. Unlabeled/conflicted/high-risk PRs remain reviewable for the connected development loop; no auth/RLS/payment/data changes.
+- Added regression tests on workflow policy. CI and Vercel preview READY are mandatory before release; do not use Vercel as a debugging loop.
+
 ### 2026-11-08 — Inspector Income PDF busy-button contrast (independent safe P0-B)
 - Explicitly styled synthetic Income & Tax Center PDF-download button while disabled/busy, including disabled hover: high-contrast dark text on light gray background, visible border, preserved full opacity and a waiting cursor. Prevents native browser disabled styles from making the control unreadable during PDF generation.
 - Added a focused style/behavior contract test and a programmatic WCAG AA contrast assertion. Demo-only styling, no payment credentials/financial record writes, RLS/auth/matching, or database migrations.

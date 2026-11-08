@@ -2,7 +2,7 @@ name: Auto-merge validated autonomous releases
 
 on:
   workflow_run:
-    workflows: ["Validate application"]
+    workflows: ["Validate application", "Autonomous QA"]
     types: [completed]
 
 permissions:
@@ -45,5 +45,50 @@ jobs:
             exit 0
           fi
 
-          echo "Validation succeeded for autonomous branch '$HEAD_REF'. Merging PR #$PR_NUMBER."
-          gh pr merge "$PR_NUMBER" --repo "$REPO" --squash --delete-branch
+          # An autonomous-* name alone never authorizes a merge. Label only
+          # clearly synthetic, low-risk PRs after reviewing their diff.
+          PR_JSON="$(gh api "repos/$REPO/pulls/$PR_NUMBER")"
+          HEAD_SHA="$(jq -r '.head.sha' <<< "$PR_JSON")"
+          BASE_SHA="$(jq -r '.base.sha' <<< "$PR_JSON")"
+          RUN_SHA="$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '.head_sha')"
+          SAFE_LABEL="$(jq -r '[.labels[].name] | index("safe-demo-auto-merge") != null' <<< "$PR_JSON")"
+
+          if [ "$SAFE_LABEL" != true ]; then
+            echo "No safe-demo-auto-merge label on PR #$PR_NUMBER; leaving it for the managed release loop."
+            exit 0
+          fi
+
+          if [ "$HEAD_SHA" != "$RUN_SHA" ]; then
+            echo "The validated head $RUN_SHA differs from current PR head $HEAD_SHA; skip stale workflow."
+            exit 0
+          fi
+
+          CURRENT_MAIN="$(gh api "repos/$REPO/git/ref/heads/main" --jq '.object.sha')"
+          if [ "$BASE_SHA" != "$CURRENT_MAIN" ]; then
+            echo "main moved since PR validation; require rebase and fresh checks."
+            exit 0
+          fi
+
+          # Defense-in-depth: even a labeled PR cannot auto-merge sensitive changes.
+          FILES="$(gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files?per_page=100" --jq '.[].filename')"
+          if grep -Eiq '(^[.]github/|^supabase/|^database/|^integrations/|^app/api/|(^|/)(auth|login|session|credentials|payment|billing|bank|tax|matching|pricing|rls|privacy|legal|signature)(/|[.]|[-]|_))' <<< "$FILES"; then
+            echo "Sensitive file or release workflow changed: stop at reviewable PR."
+            exit 0
+          fi
+
+          CHECK_RUNS="$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs?per_page=100")"
+          VALIDATE_OK="$(jq -r '[.check_runs[] | select(.name == "validate" and .conclusion == "success")] | length' <<< "$CHECK_RUNS")"
+          QA_OK="$(jq -r '[.check_runs[] | select(.name == "synthetic-and-app-validation" and .conclusion == "success")] | length' <<< "$CHECK_RUNS")"
+          if [ "$VALIDATE_OK" -lt 1 ] || [ "$QA_OK" -lt 1 ]; then
+            echo "Both exact-head application validation and autonomous QA must pass before merging."
+            exit 0
+          fi
+
+          VERCEL_OK="$(gh api "repos/$REPO/commits/$HEAD_SHA/status" --jq '[.statuses[] | select(.context == "Vercel" and .state == "success" and (.target_url | startswith("https://vercel.com/")))] | length')"
+          if [ "$VERCEL_OK" -lt 1 ]; then
+            echo "Exact-head Vercel preview is not READY; do not merge."
+            exit 0
+          fi
+
+          echo "Both CI workflows and Vercel preview passed at $HEAD_SHA, current main $CURRENT_MAIN."
+          gh pr merge "$PR_NUMBER" --repo "$REPO" --squash --delete-branch --match-head-commit "$HEAD_SHA"
