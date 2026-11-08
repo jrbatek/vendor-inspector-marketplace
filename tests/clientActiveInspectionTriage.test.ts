@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
   ACTIVE_DEMO_INSPECTIONS as inspections, EMPTY_INSPECTION_FILTERS,
-  filterActiveInspections, sortActiveInspections,
+  filterActiveInspections, sortActiveInspections, filterActiveInspectionsByActionDue, DEMO_ACTION_REFERENCE_DATE,
 } from "../lib/clientActiveInspections";
 
 test("fictional active inspections have varied, meaningful next-action deadlines", () => {
@@ -37,4 +37,26 @@ test("Client Demo shows accessible action triage controls and visible next-actio
   assert.match(source, /Next action: \{row.actions\[0\]\?\.task\} · Due/);
   assert.match(source, /setSort\("due"\)/);
   assert.match(source, /sortBar button:focus-visible/);
+});
+
+test("fixed synthetic due-action focus narrows to 2 inspections without mutating any fixtures", () => {
+  const original = [...inspections];
+  assert.equal(DEMO_ACTION_REFERENCE_DATE,"2026-11-08");
+  const focused = filterActiveInspectionsByActionDue(inspections,true);
+  assert.deepEqual(focused.map(row => row.project),["Atlantic LNG Terminal","Pacific Hydrogen Hub"]);
+  assert.equal(filterActiveInspectionsByActionDue(inspections,false).length,7);
+  const inProject = filterActiveInspections(inspections,{...EMPTY_INSPECTION_FILTERS,project:"Pacific Hydrogen Hub"});
+  assert.deepEqual(filterActiveInspectionsByActionDue(inProject,true), inProject);
+  assert.deepEqual(inspections,original);
+});
+
+test("client demo due filter exposes legible mutually exclusive buttons, date provenance and reset", () => {
+  const source = fs.readFileSync("app/demo/client-inspections/page.tsx","utf8");
+  assert.match(source,/aria-label="Outstanding-action urgency"/);
+  assert.match(source,/aria-pressed=\{dueOnly\}/);
+  assert.match(source,/aria-pressed=\{!dueOnly\}/);
+  assert.match(source,/Due or overdue \(\{dueCount\}\)/);
+  assert.match(source,/setDueOnly\(false\)/);
+  assert.match(source,/synthetic as of November 8, 2026/);
+  assert.match(source,/\.dueFilter button:focus-visible/);
 });
