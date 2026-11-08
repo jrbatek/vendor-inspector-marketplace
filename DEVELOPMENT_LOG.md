@@ -1,3 +1,7 @@
+## 2026-11-07 - Agency Commercials interactive browser regression (proposed)
+- Added Chromium smoke coverage for anonymous synthetic Agency Commercials region filtering (North America, Middle East, Europe), matching contracts/performance rows, reset, accessible selector, visible synthetic-only boundary, and console/page exceptions. Wired into both existing GitHub validation workflows after Chromium installation; production demo-only, no live financial or production data actions.
+- Validate tests, synthetic fixture checks, migrations, TypeScript, production build and route/PDF smoke locally; require exact-head CI and Vercel preview READY before autonomous merge, production READY and affected-route smoke afterward. Remain separate from unresolved Client Analytics issue #154 and sensitive PR #56.
+
 ## 2026-11-07 - Agency commercial demo regional contract and performance filters (proposed)
 - Made static fictional Agency Contracts & Commercials sample interactive: Region selector (All regions / North America / Middle East / Europe) filters both sample contract rows and matching client performance rows, reports the number of matches and provides a clear/reset action. Portfolio-wide illustrative revenue bars are explicitly labeled all sample regions to prevent misleading filtered metrics.
 - Added visible focus states, clear text contrast, an accessible selector label and live filtered-record count. Preserved all fictional revenue, rate/contract, client and inspector information without any production financial, payment, auth/RLS or matching-rule change.
