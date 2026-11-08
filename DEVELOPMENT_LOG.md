@@ -1,3 +1,7 @@
+### 2026-11-08 — Source of Inspectors real-browser accessibility regression (safe P0-B)
+- Added an anonymous Chromium smoke test for the Client Sourcing Demo's three Source of Inspectors buttons: keyboard/focus, selected/unselected/hover text contrast, exclusive pressed state, accurate 4/2/2/4 synthetic record counts, agency-channel preview isolation, and login-shell absence.
+- Runs in both required GitHub CI workflows alongside the existing demo-wide control audit. It does not alter source eligibility, commercial rules, production matching, or account permissions. Must pass mandatory local/CI validation and READY Vercel preview before merge.
+
 ### 2026-11-08 — Inspector Work History project/vendor/reference keyword search (safe synthetic UX)
 - Originally built on main e06acf8, now reconciled onto current production main 962fa9f after #180 and #181; independent of Analytics and Client Demo triage.
 - Added a labeled full-width keyword search in consolidated Work History covering fictional project, vendor, location, report/assignment ID and scope. Case-insensitive multi-word terms compose with existing client/industry/commodity/status/NCR/date filters and persist between Assignments Performed and Reports Submitted.

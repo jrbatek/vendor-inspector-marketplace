@@ -17,6 +17,7 @@
     "start": "next start",
     "smoke:client-analytics": "node scripts/smoke-client-analytics.mjs",
     "smoke:client-inspections": "node scripts/smoke-client-inspections.mjs",
+    "smoke:client-sourcing": "node scripts/smoke-client-sourcing.mjs",
     "smoke:agency-commercials": "node scripts/smoke-agency-commercials.mjs",
     "smoke:agency-capacity": "node scripts/smoke-agency-capacity.mjs",
     "smoke:inspector-demo": "node scripts/smoke-inspector-demo.mjs",
