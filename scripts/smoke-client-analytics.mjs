@@ -61,6 +61,29 @@ try{
  await page.waitForSelector(".filters select");
  await page.waitForTimeout(750); // allow client hydration before synthetic controls are changed
  if((await page.locator(".records tbody tr").count())!==30)throw new Error("Expected initial 30-row preview");
+ // A separate graphical browser observed an exception on its FIRST quick-source
+ // Independent click, even when later native select interactions recovered (#154).
+ // Exercise that exact order on a fresh document before the existing chart tests.
+ const firstClick=await browser.newPage();
+ const firstErrors=[];
+ firstClick.on("pageerror",e=>firstErrors.push(e.stack||String(e)));
+ await firstClick.goto(base+"/demo/client-analytics",{waitUntil:"domcontentloaded"});
+ const firstQuick=firstClick.getByRole("group",{name:"Quick source type filters"});
+ await firstQuick.getByRole("button",{name:"Independent",exact:true}).click();
+ await firstClick.waitForFunction(()=>document.querySelector(".filters select")?.value==="Independent");
+ await firstClick.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===15);
+ await firstClick.waitForTimeout(1500);
+ if(await firstClick.getByRole("heading",{name:"Analytics view could not load"}).count())
+   throw new Error("Fresh first-click Independent filter triggered demo analytics recovery boundary");
+ if(firstErrors.length)throw new Error("Fresh first-click Independent pageerror:\\n"+firstErrors.join("\\n"));
+ await firstQuick.getByRole("button",{name:"All sources"}).click();
+ await firstClick.waitForFunction(()=>document.querySelector(".filters select")?.value==="All");
+ await firstClick.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===30);
+ await firstClick.locator(".filters select").first().selectOption({label:"Independent"});
+ await firstClick.waitForFunction(()=>document.querySelectorAll(".records tbody tr").length===15);
+ if(firstErrors.length)throw new Error("Recovery-sequence pageerror:\\n"+firstErrors.join("\\n"));
+ await firstClick.close();
+ console.log("Analytics fresh first quick click and native recovery sequence passed.");
  await verify(page,"Independent",15);
  await verify(page,"Agency",30); // first 30 of 45 are rendered
  // Direct, keyboard-accessible quick source controls provide a non-native

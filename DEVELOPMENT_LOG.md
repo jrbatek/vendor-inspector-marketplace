@@ -926,3 +926,10 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 - Build on the validated browser-generated Income & Tax PDF from #173. Add a real Chromium download/parse check for each 2024, 2025 and 2026 fictional cohort, verifying the file name, PDF signature, PDF metadata, selected-year record count, no browser exceptions, no live workspace navigation or bank inputs.
 - Run the deterministic smoke against the built app in both Validate application and Autonomous QA. Uses only fake records and public routes; no production writes, tax-filing or bank collection. Separate from the all-route contrast audit in #174 and unresolved Client Analytics issue #154.
 - Require CI, synthetic data, migration, typecheck and build gates plus matching-head READY preview before merge and post-merge production READY and smoke.
+
+
+## 2026-11-08 — P0 Analytics first-click sequence browser regression (#154; test-only)
+
+- Fresh external graphical browser run https://agent.tinyfish.ai/runs/f90b13a1-39de-4195-88d1-a1e7c7ee3b61 saw the first **Quick source → Independent** click open the synthetic Analytics recovery panel despite a 15-record partial render. After recovery/reset, native Source Type → Independent succeeded. Console stack not available; issue remains open.
+- Add fresh-document Chromium sequence (initial quick Independent, verify no error boundary/pageerror, reset to All, native Independent) ahead of legacy chart/selector checks; standalone regression contract included. This diagnoses environment/order mismatch without speculative changes to filtering logic or auth/production data.
+- Require full synthetic/migration/typecheck/build/browser CI and matching-head Vercel READY before merge; production READY and smoke after. Does not itself prove the external browser bug resolved.
