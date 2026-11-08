@@ -1,3 +1,9 @@
+## 2026-11-07 - Filtered synthetic Work History CSV export (proposed)
+- Inspector Demo Work History now exports the *currently visible, filtered* Assignments Performed or Reports Submitted, with report IDs, submitted/completed dates, NCR indicators and closeout findings.
+- Every exported row is explicitly labeled SYNTHETIC - NOT VERIFIED; no live inspection or account data is accessed. Values are CSV-quoted and spreadsheet-formula escapes are applied for safe download.
+- New unit tests cover filtered counts and exclusions, assignment/report IDs, NCR and findings, commas/quotes, and potentially executable formula cells.
+- This is a standalone safe demo-only change. Require full local validation, two successful CI workflows and READY exact-head preview before merge, followed by production READY and smoke verification.
+
 ## 2026-11-07 - Client Analytics hydration-safe controls (proposed)
 - Controlled browser diagnosis observed an early native Independent selection leave the dropdown at Independent while records still showed 60, shortly after domcontentloaded (~100 ms). This is a reproducible hydration-interaction inconsistency distinct from the unresolved external Next.js error in issue #154.
 - Synthetic Client Analytics gates nine selectors and seven interactive chart filters until React hydration completes via useEffect; loading state is accessible and disabled controls retain explicit legible colors/opacity. The browser regression starts at domcontentloaded without arbitrary hydration sleep and verifies a correct 15/15 Independent cohort.
