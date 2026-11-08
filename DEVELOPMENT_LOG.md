@@ -933,3 +933,10 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 - Fresh external graphical browser run https://agent.tinyfish.ai/runs/f90b13a1-39de-4195-88d1-a1e7c7ee3b61 saw the first **Quick source → Independent** click open the synthetic Analytics recovery panel despite a 15-record partial render. After recovery/reset, native Source Type → Independent succeeded. Console stack not available; issue remains open.
 - Add fresh-document Chromium sequence (initial quick Independent, verify no error boundary/pageerror, reset to All, native Independent) ahead of legacy chart/selector checks; standalone regression contract included. This diagnoses environment/order mismatch without speculative changes to filtering logic or auth/production data.
 - Require full synthetic/migration/typecheck/build/browser CI and matching-head Vercel READY before merge; production READY and smoke after. Does not itself prove the external browser bug resolved.
+
+## 2026-11-08 — Agency synthetic capacity regional filter (proposed)
+
+- Add accessible 30-day Agency Demo region selector, legible reset and live summary of selected fictional capacities (39 available / 95 total across four regions; 32 assigned, 16 holds, eight blocked).
+- Consistent totals computed from four synthetic immutable records. Unit regression and real Chromium test verify each regional selection, counts, reset and absence of browser exceptions in both CI workflows.
+- Independent of P0 Client Analytics browser issue #154; no authenticated production auth/RLS, matching, payments, banking, real customer records, external credentials, or production seeding.
+- Local validation, migrations, synthetic QA, typecheck, build, browser, CI and matching READY Vercel preview required before sequential merge, then production READY and anonymous smoke.
