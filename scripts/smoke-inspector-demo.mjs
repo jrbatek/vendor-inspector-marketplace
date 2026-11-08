@@ -68,6 +68,21 @@ try {
   assert(await calendar.getByText(/demo|simulat/i).count() > 0, "Calendar connection is not clearly labeled simulated");
   await navigation.getByRole("button", { name: "Work History" }).click();
   assert(await page.getByRole("link", { name: /Open Work History/ }).count() === 1, "Consolidated Work History link unavailable");
+  // Work History keyword search is a shared filter for completed assignments and reports.
+  await page.getByRole("link", { name: /Open Work History/ }).first().click();
+  await page.waitForURL("**/demo/inspector-work-history");
+  const historySearch=page.getByRole("searchbox",{name:"Search work history"});
+  assert(await historySearch.count()===1,"Work History search control missing");
+  await historySearch.fill("Seabrook");
+  assert((await page.locator(".resultCount").innerText()).includes("1 of 10"),"Vendor keyword search should find one completed assignment");
+  await page.getByRole("group",{name:"Work History views"}).getByRole("button",{name:"Reports Submitted"}).click();
+  assert((await page.locator(".resultCount").innerText()).includes("1 of 10"),"Report view must retain keyword filter");
+  await historySearch.fill("ir-260914");
+  assert((await page.locator(".resultCount").innerText()).includes("1 of 10"),"Case-insensitive report ID keyword should find one submitted report");
+  await page.getByRole("button",{name:"Reset filters"}).click();
+  assert(await historySearch.inputValue()==="","Reset must clear Work History keyword");
+  assert((await page.locator(".resultCount").innerText()).includes("10 of 10"),"Reset must restore all fictional reports");
+
   assert(errors.length === 0, "Inspector Demo browser exceptions: " + errors.join("\n"));
   console.log("Inspector Demo Chromium OK: sidebar, opportunity alert isolation, Month/Week/List, private events, assignment, date conflicts and demo-only connectors.");
 } catch (e) {

@@ -1,3 +1,9 @@
+### 2026-11-08 — Inspector Work History project/vendor/reference keyword search (safe synthetic UX)
+- Originally built on main e06acf8, now reconciled onto current production main 962fa9f after #180 and #181; independent of Analytics and Client Demo triage.
+- Added a labeled full-width keyword search in consolidated Work History covering fictional project, vendor, location, report/assignment ID and scope. Case-insensitive multi-word terms compose with existing client/industry/commodity/status/NCR/date filters and persist between Assignments Performed and Reports Submitted.
+- Search uses in-memory synthetic fixtures only; empty query and Reset filters restore all ten records. Added unit tests and existing GitHub-hosted Chromium workflow interaction checks for vendor search, report ID search, view switching and reset.
+- No production database, live auth/RLS, payments/bank, external OAuth or privacy changes. Release gated on full local validation, matching-head GitHub CI and READY preview; production smoke after merge.
+
 ## 2026-11-08 — Client Demo overdue-action focus (proposed, safe synthetic)
 - Adds an explicit synthetic action urgency filter to seven real-browser-tested in-progress inspection examples: All active (7) versus Due or overdue (2), using fixed demo reference date November 8, 2026 so counts do not silently drift as real time advances.
 - Keeps existing status/project/inspector/schedule filters, sorting, CSV, details and PDF reports; reset clears urgency. Selected/focus/hover control states remain legible. Adds pure deterministic tests plus Chromium interaction coverage and exact cohort checks.

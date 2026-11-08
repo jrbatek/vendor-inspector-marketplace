@@ -17,6 +17,7 @@ export type InspectionWorkHistory = {
 };
 
 export type WorkHistoryFilters = {
+  query: string;
   client: string;
   industry: string;
   commodity: string;
@@ -27,7 +28,7 @@ export type WorkHistoryFilters = {
 };
 
 export const EMPTY_WORK_HISTORY_FILTERS: WorkHistoryFilters = {
-  client: "", industry: "", commodity: "", status: "", ncr: "", from: "", to: "",
+  query: "", client: "", industry: "", commodity: "", status: "", ncr: "", from: "", to: "",
 };
 
 // All names, schedules, references, and results are fictional; no live records are loaded.
@@ -49,15 +50,20 @@ export function filterInspectorWorkHistory(
   filters: WorkHistoryFilters,
 ): InspectionWorkHistory[] {
   if (filters.from && filters.to && filters.from > filters.to) return [];
-  return rows.filter(row =>
+  const terms = filters.query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+  return rows.filter(row => {
+    const searchable = [
+      row.project, row.vendor, row.location, row.reportId, row.id, row.assignmentType,
+    ].join(" ").toLocaleLowerCase();
+    return terms.every(term => searchable.includes(term)) &&
     (!filters.client || row.client === filters.client) &&
     (!filters.industry || row.industry === filters.industry) &&
     (!filters.commodity || row.commodity === filters.commodity) &&
     (!filters.status || row.status === filters.status) &&
     (!filters.ncr || (filters.ncr === "with" && row.ncr) || (filters.ncr === "without" && !row.ncr)) &&
     (!filters.from || row.completed >= filters.from) &&
-    (!filters.to || row.completed <= filters.to)
-  );
+    (!filters.to || row.completed <= filters.to);
+  });
 }
 
 export function inspectorWorkReportHref(row: InspectionWorkHistory, download = false): string {
