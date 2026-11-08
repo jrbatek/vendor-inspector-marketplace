@@ -912,3 +912,10 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 - Leave official 1099/W-2 examples as text-only informational previews; do not create realistic tax forms or represent income as verified. No bank numbers, real financial records, API calls, live clients, databases or credentials involved.
 - Add test coverage for year isolation, PDF byte validity and metadata, and browser-only safety. This branch deliberately does not touch the unresolved Client Analytics cross-browser P0 issue #154; maintain independent diagnosis and do not report that issue fixed.
 - Require GitHub-hosted test/migration/synthetic/typecheck/build/browser validation and matching-head READY Vercel preview before merge, production READY and smoke after.
+
+
+## 2026-11-08 — Expand P0 visible-control browser audit to all published demo routes
+
+- Broaden the existing built-app Chromium contrast audit from its initial 12 public routes to every published Client, Inspector and Agency demo page, including commercial analytics, income, affiliations, client data/operations and legacy deep links. Continue testing desktop (1440 px) and mobile (390 px) plus pageerror and no-login invariants.
+- Add a dynamic source-tree regression contract so new `app/demo/*/page.tsx` routes cannot silently escape the browser audit. Test-only, synthetic/no-login browsing, with no auth, RLS, finances, data writes, matching or environment changes.
+- Independent of #173 PDF feature and of open P0 Client Analytics browser discrepancy #154. Require full CI, preview READY, sequential merge, production READY and smoke before release claims.
