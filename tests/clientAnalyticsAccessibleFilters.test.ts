@@ -22,9 +22,11 @@ test("analytics bar filters are keyboard-focusable and clearly distinguish selec
   }
 });
 
-test("analytics native selectors retain legible foreground and background", () => {
+test("remaining native analytics selectors retain legible foreground and background", () => {
   assert.match(page, /\.filter select\{[^}]*background:#fff;color:#0f172a/);
   assert.match(page, /\.filter select:focus-visible\{outline:3px solid #0d9488/);
+  assert.doesNotMatch(page, /<Filter label="Source Type"/);
+  assert.match(page, /<strong>Source Type<\/strong>/);
 });
 
 test("empty completed cohorts are not mislabeled zero percent on-time", () => {
