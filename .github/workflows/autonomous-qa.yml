@@ -71,6 +71,9 @@ jobs:
       - name: Audit visible demo controls on desktop and mobile
         run: npm run smoke:demo-controls
 
+      - name: Verify fictional income report PDF download in Chromium
+        run: npm run smoke:inspector-income
+
       - name: Upload synthetic summary
         if: always()
         uses: actions/upload-artifact@v4
