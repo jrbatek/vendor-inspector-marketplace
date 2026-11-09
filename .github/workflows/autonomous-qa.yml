@@ -15,7 +15,7 @@ permissions:
 jobs:
   synthetic-and-app-validation:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       SYNTHETIC_SEED: '20260831'
       SYNTHETIC_SCALE: '1'
@@ -50,8 +50,8 @@ jobs:
       - name: Production build
         run: npm run build
 
-      - name: Install Chromium for client interaction regression
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and Firefox for client interaction regression
+        run: npx playwright install --with-deps chromium firefox
 
       - name: Smoke-test built routes
         run: npm run smoke:local
@@ -61,6 +61,9 @@ jobs:
 
       - name: Exercise Client Analytics in headed Chromium (Xvfb)
         run: ANALYTICS_HEADED=1 xvfb-run -a npm run smoke:client-analytics
+
+      - name: Exercise Client Analytics source transitions in Firefox
+        run: ANALYTICS_BROWSER=firefox npm run smoke:client-analytics
 
       - name: Exercise active Client Demo in real Chromium
         run: npm run smoke:client-inspections

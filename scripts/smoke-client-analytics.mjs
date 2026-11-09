@@ -1,9 +1,11 @@
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, firefox } from "playwright";
 
 const port = 3102;
 const base = process.env.ANALYTICS_BASE_URL || `http://127.0.0.1:${port}`;
+const browserName = process.env.ANALYTICS_BROWSER || "chromium";
+if (!["chromium", "firefox"].includes(browserName)) throw new Error(`Unsupported Analytics browser: ${browserName}`);
 const child = process.env.ANALYTICS_BASE_URL ? null : spawn(process.execPath, [
   "node_modules/next/dist/bin/next", "start", "-p", String(port),
 ], {
@@ -45,7 +47,10 @@ let browser, page, failed=false;
 const errors=[];
 try {
   if (!process.env.ANALYTICS_BASE_URL) await ready();
-  browser = await chromium.launch({headless:process.env.ANALYTICS_HEADED !== "1",args:["--no-sandbox"]});
+  browser = await (browserName === "firefox" ? firefox : chromium).launch({
+    headless:process.env.ANALYTICS_HEADED !== "1",
+    args:browserName === "chromium" ? ["--no-sandbox"] : [],
+  });
   page = await browser.newPage({acceptDownloads:true});
   // Record even a short-lived recovery boundary, which final-state assertions miss.
   await page.addInitScript(() => {
@@ -116,7 +121,7 @@ try {
   if(download.suggestedFilename()!=="inspectsource-client-demo-inspections.csv")
     throw new Error("Filtered Analytics CSV download unavailable");
   if(errors.length)throw new Error("Analytics browser exceptions:\n"+errors.join("\n"));
-  console.log("Client Analytics: fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.");
+  console.log(`Client Analytics (${browserName}): fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.`);
 }catch(e){
   failed=true;
   console.error(e instanceof Error ? e.stack : String(e));
