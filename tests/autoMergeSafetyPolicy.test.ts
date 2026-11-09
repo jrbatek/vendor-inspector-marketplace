@@ -23,3 +23,15 @@ test("autonomous merge requires both passed CI jobs and READY Vercel status", ()
   assert.match(source, /if \[ "\$VERCEL_OK" -lt 1 \]/);
   assert.ok(source.indexOf('VERCEL_OK=') < source.indexOf('gh pr merge "$PR_NUMBER"'), "Vercel check must precede merge");
 });
+
+test("GitHub-token auto merges explicitly dispatch a commit-pinned production smoke only after merged Vercel READY",()=>{
+ assert.match(source,/actions: write/);
+ assert.match(source,/MERGED_SHA=.*merge_commit_sha/);
+ assert.match(source,/CURRENT_MAIN.*MERGED_SHA/);
+ assert.match(source,/VERCEL_PRODUCTION/);
+ assert.match(source,/PRODUCTION_READY.*true/);
+ assert.match(source,/production-smoke\.yml\/dispatches/);
+ assert.match(source,/inputs\[expected_sha\]/);
+ assert.ok(source.indexOf('gh pr merge "$PR_NUMBER"') < source.indexOf('production-smoke.yml/dispatches'));
+ assert.ok(source.indexOf('if [ "$PRODUCTION_READY" != true ]') < source.indexOf('production-smoke.yml/dispatches'));
+});

@@ -69,3 +69,12 @@ test("production smoke also checks synthetic Inspector financial, qualifications
  for(const route of ["/demo/inspector-income","/demo/inspector-documents","/demo/inspector-selection-outcomes"])
   assert.ok(workflow.includes('"' + route + '"'),route);
 });
+
+test("dispatch smoke refuses an unexpected merged-main SHA and preserves legacy push tests",()=>{
+ assert.match(workflow,/workflow_dispatch:/);
+ assert.match(workflow,/expected_sha:/);
+ assert.match(workflow,/EXPECTED_SHA:.*inputs\.expected_sha/);
+ assert.match(workflow,/GITHUB_SHA.*EXPECTED_SHA/);
+ assert.match(workflow,/\[a-f0-9\]\{40\}/);
+ assert.match(workflow,/branches: \[main\]/);
+});

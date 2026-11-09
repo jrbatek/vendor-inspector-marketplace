@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   merge:
@@ -92,3 +93,36 @@ jobs:
 
           echo "Both CI workflows and Vercel preview passed at $HEAD_SHA, current main $CURRENT_MAIN."
           gh pr merge "$PR_NUMBER" --repo "$REPO" --squash --delete-branch --match-head-commit "$HEAD_SHA"
+
+          # GITHUB_TOKEN merges do not trigger ordinary push workflows. A
+          # workflow_dispatch is explicitly allowed and must target merged main.
+          MERGED_SHA="$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.merge_commit_sha // empty')"
+          if [[ ! "$MERGED_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "Could not resolve a valid merged commit SHA; production smoke dispatch blocked."
+            exit 1
+          fi
+          # Wait for production, not the previously validated PR preview.
+          PRODUCTION_READY=false
+          for attempt in $(seq 1 32); do
+            CURRENT_MAIN="$(gh api "repos/$REPO/git/ref/heads/main" --jq '.object.sha')"
+            if [ "$CURRENT_MAIN" != "$MERGED_SHA" ]; then
+              echo "main moved beyond $MERGED_SHA; do not certify a stale release."
+              exit 1
+            fi
+            VERCEL_PRODUCTION="$(gh api "repos/$REPO/commits/$MERGED_SHA/status" --jq '[.statuses[] | select(.context == "Vercel" and .state == "success" and (.target_url | startswith("https://vercel.com/")))] | length')"
+            if [ "$VERCEL_PRODUCTION" -ge 1 ]; then
+              PRODUCTION_READY=true
+              break
+            fi
+            echo "Waiting for merged main $MERGED_SHA Vercel production READY ($attempt/32)."
+            sleep 15
+          done
+          if [ "$PRODUCTION_READY" != true ]; then
+            echo "Vercel production did not become READY for $MERGED_SHA; dispatch blocked."
+            exit 1
+          fi
+          # workflow_dispatch is a documented GITHUB_TOKEN exception. The smoke
+          # workflow independently checks expected_sha == github.sha before HTTP probes.
+          gh api --method POST "repos/$REPO/actions/workflows/production-smoke.yml/dispatches" \
+            -f ref=main -f "inputs[expected_sha]=$MERGED_SHA"
+          echo "Dispatched production smoke for exact merged main $MERGED_SHA."
