@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: "Optional exact merged main SHA to verify before production route smoke"
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -18,10 +23,18 @@ jobs:
     timeout-minutes: 8
     env:
       PRODUCTION_URL: https://vendor-inspector-marketplace.vercel.app
+      EXPECTED_SHA: ${{ inputs.expected_sha || '' }}
     steps:
       - name: Wait for deployment and verify live routes
         run: |
           set -euo pipefail
+          if [ -n "$EXPECTED_SHA" ]; then
+            if [[ ! "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]] || [ "$GITHUB_SHA" != "$EXPECTED_SHA" ]; then
+              echo "Production smoke dispatched on wrong commit: expected $EXPECTED_SHA, running $GITHUB_SHA."
+              exit 1
+            fi
+            echo "Production smoke pinned to merged main $EXPECTED_SHA."
+          fi
 
           routes=(
             "/"
