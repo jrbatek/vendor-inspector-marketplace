@@ -1,3 +1,8 @@
+### 2026-11-08 — Client Demo in-progress filter legibility (independent P0-B)
+- Made all five synthetic Client Demo Inspections in Progress stage/project/inspector/date filter controls explicitly dark-on-white with readable borders, hover/focus, and disabled states. Invalid reversed date ranges now show a visible red border in addition to their existing accessible alert.
+- Extended the built-app Chromium regression to check computed text/background/border colors for each filter and the invalid-date border; added scoped source regression tests. Preserved seven fictional inspections, filtering/counts, details, PDFs, analytics links, and authenticated-live Login redirects; no real auth, data, payments or production writes.
+- Independent of Client Analytics cross-browser exception issue #154. Mandatory GitHub CI/migrations/synthetic/typecheck/build/browser checks and READY preview before merge, then production READY and smoke after.
+
 ### 2026-11-08 — Inspector Calendar date/availability input visibility (independent P0-B)
 - Week selector and Block Dates start/end date inputs and state dropdown previously relied on browser defaults for text/background and did not explicitly cover hover, focus-visible or disabled states. Made dark-on-white input/select colors, accessible visible focus outlines, hover borders and opaque readable disabled colors explicit in scoped calendar CSS.
 - Extended the real Chromium InspectorHub smoke to verify computed foreground/background/border for all three Block Dates controls, plus regression contracts for normal, hover/focus and disabled states. All changes are inspector-side demo presentation only; no linked calendar OAuth, production availability or private events were exposed/changed.

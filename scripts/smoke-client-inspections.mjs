@@ -77,6 +77,13 @@ try{
    assert(await card.locator(".details").count()===0,"Inspection details did not close");
  }
  const status=page.getByLabel("Status / stage"),project=page.getByLabel("Project",{exact:true}),inspector=page.getByLabel("Inspector",{exact:true});
+ // P0-B: visually inspect real browser computed colors for all five inspection filters.
+ for (const label of ["Status / stage","Project","Inspector","Scheduled from","Scheduled through"]) {
+   const control=page.getByLabel(label,{exact:true});
+   const colors=await control.evaluate(element=>{const style=getComputedStyle(element);return {text:style.color,background:style.backgroundColor,border:style.borderTopColor}});
+   assert(colors.text==="rgb(15, 23, 42)" && colors.background==="rgb(255, 255, 255)" && colors.border==="rgb(100, 116, 139)",
+     "Client Inspection "+label+" filter is visually illegible: "+JSON.stringify(colors));
+ }
  await status.selectOption({index:1});
  assert(await page.locator("article.inspection").count()===1,"Status filter should show one inspection");
  await page.getByRole("button",{name:"Reset filters"}).click();
@@ -98,6 +105,8 @@ try{
  await page.getByLabel("Scheduled from").fill("2026-11-10");
  await page.getByLabel("Scheduled through").fill("2026-11-01");
  assert(await page.getByRole("alert").count()>=1,"Reversed date range needs accessible warning");
+ const invalidDateBorder=await page.getByLabel("Scheduled from").evaluate(element=>getComputedStyle(element).borderTopColor);
+ assert(invalidDateBorder==="rgb(185, 28, 28)","Invalid date-range filter must have a visible red border, got "+invalidDateBorder);
  await page.getByRole("button",{name:"Reset filters"}).click();
  assert(await page.locator("article.inspection").count()===7,"Second reset did not restore all inspections");
  const analytics=page.locator('a[href="/demo/client-analytics"]').first();
