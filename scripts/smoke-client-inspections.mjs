@@ -39,6 +39,12 @@ try{
  assert((await page.locator("article.inspection .details").first().innerText()).includes("Pacific Hydrogen Hub"),"Action register must open the matching fictional inspection");
  await page.getByRole("button",{name:/Close Inspection/}).first().click();
  assert(await page.locator("article.inspection .details").count()===0,"Action register drilldown must close normally");
+ const actionCsv=actionRegister.locator('a[download="inspectsource-synthetic-action-register.csv"]');
+ assert(await actionCsv.count()===1,"Synthetic action CSV export link missing");
+ const actionCsvData=decodeURIComponent((await actionCsv.getAttribute("href")).split(",").slice(1).join(","));
+ assert(actionCsvData.includes("SYNTHETIC - NOT VERIFIED") && actionCsvData.includes("Pacific Hydrogen Hub") &&
+   actionCsvData.includes("Vendor quality manager"),"Action CSV missing fictitious record or owner data");
+ assert(actionCsvData.trim().split("\r\n").length===8,"Action CSV expected a header and seven rows");
  // Action triage is synthetic-only; order changes without losing any records.
  const actionGroup=page.getByRole("group",{name:"Sort synthetic inspections"});
  const dueButton=actionGroup.getByRole("button",{name:"Next action due"});
