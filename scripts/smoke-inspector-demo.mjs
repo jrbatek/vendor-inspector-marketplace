@@ -73,6 +73,12 @@ try {
   await tabs.getByRole("button", { name: "List" }).click();
   assert(await tabs.getByRole("button", { name: "List" }).getAttribute("aria-pressed") === "true", "List view cannot be selected");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "List view lacks privacy label for external events");
+  const listDatePicker = cal.getByRole("button", { name: "Choose 2026-11-18 from list for availability" });
+  await listDatePicker.click();
+  assert(await listDatePicker.getAttribute("aria-pressed") === "true", "Selected List event date has no visible state");
+  assert(await cal.getByLabel("Start date").inputValue() === "2026-11-18", "List selection must prefill start date");
+  assert(await cal.getByLabel("End date").inputValue() === "2026-11-18", "List selection must prefill end date");
+  assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "Selecting a private List event must not expose or overwrite it");
   await tabs.getByRole("button", { name: "Month" }).click();
   await cal.getByRole("button", { name: "Open assignment" }).first().click();
   assert(await page.getByRole("heading", { name: /LNG Compressor Package|Gulf Horizon Refinery Upgrade|Orion Deepwater Platform/ }).count() > 0, "Calendar inspection did not open a populated assignment");
