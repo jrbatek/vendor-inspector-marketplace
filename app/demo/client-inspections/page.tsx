@@ -20,6 +20,7 @@ export default function ClientInspectionsDemo() {
   const update = (key: keyof InspectionFilters, value: string) => { setFilters(current => ({ ...current, [key]: value })); setExpanded(null); setExpandedNcr(null); };
   const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setActionOwner(""); setKeyword(""); setExpanded(null); setExpandedNcr(null); };
   const invalidDates = !!(filters.from && filters.to && filters.from > filters.to);
+  const clearInvalidDates = () => { setFilters(current => ({ ...current, from: "", to: "" })); setExpanded(null); setExpandedNcr(null); };
   const actionRegister = activeInspectionActionRegister(rows);
   // Each chip removes one demo-only filter without clearing unrelated criteria.
   const activeFilterChips: { label: string; clear: () => void }[] = [];
@@ -75,7 +76,7 @@ export default function ClientInspectionsDemo() {
         Download filtered inspections (CSV)
       </a>}
     </div>
-    {rows.length === 0 && <section className="empty"><h2>No inspections match these filters</h2><p>Change the filters or reset to see all seven inspections.</p><button type="button" onClick={reset}>Show all inspections</button></section>}
+    {rows.length === 0 && <section className="empty"><h2>{invalidDates ? "Correct the scheduled date range" : "No inspections match these filters"}</h2><p>{invalidDates ? "Scheduled from must be on or before Scheduled through. Clear the invalid dates while keeping other filters." : "Change the filters or reset to see all seven inspections."}</p><button type="button" onClick={invalidDates ? clearInvalidDates : reset}>{invalidDates ? "Clear invalid date range" : "Show all inspections"}</button></section>}
 
     <section className="actionRegister" aria-labelledby="action-register-title">
       <div className="actionRegisterHeader"><div><p className="eyebrow">Synthetic action queue</p><h3 id="action-register-title">Outstanding action register</h3><p>Prioritized by next due date for the current inspection filters. Urgency is fictional as of November 8, 2026.</p></div><div className="actionRegisterActions"><strong role="status">{actionRegister.length} outstanding {actionRegister.length === 1 ? "action" : "actions"} in view</strong>{actionRegister.length > 0 && <a className="actionExport" aria-label={`Download ${actionRegister.length} synthetic outstanding actions as CSV`} download="inspectsource-synthetic-action-register.csv" href={`data:text/csv;charset=utf-8,${encodeURIComponent(exportActiveDemoActionRegisterCsv(actionRegister))}`}>Download action register (CSV)</a>}</div></div>

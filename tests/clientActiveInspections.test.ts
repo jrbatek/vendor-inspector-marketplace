@@ -202,3 +202,13 @@ test("milestones tell a coherent progressive story across seven fictional active
  assert.match(page,/\.inspectionSummary \.milestoneSummary\{font-weight:800;color:#334155/);
  assert.doesNotMatch(page,/createClient|supabase|fetch\(/);
 });
+
+test("invalid Client Demo schedule ranges show date correction, not a misleading no-inspections message",()=>{
+ const page=read("app/demo/client-inspections/page.tsx");
+ assert.match(page,/invalidDates \? "Correct the scheduled date range" : "No inspections match these filters"/);
+ assert.match(page,/invalidDates \? clearInvalidDates : reset/);
+ assert.match(page,/setFilters\(current => \(\{ \.\.\.current, from: "", to: "" \}\)\)/);
+ assert.match(page,/aria-invalid=\{invalidDates\}/);
+ assert.match(page,/onClick=\{invalidDates \? clearInvalidDates : reset\}/);
+ assert.doesNotMatch(page,/supabase|createClient|fetch\(/);
+});
