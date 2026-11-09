@@ -144,6 +144,21 @@ try{
  await page.getByRole("button",{name:"Reset filters"}).click();
  assert(await actionOwner.inputValue()==="","Reset must restore all action owners");
  assert(await page.locator("article.inspection").count()===7,"Action owner reset must restore all seven records");
+ // Filter chips remove exactly one criterion and preserve unrelated synthetic filters.
+ assert(await page.locator(".filterChips").count()===0,"No active filters should mean no chips");
+ await status.selectOption({index:1});
+ await project.selectOption({index:1});
+ await search.fill("sample");
+ assert(await page.locator(".filterChips button").count()===3,"Expected three active criteria chips");
+ await page.getByRole("button",{name:/Remove Stage: .* filter/}).click();
+ assert(await status.inputValue()==="","Removing stage chip should clear only stage");
+ assert(await project.inputValue()!==""&&await search.inputValue()==="sample","Removing stage chip cleared another filter");
+ await page.getByRole("button",{name:/Remove Project: .* filter/}).click();
+ assert(await project.inputValue()==="","Project chip did not clear project");
+ assert(await search.inputValue()==="sample"&&await page.locator(".filterChips button").count()===1,"Search chip should remain");
+ await page.getByRole("button",{name:"Remove Search: sample filter"}).click();
+ assert(await search.inputValue()===""&&await page.locator("article.inspection").count()===7,"Removing last chip must restore all seven fictional inspections");
+ assert(await page.locator(".filterChips").count()===0,"Filter chip bar should disappear when cleared");
 
  // P0-B: visually inspect real browser computed colors for all five inspection filters.
  for (const label of ["Status / stage","Project","Inspector","Action owner","Scheduled from","Scheduled through"]) {
