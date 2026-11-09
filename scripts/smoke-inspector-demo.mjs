@@ -62,7 +62,19 @@ try {
   assert(await tabs.getByRole("button", { name: "Month" }).getAttribute("aria-pressed") === "true", "Month not the default calendar view");
   assert(await cal.getByText(/Our Anniversary · All day/).count() >= 1, "Private synthetic anniversary missing");
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count() >= 1, "Private synthetic doctor appointment missing");
+  // Calendar jump returns to the fixed demo reference date in any view, without modifying events.
+  await cal.getByRole("button", { name: "Next month" }).click();
+  assert(await cal.getByRole("heading", { name: "December 2026" }).count()===1,"Month navigation failed before demo-today jump");
+  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  assert(await cal.getByRole("heading", { name: "November 2026" }).count()===1,"Demo today did not restore November month");
+  assert(await cal.getByRole("button", { name: "Choose 2026-11-09 for availability" }).getAttribute("aria-current")==="date","Demo today date must be visibly indicated");
+  assert(await cal.getByLabel("Start date").inputValue()==="2026-11-09","Demo today did not select the correct date");
+  assert(await cal.getByText(/Our Anniversary · All day/).count()>=1,"Today jump changed private synthetic event data");
   await tabs.getByRole("button", { name: "Week" }).click();
+  await cal.getByRole("button", { name: "Next week" }).click();
+  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
+
   assert(await tabs.getByRole("button", { name: "Week" }).getAttribute("aria-pressed") === "true", "Week view cannot be selected");
   const weekDatePicker = cal.getByRole("button", { name: "Choose 2026-11-11 for availability" });
   await weekDatePicker.click();
