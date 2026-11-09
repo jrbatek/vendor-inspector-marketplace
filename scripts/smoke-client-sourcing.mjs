@@ -78,8 +78,52 @@ try {
   await legible(independent, "selected Independent");
   await both.click();
   await count(both, 4);
+  // P0-B: inspect a separate narrow-screen demo session, including interactive
+  // source toggles and channel selection rather than just the initial render.
+  const narrow = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const narrowErrors = [];
+  narrow.on("pageerror", error => narrowErrors.push(error.stack || String(error)));
+  await narrow.goto(base + "/demo/client-agency-sourcing", { waitUntil: "networkidle" });
+  const narrowGroup = narrow.getByRole("group", { name: "Source of Inspectors" });
+  const narrowAgencies = narrowGroup.getByRole("button", { name: "Contracted agencies only", exact: true });
+  const narrowIndependent = narrowGroup.getByRole("button", { name: "Independent inspectors only", exact: true });
+  const narrowBoth = narrowGroup.getByRole("button", { name: "Contracted agencies + independent inspectors", exact: true });
+  for (const option of [narrowAgencies, narrowIndependent, narrowBoth]) {
+    const bounds = await option.boundingBox();
+    assert(bounds && bounds.width >= 40 && bounds.height >= 40, "Mobile Source of Inspectors control is missing or clipped");
+    assert(bounds.x >= -1 && bounds.x + bounds.width <= 391, "Source selector overflows mobile viewport");
+    await legible(option, "mobile source selector resting");
+    await option.hover();
+    await legible(option, "mobile source selector hovered");
+    await option.focus();
+    assert(parseFloat(await option.evaluate(node => getComputedStyle(node).outlineWidth)) >= 2,
+      "Mobile Source of Inspectors control lost focus outline");
+  }
+  await narrowAgencies.click();
+  assert((await narrow.locator(".results > article").count()) === 2, "Mobile agency cohort incorrect");
+  await legible(narrowAgencies, "mobile selected agency source");
+  const agencyChannel = narrow.locator(".channels button").first();
+  await legible(agencyChannel, "mobile unselected agency channel");
+  await agencyChannel.hover();
+  await legible(agencyChannel, "mobile hovered agency channel");
+  await agencyChannel.click();
+  assert(await agencyChannel.getAttribute("aria-pressed") === "true", "Mobile agency channel selection not announced");
+  await legible(agencyChannel, "mobile selected agency channel");
+  assert((await narrow.locator(".selectionNotice").count()) === 1, "Mobile channel selection confirmation absent");
+  await narrowIndependent.click();
+  assert((await narrow.locator(".results > article").count()) === 2, "Mobile independent cohort incorrect");
+  assert((await narrow.locator(".selectionNotice").count()) === 0, "Mobile agency channel selection leaked across sources");
+  const independentChannel = narrow.locator(".independent button").first();
+  await independentChannel.click();
+  assert(await independentChannel.getAttribute("aria-pressed") === "true", "Mobile independent selection not announced");
+  await legible(independentChannel, "mobile selected independent channel");
+  await narrowBoth.click();
+  assert((await narrow.locator(".results > article").count()) === 4, "Mobile reset did not restore all fictional inspectors");
+  assert(await narrowBoth.getAttribute("aria-pressed") === "true", "Mobile both-sources selection state incorrect");
+  assert(narrowErrors.length === 0, "Mobile Client sourcing browser exceptions: " + narrowErrors.join("\n"));
+  await narrow.close();
   assert(exceptions.length === 0, "Client sourcing browser exceptions: " + exceptions.join("\n"));
-  console.log("Client Sourcing Chromium OK: source counts 4/2/2/4, keyboard, contrast, agency selection isolation, anonymous routing.");
+  console.log("Client Sourcing Chromium OK: desktop source counts 4/2/2/4, keyboard and contrast; mobile viewport selector, focus, hover and chosen channel states, isolation, anonymous routing.");
 } catch (error) {
   console.error(error);
   process.exitCode = 1;
