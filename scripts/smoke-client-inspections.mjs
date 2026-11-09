@@ -193,6 +193,12 @@ try{
  assert(await page.getByRole("alert").count()>=1,"Reversed date range needs accessible warning");
  const invalidDateBorder=await page.getByLabel("Scheduled from").evaluate(element=>getComputedStyle(element).borderTopColor);
  assert(invalidDateBorder==="rgb(185, 28, 28)","Invalid date-range filter must have a visible red border, got "+invalidDateBorder);
+ assert(await page.getByRole("heading",{name:"Correct the scheduled date range"}).count()===1,"Invalid dates should explain the actual validation error");
+ assert(await page.getByRole("heading",{name:"No inspections match these filters"}).count()===0,"Invalid dates must not be confused with a legitimate empty selection");
+ await project.selectOption({index:1});
+ await page.getByRole("button",{name:"Clear invalid date range"}).click();
+ assert(await page.getByLabel("Scheduled from").inputValue()===""&&await page.getByLabel("Scheduled through").inputValue()==="","Invalid-date correction failed to clear both dates");
+ assert(await project.inputValue()!==""&&await page.locator("article.inspection").count()===1,"Clearing dates must preserve unrelated project filtering");
  await page.getByRole("button",{name:"Reset filters"}).click();
  assert(await page.locator("article.inspection").count()===7,"Second reset did not restore all inspections");
  const analytics=page.locator('a[href="/demo/client-analytics"]').first();
