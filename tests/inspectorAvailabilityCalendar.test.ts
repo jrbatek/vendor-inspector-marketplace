@@ -84,7 +84,7 @@ test("month-day buttons are accessible one-click prefills, not automatic availab
  assert.match(calendar,/className="dayPicker"/);
  assert.match(calendar,/aria-label=\{`Choose \$\{dateForDay\(day\)\} for availability`\}/);
  assert.match(calendar,/aria-pressed=\{start===dateForDay\(day\) && end===dateForDay\(day\)\}/);
- assert.match(calendar,/setStart\(dateForDay\(day\)\);setEnd\(dateForDay\(day\)\);setNotice\("?"\)/);
+ assert.match(calendar,/setStart\(dateForDay\(day\)\);setEnd\(dateForDay\(day\)\);setNotice\(""\)/);
  assert.match(calendar,/\.dayPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
  assert.match(calendar,/\.dayPicker:focus-visible\{outline:3px solid #0d9488/);
  assert.match(calendar,/type="button" className="dayPicker"/);
