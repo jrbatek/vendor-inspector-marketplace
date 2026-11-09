@@ -1,3 +1,8 @@
+### 2026-11-08 — Client Demo active-inspection keyword discovery (independent safe P0 utility)
+- Added full-text Search inspections across all seven fictional in-progress examples. Multi-word, case-insensitive terms cover project, client, vendor, site, inspector, scope, equipment, PO, sample reports, NCRs and action owners; the search composes with existing stage/project/inspector/date/urgency filters, sorting and filtered CSV exports.
+- Added a visible accessible searchbox, readable focus/hover states from the established filter CSS, a consistent empty result, and Reset that clears search with all other filters. Added pure deterministic tests and built-app Chromium vendor/NCR/empty/reset interactions.
+- Entirely in-memory synthetic demo; no live client records, auth/RLS, payment, matching, API credentials, or database writes. Developed on production main after Agency PR #195. CI, migration, synthetic-data, typecheck, build, preview READY and production READY/smoke remain mandatory before merging.
+
 ### 2026-11-08 — Actionable Agency Reports & NCRs sample triage (independent safe backlog)
 - Added All/Open/Follow-up/No NCR filters for three clearly fictional Agency report examples, with reset, accessible live count, legible hover/focus/disabled controls and provenance note separating these samples from the unrelated fictional seven-NCR portfolio KPI.
 - Expanded existing built-app Chromium Agency smoke to verify each selected NCR status returns exactly the corresponding sample and Reset restores all three. Added deterministic source regression tests. Entirely browser-local presentation, no case records or live inspector data read/written, no auth/RLS, financial credentials or production matching.

@@ -76,6 +76,18 @@ try{
    await card.getByRole("button",{name:/Close Inspection/}).click();
    assert(await card.locator(".details").count()===0,"Inspection details did not close");
  }
+ const search=page.getByRole("searchbox",{name:"Search inspections"});
+ await search.fill("BAYOU vessel");
+ assert(await page.locator("article.inspection").count()===1,"Vendor keyword search should find one fictional inspection");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Gulf Horizon Refinery"),"Wrong vendor keyword search result");
+ await search.fill("SAMPLE-NCR-001");
+ assert(await page.locator("article.inspection").count()===1,"NCR keyword search must find one fictional inspection");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Pacific Hydrogen Hub"),"Wrong NCR keyword search result");
+ await search.fill("not a real project");
+ assert(await page.locator("article.inspection").count()===0,"Unknown keyword search must yield zero results");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ assert(await search.inputValue()==="","Reset filters must clear inspection keyword search");
+ assert(await page.locator("article.inspection").count()===7,"Reset after keyword search must restore seven inspections");
  const status=page.getByLabel("Status / stage"),project=page.getByLabel("Project",{exact:true}),inspector=page.getByLabel("Inspector",{exact:true});
  // P0-B: visually inspect real browser computed colors for all five inspection filters.
  for (const label of ["Status / stage","Project","Inspector","Scheduled from","Scheduled through"]) {
