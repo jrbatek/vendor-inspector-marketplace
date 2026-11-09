@@ -44,3 +44,17 @@ test("current Source of Inspectors segment announces visible count and selected 
  assert.match(page,/current\?\.inspectorId===p.id&&current.channel==="Independent"\?null:/);
  assert.match(page,/setSelectedChannel\(null\)/);
 });
+
+
+test("real Chromium sourcing smoke covers mobile Source of Inspectors and channel states",()=>{
+ const smoke=fs.readFileSync("scripts/smoke-client-sourcing.mjs","utf8");
+ assert.match(smoke,/width: 390, height: 844/);
+ assert.match(smoke,/mobile source selector hovered/);
+ assert.match(smoke,/Source selector overflows mobile viewport/);
+ assert.match(smoke,/Mobile Source of Inspectors control lost focus outline/);
+ assert.match(smoke,/mobile selected agency source/);
+ assert.match(smoke,/mobile selected agency channel/);
+ assert.match(smoke,/mobile selected independent channel/);
+ assert.match(smoke,/Mobile agency channel selection leaked across sources/);
+ assert.match(smoke,/Mobile reset did not restore all fictional inspectors/);
+});
