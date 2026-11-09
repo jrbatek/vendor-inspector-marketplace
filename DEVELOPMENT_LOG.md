@@ -1,3 +1,8 @@
+### 2026-11-09 — InspectorHub and schedule native form control contrast (P0-B)
+- Added explicit dark foreground, white fill, hover border, keyboard focus outline and high-contrast disabled states to native form controls in the InspectorHub Work Activity and live Schedule surfaces. Submit buttons now have separate visible hover/focus/disabled states; no white-on-white defaults or subdued disabled labels.
+- Added deterministic WCAG 4.5:1 text contrast contracts for both routes. This is styling-only, no changes to Supabase calls, live scheduling or authentication, user profiles, payment/banking, production matching, OAuth, or database schema. Preserve existing build, synthetic/migration, CI and browser checks, preview READY before merging and production READY plus smoke after.
+- Independent of P0 Analytics #154, Calendar month-jump #213 and structured-search contrast PR #214.
+
 ### 2026-11-09 — Inspector Calendar direct month jump (Calendar priority follow-on)
 - Added accessible, high-contrast native Jump to month control. Choosing an arbitrary month immediately synchronizes Month/List display, Week anchor and Block Dates start/end to the first day of the selected month; it never blocks a date or changes availability without explicit submission.
 - Expanded built-app Chromium demo tests to jump to February 2027 and return to November 2026, check Week anchor, safe Not set availability and retained private Doctor Appointment content. Added deterministic source/contrast contracts. Strictly fictional inspector-only state; no external OAuth, live auth/RLS, private-data exposure, production matching, payments or database changes.
