@@ -98,3 +98,13 @@ test("Week calendar date buttons prefill availability without scheduling a real 
  assert.match(calendar,/\.weekPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
  assert.match(calendar,/\.weekPicker:focus-visible\{outline:3px solid #0d9488/);
 });
+
+test("List view events can prefill Block Dates without changing private synthetic events",()=>{
+ assert.match(calendar,/className="listPicker"/);
+ assert.match(calendar,/aria-label=\{`Choose \$\{event.date\} from list for availability`\}/);
+ assert.match(calendar,/aria-pressed=\{start===event.date && end===event.date\}/);
+ assert.ok(calendar.includes('setStart(event.date);setEnd(event.date);setNotice("");'));
+ assert.match(calendar,/\.listPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
+ assert.match(calendar,/\.listPicker:focus-visible\{outline:3px solid #0d9488/);
+ assert.match(calendar,/event.external && <small>Inspector only · client view: Busy/);
+});
