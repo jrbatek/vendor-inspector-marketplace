@@ -22,3 +22,15 @@ test("Inspector Calendar offers a deterministic return-to-today across Month, We
 test("Built-app Chromium tests Today after month/week navigation and private-event preservation",()=>{
  for(const marker of ["Demo today did not restore November month","Demo today did not select the correct date","Today jump did not synchronize Week anchor","Today jump changed private synthetic event data"])assert.ok(browser.includes(marker),marker);
 });
+
+test("Inspector Calendar month picker navigates without changing availability or exposing private data",()=>{
+ assert.match(source,/const jumpToMonth=\(value:string\)=>/);
+ assert.match(source,/onChange=\{e=>jumpToMonth\(e.target.value\)\}/);
+ assert.match(source,/aria-label="Jump to month" type="month" value=\{month\}/);
+ for(const state of ['setMonth(value)','setWeekAnchor(firstDay)','setStart(firstDay)','setEnd(firstDay)']) assert.ok(source.includes(state),state);
+ for(const state of ['.monthJump input{background:#fff;color:#0f172a','.monthJump input:focus-visible','.monthJump input:disabled{background:#f1f5f9;color:#334155']) assert.ok(source.includes(state),state);
+ assert.match(browser,/Month jump did not synchronize Week anchor/);
+ assert.match(browser,/Month selection must not change availability/);
+ assert.match(browser,/Month jump lost private appointment data/);
+ assert.doesNotMatch(source,/fetch\(|OAuth\/sync is enabled/);
+});

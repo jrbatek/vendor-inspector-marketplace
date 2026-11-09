@@ -70,6 +70,18 @@ try {
   assert(await cal.getByRole("button", { name: "Choose 2026-11-09 for availability" }).getAttribute("aria-current")==="date","Demo today date must be visibly indicated");
   assert(await cal.getByLabel("Start date").inputValue()==="2026-11-09","Demo today did not select the correct date");
   assert(await cal.getByText(/Our Anniversary · All day/).count()>=1,"Today jump changed private synthetic event data");
+  // Arbitrary month jumps synchronize Month, Week and availability inputs without writing events.
+  await cal.getByLabel("Jump to month").fill("2027-02");
+  assert(await cal.getByRole("heading",{name:"February 2027"}).count()===1,"Month jump did not show February 2027");
+  assert(await cal.getByLabel("Start date").inputValue()==="2027-02-01","Month jump did not set first day");
+  assert(await cal.getByLabel("End date").inputValue()==="2027-02-01","Month jump did not set end day");
+  assert((await cal.getByRole("button",{name:"Choose 2027-02-01 for availability"}).locator("xpath=..").innerText()).includes("Not set"),"Month selection must not change availability");
+  await tabs.getByRole("button",{name:"Week"}).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2027-02-01","Month jump did not synchronize Week anchor");
+  await tabs.getByRole("button",{name:"Month"}).click();
+  await cal.getByLabel("Jump to month").fill("2026-11");
+  assert(await cal.getByRole("heading",{name:"November 2026"}).count()===1,"Returning from month jump failed");
+  assert(await cal.getByText(/Doctor Appointment · 10:00/).count()>=1,"Month jump lost private appointment data");
   await tabs.getByRole("button", { name: "Week" }).click();
   await cal.getByRole("button", { name: "Next week" }).click();
   await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
