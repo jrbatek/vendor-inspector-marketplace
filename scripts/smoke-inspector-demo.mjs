@@ -56,6 +56,15 @@ try {
   assert(await page.getByText(/Opportunity declined/).count() === 0, "Stale opportunity alert appeared on assignment");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   const calendar = page.getByRole("region", { name: "Inspector availability calendar" });
+  for (const name of ["Start date", "End date", "Availability"]) {
+    const control = name === "Availability" ? calendar.locator(".availabilityActions select") : calendar.getByLabel(name, { exact: true });
+    const colors = await control.evaluate(element => {
+      const style = getComputedStyle(element);
+      return { text: style.color, background: style.backgroundColor, border: style.borderColor };
+    });
+    assert(colors.text === "rgb(15, 23, 42)" && colors.background === "rgb(255, 255, 255)" &&
+      colors.border === "rgb(100, 116, 139)", name + " availability input must be visibly legible: " + JSON.stringify(colors));
+  }
   await calendar.getByLabel("Start date").fill("2026-11-18");
   await calendar.getByLabel("End date").fill("2026-11-18");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
