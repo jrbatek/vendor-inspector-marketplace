@@ -1,3 +1,8 @@
+### 2026-11-08 — P0 Client Analytics cross-engine regression (Firefox)
+- Independent graphical-browser testing previously displayed an intermittent Analytics recovery panel after switching Source Type to Independent; headed and headless Chromium CI could not reproduce it, so Issue #154 stays OPEN.
+- Extended the same synthetic-only 15/45/60 cohorts, 21 repeated transitions, transient recovery-panel MutationObserver, pointer/keyboard/chart/filter reset and CSV download smoke to Firefox in both validation workflows, in addition to Chromium headed/headless. No production data, auth/RLS, bank/payment, matching or credentials affected.
+- CI will expose any engine-specific exception stack and failure screenshot. Do not label this as a causal fix. Require exact-head GitHub workflows plus Vercel preview READY before merge; production READY and route smoke afterward. Local checkout remains DNS-blocked.
+
 ### 2026-11-08 — Client Analytics P0 graphical-browser parity regression (test-only)
 - Existing headless Chromium repeated-source-transition tests could not reproduce the independently observed browser-only Analytics recovery-panel flash. Added a second run of the same 21-transition smoke inside GitHub-hosted headed Chromium under Xvfb to exercise a browser mode closer to the failing graphical environment, without relaxing recovery-panel or exception assertions.
 - Runs in both mandatory validation workflows after Chromium installation. Reuses synthetic 15/45/60 cohorts, hydration checks, pageerror and transient-panel observer, and failure screenshot artifact. New test contract verifies both modes. No live auth/RLS, client data, pricing, matching, or production DB changes. This does not claim Issue #154 fixed; reopen/close only against actual evidence.
