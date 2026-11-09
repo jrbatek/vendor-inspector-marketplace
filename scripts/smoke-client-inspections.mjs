@@ -65,6 +65,18 @@ try{
    for(const heading of ["Client, project and site","Milestones","Reports · SAMPLE ONLY","NCRs","Outstanding actions"]){
      assert(await details.getByRole("heading",{name:heading}).count()===1,"Missing detail heading: "+heading+" in inspection "+i);
    }
+   const ncrToggle=details.getByRole("button",{name:"Open corrective-action details"});
+   if(await ncrToggle.count()){
+     assert(await ncrToggle.getAttribute("aria-expanded")==="false","Synthetic NCR case should start collapsed");
+     await ncrToggle.click();
+     const caseDetails=details.getByRole("region",{name:/Corrective-action details for SAMPLE-NCR-001/});
+     assert(await caseDetails.count()===1,"Opening NCR should expose fictional corrective-action workspace");
+     for(const evidence of ["Major","Vendor quality manager","material traceability matrix","mill certificates","Verification / next decision"]){
+       assert((await caseDetails.innerText()).includes(evidence),"Missing sample NCR case evidence: "+evidence);
+     }
+     await details.getByRole("button",{name:"Hide corrective-action details"}).click();
+     assert(await caseDetails.count()===0,"NCR case should collapse without changing inspection");
+   }
    const href=await details.locator('a[href^="/api/demo/report"]').first().getAttribute("href");
    assert(href?.includes("download=1"),"Missing synthetic report download for inspection "+i);
    if(i===0 || i===6){

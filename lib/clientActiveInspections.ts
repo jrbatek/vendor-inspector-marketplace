@@ -5,7 +5,7 @@ export type ActiveInspection = {
   stage: string; start: string; end: string;
   milestones: { name: string; date: string; status: string }[];
   reports: { id: string; title: string; date: string }[];
-  ncrs: { id: string; finding: string; status: string }[];
+  ncrs: { id: string; finding: string; status: string; severity: string; raised: string; responseDue: string; owner: string; correctiveAction: string; verification: string }[];
   actions: { task: string; owner: string; due: string }[];
 };
 
@@ -28,7 +28,7 @@ export const ACTIVE_DEMO_INSPECTIONS: ActiveInspection[] = scenarios.map((row, i
     { name: "Final review and release", date: row.end, status: "Upcoming" },
   ],
   reports: [{ id: `SAMPLE-ACT-${index + 1}`, title: index < 2 ? "Scope review sample" : "Interim inspection sample", date: row.start }],
-  ncrs: index === 4 ? [{ id: "SAMPLE-NCR-001", finding: "Heat number absent from material traceability record", status: "Open - corrective evidence requested" }] : [],
+  ncrs: index === 4 ? [{ id: "SAMPLE-NCR-001", finding: "Heat number absent from material traceability record", status: "Open - corrective evidence requested", severity: "Major", raised: "2026-11-05", responseDue: "2026-11-07", owner: "Vendor quality manager", correctiveAction: "Provide a revised material traceability matrix cross-referencing heat numbers, mill certificates and HX-45 item tags.", verification: "Inspector IS-1536 reviews the corrected matrix against stamped component identifiers and supporting mill certificates before client quality release." }] : [],
   actions: [{ task: row.task, owner: row.owner, due: row.due }],
 }));
 
@@ -54,7 +54,7 @@ export function searchActiveInspections(rows: ActiveInspection[], query: string)
       row.id, row.client, row.project, row.vendor, row.site, row.contact, row.po,
       row.scope, row.equipment, row.inspector, row.stage,
       ...row.reports.flatMap(report => [report.id, report.title]),
-      ...row.ncrs.flatMap(ncr => [ncr.id, ncr.finding, ncr.status]),
+      ...row.ncrs.flatMap(ncr => [ncr.id, ncr.finding, ncr.status, ncr.severity, ncr.owner, ncr.correctiveAction, ncr.verification]),
       ...row.actions.flatMap(action => [action.task, action.owner, action.due]),
     ].join(" ").toLocaleLowerCase();
     return words.every(word => content.includes(word));

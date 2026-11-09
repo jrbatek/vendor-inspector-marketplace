@@ -123,3 +123,36 @@ test("keyword search remains demo-local and resets with other inspection filters
   assert.match(page, /setKeyword\(" "\)|setKeyword\(".."\)|setKeyword\(""\)/);
   assert.doesNotMatch(page, /fetch\(|createClient|supabase/);
 });
+
+
+test("fictional NCR case expands into an accountable corrective-action and verification record", () => {
+  const record = rows.find(row => row.ncrs.length > 0);
+  assert.ok(record);
+  const ncr = record.ncrs[0];
+  assert.equal(ncr.id, "SAMPLE-NCR-001");
+  assert.equal(ncr.severity, "Major");
+  assert.match(ncr.raised, /^2026-11-\d{2}$/);
+  assert.match(ncr.responseDue, /^2026-11-\d{2}$/);
+  for (const key of ["owner", "correctiveAction", "verification"] as const) assert.ok(ncr[key].length > 20, key);
+  assert.deepEqual(searchActiveInspections(rows, "traceability matrix"), [record]);
+  assert.deepEqual(searchActiveInspections(rows, "verification unrelated"), []);
+  const page = read("app/demo/client-inspections/page.tsx");
+  assert.match(page, /Open corrective-action details/);
+  assert.match(page, /aria-expanded=\{expandedNcr === ncr.id\}/);
+  assert.match(page, /Corrective-action details for/);
+  assert.match(page, /setExpandedNcr\(null\)/);
+  assert.match(page, /\.ncrToggle:focus-visible/);
+  assert.doesNotMatch(page, /supabase|createClient|fetch\(/);
+});
+
+
+test("synthetic NCR follow-up deadline and ownership align with the inspection action queue", () => {
+  const caseRecord = rows.find(row => row.ncrs.some(ncr => ncr.id === "SAMPLE-NCR-001"));
+  assert.ok(caseRecord);
+  const ncr = caseRecord.ncrs[0];
+  assert.equal(ncr.responseDue, caseRecord.actions[0].due);
+  assert.equal(ncr.owner, caseRecord.actions[0].owner);
+  assert.equal(caseRecord.stage, "NCR follow-up");
+  assert.ok(ncr.correctiveAction.includes("HX-45"));
+  assert.ok(ncr.verification.includes("Inspector IS-1536"));
+});

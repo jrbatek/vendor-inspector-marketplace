@@ -1,3 +1,8 @@
+### 2026-11-09 — Client Demo NCR corrective-action drilldown (P0 active-inspection usability)
+- Added an explicit, accessible Open corrective-action details control under the fictional Pacific Hydrogen Hub NCR, displaying sample severity, issue date, response deadline, accountable owner, corrective evidence and inspector verification plan. Details collapse cleanly and reset when switching inspections; no live NCR edits or uploads.
+- Expanded deterministic NCR search, synthetic fixture assertions and real Chromium Open/Close interaction smoke; preserved all seven fictional inspections, existing status/project/inspector/date/urgency filters, sample PDFs, demo/login routing boundaries and CSV export behavior.
+- Demo-only in-memory data, no auth/RLS, production matching, bank/payment, credentials or database writes. Require both exact-head GitHub validations, migration/synthetic checks, typecheck/build/browser smoke, Vercel preview READY before merge, and production READY plus smoke after.
+
 ### 2026-11-08 — Agency Demo resource pool affiliation/keyword triage (independent safe backlog)
 - Made the five clearly fictional Agency Resource Pool examples searchable by inspector name, sample ID, relationship and geography; status slicer distinguishes Verified, Expiring, Confirmation pending and Disputed sample affiliations. Multi-word search composes with affiliation status, announces exact count, exposes clear reset and empty state, and has visible high-contrast focus/hover/disabled control states.
 - Expanded built-app Chromium Agency demo test to verify 5 initial rows, two Verified resources, combined keyword matches, conflicting filters and reset; added synthetic-only source assertions. Existing Capacity and NCR controls untouched.
