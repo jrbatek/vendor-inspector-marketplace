@@ -53,6 +53,20 @@ try{
  await dueFocus.getByRole("button",{name:"All active"}).click();
  assert(await page.locator("article.inspection").count()===7,"Due-action clear did not restore seven inspections");
 
+ // NCR follow-up triage composes with the other filters and remains demo-local.
+ const ncrFocus=page.getByRole("group",{name:"Non-conformance focus"});
+ const ncrOnlyButton=ncrFocus.getByRole("button",{name:"With open NCR (1)"});
+ await ncrOnlyButton.click();
+ assert(await ncrOnlyButton.getAttribute("aria-pressed")==="true","Selected NCR-only focus is not visible");
+ assert(await page.locator("article.inspection").count()===1,"Open-NCR focus must show the single fictional case");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Pacific Hydrogen Hub"),"Open-NCR focus selected the wrong inspection");
+ await dueFocus.getByRole("button",{name:"Due or overdue (2)"}).click();
+ assert(await page.locator("article.inspection").count()===1,"NCR and overdue focus must compose");
+ await page.getByRole("searchbox",{name:"Search inspections"}).fill("Bayou");
+ assert(await page.locator("article.inspection").count()===0,"NCR focus and keyword must compose to empty state");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ assert(await page.locator("article.inspection").count()===7,"Reset must clear NCR, urgency and search filters");
+ assert(await ncrFocus.getByRole("button",{name:"All NCR statuses"}).getAttribute("aria-pressed")==="true","Reset did not restore all NCR statuses");
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Authenticated workspace leaked into Client Demo");
  const stages=await page.locator("article.inspection .stage").allTextContents();
  assert(new Set(stages.map(s=>s.trim())).size===7,"Expected seven distinct inspection stages");

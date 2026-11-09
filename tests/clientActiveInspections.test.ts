@@ -156,3 +156,16 @@ test("synthetic NCR follow-up deadline and ownership align with the inspection a
   assert.ok(ncr.correctiveAction.includes("HX-45"));
   assert.ok(ncr.verification.includes("Inspector IS-1536"));
 });
+
+test("open NCR focus is synthetic-only, accessible and composes with existing inspection controls", () => {
+  const cases = rows.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open")));
+  assert.equal(cases.length, 1);
+  assert.equal(cases[0].project, "Pacific Hydrogen Hub");
+  const page = read("app/demo/client-inspections/page.tsx");
+  assert.match(page, /aria-label="Non-conformance focus"/);
+  assert.match(page, /With open NCR \(\{openNcrCount\}\)/);
+  assert.match(page, /setNcrOnly\(false\)/);
+  assert.match(page, /!ncrOnly \|\| row\.ncrs\.some/);
+  assert.match(page, /setExpandedNcr\(null\)/);
+  assert.doesNotMatch(page, /supabase|createClient|fetch\(/);
+});

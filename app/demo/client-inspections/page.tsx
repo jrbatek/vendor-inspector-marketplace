@@ -9,12 +9,14 @@ export default function ClientInspectionsDemo() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [sort, setSort] = useState<ActiveInspectionSort>("due");
   const [dueOnly, setDueOnly] = useState(false);
+  const [ncrOnly, setNcrOnly] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null);
   const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;
-  const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters), dueOnly), keyword), sort);
+  const openNcrCount = ACTIVE_DEMO_INSPECTIONS.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open"))).length;
+  const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row => !ncrOnly || row.ncrs.some(ncr => ncr.status.startsWith("Open"))), dueOnly), keyword), sort);
   const update = (key: keyof InspectionFilters, value: string) => { setFilters(current => ({ ...current, [key]: value })); setExpanded(null); setExpandedNcr(null); };
-  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setKeyword(""); setExpanded(null); setExpandedNcr(null); };
+  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setKeyword(""); setExpanded(null); setExpandedNcr(null); };
   const invalidDates = !!(filters.from && filters.to && filters.from > filters.to);
 
   return <div className="inspectionShell"><ClientWorkspaceSidebar demo /><section className="inspectionWorkspace">
@@ -37,6 +39,12 @@ export default function ClientInspectionsDemo() {
       <button type="button" aria-pressed={!dueOnly} onClick={() => { setDueOnly(false); setExpanded(null); }}>All active</button>
       <button type="button" aria-pressed={dueOnly} onClick={() => { setDueOnly(true); setExpanded(null); }}>Due or overdue ({dueCount})</button>
       <span>Dates are fictional. Due or overdue includes actions due on the demo reference date.</span>
+    </section>
+    <section className="dueFilter" role="group" aria-label="Non-conformance focus">
+      <strong>NCR focus · fictional records</strong>
+      <button type="button" aria-pressed={!ncrOnly} onClick={() => { setNcrOnly(false); setExpanded(null); setExpandedNcr(null); }}>All NCR statuses</button>
+      <button type="button" aria-pressed={ncrOnly} onClick={() => { setNcrOnly(true); setExpanded(null); setExpandedNcr(null); }}>With open NCR ({openNcrCount})</button>
+      <span>Combines with status, project, inspector, dates, search and urgency. No real quality records are changed.</span>
     </section>
     <div className="resultActions">
       <p role="status" className="resultCount">{rows.length} of {ACTIVE_DEMO_INSPECTIONS.length} synthetic in-progress inspections</p>
