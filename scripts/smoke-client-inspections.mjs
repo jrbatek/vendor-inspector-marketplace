@@ -44,7 +44,7 @@ try{
  const actionCsvData=decodeURIComponent((await actionCsv.getAttribute("href")).split(",").slice(1).join(","));
  assert(actionCsvData.includes("SYNTHETIC - NOT VERIFIED") && actionCsvData.includes("Pacific Hydrogen Hub") &&
    actionCsvData.includes("Vendor quality manager"),"Action CSV missing fictitious record or owner data");
- assert(actionCsvData.trim().split("\\r\\n").length===8,"Action CSV expected a header and seven rows");
+ assert(actionCsvData.trim().split("\r\n").length===8,"Action CSV expected a header and seven rows");
  // Action triage is synthetic-only; order changes without losing any records.
  const actionGroup=page.getByRole("group",{name:"Sort synthetic inspections"});
  const dueButton=actionGroup.getByRole("button",{name:"Next action due"});
