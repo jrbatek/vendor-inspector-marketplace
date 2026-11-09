@@ -1,3 +1,8 @@
+### 2026-11-09 — Structured inspector selectors contrast hardening (P0-B independent work)
+- Explicitly set dark foreground on structured Find Inspectors labels, native selects and inputs; add legible disabled, hover and keyboard focus states rather than relying on inherited text colors or browser defaults. Preserve all live matching/search behavior, query inputs, fixture data and routing.
+- Improve submit/reset primary control hover/focus/disabled contrast, with deterministic WCAG text contrast assertions and component source contracts. Existing Source of Inspectors desktop/mobile Chromium interaction smoke remains a required CI gate.
+- UI/CSS-only change; no API calls, production rules, database schema, auth/RLS, customer records, payments or OAuth. Keep Client Analytics browser P0 #154 tracked; Calendar PR #213 and release workflow #207 handled independently.
+
 ### 2026-11-09 — InspectorHub and schedule native form control contrast (P0-B)
 - Added explicit dark foreground, white fill, hover border, keyboard focus outline and high-contrast disabled states to native form controls in the InspectorHub Work Activity and live Schedule surfaces. Submit buttons now have separate visible hover/focus/disabled states; no white-on-white defaults or subdued disabled labels.
 - Added deterministic WCAG 4.5:1 text contrast contracts for both routes. This is styling-only, no changes to Supabase calls, live scheduling or authentication, user profiles, payment/banking, production matching, OAuth, or database schema. Preserve existing build, synthetic/migration, CI and browser checks, preview READY before merging and production READY plus smoke after.
