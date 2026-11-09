@@ -9,3 +9,11 @@ export function capacityByRegion(region:string){return region==="All regions"?AG
 export function capacityTotals(rows:readonly {available:number;assigned:number;tentative:number;blocked:number}[]){
  return rows.reduce<{available:number;assigned:number;tentative:number;blocked:number;total:number}>((t,r)=>({available:t.available+r.available,assigned:t.assigned+r.assigned,tentative:t.tentative+r.tentative,blocked:t.blocked+r.blocked,total:t.total+r.available+r.assigned+r.tentative+r.blocked}),{available:0,assigned:0,tentative:0,blocked:0,total:0})
 }
+
+/** CSV export is exclusively a coarse, fictional 30-day capacity summary; no inspector identities or live API data. */
+export function exportAgencyCapacityCsv(rows:readonly {region:string;available:number;assigned:number;tentative:number;blocked:number}[]):string{
+ const quote=(value:string|number)=>{const raw=String(value);const safe=/^\s*[=+\-@]/.test(raw)?"'"+raw:raw;return '"'+safe.replace(/"/g,'""')+'"';};
+ const header=["Demo Only","Region","Available","Assigned","Tentative / Hold","Blocked","Total","Horizon"];
+ const entries=rows.map(row=>["SYNTHETIC - NOT VERIFIED",row.region,row.available,row.assigned,row.tentative,row.blocked,row.available+row.assigned+row.tentative+row.blocked,"30-day sample"]);
+ return "\uFEFF"+[header,...entries].map(line=>line.map(quote).join(",")).join("\r\n")+"\r\n";
+}

@@ -1,3 +1,8 @@
+### 2026-11-08 — Export filtered Agency synthetic capacity (independent safe demo backlog)
+- Made Agency Demo 30-day capacity filter actionable with a browser-only downloadable CSV reflecting the selected fictional region(s), their available/assigned/hold/blocked counts, and explicit SYNTHETIC / NOT VERIFIED labeling. Preserves aggregate-only location granularity; no inspector identities, live API calls, production database, payments, or real resource availability.
+- Added formula-injection-safe CSV quoting, focus/hover contrast for the download control, deterministic export tests and a real Chromium selected-region file-download assertion. Separate from open P0 Analytics browser bug #154 and Client Inspection filter contrast PR #192.
+- Requires GitHub tests, migrations, synthetic validation, typecheck, production build, browser checks and READY preview before merge; production READY and demo smoke afterward.
+
 ### 2026-11-08 — Client Demo in-progress filter legibility (independent P0-B)
 - Made all five synthetic Client Demo Inspections in Progress stage/project/inspector/date filter controls explicitly dark-on-white with readable borders, hover/focus, and disabled states. Invalid reversed date ranges now show a visible red border in addition to their existing accessible alert.
 - Extended the built-app Chromium regression to check computed text/background/border colors for each filter and the invalid-date border; added scoped source regression tests. Preserved seven fictional inspections, filtering/counts, details, PDFs, analytics links, and authenticated-live Login redirects; no real auth, data, payments or production writes.

@@ -23,6 +23,16 @@ try{
    if(!(await cards.first().innerText()).includes(available+" available / "+capacity))throw Error(region+" data mismatch");
    if(!(await status.innerText()).includes("Showing 1 of 4"))throw Error(region+" status mismatch");
  }
+ // Export follows the selected fictional region, without hitting any live API.
+ await select.selectOption({label:"Europe"});
+ const downloadEvent=page.waitForEvent("download");
+ await page.getByRole("link",{name:"Download 1 synthetic capacity regions as CSV"}).click();
+ const download=await downloadEvent;
+ if(download.suggestedFilename()!=="inspectsource-synthetic-agency-capacity.csv")throw Error("Capacity download filename wrong");
+ const {readFile}=await import("node:fs/promises");
+ const csv=await readFile(await download.path(),"utf8");
+ if(!csv.startsWith("\uFEFF")||!csv.includes('"Europe","8","8","3","2","21"')||csv.includes('"Gulf Coast"')||!csv.includes("SYNTHETIC - NOT VERIFIED"))
+   throw Error("Filtered capacity CSV is not synthetic, properly scoped, or export-safe");
  await page.getByRole("button",{name:"Reset capacity"}).click();
  if(await cards.count()!==4)throw Error("Reset did not restore all capacity regions");
  if(errors.length)throw Error("Agency capacity browser errors: "+errors.join("\n"));
