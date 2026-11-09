@@ -10,13 +10,15 @@ export default function ClientInspectionsDemo() {
   const [sort, setSort] = useState<ActiveInspectionSort>("due");
   const [dueOnly, setDueOnly] = useState(false);
   const [ncrOnly, setNcrOnly] = useState(false);
+  const [actionOwner, setActionOwner] = useState("");
   const [keyword, setKeyword] = useState("");
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null);
   const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;
   const openNcrCount = ACTIVE_DEMO_INSPECTIONS.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open"))).length;
-  const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row => !ncrOnly || row.ncrs.some(ncr => ncr.status.startsWith("Open"))), dueOnly), keyword), sort);
+  const actionOwners = Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.flatMap(row => row.actions.map(action => action.owner)))).sort();
+  const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row => (!ncrOnly || row.ncrs.some(ncr => ncr.status.startsWith("Open"))) && (!actionOwner || row.actions.some(action => action.owner === actionOwner))), dueOnly), keyword), sort);
   const update = (key: keyof InspectionFilters, value: string) => { setFilters(current => ({ ...current, [key]: value })); setExpanded(null); setExpandedNcr(null); };
-  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setKeyword(""); setExpanded(null); setExpandedNcr(null); };
+  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setActionOwner(""); setKeyword(""); setExpanded(null); setExpandedNcr(null); };
   const invalidDates = !!(filters.from && filters.to && filters.from > filters.to);
 
   return <div className="inspectionShell"><ClientWorkspaceSidebar demo /><section className="inspectionWorkspace">
@@ -27,6 +29,7 @@ export default function ClientInspectionsDemo() {
       <label>Status / stage<select aria-label="Status / stage" value={filters.stage} onChange={e => update("stage", e.target.value)}><option value="">All stages</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.stage))).map(stage => <option key={stage}>{stage}</option>)}</select></label>
       <label>Project<select aria-label="Project" value={filters.project} onChange={e => update("project", e.target.value)}><option value="">All projects</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.project))).map(project => <option key={project}>{project}</option>)}</select></label>
       <label>Inspector<select aria-label="Inspector" value={filters.inspector} onChange={e => update("inspector", e.target.value)}><option value="">All inspectors</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.inspector))).map(inspector => <option key={inspector}>{inspector}</option>)}</select></label>
+      <label>Action owner<select aria-label="Action owner" value={actionOwner} onChange={e => { setActionOwner(e.target.value); setExpanded(null); setExpandedNcr(null); }}><option value="">All action owners</option>{actionOwners.map(owner => <option key={owner}>{owner}</option>)}</select></label>
       <label>Scheduled from<input type="date" value={filters.from} onChange={e => update("from", e.target.value)} aria-invalid={invalidDates} aria-describedby="date-help" /></label>
       <label>Scheduled through<input type="date" value={filters.to} onChange={e => update("to", e.target.value)} aria-invalid={invalidDates} aria-describedby="date-help" /></label>
       <label className="keywordSearch">Search inspections<input type="search" aria-label="Search inspections" placeholder="Project, vendor, site, report or NCR" value={keyword} onChange={e => { setKeyword(e.target.value); setExpanded(null); }} /></label>

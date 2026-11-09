@@ -1,3 +1,8 @@
+### 2026-11-09 — Client Demo inspection action-owner triage (safe demo follow-on)
+- Added a visible and accessible Action owner filter across the seven synthetic in-progress inspections, based on outstanding action ownership rather than inspector assignment. All action owners restores the complete cohort; owner filtering composes with stage/project/inspector/date, due/overdue, open NCR, keyword search, sorting and CSV export; global Reset clears ownership.
+- Expanded built-app Chromium interaction smoke to test owner selection, combination with open NCR, zero-results intersection, reset and computed color contrast; added deterministic fixture/source checks.
+- No production data, personal identities, bank/payment, live authentication/RLS, commercial matching, calendar OAuth or database writes. Require both exact-head GitHub workflows, synthetic/migration/typecheck/build/browser smoke, preview READY before merge, production READY and route smoke afterward.
+
 ### 2026-11-09 — Inspector Calendar Week date quick selection (Calendar follow-on)
 - Week view now has accessible date buttons that prefill the Block Dates start/end fields without changing any availability until explicit submission. Selected, hover, disabled-independent, and focus-visible colors are legible; existing Month, Week/List navigation and private/assigned event protections remain unchanged.
 - Added deterministic assertion coverage and built-app Chromium Week selection checks including selected state, both field values and unmodified Not set availability.

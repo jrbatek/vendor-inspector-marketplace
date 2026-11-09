@@ -12,8 +12,8 @@ test("in-progress Client Demo filters have explicit readable normal, hover, focu
  assert.match(page,/\.filters input\[aria-invalid=true\]\{border:2px solid #b91c1c/);
  assert.match(page,/aria-invalid=\{invalidDates\}/);
 });
-test("real Chromium validates five filter control colors and invalid date state",()=>{
- assert.match(smoke,/for \(const label of \["Status \/ stage","Project","Inspector","Scheduled from","Scheduled through"\]\)/);
+test("real Chromium validates six filter control colors and invalid date state",()=>{
+ assert.match(smoke,/for \(const label of \["Status \/ stage","Project","Inspector","Action owner","Scheduled from","Scheduled through"\]\)/);
  assert.match(smoke,/getComputedStyle\(element\)/);
  assert.match(smoke,/rgb\(15, 23, 42\)/);
  assert.match(smoke,/rgb\(185, 28, 28\)/);
