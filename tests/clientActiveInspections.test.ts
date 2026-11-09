@@ -144,3 +144,15 @@ test("fictional NCR case expands into an accountable corrective-action and verif
   assert.match(page, /\.ncrToggle:focus-visible/);
   assert.doesNotMatch(page, /supabase|createClient|fetch\(/);
 });
+
+
+test("synthetic NCR follow-up deadline and ownership align with the inspection action queue", () => {
+  const caseRecord = rows.find(row => row.ncrs.some(ncr => ncr.id === "SAMPLE-NCR-001"));
+  assert.ok(caseRecord);
+  const ncr = caseRecord.ncrs[0];
+  assert.equal(ncr.responseDue, caseRecord.actions[0].due);
+  assert.equal(ncr.owner, caseRecord.actions[0].owner);
+  assert.equal(caseRecord.stage, "NCR follow-up");
+  assert.ok(ncr.correctiveAction.includes("HX-45"));
+  assert.ok(ncr.verification.includes("Inspector IS-1536"));
+});
