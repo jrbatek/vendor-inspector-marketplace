@@ -26,8 +26,8 @@ export const ACTIVE_DEMO_INSPECTIONS: ActiveInspection[] = scenarios.map((row, i
   contact: `Site coordinator ${index + 1} · site${index + 1}@example.com`, po: `SAMPLE-PO-${1001 + index}`,
   milestones: [
     { name: "Scope and kickoff", date: row.start, status: index === 0 ? "In progress" : "Complete" },
-    { name: row.stage, date: "2026-11-06", status: "In progress" },
-    { name: "Final review and release", date: row.end, status: "Upcoming" },
+    { name: index === 0 ? "ITP review and approval" : row.stage, date: "2026-11-06", status: index === 0 ? "Upcoming" : index >= 5 ? "Complete" : "In progress" },
+    { name: "Final review and release", date: row.end, status: index >= 5 ? "In progress" : "Upcoming" },
   ],
   reports: [{ id: `SAMPLE-ACT-${index + 1}`, title: index < 2 ? "Scope review sample" : "Interim inspection sample", date: row.start }],
   ncrs: index === 4 ? [{ id: "SAMPLE-NCR-001", finding: "Heat number absent from material traceability record", status: "Open - corrective evidence requested", severity: "Major", raised: "2026-11-05", responseDue: "2026-11-07", owner: "Vendor quality manager", correctiveAction: "Provide a revised material traceability matrix cross-referencing heat numbers, mill certificates and HX-45 item tags.", verification: "Inspector IS-1536 reviews the corrected matrix against stamped component identifiers and supporting mill certificates before client quality release." }] : [],

@@ -181,3 +181,24 @@ test("fictional action owner filter is accessible, resettable and does not persi
  assert.match(page,/actionOwners\.map\(owner => <option/);
  assert.doesNotMatch(page,/supabase|createClient|fetch\(/);
 });
+
+test("milestones tell a coherent progressive story across seven fictional active delivery stages",()=>{
+ const actual=rows.map(row=>row.milestones.map(milestone=>milestone.status));
+ assert.deepEqual(actual,[
+  ["In progress","Upcoming","Upcoming"],
+  ["Complete","In progress","Upcoming"],
+  ["Complete","In progress","Upcoming"],
+  ["Complete","In progress","Upcoming"],
+  ["Complete","In progress","Upcoming"],
+  ["Complete","Complete","In progress"],
+  ["Complete","Complete","In progress"],
+ ]);
+ assert.equal(rows[0].milestones[1].name,"ITP review and approval","Kickoff should not duplicate itself as a future milestone");
+ assert.equal(rows[4].milestones[1].name,"NCR follow-up","Corrective action remains active, not falsely completed");
+ assert.equal(rows[6].milestones[2].status,"In progress","Release prep cannot falsely claim a completed release");
+ const page=read("app/demo/client-inspections/page.tsx");
+ assert.match(page,/className="milestoneSummary"/);
+ assert.match(page,/milestones.filter\(milestone => milestone.status === "Complete"\).length/);
+ assert.match(page,/\.inspectionSummary \.milestoneSummary\{font-weight:800;color:#334155/);
+ assert.doesNotMatch(page,/createClient|supabase|fetch\(/);
+});
