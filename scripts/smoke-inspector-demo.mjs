@@ -73,6 +73,15 @@ try {
   assert(await page.getByText(/Opportunity declined/).count() === 0, "Stale opportunity alert appeared on assignment");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   const calendar = page.getByRole("region", { name: "Inspector availability calendar" });
+  // Selecting a date should prefill the Block Dates form without actually changing
+  // the private inspector's synthetic availability until explicitly submitted.
+  const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
+  await datePicker.click();
+  assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-19", "Month date pick did not prefill start");
+  assert(await calendar.getByLabel("End date").inputValue() === "2026-11-19", "Month date pick did not prefill end");
+  assert((await calendar.locator(".day").filter({has:datePicker}).innerText()).includes("Not set"),
+    "Selecting a month day must not implicitly mark availability or write any event");
   for (const name of ["Start date", "End date", "Availability"]) {
     const control = name === "Availability" ? calendar.locator(".availabilityActions select") : calendar.getByLabel(name, { exact: true });
     const colors = await control.evaluate(element => {
