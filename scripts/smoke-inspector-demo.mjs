@@ -31,6 +31,23 @@ try {
   const names = await navigation.getByRole("button").allTextContents();
   assert(names.join("|") === ["Profile Home","Opportunities","Active Assignments","Availability & Calendar","Selection Insights & Feedback","Qualifications & Documents","Work History","Income & Tax Center"].join("|"), "InspectorHub navigation order or consolidated Work History incorrect: " + names);
   assert(await page.getByText("Inspector Demo · Synthetic data").count() === 1, "Synthetic demo guard banner missing");
+
+  await navigation.getByRole("button", { name: "Active Assignments" }).click();
+  assert(await page.getByRole("button", { name: "Open assignment" }).count() === 3, "Three synthetic active assignments expected");
+  for (const name of ["LNG Compressor Package", "Gulf Horizon Refinery Upgrade", "Orion Deepwater Platform"]) {
+    await page.locator("article").filter({ hasText: name }).getByRole("button", { name: "Open assignment" }).click();
+    const assignment = page.getByRole("region", { name: "Open assignment details" });
+    assert(await assignment.count() === 1, "Assignment workspace missing for " + name);
+    assert(await assignment.getByRole("heading", { name: "Milestones" }).count() === 1, "Milestones section missing for " + name);
+    assert(await assignment.locator(".milestones li").count() === 4, "Expected four meaningful scenario milestones for " + name);
+    assert(await assignment.locator(".documents li").count() === 3, "Expected three document statuses for " + name);
+    assert((await assignment.innerText()).includes("example.invalid"), "Site contact must be clearly fictional for " + name);
+    assert((await assignment.innerText()).includes("Outstanding items / next action"), "Outstanding action missing for " + name);
+    const pdfLink=assignment.getByRole("link", { name: "Open synthetic report PDF" });
+    const pdf=await page.request.get(base+(await pdfLink.getAttribute("href")));
+    assert(pdf.ok() && (pdf.headers()["content-type"]||"").includes("application/pdf"),"Synthetic assignment PDF not working for "+name);
+    await assignment.getByRole("button", { name: /Back to active assignments/ }).click();
+  }
   await navigation.getByRole("button", { name: "Opportunities" }).click();
   await page.getByRole("button", { name: "Preview Opportunity" }).first().click();
   const dialog = page.getByRole("dialog", { name: "Opportunity preview" });
