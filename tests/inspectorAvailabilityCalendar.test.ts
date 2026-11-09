@@ -78,3 +78,14 @@ test("calendar week navigation follows the selected month and has accessible vie
  assert.match(calendar,/aria-pressed=\{view === item\}/);
  assert.doesNotMatch(calendar,/role="tablist"|role="tab"|aria-selected/);
 });
+
+
+test("month-day buttons are accessible one-click prefills, not automatic availability writes", () => {
+ assert.match(calendar,/className="dayPicker"/);
+ assert.match(calendar,/aria-label=\{`Choose \$\{dateForDay\(day\)\} for availability`\}/);
+ assert.match(calendar,/aria-pressed=\{start===dateForDay\(day\) && end===dateForDay\(day\)\}/);
+ assert.match(calendar,/setStart\(dateForDay\(day\)\);setEnd\(dateForDay\(day\)\);setNotice\(""\)/);
+ assert.match(calendar,/\.dayPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
+ assert.match(calendar,/\.dayPicker:focus-visible\{outline:3px solid #0d9488/);
+ assert.match(calendar,/type="button" className="dayPicker"/);
+});
