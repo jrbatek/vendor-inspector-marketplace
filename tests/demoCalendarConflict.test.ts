@@ -45,7 +45,7 @@ test("clearing inspector-added dates restores seeded sample states and preserves
  assert.deepEqual(result.events.filter(row=>row.date==="2026-11-23"),[baseline[0]],"Seeded availability must be restored");
  assert.equal(result.events.filter(row=>row.date==="2026-11-29").length,0,"User-added day must return to Not set");
  assert.ok(result.events.includes(baseline[1])&&result.events.includes(baseline[2]),"Private and assigned fixtures must persist");
- assert.equal(result.events.find(row=>row.date==="2026-12-01")?.manuallySet,true,"Other dates must remain intact");
+ assert.ok(result.events.some(row=>row.date==="2026-12-01" && "manuallySet" in row && row.manuallySet===true),"Other dates must remain intact");
  const unchanged=clearInspectorAddedDemoAvailability(result.events,baseline,["2026-11-18","2026-11-26"]);
  assert.equal(unchanged.cleared,0);
  assert.deepEqual(unchanged.events,result.events);
