@@ -1,3 +1,8 @@
+### 2026-11-08 — Actionable Agency Reports & NCRs sample triage (independent safe backlog)
+- Added All/Open/Follow-up/No NCR filters for three clearly fictional Agency report examples, with reset, accessible live count, legible hover/focus/disabled controls and provenance note separating these samples from the unrelated fictional seven-NCR portfolio KPI.
+- Expanded existing built-app Chromium Agency smoke to verify each selected NCR status returns exactly the corresponding sample and Reset restores all three. Added deterministic source regression tests. Entirely browser-local presentation, no case records or live inspector data read/written, no auth/RLS, financial credentials or production matching.
+- Developed independently while Client Data filter PR #194 was isolated for test and build checks; rebase sequentially after earlier safe PRs, validate both exact-head GitHub workflows and READY preview before merge, verify READY production and smoke.
+
 ### 2026-11-08 — Filter Client Data Demo export preview and downloads (independent safe backlog)
 - Added a usable synthetic Client Data & Integrations status selector and reset; table preview, CSV and JSON downloads now reflect the same chosen fictional inspection cohort rather than an always-unfiltered export. Announced result counts and explicit readable normal/hover/focus/disabled control states.
 - Extended the desktop/mobile all-demo Chromium control smoke to select Completed, verify one fictional row and download/parse JSON with one matching inspection and liveIntegration=false, then reset to all five. Added deterministic contract tests; no live API, client records, payments, OAuth, database writes or production matching.
