@@ -35,7 +35,19 @@ try{
    throw Error("Filtered capacity CSV is not synthetic, properly scoped, or export-safe");
  await page.getByRole("button",{name:"Reset capacity"}).click();
  if(await cards.count()!==4)throw Error("Reset did not restore all capacity regions");
- if(errors.length)throw Error("Agency capacity browser errors: "+errors.join("\n"));
+ const ncrFilter=page.getByRole("combobox",{name:"Sample NCR status"});
+ const reportRows=page.locator('#reports-ncrs tr[data-sample-ncr]');
+ const ncrCount=page.locator('#reports-ncrs [role=status]');
+ if(await reportRows.count()!==3)throw Error("Agency NCR demo needs three fictional records");
+ for(const [focus,text] of [["Open","NCR-204"],["Follow-up","NCR-198"],["No NCR","Gulf Coast LNG"]]){
+   await ncrFilter.selectOption(focus);
+   if(await reportRows.count()!==1||!(await reportRows.first().innerText()).includes(text))
+     throw Error("Agency NCR focus "+focus+" selected wrong row");
+   if(!(await ncrCount.innerText()).includes("Showing 1 of 3"))throw Error("NCR filtered status not announced");
+ }
+ await page.getByRole("button",{name:"Reset NCR filter"}).click();
+ if(await reportRows.count()!==3)throw Error("Agency NCR reset did not restore three sample reports");
+ if(errors.length)throw Error("Agency capacity/NCR browser errors: "+errors.join("\n"));
  console.log("Agency capacity real-browser regional filter, totals, reset and anonymous demo PASS");
 }catch(e){console.error(e);process.exitCode=1}
 finally{await browser?.close();if(child){child.kill("SIGTERM");setTimeout(()=>child.kill("SIGKILL"),2000).unref()}}
