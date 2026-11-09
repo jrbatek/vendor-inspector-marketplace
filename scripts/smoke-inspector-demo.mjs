@@ -57,7 +57,7 @@ try {
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   const calendar = page.getByRole("region", { name: "Inspector availability calendar" });
   for (const name of ["Start date", "End date", "Availability"]) {
-    const control = calendar.getByLabel(name, { exact: true });
+    const control = name === "Availability" ? calendar.locator(".availabilityActions select") : calendar.getByLabel(name, { exact: true });
     const colors = await control.evaluate(element => {
       const style = getComputedStyle(element);
       return { text: style.color, background: style.backgroundColor, border: style.borderColor };
