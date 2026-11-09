@@ -64,6 +64,12 @@ try {
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count() >= 1, "Private synthetic doctor appointment missing");
   await tabs.getByRole("button", { name: "Week" }).click();
   assert(await tabs.getByRole("button", { name: "Week" }).getAttribute("aria-pressed") === "true", "Week view cannot be selected");
+  const weekDatePicker = cal.getByRole("button", { name: "Choose 2026-11-11 for availability" });
+  await weekDatePicker.click();
+  assert(await weekDatePicker.getAttribute("aria-pressed") === "true", "Selected Week day has no visible state");
+  assert(await cal.getByLabel("Start date").inputValue() === "2026-11-11", "Week date must prefill start");
+  assert(await cal.getByLabel("End date").inputValue() === "2026-11-11", "Week date must prefill end");
+  assert((await weekDatePicker.locator("xpath=..").innerText()).includes("Not set"), "Week date selection must not auto-mark availability");
   await tabs.getByRole("button", { name: "List" }).click();
   assert(await tabs.getByRole("button", { name: "List" }).getAttribute("aria-pressed") === "true", "List view cannot be selected");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "List view lacks privacy label for external events");

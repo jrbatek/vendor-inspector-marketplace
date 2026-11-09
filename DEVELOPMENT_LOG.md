@@ -1,3 +1,8 @@
+### 2026-11-09 — Inspector Calendar Week date quick selection (Calendar follow-on)
+- Week view now has accessible date buttons that prefill the Block Dates start/end fields without changing any availability until explicit submission. Selected, hover, disabled-independent, and focus-visible colors are legible; existing Month, Week/List navigation and private/assigned event protections remain unchanged.
+- Added deterministic assertion coverage and built-app Chromium Week selection checks including selected state, both field values and unmodified Not set availability.
+- Synthetic inspector UI only. No OAuth, calendar provider access, real inspection records, auth/RLS, production database, banking/payment or commercial matching changes. Require both exact-head GitHub workflows, synthetic/migration tests, typecheck/build, Vercel preview READY, then production READY and smoke before reporting deployed.
+
 ### 2026-11-09 — Client Demo open NCR focus (P0 inspection follow-on)
 - Added an accessible one-click non-conformance focus to the seven clearly fictional in-progress inspection cards. The new All NCR statuses / With open NCR (1) control composes with stage, project, inspector, date, urgency, keyword search, sorting and CSV export; reset restores all seven, and empty combinations have the existing clear empty state.
 - Added built-app Chromium interaction checks for selected state, single Pacific Hydrogen Hub NCR case, conjunction with overdue and keyword filters, and reset; added deterministic synthetic-only assertions. Existing sample corrective-action detail and PDFs remain unchanged.

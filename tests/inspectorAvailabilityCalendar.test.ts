@@ -89,3 +89,12 @@ test("month-day buttons are accessible one-click prefills, not automatic availab
  assert.match(calendar,/\.dayPicker:focus-visible\{outline:3px solid #0d9488/);
  assert.match(calendar,/type="button" className="dayPicker"/);
 });
+
+test("Week calendar date buttons prefill availability without scheduling a real event", () => {
+ assert.match(calendar,/className="weekPicker"/);
+ assert.match(calendar,/aria-label=\{`Choose \$\{date\} for availability`\}/);
+ assert.match(calendar,/aria-pressed=\{start===date && end===date\}/);
+ assert.match(calendar,/setStart\(date\);setEnd\(date\);setNotice\(" "\)|setStart\(date\);setEnd\(date\);setNotice\(""\)/);
+ assert.match(calendar,/\.weekPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
+ assert.match(calendar,/\.weekPicker:focus-visible\{outline:3px solid #0d9488/);
+});
