@@ -1,3 +1,5 @@
+import { buildDemoCsv } from "./demoClientDataExport";
+
 /** Fictional active work, deliberately separate from the completed portfolio. Never persist to live data. */
 export type ActiveInspection = {
   id: string; client: string; project: string; vendor: string; site: string;
@@ -77,6 +79,16 @@ export function activeInspectionActionRegister(rows: ActiveInspection[], asOf = 
     stage: row.stage, task: action.task, owner: action.owner, due: action.due,
     urgency: action.due < asOf ? "Overdue" : action.due === asOf ? "Due today" : "Upcoming",
   }))).sort((a,b) => a.due.localeCompare(b.due) || a.inspectionId.localeCompare(b.inspectionId));
+}
+
+/** Browser-local CSV for the selected fictional action queue, protected from spreadsheet formulas. */
+export function exportActiveDemoActionRegisterCsv(actions: ReturnType<typeof activeInspectionActionRegister>): string {
+  const headers=["Demo Only","Inspection ID","Project","Inspector","Stage","Outstanding action","Action owner","Due date","Urgency"];
+  const values=actions.map(action=>[
+    "SYNTHETIC - NOT VERIFIED",action.inspectionId,action.project,action.inspector,
+    action.stage,action.task,action.owner,action.due,action.urgency,
+  ]);
+  return "\uFEFF" + buildDemoCsv(headers,values) + "\r\n";
 }
 
 export type ActiveInspectionSort = "due" | "start" | "stage";
