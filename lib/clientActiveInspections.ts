@@ -69,6 +69,16 @@ export function filterActiveInspectionsByActionDue(rows: ActiveInspection[], due
   return rows.filter(row => row.actions.some(action => action.due <= asOf));
 }
 
+
+/** An action register for currently filtered synthetic inspections, with deterministic demo urgency. */
+export function activeInspectionActionRegister(rows: ActiveInspection[], asOf = DEMO_ACTION_REFERENCE_DATE) {
+  return rows.flatMap(row => row.actions.map(action => ({
+    inspectionId: row.id, project: row.project, inspector: row.inspector,
+    stage: row.stage, task: action.task, owner: action.owner, due: action.due,
+    urgency: action.due < asOf ? "Overdue" : action.due === asOf ? "Due today" : "Upcoming",
+  }))).sort((a,b) => a.due.localeCompare(b.due) || a.inspectionId.localeCompare(b.inspectionId));
+}
+
 export type ActiveInspectionSort = "due" | "start" | "stage";
 export function sortActiveInspections(rows: ActiveInspection[], sort: ActiveInspectionSort): ActiveInspection[] {
   if (sort === "stage") return [...rows];
