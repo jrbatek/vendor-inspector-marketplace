@@ -1,3 +1,8 @@
+### 2026-11-08 — Client Operations tablist keyboard accessibility (independent P0-B)
+- In the synthetic Client Demo, Billing/Contracts/Profile and contract relationship buttons already advertised `role=tab` with roving tab indices but offered no standard arrow-key, Home/End keyboard navigation. Added a shared local keyboard handler with wrap-around and active-panel selection; added visible keyboard focus outlines.
+- Extended the existing desktop/mobile real-Chromium demo-control audit to activate both tablists and verify ArrowRight, ArrowLeft wrap, Home and End; added source contract tests. Does not touch invoices/payment execution, legal agreements/e-signature, auth/RLS, real profile persistence or production financial data.
+- Requires exact-head GitHub CI, migration/synthetic checks, typecheck, build, smoke and READY preview before merge; production READY/smoke after. Built from main separately while Analytics cross-browser PR #188 validates; reconcile main and revalidate sequentially.
+
 ### 2026-11-08 — P0 Client Analytics cross-engine regression (Firefox)
 - Independent graphical-browser testing previously displayed an intermittent Analytics recovery panel after switching Source Type to Independent; headed and headless Chromium CI could not reproduce it, so Issue #154 stays OPEN.
 - Extended the same synthetic-only 15/45/60 cohorts, 21 repeated transitions, transient recovery-panel MutationObserver, pointer/keyboard/chart/filter reset and CSV download smoke to Firefox in both validation workflows, in addition to Chromium headed/headless. No production data, auth/RLS, bank/payment, matching or credentials affected.

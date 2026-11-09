@@ -82,6 +82,29 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/client-operations") {
+        const tabs = page.getByRole("tablist", { name: "Client operations sections" });
+        await tabs.getByRole("tab", { name: "Billing & Payment" }).focus();
+        await page.keyboard.press("ArrowRight");
+        if (await tabs.getByRole("tab", { name: "Contracts" }).getAttribute("aria-selected") !== "true")
+          throw new Error("Client operations ArrowRight did not activate Contracts");
+        const contractTabs = page.getByRole("tablist", { name: "Contract relationship types" });
+        await contractTabs.getByRole("tab", { name: "InspectSource" }).focus();
+        await page.keyboard.press("End");
+        if (await contractTabs.getByRole("tab", { name: "Others" }).getAttribute("aria-selected") !== "true")
+          throw new Error("Contract tabs End did not activate Others");
+        await page.keyboard.press("Home");
+        if (await contractTabs.getByRole("tab", { name: "InspectSource" }).getAttribute("aria-selected") !== "true")
+          throw new Error("Contract tabs Home did not restore InspectSource");
+        await tabs.getByRole("tab", { name: "Contracts" }).focus();
+        await page.keyboard.press("ArrowLeft");
+        if (await tabs.getByRole("tab", { name: "Billing & Payment" }).getAttribute("aria-selected") !== "true")
+          throw new Error("Client operations ArrowLeft did not activate Billing");
+        await page.keyboard.press("ArrowLeft");
+        if (await tabs.getByRole("tab", { name: "Client Profile" }).getAttribute("aria-selected") !== "true")
+          throw new Error("Client operations ArrowLeft did not wrap to Profile");
+        if (errors.length) throw new Error("Client operations keyboard interactions threw: " + errors.join("\\n"));
+      }
       console.log("Demo control visibility OK:", width + "px", route, result.checked);
     }
     await page.close();
