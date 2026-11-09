@@ -35,3 +35,10 @@ test("fictional action register is accessible, links to matching detail and has 
  assert.match(smoke,/Action register must show all seven fictional outstanding actions/);
  assert.doesNotMatch(page,/supabase|createClient|fetch\(/);
 });
+
+test("server-rendered seven-inspection smoke tolerates React attribute ordering",()=>{
+ const smoke=readFileSync("scripts/smoke-local.mjs","utf8");
+ assert.match(smoke,/body\.match\(\/<article/);
+ assert.match(smoke,/class="/);
+ assert.ok(smoke.includes("Active demo must render exactly seven inspection records"));
+});
