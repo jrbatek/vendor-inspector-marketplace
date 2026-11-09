@@ -115,8 +115,21 @@ try{
  assert(await search.inputValue()==="","Reset filters must clear inspection keyword search");
  assert(await page.locator("article.inspection").count()===7,"Reset after keyword search must restore seven inspections");
  const status=page.getByLabel("Status / stage"),project=page.getByLabel("Project",{exact:true}),inspector=page.getByLabel("Inspector",{exact:true});
+ const actionOwner=page.getByLabel("Action owner",{exact:true});
+ assert(await actionOwner.locator("option").count()===8,"Expected seven fictional action owners and an All reset choice");
+ await actionOwner.selectOption({label:"Vendor quality manager"});
+ assert(await page.locator("article.inspection").count()===1,"Action owner must isolate the fictional NCR follow-up inspection");
+ assert((await page.locator("article.inspection").first().innerText()).includes("Pacific Hydrogen Hub"),"Action-owner search selected wrong inspection");
+ await page.getByRole("group",{name:"Non-conformance focus"}).getByRole("button",{name:"With open NCR (1)"}).click();
+ assert(await page.locator("article.inspection").count()===1,"Action owner must compose with NCR status");
+ await actionOwner.selectOption({label:"Client quality lead"});
+ assert(await page.locator("article.inspection").count()===0,"Non-matching owner and NCR filters must show no results");
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ assert(await actionOwner.inputValue()==="","Reset must restore all action owners");
+ assert(await page.locator("article.inspection").count()===7,"Action owner reset must restore all seven records");
+
  // P0-B: visually inspect real browser computed colors for all five inspection filters.
- for (const label of ["Status / stage","Project","Inspector","Scheduled from","Scheduled through"]) {
+ for (const label of ["Status / stage","Project","Inspector","Action owner","Scheduled from","Scheduled through"]) {
    const control=page.getByLabel(label,{exact:true});
    const colors=await control.evaluate(element=>{const style=getComputedStyle(element);return {text:style.color,background:style.backgroundColor,border:style.borderTopColor}});
    assert(colors.text==="rgb(15, 23, 42)" && colors.background==="rgb(255, 255, 255)" && colors.border==="rgb(100, 116, 139)",

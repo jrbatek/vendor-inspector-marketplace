@@ -169,3 +169,15 @@ test("open NCR focus is synthetic-only, accessible and composes with existing in
   assert.match(page, /setExpandedNcr\(null\)/);
   assert.doesNotMatch(page, /supabase|createClient|fetch\(/);
 });
+
+test("fictional action owner filter is accessible, resettable and does not persist anything", () => {
+ const owners = new Set(rows.flatMap(row => row.actions.map(action => action.owner)));
+ assert.equal(owners.size, 7);
+ assert.equal(rows.filter(row => row.actions.some(action => action.owner === "Vendor quality manager")).length, 1);
+ const page = read("app/demo/client-inspections/page.tsx");
+ assert.match(page,/aria-label="Action owner"/);
+ assert.match(page,/row\.actions\.some\(action => action\.owner === actionOwner\)/);
+ assert.match(page,/setActionOwner\(" "\)|setActionOwner\(""\)/);
+ assert.match(page,/actionOwners\.map\(owner => <option/);
+ assert.doesNotMatch(page,/supabase|createClient|fetch\(/);
+});
