@@ -61,6 +61,15 @@ try{
      throw Error("Agency NCR focus "+focus+" selected wrong row");
    if(!(await ncrCount.innerText()).includes("Showing 1 of 3"))throw Error("NCR filtered status not announced");
  }
+ // Export only the currently selected fictional finding; never export unfiltered or live agency data.
+ await ncrFilter.selectOption("Open");
+ const ncrDownloadWait=page.waitForEvent("download");
+ await page.getByRole("link",{name:"Download 1 filtered synthetic agency report and NCR examples as CSV"}).click();
+ const ncrDownload=await ncrDownloadWait;
+ if(ncrDownload.suggestedFilename()!=="inspectsource-synthetic-agency-reports-ncrs.csv")throw Error("Agency report CSV filename wrong");
+ const reportCsv=await readFile(await ncrDownload.path(),"utf8");
+ if(!reportCsv.startsWith("\uFEFF")||!reportCsv.includes("SYNTHETIC - NOT VERIFIED")||!reportCsv.includes("NCR-204")||reportCsv.includes("NCR-198")||reportCsv.includes("Gulf Coast LNG"))
+   throw Error("Agency report CSV did not preserve selected fictional finding only");
  await page.getByRole("button",{name:"Reset NCR filter"}).click();
  if(await reportRows.count()!==3)throw Error("Agency NCR reset did not restore three sample reports");
  if(errors.length)throw Error("Agency capacity/NCR browser errors: "+errors.join("\n"));
