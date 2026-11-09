@@ -108,3 +108,14 @@ test("List view events can prefill Block Dates without changing private syntheti
  assert.match(calendar,/\.listPicker:focus-visible\{outline:3px solid #0d9488/);
  assert.match(calendar,/event.external && <small>Inspector only · client view: Busy/);
 });
+
+test("Calendar can clear only inspector-added demo availability without touching protected events",()=>{
+ assert.match(calendar,/const clearManualAvailability=/);
+ assert.match(calendar,/clearInspectorAddedDemoAvailability\(events,DEMO_EVENTS,dates\)/);
+ assert.match(calendar,/manuallySet: true/);
+ assert.match(calendar,/if\(overlapsPrivateDemoEvent\(events,dates\)\)/);
+ assert.match(calendar,/event.state==="Assigned"/);
+ assert.match(calendar,/type="button" className="clearManual" onClick=\{clearManualAvailability\}/);
+ assert.match(calendar,/\.calendarShell \.clearManual\{background:#fff;color:#115e59;border:2px solid #0f766e/);
+ assert.match(calendar,/\.calendarShell \.clearManual:hover\{background:#ccfbf1;color:#064e3b/);
+});
