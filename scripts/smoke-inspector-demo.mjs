@@ -86,7 +86,7 @@ try {
   await datePicker.click();
   assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-19", "Month date pick did not prefill start");
   assert(await calendar.getByLabel("End date").inputValue() === "2026-11-19", "Month date pick did not prefill end");
-  assert((await calendar.locator(".day").filter({has:datePicker}).innerText()).includes("Not set"),
+  assert((await datePicker.locator("xpath=..").innerText()).includes("Not set"),
     "Selecting a month day must not implicitly mark availability or write any event");
   for (const name of ["Start date", "End date", "Availability"]) {
     const control = name === "Availability" ? calendar.locator(".availabilityActions select") : calendar.getByLabel(name, { exact: true });
