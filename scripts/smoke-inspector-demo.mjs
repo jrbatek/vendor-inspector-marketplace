@@ -73,7 +73,7 @@ try {
   await tabs.getByRole("button", { name: "Week" }).click();
   await cal.getByRole("button", { name: "Next week" }).click();
   await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
-  assert(await cal.getByRole("textbox", { name: "Week containing" }).inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
+  assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
 
   assert(await tabs.getByRole("button", { name: "Week" }).getAttribute("aria-pressed") === "true", "Week view cannot be selected");
   const weekDatePicker = cal.getByRole("button", { name: "Choose 2026-11-11 for availability" });
