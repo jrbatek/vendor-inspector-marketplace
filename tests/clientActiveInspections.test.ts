@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { ACTIVE_DEMO_INSPECTIONS as rows, EMPTY_INSPECTION_FILTERS as empty, filterActiveInspections, activeInspectionReportHref } from "../lib/clientActiveInspections";
+import { ACTIVE_DEMO_INSPECTIONS as rows, EMPTY_INSPECTION_FILTERS as empty, filterActiveInspections, searchActiveInspections, activeInspectionReportHref } from "../lib/clientActiveInspections";
 import { demoNavigationHref } from "../lib/demoExperience";
 
 const read = (file: string) => fs.readFileSync(file, "utf8");
@@ -100,4 +100,26 @@ test("P0-B controls have explicit contrasting foregrounds, backgrounds and focus
   for (const foreground of ["1e40af", "1e3a8a", "0f172a"]) {
     assert.ok((luminance("ffffff") + .05) / (luminance(foreground) + .05) >= 4.5);
   }
+});
+
+test("fictional inspection keyword search spans project, vendor, inspector and report/NCR references", () => {
+  const original = rows.map(row => row.id);
+  assert.deepEqual(searchActiveInspections(rows, " BAYOU  vessel "), [rows[0]]);
+  assert.deepEqual(searchActiveInspections(rows, "North Sea Esbjerg"), [rows[1]]);
+  assert.deepEqual(searchActiveInspections(rows, "SAMPLE-ACT-3"), [rows[2]]);
+  assert.deepEqual(searchActiveInspections(rows, "SAMPLE-NCR-001"), [rows[4]]);
+  assert.deepEqual(searchActiveInspections(rows, "traceability manager"), [rows[4]]);
+  assert.deepEqual(searchActiveInspections(rows, "unrelated imaginary inspection"), []);
+  assert.equal(searchActiveInspections(rows, " ").length, 7);
+  assert.deepEqual(rows.map(row => row.id), original, "search must not mutate synthetic fixtures");
+  assert.deepEqual(searchActiveInspections(filterActiveInspections(rows, { ...empty, stage: rows[4].stage }), "SAMPLE-NCR-001"), [rows[4]]);
+  assert.deepEqual(searchActiveInspections(filterActiveInspections(rows, { ...empty, stage: rows[0].stage }), "SAMPLE-NCR-001"), []);
+});
+
+test("keyword search remains demo-local and resets with other inspection filters", () => {
+  const page = read("app/demo/client-inspections/page.tsx");
+  assert.match(page, /type="search" aria-label="Search inspections"/);
+  assert.match(page, /searchActiveInspections\(filterActiveInspectionsByActionDue/);
+  assert.match(page, /setKeyword\(" "\)|setKeyword\(".."\)|setKeyword\(""\)/);
+  assert.doesNotMatch(page, /fetch\(|createClient|supabase/);
 });

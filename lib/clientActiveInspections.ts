@@ -45,6 +45,22 @@ export function filterActiveInspections(rows: ActiveInspection[], filters: Inspe
     && (!filters.to || row.start <= filters.to));
 }
 
+/** Full-text discovery across fictional inspection references; all words must match. */
+export function searchActiveInspections(rows: ActiveInspection[], query: string): ActiveInspection[] {
+  const words = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return [...rows];
+  return rows.filter(row => {
+    const content = [
+      row.id, row.client, row.project, row.vendor, row.site, row.contact, row.po,
+      row.scope, row.equipment, row.inspector, row.stage,
+      ...row.reports.flatMap(report => [report.id, report.title]),
+      ...row.ncrs.flatMap(ncr => [ncr.id, ncr.finding, ncr.status]),
+      ...row.actions.flatMap(action => [action.task, action.owner, action.due]),
+    ].join(" ").toLocaleLowerCase();
+    return words.every(word => content.includes(word));
+  });
+}
+
 /** Client Demo action triage does not mutate synthetic fixtures or affect production data. */
 export const DEMO_ACTION_REFERENCE_DATE = "2026-11-08";
 /** Fixed fictional as-of date prevents real-time clock changes in investor demo results. */
