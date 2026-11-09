@@ -27,6 +27,9 @@ try{
  await page.locator("article.inspection").first().waitFor();
  assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
  assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
+ const milestoneSummary=await page.locator("article.inspection .milestoneSummary").allTextContents();
+ assert(milestoneSummary.length===7,"Every fictional inspection must show milestone progress");
+ assert(milestoneSummary.some(text=>text.includes("0 of 3"))&&milestoneSummary.some(text=>text.includes("1 of 3"))&&milestoneSummary.some(text=>text.includes("2 of 3")),"Progress must reflect kickoff, active work and release preparation");
  assert(await page.getByText("Demo mode · No login required").count()===1,"Missing unauthenticated demo context");
 
  // Cross-filtered synthetic action register provides direct entry into open inspection detail.
