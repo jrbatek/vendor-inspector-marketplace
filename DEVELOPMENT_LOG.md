@@ -1,3 +1,8 @@
+### 2026-11-08 — Client Operations synthetic invoice status triage (safe independent Client backlog)
+- Added a local-only Invoice status selector for Paid, Approved and Awaiting approval in the Client Demo Billing & Payment tab, with a clearly announced filtered count and accessible clear control. Closing expanded details when filtering prevents stale hidden invoice details from remaining open; portfolio-wide KPI totals are unchanged.
+- Expanded the desktop/mobile Chromium demo-control smoke to verify 2 Paid, 1 Awaiting approval and all 4 records after Reset; added source contract regression tests and visible hover/focus/select styling. No real payment processing, account data, contract mutation, authentication, production financial records or database writes.
+- Requires exact-head CI including synthetic/migrations/typecheck/build/smoke, Vercel preview READY before merge, production READY/smoke after. Built on the latest released main after #189; #154 Analytics cross-browser exception remains separately unresolved.
+
 ### 2026-11-08 — Client Operations tablist keyboard accessibility (independent P0-B)
 - In the synthetic Client Demo, Billing/Contracts/Profile and contract relationship buttons already advertised `role=tab` with roving tab indices but offered no standard arrow-key, Home/End keyboard navigation. Added a shared local keyboard handler with wrap-around and active-panel selection; added visible keyboard focus outlines.
 - Extended the existing desktop/mobile real-Chromium demo-control audit to activate both tablists and verify ArrowRight, ArrowLeft wrap, Home and End; added source contract tests. Does not touch invoices/payment execution, legal agreements/e-signature, auth/RLS, real profile persistence or production financial data.

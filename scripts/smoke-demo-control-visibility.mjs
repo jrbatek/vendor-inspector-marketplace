@@ -83,6 +83,16 @@ try {
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
       if (route === "/demo/client-operations") {
+        const invoiceFilter = page.getByLabel("Invoice status");
+        await invoiceFilter.selectOption("Paid");
+        if (await page.locator("article.invoice").count() !== 2)
+          throw new Error("Paid invoice filter must show two synthetic records");
+        await invoiceFilter.selectOption("Awaiting approval");
+        if (await page.locator("article.invoice").count() !== 1)
+          throw new Error("Awaiting approval filter must show one synthetic invoice");
+        await page.getByRole("button", { name: "Clear invoice filter" }).click();
+        if (await page.locator("article.invoice").count() !== 4)
+          throw new Error("Clearing invoice filter must restore all four synthetic invoices");
         const tabs = page.getByRole("tablist", { name: "Client operations sections" });
         await tabs.getByRole("tab", { name: "Billing & Payment" }).focus();
         await page.keyboard.press("ArrowRight");
