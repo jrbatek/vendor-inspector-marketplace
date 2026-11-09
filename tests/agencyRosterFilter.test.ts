@@ -1,0 +1,20 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+const page=fs.readFileSync("app/demo/agency/page.tsx","utf8");
+const smoke=fs.readFileSync("scripts/smoke-agency-capacity.mjs","utf8");
+test("agency synthetic resource search and status compose without touching live affiliations",()=>{
+ assert.match(page,/const \[rosterStatus,setRosterStatus\]=useState\("All statuses"\)/);
+ assert.match(page,/const \[rosterQuery,setRosterQuery\]=useState\(""\)/);
+ assert.match(page,/rosterWords\.every\(word=>row\.slice\(0,5\)/);
+ assert.match(page,/value=\{rosterStatus\}/);
+ assert.match(page,/value=\{rosterQuery\}/);
+ assert.match(page,/visibleResources\.map\(r =>/);
+ assert.match(page,/Showing \{visibleResources\.length\} of \{resources\.length\} synthetic agency resources/);
+ assert.match(page,/Reset resource filters/);
+ assert.match(page,/\.rosterTools input:focus-visible/);
+ assert.match(page,/\.rosterTools button:disabled/);
+ assert.match(smoke,/Maya Houston/);
+ assert.match(smoke,/Disputed/);
+ assert.match(smoke,/Expected five synthetic agency resources/);
+});
