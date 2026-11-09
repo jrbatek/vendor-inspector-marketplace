@@ -78,6 +78,12 @@ try {
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
+  const keyboardDate = calendar.getByRole("button", { name: "Choose 2026-11-21 for availability" });
+  await keyboardDate.focus();
+  await page.keyboard.press("Enter");
+  assert(await keyboardDate.getAttribute("aria-pressed") === "true", "Keyboard calendar date selection is not marked");
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-21", "Enter key did not prefill the selected start");
+  await datePicker.click();
   assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-19", "Month date pick did not prefill start");
   assert(await calendar.getByLabel("End date").inputValue() === "2026-11-19", "Month date pick did not prefill end");
   assert((await calendar.locator(".day").filter({has:datePicker}).innerText()).includes("Not set"),
