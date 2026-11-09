@@ -44,7 +44,7 @@ try {
     if (!body || !body.toLowerCase().includes("inspectsource")) {
       throw new Error(`${route} did not render expected InspectSource content`);
     }
-    if (route === "/demo/client-inspections" && (body.match(/<article class="[^"]*\binspection\b/g) || []).length !== 7) {
+    if (route === "/demo/client-inspections" && (body.match(/<article\b[^>]*\bclass="[^"]*\binspection\b/g) || []).length !== 7) {
       throw new Error("Active demo must render exactly seven inspection records");
     }
     if (route === "/demo/inspector-work-history" && !body.includes("Assignments Performed")) {

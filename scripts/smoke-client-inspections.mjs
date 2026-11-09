@@ -28,6 +28,17 @@ try{
  assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
  assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
  assert(await page.getByText("Demo mode · No login required").count()===1,"Missing unauthenticated demo context");
+
+ // Cross-filtered synthetic action register provides direct entry into open inspection detail.
+ const actionRegister=page.getByRole("region",{name:"Outstanding action register"});
+ assert(await actionRegister.locator("tbody tr").count()===7,"Action register must show all seven fictional outstanding actions");
+ assert((await actionRegister.locator("tbody tr").first().innerText()).includes("Overdue"),"Oldest action should be flagged overdue");
+ assert((await actionRegister.locator("tbody tr").nth(1).innerText()).includes("Due today"),"Second action should be flagged due today");
+ await actionRegister.getByRole("link",{name:"Open inspection"}).first().click();
+ assert(await page.locator("article.inspection .details").count()===1,"Action register drilldown must open exactly one inspection");
+ assert((await page.locator("article.inspection .details").first().innerText()).includes("Pacific Hydrogen Hub"),"Action register must open the matching fictional inspection");
+ await page.getByRole("button",{name:/Close Inspection/}).first().click();
+ assert(await page.locator("article.inspection .details").count()===0,"Action register drilldown must close normally");
  // Action triage is synthetic-only; order changes without losing any records.
  const actionGroup=page.getByRole("group",{name:"Sort synthetic inspections"});
  const dueButton=actionGroup.getByRole("button",{name:"Next action due"});
