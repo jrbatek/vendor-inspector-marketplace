@@ -141,6 +141,16 @@ try {
   await calendar.getByLabel("End date").fill("2026-11-29");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
   assert(await calendar.getByText("1 dates updated in this synthetic session only.").count() === 1, "Non-conflicting synthetic date update failed");
+  const manuallyBlocked = calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).locator("xpath=..");
+  assert((await manuallyBlocked.innerText()).includes("Unavailable"),"Demo block did not display an Unavailable calendar event");
+  await calendar.getByRole("button", { name: "Clear inspector-added demo dates" }).click();
+  assert(await calendar.getByText(/1 inspector-added demo date cleared/).count() === 1,"Manual clearing did not confirm one removed synthetic date");
+  assert((await manuallyBlocked.innerText()).includes("Not set"),"Cleared inspector-added date did not return to Not set");
+  assert(await calendar.getByText(/Our Anniversary · All day/).count() > 0,"Clearing removed a private calendar fixture");
+  await calendar.getByLabel("Start date").fill("2026-11-18");
+  await calendar.getByLabel("End date").fill("2026-11-18");
+  await calendar.getByRole("button", { name: "Clear inspector-added demo dates" }).click();
+  assert(await calendar.getByText(/Private events cannot be cleared/).count() === 1,"Clearing must not override imported personal Busy events");
   await calendar.getByRole("button", { name: "Connect Outlook Calendar" }).click();
   assert(await calendar.getByText(/demo|simulat/i).count() > 0, "Calendar connection is not clearly labeled simulated");
   await navigation.getByRole("button", { name: "Work History" }).click();
