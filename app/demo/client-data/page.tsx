@@ -70,7 +70,7 @@ export default function ClientDataDemoPage(){
         <div className="panelHead"><div><p className="eyebrow">Synthetic export preview</p><h2>Inspection records</h2></div><span>{filteredRows.length} of {rows.length} demo records</span></div>
         <div className="exportFilterTools">
           <label>Export status<select aria-label="Export status" value={exportStatus} onChange={event=>setExportStatus(event.target.value)}>
-            <option>All statuses</option>{[...new Set(rows.map(row=>row.status))].map(status=><option key={status}>{status}</option>)}
+            <option>All statuses</option>{rows.map(row=>row.status).filter((status,index,list)=>list.indexOf(status)===index).map(status=><option key={status}>{status}</option>)}
           </select></label>
           <button type="button" disabled={exportStatus==="All statuses"} onClick={()=>setExportStatus("All statuses")}>Reset export filter</button>
           <span role="status" aria-live="polite">{filteredRows.length} of {rows.length} fictional records selected for CSV and JSON.</span>
