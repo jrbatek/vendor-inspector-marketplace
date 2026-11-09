@@ -1,3 +1,8 @@
+### 2026-11-08 — Filter Client Data Demo export preview and downloads (independent safe backlog)
+- Added a usable synthetic Client Data & Integrations status selector and reset; table preview, CSV and JSON downloads now reflect the same chosen fictional inspection cohort rather than an always-unfiltered export. Announced result counts and explicit readable normal/hover/focus/disabled control states.
+- Extended the desktop/mobile all-demo Chromium control smoke to select Completed, verify one fictional row and download/parse JSON with one matching inspection and liveIntegration=false, then reset to all five. Added deterministic contract tests; no live API, client records, payments, OAuth, database writes or production matching.
+- Independent of unresolved Client Analytics P0 issue #154 and Agency capacity CSV PR #193; rebase sequentially after prior passing release, require full GitHub validation and Vercel preview READY before merge, production READY and smoke afterward.
+
 ### 2026-11-08 — Export filtered Agency synthetic capacity (independent safe demo backlog)
 - Made Agency Demo 30-day capacity filter actionable with a browser-only downloadable CSV reflecting the selected fictional region(s), their available/assigned/hold/blocked counts, and explicit SYNTHETIC / NOT VERIFIED labeling. Preserves aggregate-only location granularity; no inspector identities, live API calls, production database, payments, or real resource availability.
 - Added formula-injection-safe CSV quoting, focus/hover contrast for the download control, deterministic export tests and a real Chromium selected-region file-download assertion. Separate from open P0 Analytics browser bug #154 and Client Inspection filter contrast PR #192.

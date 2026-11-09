@@ -82,6 +82,26 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/client-data") {
+        const exportStatus = page.getByRole("combobox", { name: "Export status" });
+        const records = page.locator(".dataPanel tbody tr");
+        if (await records.count() !== 5) throw new Error("Client data preview must start with five synthetic inspections");
+        await exportStatus.selectOption("Completed");
+        if (await records.count() !== 1 || !(await records.first().innerText()).includes("IS-10428"))
+          throw new Error("Client data export status did not isolate the completed synthetic inspection");
+        const downloadEvent = page.waitForEvent("download");
+        await page.getByRole("button", { name: "Download synthetic JSON" }).click();
+        const sample = await downloadEvent;
+        if (sample.suggestedFilename() !== "inspectsource-client-demo-data.json")
+          throw new Error("Filtered client data JSON download filename incorrect");
+        const { readFile } = await import("node:fs/promises");
+        const body = JSON.parse(await readFile(await sample.path(), "utf8"));
+        if (body.count !== 1 || body.inspections?.[0]?.inspection !== "IS-10428" || body.liveIntegration !== false)
+          throw new Error("Filtered client data JSON exported wrong cohort or lost demo isolation");
+        await page.getByRole("button", { name: "Reset export filter" }).click();
+        if (await records.count() !== 5) throw new Error("Client export reset must restore all five rows");
+        if (errors.length) throw new Error("Client data filter caused browser exception: " + errors.join("\\n"));
+      }
       if (route === "/demo/client-operations") {
         const invoiceFilter = page.getByLabel("Invoice status");
         await invoiceFilter.selectOption("Paid");
