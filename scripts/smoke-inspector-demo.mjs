@@ -48,6 +48,22 @@ try {
     assert(pdf.ok() && (pdf.headers()["content-type"]||"").includes("application/pdf"),"Synthetic assignment PDF not working for "+name);
     await assignment.getByRole("button", { name: /Back to active assignments/ }).click();
   }
+  // Sidebar navigation always returns to the list, not a previously opened detail.
+  await page.locator("article").filter({ hasText: "LNG Compressor Package" })
+    .getByRole("button", { name: "Open assignment" }).click();
+  assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 1,
+    "Assignment must open before testing sidebar reset");
+  await navigation.getByRole("button", { name: "Active Assignments" }).click();
+  assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 0 &&
+    await page.getByRole("button", { name: "Open assignment" }).count() === 3,
+    "Active Assignments sidebar should return to three-record list from detail");
+  await page.locator("article").filter({ hasText: "Orion Deepwater Platform" })
+    .getByRole("button", { name: "Open assignment" }).click();
+  await navigation.getByRole("button", { name: "Profile Home" }).click();
+  await navigation.getByRole("button", { name: "Active Assignments" }).click();
+  assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 0 &&
+    await page.getByRole("button", { name: "Open assignment" }).count() === 3,
+    "Leaving an assignment for another section must clear stale detail when returning");
   await navigation.getByRole("button", { name: "Opportunities" }).click();
   await page.getByRole("button", { name: "Preview Opportunity" }).first().click();
   const dialog = page.getByRole("dialog", { name: "Opportunity preview" });
