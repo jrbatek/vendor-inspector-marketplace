@@ -153,6 +153,9 @@ try{
  await project.selectOption({index:1});
  await search.fill("sample");
  assert(await page.locator(".filterChips button").count()===3,"Expected three active criteria chips");
+ const chipContainerStyles=await page.locator(".filterChips").evaluate(element=>{const s=getComputedStyle(element);return {display:s.display,background:s.backgroundColor,border:s.borderTopColor,wrap:s.flexWrap}});
+ assert(chipContainerStyles.display==="flex" && chipContainerStyles.wrap==="wrap" && chipContainerStyles.background==="rgb(239, 246, 255)" && chipContainerStyles.border==="rgb(191, 219, 254)",
+   "P0-B active Client Demo filter chips must render with their intended visible container styles: "+JSON.stringify(chipContainerStyles));
  await page.getByRole("button",{name:/Remove Stage: .* filter/}).click();
  assert(await status.inputValue()==="","Removing stage chip should clear only stage");
  assert(await project.inputValue()!==""&&await search.inputValue()==="sample","Removing stage chip cleared another filter");
