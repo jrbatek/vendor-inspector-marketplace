@@ -196,6 +196,15 @@ try{
  assert(await page.getByRole("heading",{name:"Correct the scheduled date range"}).count()===1,"Invalid dates should explain the actual validation error");
  assert(await page.getByRole("heading",{name:"No inspections match these filters"}).count()===0,"Invalid dates must not be confused with a legitimate empty selection");
  await project.selectOption({index:1});
+ const dateWarning=page.getByRole("alert",{name:"Invalid scheduled date range"});
+ assert(await dateWarning.getByRole("button",{name:"Clear dates in warning"}).count()===1,"Invalid dates need directly accessible clear control");
+ const warningStyle=await dateWarning.evaluate(element=>{const s=getComputedStyle(element);return {background:s.backgroundColor,border:s.borderTopColor,text:s.color}});
+ assert(warningStyle.background==="rgb(254, 242, 242)" && warningStyle.border==="rgb(185, 28, 28)" && warningStyle.text==="rgb(127, 29, 29)", "Invalid-date alert must be visibly legible: "+JSON.stringify(warningStyle));
+ await dateWarning.getByRole("button",{name:"Clear dates in warning"}).click();
+ assert(await page.getByLabel("Scheduled from").inputValue()===""&&await page.getByLabel("Scheduled through").inputValue()==="", "Warning action must clear only dates");
+ assert(await project.inputValue()!==""&&await page.locator("article.inspection").count()===1, "Warning recovery must preserve project selection");
+ await page.getByLabel("Scheduled from").fill("2026-11-10");
+ await page.getByLabel("Scheduled through").fill("2026-11-01");
  await page.getByRole("button",{name:"Clear invalid date range"}).click();
  assert(await page.getByLabel("Scheduled from").inputValue()===""&&await page.getByLabel("Scheduled through").inputValue()==="","Invalid-date correction failed to clear both dates");
  assert(await project.inputValue()!==""&&await page.locator("article.inspection").count()===1,"Clearing dates must preserve unrelated project filtering");
