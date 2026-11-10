@@ -20,3 +20,15 @@ test("Client Analytics recovery never navigates a reviewer into authenticated li
   }
   assert.doesNotMatch(content,/href="\/client-dashboard|href="\/login/);
 });
+
+test("client-only Analytics recovery offers bounded, copyable synthetic crash diagnostics without sending telemetry",()=>{
+  assert.match(content,/const diagnostic = \[/);
+  assert.match(content,/error\.message/);
+  assert.match(content,/error\.stack/);
+  assert.match(content,/error\.digest/);
+  assert.match(content,/\.slice\(0, 6000\)/);
+  assert.match(content,/<details className="diagnostics">/);
+  assert.match(content,/<pre>\{diagnostic\}<\/pre>/);
+  assert.match(content,/No account data is accessed and no error information is submitted automatically/);
+  assert.doesNotMatch(content,/navigator\.sendBeacon|fetch\(|\.insert\(|\.update\(|\/client-dashboard/);
+});

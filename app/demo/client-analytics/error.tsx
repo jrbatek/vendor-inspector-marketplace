@@ -6,7 +6,16 @@ type DemoAnalyticsErrorProps = {
 };
 
 /** Isolate Client Analytics client exceptions without exposing live workspace/auth routes. */
-export default function ClientAnalyticsError({ reset }: DemoAnalyticsErrorProps) {
+export default function ClientAnalyticsError({ error, reset }: DemoAnalyticsErrorProps) {
+  // This public route contains synthetic client fixtures only. Keep the exception
+  // local and user-readable so a browser-specific failure can be diagnosed without
+  // making an external telemetry request or redirecting to live authentication.
+  const diagnostic = [
+    `Error: ${error.name || "Error"}`,
+    `Message: ${error.message || "No client-side message available"}`,
+    error.digest ? `Digest: ${error.digest}` : "",
+    error.stack ? `Stack: ${error.stack}` : "Stack trace unavailable in this browser",
+  ].filter(Boolean).join("\n").slice(0, 6000);
   return <main className="analyticsRecovery" role="main">
     <section className="recoveryPanel" aria-labelledby="analytics-recovery-title">
       <p className="eyebrow">Client Demo · Synthetic data only</p>
@@ -18,6 +27,11 @@ export default function ClientAnalyticsError({ reset }: DemoAnalyticsErrorProps)
         <a href="/demo/client-inspections">Open in-progress inspections</a>
         <a href="/demo/client">Client Demo home</a>
       </div>
+      <details className="diagnostics">
+        <summary>Technical details for troubleshooting</summary>
+        <p>These client-side diagnostics stay in this browser. No account data is accessed and no error information is submitted automatically. Select and copy the text when reporting this demo problem.</p>
+        <pre>{diagnostic}</pre>
+      </details>
       <p className="fine">This is a demo recovery view, not a request to log into the live client workspace.</p>
     </section>
     <style jsx>{`
@@ -32,6 +46,11 @@ export default function ClientAnalyticsError({ reset }: DemoAnalyticsErrorProps)
       .recoveryActions a{background:#f0fdfa;color:#115e59;border:2px solid #0f766e}
       button:hover,.recoveryActions a:hover{background:#ccfbf1;color:#115e59}
       button:focus-visible,.recoveryActions a:focus-visible{outline:3px solid #0d9488;outline-offset:3px}
+      .diagnostics{margin:16px 0;padding:12px;border:1px solid #94a3b8;border-radius:10px;background:#f8fafc}
+      .diagnostics summary{cursor:pointer;color:#0f172a;font-weight:800;padding:4px}
+      .diagnostics summary:focus-visible{outline:3px solid #0d9488;outline-offset:3px}
+      .diagnostics p{font-size:.85rem;color:#334155}
+      .diagnostics pre{max-height:240px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.75rem;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:12px}
       .fine{font-size:.8rem;color:#475569}
     `}</style>
   </main>;
