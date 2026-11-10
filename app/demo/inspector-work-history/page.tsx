@@ -18,12 +18,13 @@ export default function InspectorWorkHistoryDemo() {
   const [open, setOpen] = useState<string | null>(null);
   const rows = INSPECTOR_DEMO_WORK_HISTORY;
   const shown = useMemo(() => filterInspectorWorkHistory(rows, filters), [rows, filters]);
-  const choose = (key: keyof WorkHistoryFilters, value: string) => setFilters(current => ({ ...current, [key]: value }));
+  const choose = (key: keyof WorkHistoryFilters, value: string) => { setFilters(current => ({ ...current, [key]: value })); setOpen(null); };
   const options = (key: "client" | "industry" | "commodity" | "status") =>
     Array.from(new Set(rows.map(row => row[key]))).sort();
   const reset = () => { setFilters(EMPTY_WORK_HISTORY_FILTERS); setOpen(null); };
-  const reviewed = rows.filter(row => row.status === "Client reviewed").length;
-  const ncrs = rows.filter(row => row.ncr).length;
+  // Counters describe the visible filtered subset, not the unfiltered history.
+  const reviewed = shown.filter(row => row.status === "Client reviewed").length;
+  const ncrs = shown.filter(row => row.ncr).length;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
   // Recover from a contradictory date range without losing unrelated closeout criteria.
   const clearInvalidDates = () => { setFilters(current => ({ ...current, from: "", to: "" })); setOpen(null); };
@@ -33,18 +34,18 @@ export default function InspectorWorkHistoryDemo() {
       <div><p className="eyebrow">InspectorHub · Demo Mode</p><h1>Work History</h1><p>Assignments Performed and Reports Submitted in one place. Every client, inspector, project, supplier, document and finding is a <strong>synthetic demonstration</strong>; no live account or production data is accessed.</p></div>
       <a className="back" href="/demo/inspector">Back to Inspector Demo</a>
     </header>
-    <div className="summary" aria-label="Synthetic work history summary">
-      <div><strong>{rows.length}</strong><span>Assignments performed</span></div>
-      <div><strong>{rows.length}</strong><span>Reports submitted</span></div>
-      <div><strong>{reviewed}</strong><span>Client reviewed</span></div>
-      <div><strong>{ncrs}</strong><span>Reports with NCR examples</span></div>
+    <div className="summary" role="group" aria-label="Filtered synthetic work history summary">
+      <div><strong>{shown.length}</strong><span>Matching assignments performed</span></div>
+      <div><strong>{shown.length}</strong><span>Matching reports submitted</span></div>
+      <div><strong>{reviewed}</strong><span>Client reviewed in results</span></div>
+      <div><strong>{ncrs}</strong><span>Reports with NCRs in results</span></div>
     </div>
     <section className="filterCard" aria-label="Work History filters">
       <div className="filterHead"><h2>Find completed work</h2><button type="button" className="reset" onClick={reset}>Reset filters</button></div>
       <div className="filters">
         <label className="historySearch">Search project, vendor, location, report or assignment ID
           <input type="search" aria-label="Search work history" placeholder="e.g. coastal, Busan, IR-260914" value={filters.query}
-            onChange={event => { choose("query", event.target.value); setOpen(null); }} />
+            onChange={event => choose("query", event.target.value)} />
         </label>
         {(["client","industry","commodity","status"] as const).map(key => <label key={key}>{key === "client" ? "Client" : key === "industry" ? "Industry" : key === "commodity" ? "Commodity" : "Closeout status"}
           <select value={filters[key]} onChange={event => choose(key,event.target.value)}>
@@ -60,8 +61,8 @@ export default function InspectorWorkHistoryDemo() {
       {invalidDates && <div className="invalidDateNotice" role="alert"><p>The start date must not be after the end date. Adjust the dates or clear only the date range.</p><button type="button" onClick={clearInvalidDates}>Clear invalid date range</button></div>}
     </section>
     <div className="tabs" role="group" aria-label="Work History views">
-      <button type="button" aria-pressed={view === "assignments"} className={view === "assignments" ? "selected" : ""} onClick={() => setView("assignments")}>Assignments Performed</button>
-      <button type="button" aria-pressed={view === "reports"} className={view === "reports" ? "selected" : ""} onClick={() => setView("reports")}>Reports Submitted</button>
+      <button type="button" aria-pressed={view === "assignments"} className={view === "assignments" ? "selected" : ""} onClick={() => { setView("assignments"); setOpen(null); }}>Assignments Performed</button>
+      <button type="button" aria-pressed={view === "reports"} className={view === "reports" ? "selected" : ""} onClick={() => { setView("reports"); setOpen(null); }}>Reports Submitted</button>
     </div>
     <div className="resultsBar">
       <p className="resultCount" role="status">{invalidDates ? "Invalid completion date range — correct or clear the dates to view synthetic work history." : `Showing ${shown.length} of ${rows.length} synthetic ${view === "assignments" ? "completed assignments" : "submitted reports"}`}</p>
@@ -74,7 +75,7 @@ export default function InspectorWorkHistoryDemo() {
     {shown.length === 0 && <section className="empty"><h2>{invalidDates ? "Invalid completion date range" : "No matching work history"}</h2><p>{invalidDates ? "Your completed-from date is later than your completed-through date. Clear only those dates to keep your other filters." : "Try another client, industry, commodity, status, NCR finding or completed-date range."}</p>{invalidDates ? <button type="button" onClick={clearInvalidDates}>Clear invalid date range</button> : <button type="button" onClick={reset}>Clear filters</button>}</section>}
     <section className="records" aria-label={view === "assignments" ? "Assignments Performed" : "Reports Submitted"}>
       {shown.map(row => <article className="record" key={row.id}>
-        <div className="recordTop"><div><p className="eyebrow">{view === "assignments" ? row.id : row.reportId} · {row.status}</p><h2>{view === "assignments" ? row.project : row.assignmentType}</h2><p>{row.client} · {row.industry} · {row.commodity}</p><p>{row.location} · Completed {row.completed}</p></div><span className="status">Synthetic record</span></div>
+        <div className="recordTop"><div><p className="eyebrow">{view === "assignments" ? row.id : row.reportId} · {row.status}</p><h2>{row.project}</h2><p>{row.assignmentType} · {row.client} · {row.industry} · {row.commodity}</p><p>{row.location} · Completed {row.completed}</p></div><span className="status">Synthetic record</span></div>
         {view === "assignments" ? <>
           <p><strong>Performed:</strong> {row.assignmentType} · {row.start} to {row.completed}</p>
           <button type="button" aria-expanded={open === row.id} aria-controls={"detail-" + row.id} onClick={() => setOpen(open === row.id ? null : row.id)}>{open === row.id ? "Close assignment" : "Open assignment"}</button>
