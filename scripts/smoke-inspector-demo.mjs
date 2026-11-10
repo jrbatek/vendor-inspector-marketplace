@@ -177,6 +177,27 @@ try {
   await page.getByRole("button",{name:"Reset filters"}).click();
   assert(await historySearch.inputValue()==="","Reset must clear Work History keyword");
   assert((await page.locator(".resultCount").innerText()).includes("10 of 10"),"Reset must restore all fictional reports");
+  // Invalid Work History dates must not masquerade as a genuine empty result.
+  const workFilters = page.getByRole("region", { name: "Work History filters" });
+  await workFilters.locator(".filters select").first().selectOption("Bluewater LNG");
+  await workFilters.getByLabel("Completed from").fill("2026-10-20");
+  await workFilters.getByLabel("Completed through").fill("2026-08-01");
+  assert(await page.getByRole("heading", { name: "Invalid completion date range" }).count() === 1,
+    "Contradictory Work History dates must have an explicit recovery heading");
+  assert(!(await page.locator(".resultCount").innerText()).includes("Showing 0 of 10"),
+    "Invalid range should not be presented as a genuine no-match result");
+  await workFilters.getByRole("button", { name: "Clear invalid date range" }).click();
+  assert(await workFilters.getByLabel("Completed from").inputValue() === "" &&
+    await workFilters.getByLabel("Completed through").inputValue() === "",
+    "Recovery must clear only the two invalid dates");
+  assert(await workFilters.locator(".filters select").first().inputValue() === "Bluewater LNG",
+    "Recovery must preserve independently selected client");
+  assert((await page.locator(".resultCount").innerText()).includes("2 of 10"),
+    "Recovery should restore two fictional Bluewater LNG records");
+  await page.getByRole("group", { name: "Work History views" })
+    .getByRole("button", { name: "Assignments Performed" }).click();
+  assert((await page.locator(".resultCount").innerText()).includes("2 of 10"),
+    "Recovery must remain correct after switching consolidated Work History views");
 
   assert(errors.length === 0, "Inspector Demo browser exceptions: " + errors.join("\n"));
   console.log("Inspector Demo Chromium OK: sidebar, opportunity alert isolation, Month/Week/List, private events, assignment, date conflicts and demo-only connectors.");
