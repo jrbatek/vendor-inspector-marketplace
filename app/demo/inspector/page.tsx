@@ -19,7 +19,7 @@ export default function InspectorDemo(){
  const [section,setSection]=useState<Section>("home"); const [region,setRegion]=useState<Region>("USA"); const [opp,setOpp]=useState<Opportunity|null>(null); const [notice,setNotice]=useState(""); const [noticeSection,setNoticeSection]=useState<Section|null>(null); const p=PROFILES[region];
  useEffect(()=>{if(opp)opportunityClose.current?.focus();},[opp]);
  const closeOpportunity=()=>{setOpp(null);opportunityTrigger.current?.focus();};
- const nav=(s:Section,label:string)=><button type="button" className={section===s?"active":""} aria-current={section===s?"page":undefined} onClick={()=>{setNotice("");setNoticeSection(null);setOpp(null);setSection(s)}}>{label}</button>;
+ const nav=(s:Section,label:string)=><button type="button" className={section===s?"active":""} aria-current={section===s?"page":undefined} onClick={()=>{setNotice("");setNoticeSection(null);setOpp(null);setAssignment(null);setSection(s)}}>{label}</button>;
  const demoAction=(message:string)=>{setNotice(`${message} — demo only; no production record was changed.`);setNoticeSection(section);};
  return <main className="shell">
   <aside className="side"><div className="sideTitle"><span>Inspector Workspace</span><strong>InspectorHub</strong></div><nav aria-label="Inspector Workspace navigation">{NAV.map(([s,l])=><span key={s}>{nav(s,l)}</span>)}</nav></aside>

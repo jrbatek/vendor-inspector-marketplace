@@ -7,7 +7,7 @@ test("Opportunity Declined success/error notices stay in their originating Inspe
  assert.match(page,/const \[noticeSection,setNoticeSection\]=useState<Section\|null>\(null\)/);
  assert.match(page,/setNoticeSection\(section\)/);
  assert.match(page,/notice && noticeSection === section/);
- assert.match(page,/setNoticeSection\(null\);setOpp\(null\);setSection\(s\)/);
+ assert.match(page,/setNoticeSection\(null\);setOpp\(null\);setAssignment\(null\);setSection\(s\)/);
  assert.match(page,/setNotice\(""\)/);
 });
 test("each preview and region change resets stale opportunity notice, with no live writes",()=>{
