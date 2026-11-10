@@ -43,6 +43,7 @@ async function assertCohort(page, label, expected) {
   if (await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
     throw new Error("Transient Client Analytics recovery panel was observed after selecting " + label);
 }
+const assert=(ok,message)=>{if(!ok)throw new Error(message)};
 let browser, page, failed=false;
 const errors=[];
 try {
@@ -88,6 +89,14 @@ try {
   await chart.getByRole("button",{name:/Independent/}).click();
   await assertCohort(page,"All",60);
   await chart.getByRole("button",{name:/Agency/}).click();
+  await assertCohort(page,"Agency",45);
+  const chips = page.getByRole("region", {name:"Active analytics filters"});
+  assert(await chips.getByRole("button", {name:"Clear Source Type filter: Agency"}).count() === 1,
+    "Active Agency source must expose a legible removable filter chip");
+  await chips.getByRole("button", {name:"Clear Source Type filter: Agency"}).click();
+  await assertCohort(page,"All",60);
+  // Independent filters must survive removing just the Source Type chip.
+  await page.getByRole("group",{name:"Quick source type filters"}).getByRole("button",{name:"Agency"}).click();
   await assertCohort(page,"Agency",45);
   await page.getByRole("button",{name:"Reset filters"}).click();
   await assertCohort(page,"All",60);
