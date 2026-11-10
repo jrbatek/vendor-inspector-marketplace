@@ -179,6 +179,25 @@ try {
   await calendar.getByLabel("Start date").fill("2026-11-18");
   await calendar.getByLabel("End date").fill("2026-11-18");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
+  const conflictAlert=calendar.getByRole("alert").filter({hasText:"overlaps a linked personal Busy event"});
+  assert(await conflictAlert.count()===1,"Private event conflict should be announced as a warning");
+  const conflictColors=await conflictAlert.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
+  assert(conflictColors.color==="rgb(127, 29, 29)"&&conflictColors.background==="rgb(255, 247, 247)",
+    "Calendar private-event conflict must be visibly distinct from green success: "+JSON.stringify(conflictColors));
+  // Reversed dates are visibly invalid before clicking, not silently the same as a normal range.
+  await calendar.getByLabel("Start date").fill("2026-11-30");
+  await calendar.getByLabel("End date").fill("2026-11-28");
+  for(const label of ["Start date","End date"]){
+    const date=calendar.getByLabel(label,{exact:true});
+    assert(await date.getAttribute("aria-invalid")==="true","Reversed calendar "+label+" must be marked invalid");
+    const contrast=await date.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+    assert(contrast.color==="rgb(127, 29, 29)"&&contrast.background==="rgb(255, 247, 247)"&&contrast.border==="rgb(185, 28, 28)",
+      "Reversed calendar date field must be visibly invalid: "+JSON.stringify(contrast));
+  }
+  assert(await calendar.getByRole("alert").filter({hasText:"no more than 62 days"}).count()===1,"Date-range recovery guidance missing");
+  await calendar.getByLabel("Start date").fill("2026-11-18");
+  await calendar.getByLabel("End date").fill("2026-11-18");
+  assert(await calendar.getByRole("alert").filter({hasText:"no more than 62 days"}).count()===0,"Valid date recovery must clear invalid guidance");
   assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 1, "Private calendar conflict not protected");
   // A warning only applies to the original date range; navigating to a new month
   // or week must not leave the inspector thinking the new range is invalid.
