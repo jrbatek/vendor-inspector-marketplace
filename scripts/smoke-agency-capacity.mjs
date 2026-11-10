@@ -12,6 +12,7 @@ try{
  await ready();browser=await chromium.launch({headless:true});
  const page=await browser.newPage();const errors=[];page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/agency",{waitUntil:"networkidle"});
+ await page.getByRole("navigation",{name:"Agency Workspace navigation"}).waitFor({state:"visible",timeout:15000});
  const resourceRows=page.locator("#resource-pool tbody tr");
  const resourceStatus=page.getByRole("combobox",{name:"Affiliation status"});
  const resourceSearch=page.getByRole("searchbox",{name:"Search fictional resources"});
@@ -72,6 +73,27 @@ try{
    throw Error("Agency report CSV did not preserve selected fictional finding only");
  await page.getByRole("button",{name:"Reset NCR filter"}).click();
  if(await reportRows.count()!==3)throw Error("Agency NCR reset did not restore three sample reports");
+ const agencyExamples=page.locator("#active-inspections article.agencyInspection");
+ await agencyExamples.first().waitFor({state:"visible",timeout:15000});
+ const agencyStage=page.getByRole("combobox",{name:"Agency inspection stage"});
+ if(await agencyExamples.count()!==3)throw Error("Agency Demo should show exactly three clearly fictional inspection examples");
+ const agencyExampleNames=["Gulf Coast LNG","Qatar compression package","Italian valve package"];
+ for(const [i,project] of agencyExampleNames.entries()){
+   const item=agencyExamples.nth(i);
+   if(!(await item.innerText()).includes(project))throw Error("Agency example mismatch: "+project);
+   await item.getByRole("button",{name:"Open Inspection"}).click();
+   const detail=item.getByRole("region",{name:/Agency synthetic inspection details/});
+   if(await detail.count()!==1)throw Error("Open Inspection detail missing for "+project);
+   const detailText=await detail.innerText();
+   for(const required of ["Vendor","Site","Contact","PO reference","Scope","Equipment","Milestone","Completed action","Report","NCR","Outstanding next action","example.invalid"]){
+      if(!detailText.includes(required))throw Error("Agency detail missing "+required+" for "+project);
+   }
+   await item.getByRole("button",{name:"Close Inspection"}).click();
+ }
+ await agencyStage.selectOption("NCR follow-up");
+ if(await agencyExamples.count()!==1||!(await agencyExamples.first().innerText()).includes("Italian valve package"))throw Error("Agency stage filter did not isolate fictional NCR example");
+ await page.getByRole("button",{name:"Reset inspection stage"}).click();
+ if(await agencyExamples.count()!==3)throw Error("Agency stage reset failed to restore three synthetic inspections");
  if(errors.length)throw Error("Agency capacity/NCR browser errors: "+errors.join("\n"));
  console.log("Agency capacity real-browser regional filter, totals, reset and anonymous demo PASS");
 }catch(e){console.error(e);process.exitCode=1}
