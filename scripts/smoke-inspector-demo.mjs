@@ -171,7 +171,7 @@ try {
   assert((await page.locator(".resultCount").innerText()).includes("10 of 10"),"Reset must restore all fictional reports");
   // Invalid Work History dates must not masquerade as a genuine empty result.
   const workFilters = page.getByRole("region", { name: "Work History filters" });
-  await workFilters.getByLabel("Client", { exact: true }).selectOption("Bluewater LNG");
+  await workFilters.locator(".filters select").first().selectOption("Bluewater LNG");
   await workFilters.getByLabel("Completed from").fill("2026-10-20");
   await workFilters.getByLabel("Completed through").fill("2026-08-01");
   assert(await page.getByRole("heading", { name: "Invalid completion date range" }).count() === 1,
@@ -182,7 +182,7 @@ try {
   assert(await workFilters.getByLabel("Completed from").inputValue() === "" &&
     await workFilters.getByLabel("Completed through").inputValue() === "",
     "Recovery must clear only the two invalid dates");
-  assert(await workFilters.getByLabel("Client", { exact: true }).inputValue() === "Bluewater LNG",
+  assert(await workFilters.locator(".filters select").first().inputValue() === "Bluewater LNG",
     "Recovery must preserve independently selected client");
   assert((await page.locator(".resultCount").innerText()).includes("2 of 10"),
     "Recovery should restore two fictional Bluewater LNG records");
