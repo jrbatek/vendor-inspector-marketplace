@@ -23,6 +23,15 @@ test("Month and Week navigation dismiss outdated synthetic range warnings", () =
   assert.match(smoke, /Stale calendar conflict warning persisted after month navigation/);
 });
 
+test("Week browsing selects the visible week anchor instead of retaining stale Block Dates inputs", () => {
+  const week = source.slice(source.indexOf("const selectWeek="), source.indexOf("const stepWeek="));
+  assert.ok(week.startsWith("const selectWeek="));
+  assert.ok(week.includes("setWeekAnchor(anchor);"));
+  assert.ok(week.includes("setStart(anchor);"));
+  assert.ok(week.includes("setEnd(anchor);"));
+  assert.match(smoke, /Week navigation must select one new anchor date without changing availability/);
+});
+
 test("Built-app Chromium verifies month navigation stays Not set until explicit update", () => {
   assert.match(smoke, /Month navigation must prefill one day, not silently select a two-day block/);
   assert.match(smoke, /Second date must not appear preselected without explicit user selection/);

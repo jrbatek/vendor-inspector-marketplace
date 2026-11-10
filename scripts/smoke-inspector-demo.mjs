@@ -100,6 +100,13 @@ try {
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count()>=1,"Month jump lost private appointment data");
   await tabs.getByRole("button", { name: "Week" }).click();
   await cal.getByRole("button", { name: "Next week" }).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-16", "Week navigation did not move to next week");
+  assert(await cal.getByLabel("Start date").inputValue()==="2026-11-16" && await cal.getByLabel("End date").inputValue()==="2026-11-16",
+    "Week navigation must select one new anchor date without changing availability");
+  assert(await cal.getByRole("button", { name: "Choose 2026-11-16 for availability" }).getAttribute("aria-pressed")==="true",
+    "Visible Week anchor date must be selected");
+  assert((await cal.getByRole("button", { name: "Choose 2026-11-17 for availability" }).locator("xpath=..").innerText()).includes("Not set"),
+    "Browsing to a week must not silently declare availability");
   await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
 

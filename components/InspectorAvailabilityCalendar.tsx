@@ -86,6 +86,10 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     if(!/^\d{4}-\d{2}-\d{2}$/.test(anchor))return;
     setWeekAnchor(anchor);
     setMonth(anchor.slice(0,7));
+    // The visible week's anchor is the only selected date until changed by the inspector.
+    // Browsing never writes availability; Block dates remains the explicit update.
+    setStart(anchor);
+    setEnd(anchor);
     // Navigating the week dismisses warnings tied to an earlier date range.
     setNotice("");
   };
