@@ -76,6 +76,14 @@ try {
   assert(await cal.getByLabel("Start date").inputValue()==="2027-02-01","Month jump did not set first day");
   assert(await cal.getByLabel("End date").inputValue()==="2027-02-01","Month jump did not set end day");
   assert((await cal.getByRole("button",{name:"Choose 2027-02-01 for availability"}).locator("xpath=..").innerText()).includes("Not set"),"Month selection must not change availability");
+  await tabs.getByRole("button",{name:"List"}).click();
+  assert(await cal.getByText("No scheduled demo events in February 2027").count()===1,
+    "A month without synthetic events must display a meaningful List empty state");
+  assert((await cal.getByRole("status").filter({hasText:"No scheduled demo events"}).innerText()).includes("Not set, not confirmed available"),
+    "Empty List must not imply unmarked dates are available");
+  await cal.getByRole("button",{name:"Open Month calendar"}).click();
+  assert(await tabs.getByRole("button",{name:"Month"}).getAttribute("aria-pressed")==="true",
+    "Empty List recovery must return to Month view");
   await tabs.getByRole("button",{name:"Week"}).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2027-02-01","Month jump did not synchronize Week anchor");
   await tabs.getByRole("button",{name:"Month"}).click();
