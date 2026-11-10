@@ -88,3 +88,16 @@ test("client operations demo keeps sensitive operations synthetic and non-execut
 test("client navigation exposes the operations demo", () => {
   assert.match(nav, /\["Client Operations Demo", "\/demo\/client-operations"\]/);
 });
+
+test("expired synthetic individual inspector contract must not be labeled Active", () => {
+  assert.match(page, /Individual Inspector Assignment Terms",type:"Inspector assignment",status:"Expired",effective:"Aug 18, 2026",expires:"Sep 30, 2026"/);
+  assert.match(page, /\.status\.Expired\{background:#fff7ed;color:#9a3412\}/);
+  assert.doesNotMatch(page, /Individual Inspector Assignment Terms",type:"Inspector assignment",status:"Active"/);
+  const smoke = fs.readFileSync(path.join(process.cwd(), "scripts/smoke-demo-control-visibility.mjs"), "utf8");
+  assert.match(smoke, /Expired inspector contract fixture did not show its actual closeout status/);
+});
+
+test("Expired status outside parent styled-JSX scope inherits high-contrast demo-specific global CSS",()=>{
+  assert.match(page, /<main className="shell clientOperationsDemo">/);
+  assert.match(page, /<style jsx global>\{\x60\.clientOperationsDemo \.status\.Expired\{background:#fff7ed;color:#9a3412\}\x60\}<\/style>/);
+});
