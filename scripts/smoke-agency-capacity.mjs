@@ -12,7 +12,7 @@ try{
  await ready();browser=await chromium.launch({headless:true});
  const page=await browser.newPage();const errors=[];page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/agency",{waitUntil:"networkidle"});
- await page.getByRole("navigation",{name:"Agency Workspace navigation"}).waitFor({state:"visible",timeout:15000});
+ await page.locator('aside[aria-label="Agency Workspace navigation"] nav').waitFor({state:"visible",timeout:15000});
  const resourceRows=page.locator("#resource-pool tbody tr");
  const resourceStatus=page.getByRole("combobox",{name:"Affiliation status"});
  const resourceSearch=page.getByRole("searchbox",{name:"Search fictional resources"});
