@@ -80,6 +80,9 @@ jobs:
       - name: Exercise InspectorHub demo routing, calendar, availability and notice isolation
         run: npm run smoke:inspector-demo
 
+      - name: Verify filtered Work History counters and sample report in Chromium
+        run: npm run smoke:work-history
+
       - name: Audit visible demo controls on desktop and mobile
         run: npm run smoke:demo-controls
 
