@@ -83,7 +83,7 @@ test("calendar week navigation follows the selected month and has accessible vie
 test("month-day buttons are accessible one-click prefills, not automatic availability writes", () => {
  assert.match(calendar,/className="dayPicker"/);
  assert.match(calendar,/aria-label=\{`Choose \$\{dateForDay\(day\)\} for availability`\}/);
- assert.match(calendar,/aria-pressed=\{start===dateForDay\(day\) && end===dateForDay\(day\)\}/);
+ assert.match(calendar,/aria-pressed=\{isDateSelected\(dateForDay\(day\)\)\}/);
  assert.match(calendar,/setStart\(dateForDay\(day\)\);setEnd\(dateForDay\(day\)\);setNotice\(""\)/);
  assert.match(calendar,/\.dayPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
  assert.match(calendar,/\.dayPicker:focus-visible\{outline:3px solid #0d9488/);
@@ -93,7 +93,7 @@ test("month-day buttons are accessible one-click prefills, not automatic availab
 test("Week calendar date buttons prefill availability without scheduling a real event", () => {
  assert.match(calendar,/className="weekPicker"/);
  assert.match(calendar,/aria-label=\{`Choose \$\{date\} for availability`\}/);
- assert.match(calendar,/aria-pressed=\{start===date && end===date\}/);
+ assert.match(calendar,/aria-pressed=\{isDateSelected\(date\)\}/);
  assert.match(calendar,/setStart\(date\);setEnd\(date\);setNotice\(" "\)|setStart\(date\);setEnd\(date\);setNotice\(""\)/);
  assert.match(calendar,/\.weekPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
  assert.match(calendar,/\.weekPicker:focus-visible\{outline:3px solid #0d9488/);
@@ -102,7 +102,7 @@ test("Week calendar date buttons prefill availability without scheduling a real 
 test("List view events can prefill Block Dates without changing private synthetic events",()=>{
  assert.match(calendar,/className="listPicker"/);
  assert.match(calendar,/aria-label=\{`Choose \$\{event.date\} from list for availability`\}/);
- assert.match(calendar,/aria-pressed=\{start===event.date && end===event.date\}/);
+ assert.match(calendar,/aria-pressed=\{isDateSelected\(event.date\)\}/);
  assert.ok(calendar.includes('setStart(event.date);setEnd(event.date);setNotice("");'));
  assert.match(calendar,/\.listPicker\[aria-pressed=true\]\{background:#0f766e;color:#fff\}/);
  assert.match(calendar,/\.listPicker:focus-visible\{outline:3px solid #0d9488/);
