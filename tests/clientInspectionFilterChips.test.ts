@@ -22,6 +22,8 @@ test("Client Demo names and removes each distinct inspection filter without losi
 });
 
 test("Removable chips have high contrast and are validated in real Chromium",()=>{
+ assert.match(page,/\.filterChips\{display:flex;align-items:center;flex-wrap:wrap;/);
+ assert.doesNotMatch(page,/\}\.\.filterChips\{/,"A malformed doubled-dot CSS selector makes the chip container style invalid");
  assert.match(page,/\.inspectionWorkspace \.filterChips button\{[^}]*background:#fff;color:#1e3a8a/);
  assert.match(page,/\.inspectionWorkspace \.filterChips button:hover\{background:#1e40af;color:#fff/);
  assert.match(page,/\.inspectionWorkspace \.filterChips button:focus-visible\{outline:3px solid #2563eb/);
