@@ -168,6 +168,12 @@ try {
   await calendar.getByLabel("End date").fill("2026-11-18");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
   assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 1, "Private calendar conflict not protected");
+  // A warning only applies to the original date range; navigating to a new month
+  // or week must not leave the inspector thinking the new range is invalid.
+  await calendar.getByRole("button", { name: "Next month" }).click();
+  assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 0,
+    "Stale calendar conflict warning persisted after month navigation");
+  await calendar.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
   await calendar.getByLabel("Start date").fill("2026-11-29");
   await calendar.getByLabel("End date").fill("2026-11-29");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
