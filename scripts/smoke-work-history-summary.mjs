@@ -48,8 +48,8 @@ try {
   const pdf = await page.request.get(base + href);
   assert(pdf.ok() && (pdf.headers()["content-type"] || "").includes("application/pdf"), "Synthetic report PDF invalid");
 
-  await page.getByRole("textbox", { name: "Completed from" }).fill("2026-12-01");
-  await page.getByRole("textbox", { name: "Completed through" }).fill("2026-08-01");
+  await page.getByLabel("Completed from").fill("2026-12-01");
+  await page.getByLabel("Completed through").fill("2026-08-01");
   assert(JSON.stringify(await counts()) === JSON.stringify([0, 0, 0, 0]), "Invalid dates must show zero matching results without claiming unfiltered counts");
   await page.getByRole("alert").getByRole("button", { name: "Clear invalid date range" }).click();
   assert(JSON.stringify(await counts()) === JSON.stringify([2, 2, 1, 1]), "Clearing date range must preserve client filter");
