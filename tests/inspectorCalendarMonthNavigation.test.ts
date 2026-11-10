@@ -37,3 +37,14 @@ test("Built-app Chromium verifies month navigation stays Not set until explicit 
   assert.match(smoke, /Second date must not appear preselected without explicit user selection/);
   assert.match(smoke, /Browsing a month must not silently declare availability/);
 });
+
+
+test("Calendar dates make invalid ranges and private conflicts visibly distinguishable from success", () => {
+  assert.match(source, /const invalidRange = !start \|\| !end \|\| dateRange\(start,end\)\.length === 0/);
+  assert.match(source, /aria-invalid=\{invalidRange\}/);
+  assert.match(source, /calendar-range-warning/);
+  assert.match(source, /className=\{noticeIsWarning \? "notice warning" : "notice"\}/);
+  assert.match(source, /\.availabilityActions input\[aria-invalid=true\]/);
+  assert.match(smoke, /Reversed calendar date field must be visibly invalid/);
+  assert.match(smoke, /Calendar private-event conflict must be visibly distinct from green success/);
+});
