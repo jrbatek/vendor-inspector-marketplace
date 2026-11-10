@@ -122,6 +122,21 @@ try {
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
+  // A date range must visibly select every day, without making unmarked days Available.
+  await calendar.getByLabel("Start date").fill("2026-11-28");
+  await calendar.getByLabel("End date").fill("2026-11-30");
+  for (const date of ["2026-11-28", "2026-11-29", "2026-11-30"]) {
+    assert(await calendar.getByRole("button", { name: `Choose ${date} for availability` }).getAttribute("aria-pressed") === "true",
+      "Date in selected range must be visibly pressed: " + date);
+  }
+  assert(await calendar.getByRole("button", { name: "Choose 2026-11-27 for availability" }).getAttribute("aria-pressed") === "false",
+    "Outside date must not appear selected");
+  assert((await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).locator("xpath=..").innerText()).includes("Not set"),
+    "Highlighting a range must not silently declare dates Available");
+  await calendar.getByLabel("Start date").fill("2026-11-30");
+  await calendar.getByLabel("End date").fill("2026-11-28");
+  assert(await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).getAttribute("aria-pressed") === "false",
+    "Reversed range must never indicate selected dates");
   const keyboardDate = calendar.getByRole("button", { name: "Choose 2026-11-21 for availability" });
   await keyboardDate.focus();
   await page.keyboard.press("Enter");

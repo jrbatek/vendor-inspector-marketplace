@@ -1,3 +1,8 @@
+### 2026-11-09 — Inspector Calendar shows all selected range dates without changing availability (Calendar follow-on)
+- Month, Week and List date selectors now visually mark every day within the inspector-selected start/end range, rather than highlighting only single-day choices. This is presentation state only: unmarked days remain Not set, and an invalid reversed range highlights nothing. Existing focus, hover and selected contrast styles apply to all views.
+- Add deterministic source tests and built-app Chromium multi-day / outside-range / reversed-range regression, including a guard that selecting dates does not silently create availability. No auth/RLS, privacy, database writes, production availability, bank/payment, matching or OAuth changes. Independent of failed Agency PR #223 and unresolved Client Analytics browser #154.
+- Require both exact-head hosted workflows (unit/synthetic/migrations/typecheck/build/browser) and Vercel preview READY before merging; verify production READY and smoke before reporting deployment.
+
 ### 2026-11-09 — Client Demo high-contrast invalid-date notice and direct recovery (P0-B)
 - Replace unstyled invalid inspection schedule-date warning with a high-contrast accessible alert containing its own keyboard-operable Clear dates in warning control. Retain the existing empty-state recovery, and clear only the two dates without resetting selected project or other search criteria.
 - Add source contracts and real Chromium checks for alert foreground/background/border, direct date-only recovery while a project filter remains active, and existing secondary invalid-date recovery. All seven active inspections, realistic Open Inspection details, filters, PDFs and demo/live separation remain unchanged.
