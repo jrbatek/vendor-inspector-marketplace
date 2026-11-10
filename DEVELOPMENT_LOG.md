@@ -1,3 +1,8 @@
+### 2026-11-09 — Client Demo high-contrast invalid-date notice and direct recovery (P0-B)
+- Replace unstyled invalid inspection schedule-date warning with a high-contrast accessible alert containing its own keyboard-operable Clear dates in warning control. Retain the existing empty-state recovery, and clear only the two dates without resetting selected project or other search criteria.
+- Add source contracts and real Chromium checks for alert foreground/background/border, direct date-only recovery while a project filter remains active, and existing secondary invalid-date recovery. All seven active inspections, realistic Open Inspection details, filters, PDFs and demo/live separation remain unchanged.
+- Demo-only presentation, no production database writes, auth/RLS, sensitive data, payments, external OAuth, or matching changes. Require exact-head CI validation, migration/synthetic checks, typecheck, build, browser smoke and READY preview before merge; verify production READY and smoke afterward.
+
 ### 2026-11-09 — Calendar List no-event month recovery (Calendar priority follow-on)
 - The Inspector Calendar List view previously appeared as a blank panel when a reviewer used Jump to month for an otherwise empty synthetic month. It now shows a clear accessible "No scheduled demo events" state with an explicit Not set ≠ Available explanation and a direct return to Month view.
 - Add a deterministic source contract and built-app Chromium test selecting February 2027 List, verifying its empty-state guidance and returning to Month, then proceeding with the existing Week/date selection checks. No production calendar, OAuth, inspector identity, auth/RLS, payments, bank or matching changes.
