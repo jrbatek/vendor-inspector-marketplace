@@ -207,6 +207,13 @@ try {
   await workFilters.getByLabel("Completed through").fill("2026-08-01");
   assert(await page.getByRole("heading", { name: "Invalid completion date range" }).count() === 1,
     "Contradictory Work History dates must have an explicit recovery heading");
+  for (const label of ["Completed from", "Completed through"]) {
+    const control = workFilters.getByLabel(label);
+    assert(await control.getAttribute("aria-invalid") === "true", "Reversed Work History dates must be marked invalid");
+    const appearance = await control.evaluate(element => { const s = getComputedStyle(element); return {color:s.color,background:s.backgroundColor,border:s.borderTopColor}; });
+    assert(appearance.color === "rgb(127, 29, 29)" && appearance.background === "rgb(255, 247, 247)" && appearance.border === "rgb(185, 28, 28)",
+      "Invalid Work History date input must have visible high-contrast error styling: " + JSON.stringify({label,appearance}));
+  }
   assert(!(await page.locator(".resultCount").innerText()).includes("Showing 0 of 10"),
     "Invalid range should not be presented as a genuine no-match result");
   await workFilters.getByRole("button", { name: "Clear invalid date range" }).click();
