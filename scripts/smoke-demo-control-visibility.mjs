@@ -126,6 +126,17 @@ try {
         await page.keyboard.press("Home");
         if (await contractTabs.getByRole("tab", { name: "InspectSource" }).getAttribute("aria-selected") !== "true")
           throw new Error("Contract tabs Home did not restore InspectSource");
+        // An agreement whose fictional expiry is Sep 30, 2026 must not appear Active in the November demo.
+        await contractTabs.getByRole("tab", { name: "Individual Inspectors" }).click();
+        const expired = page.locator(".contractWrap").first();
+        if (!(await expired.innerText()).includes("Expired") || !(await expired.innerText()).includes("Sep 30, 2026"))
+          throw new Error("Expired inspector contract fixture did not show its actual closeout status");
+        const expiredColor = await expired.locator(".status").evaluate(el => ({
+          background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color
+        }));
+        if (expiredColor.background !== "rgb(255, 247, 237)" || expiredColor.color !== "rgb(154, 52, 18)")
+          throw new Error("Expired inspector contract status is not visibly legible: " + JSON.stringify(expiredColor));
+        await contractTabs.getByRole("tab", { name: "InspectSource" }).click();
         await tabs.getByRole("tab", { name: "Contracts" }).focus();
         await page.keyboard.press("ArrowLeft");
         if (await tabs.getByRole("tab", { name: "Billing & Payment" }).getAttribute("aria-selected") !== "true")
