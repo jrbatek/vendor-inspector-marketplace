@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const source = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/page.tsx"), "utf8");
+const activeInspectionSource = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/ActiveInspectionsClient.tsx"), "utf8");
 
 test("agency demo exposes the complete operational workspace spine", () => {
   for (const marker of [
@@ -29,17 +30,18 @@ test("agency sidebar uses one purple workspace navigation with real active state
 });
 
 test("capacity and inspection operations are populated synthetic examples", () => {
-  assert.match(source, /30-day view/);
-  assert.match(source, /Gulf Coast/);
-  assert.match(source, /Middle East/);
-  assert.match(source, /Europe/);
-  assert.match(source, /West Africa/);
-  assert.match(source, /tentative/);
-  assert.match(source, /blocked/);
-  assert.match(source, /report due Nov 16, 2026/);
-  assert.match(source, /NCR-204/);
-  assert.match(source, /Reinspection Nov 20, 2026/);
-  assert.match(source, /agency\/source attribution/);
+  assert.match(source + activeInspectionSource, /30-day view/);
+  assert.match(source + activeInspectionSource, /Gulf Coast/);
+  assert.match(source + activeInspectionSource, /Middle East/);
+  assert.match(source + activeInspectionSource, /Europe/);
+  assert.match(source + activeInspectionSource, /West Africa/);
+  assert.match(source + activeInspectionSource, /tentative/);
+  assert.match(source + activeInspectionSource, /blocked/);
+  assert.match(source + activeInspectionSource, /Mechanical test witness report · draft due Nov 16/);
+  assert.match(source + activeInspectionSource, /Open Inspection/);
+  assert.match(source + activeInspectionSource, /NCR-204/);
+  assert.match(source + activeInspectionSource, /Reinspection Nov 20, 2026/);
+  assert.match(source + activeInspectionSource, /agency\/source attribution/);
 });
 
 test("agency demo remains isolated from production and precise location", () => {
