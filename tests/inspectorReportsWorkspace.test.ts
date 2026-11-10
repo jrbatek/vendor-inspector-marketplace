@@ -87,6 +87,9 @@ test("Work History filters expose invalid date ranges to keyboard and screen-rea
   assert.equal((page.match(/aria-invalid=\{invalidDates\}/g) || []).length, 2);
   assert.equal((page.match(/aria-describedby="work-history-date-help"/g) || []).length, 2);
   assert.match(page,/id="work-history-date-help"/);
-  assert.match(page,/invalidDates && <p role="alert">/);
+  assert.match(page,/invalidDates && <div className="invalidDateNotice" role="alert">/);
+  assert.match(page,/Clear invalid date range/);
+  assert.match(page,/setFilters\(current => \(\{ \.\.\.current, from: "", to: "" \}\)\)/);
+  assert.match(page,/invalidDates \? "Invalid completion date range" : "No matching work history"/);
   assert.doesNotMatch(page,/role="tablist"|aria-selected=\{view ===/);
 });
