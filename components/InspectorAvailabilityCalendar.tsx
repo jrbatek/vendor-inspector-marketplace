@@ -65,8 +65,10 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     const next=new Date(Date.UTC(year,monthNumber-1+delta,1)).toISOString().slice(0,10);
     setMonth(next.slice(0,7));
     setWeekAnchor(next);
+    // Browsing a month should prefill one date, not silently select two dates.
+    // Availability is still changed only by the explicit Block dates action.
     setStart(next);
-    setEnd(shiftIsoDate(next,1));
+    setEnd(next);
   };
   // Native month selection is a synthetic view change, never an availability write.
   const jumpToMonth=(value:string)=>{

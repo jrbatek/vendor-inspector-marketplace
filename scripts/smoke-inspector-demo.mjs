@@ -65,6 +65,14 @@ try {
   // Calendar jump returns to the fixed demo reference date in any view, without modifying events.
   await cal.getByRole("button", { name: "Next month" }).click();
   assert(await cal.getByRole("heading", { name: "December 2026" }).count()===1,"Month navigation failed before demo-today jump");
+  assert(await cal.getByLabel("Start date").inputValue()==="2026-12-01" && await cal.getByLabel("End date").inputValue()==="2026-12-01",
+    "Month navigation must prefill one day, not silently select a two-day block");
+  assert(await cal.getByRole("button",{name:"Choose 2026-12-01 for availability"}).getAttribute("aria-pressed")==="true",
+    "New month first day must visibly reflect the selected single date");
+  assert(await cal.getByRole("button",{name:"Choose 2026-12-02 for availability"}).getAttribute("aria-pressed")==="false",
+    "Second date must not appear preselected without explicit user selection");
+  assert((await cal.getByRole("button",{name:"Choose 2026-12-02 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
+    "Browsing a month must not silently declare availability");
   await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
   assert(await cal.getByRole("heading", { name: "November 2026" }).count()===1,"Demo today did not restore November month");
   assert(await cal.getByRole("button", { name: "Choose 2026-11-09 for availability" }).getAttribute("aria-current")==="date","Demo today date must be visibly indicated");
