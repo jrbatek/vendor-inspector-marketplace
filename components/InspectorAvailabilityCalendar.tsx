@@ -69,6 +69,8 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     // Availability is still changed only by the explicit Block dates action.
     setStart(next);
     setEnd(next);
+    // A warning about an old range must not follow the inspector to a new month.
+    setNotice("");
   };
   // Native month selection is a synthetic view change, never an availability write.
   const jumpToMonth=(value:string)=>{
@@ -84,6 +86,8 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     if(!/^\d{4}-\d{2}-\d{2}$/.test(anchor))return;
     setWeekAnchor(anchor);
     setMonth(anchor.slice(0,7));
+    // Navigating the week dismisses warnings tied to an earlier date range.
+    setNotice("");
   };
   const stepWeek=(delta:number)=>selectWeek(shiftIsoDate(weekAnchor,delta*7));
   const [events, setEvents] = useState(DEMO_EVENTS);
