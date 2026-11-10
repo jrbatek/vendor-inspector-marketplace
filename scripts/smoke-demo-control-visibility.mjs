@@ -38,6 +38,9 @@ try {
     page.on("pageerror", e => errors.push(e.stack || String(e)));
     for (const route of routes) {
       await page.goto(base + route, { waitUntil: "domcontentloaded" });
+      if (route === "/demo/agency-affiliations") {
+        await page.getByRole("group", { name: "Affiliation status filters" }).waitFor({ state: "visible", timeout: 15000 });
+      }
       await page.waitForTimeout(160);
       if (page.url().includes("/login")) throw new Error(route + " redirected demo reviewer to Login");
       const result = await page.evaluate(() => {
@@ -82,6 +85,42 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/agency-affiliations") {
+        await page.getByRole("group", { name: "Affiliation status filters" })
+          .getByRole("button", { name: "Expiring", exact: true }).click();
+        const rows = page.locator(".table tbody tr");
+        if (await rows.count() !== 1 || !(await rows.first().innerText()).includes("Dec 15, 2026"))
+          throw new Error("Agency affiliation Expiring filter shows stale or incorrect demo agreement dates");
+        const chip = rows.first().locator('[data-state="Expiring"]');
+        const colors = await chip.evaluate(el => ({
+          background: getComputedStyle(el).backgroundColor,
+          color: getComputedStyle(el).color
+        }));
+        if (colors.background !== "rgb(255, 237, 213)" || colors.color !== "rgb(154, 52, 18)")
+          throw new Error("Agency Expiring affiliation chip has illegible colors: " + JSON.stringify(colors));
+        await page.getByRole("group", { name: "Affiliation status filters" })
+          .getByRole("button", { name: "Ended", exact: true }).click();
+        if (await rows.count() !== 1 || !(await rows.first().innerText()).includes("Elena Rossi"))
+          throw new Error("Agency ended affiliation filter lost synthetic history");
+      }
+      if (route === "/demo/inspector-affiliations") {
+        const rows = page.locator(".cards article");
+        const meridian = rows.filter({ hasText: "Meridian Quality Services" });
+        if (await meridian.count() !== 1 || !(await meridian.innerText()).includes("Nov 30, 2026"))
+          throw new Error("Inspector Expiring affiliation has an already-expired agreement date");
+        const colors = await meridian.locator('[data-state="Expiring"]').evaluate(el => ({
+          background: getComputedStyle(el).backgroundColor,
+          color: getComputedStyle(el).color
+        }));
+        if (colors.background !== "rgb(255, 237, 213)" || colors.color !== "rgb(154, 52, 18)")
+          throw new Error("Inspector Expiring affiliation chip has illegible colors: " + JSON.stringify(colors));
+        await page.getByRole("button", { name: "Historical" }).click();
+        const history = page.locator(".cards article");
+        if (await history.count() !== 1 || !(await history.first().innerText()).includes("Summit Vendor Assurance"))
+          throw new Error("Inspector Historical tab lost ended affiliation example");
+        if (await history.locator('[data-state="Expired / Ended"]').count() !== 1)
+          throw new Error("Inspector Historical status chip did not preserve expired lifecycle state");
+      }
       if (route === "/demo/client-data") {
         const exportStatus = page.getByRole("combobox", { name: "Export status" });
         const records = page.locator(".dataPanel tbody tr");
