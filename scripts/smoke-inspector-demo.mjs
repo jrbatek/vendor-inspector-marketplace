@@ -99,6 +99,11 @@ try {
   assert(await cal.getByRole("heading",{name:"November 2026"}).count()===1,"Returning from month jump failed");
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count()>=1,"Month jump lost private appointment data");
   await tabs.getByRole("button", { name: "Week" }).click();
+  // Earlier arbitrary month navigation selects Nov 1, not the fixed demo-today anchor.
+  // Establish Nov 9 explicitly so the following next-week assertion checks Nov 16.
+  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09",
+    "Week navigation smoke did not establish demo today before stepping a week");
   await cal.getByRole("button", { name: "Next week" }).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-16", "Week navigation did not move to next week");
   assert(await cal.getByLabel("Start date").inputValue()==="2026-11-16" && await cal.getByLabel("End date").inputValue()==="2026-11-16",
