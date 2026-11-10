@@ -78,3 +78,17 @@ test("dispatch smoke refuses an unexpected merged-main SHA and preserves legacy 
  assert.match(workflow,/\[a-f0-9\]\{40\}/);
  assert.match(workflow,/branches: \[main\]/);
 });
+
+test("Agency Affiliations production smoke marker matches the meaningful first server-rendered heading", () => {
+  const agencyPage = fs.readFileSync(path.join(process.cwd(), "app/demo/agency-affiliations/page.tsx"), "utf8");
+  const routesBlock = workflow.match(/routes=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "";
+  const expectedBlock = workflow.match(/expected=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "";
+  const routes = Array.from(routesBlock.matchAll(/"([^"]+)"/g), match => match[1]);
+  const markers = Array.from(expectedBlock.matchAll(/"([^"]+)"/g), match => match[1]);
+  const index = routes.indexOf("/demo/agency-affiliations");
+  assert.ok(index >= 0, "Agency Affiliation demo must be covered by production smoke");
+  assert.equal(routes.length, markers.length, "One marker is required for every tested production route");
+  assert.equal(markers[index], "Resource Affiliations", "Do not use stale Agency Resource Affiliations marker");
+  assert.match(agencyPage, /if\(!hydrated\) return <main[^;]*<h1>Resource Affiliations<\/h1>/);
+  assert.match(agencyPage, /No login is required/);
+});
