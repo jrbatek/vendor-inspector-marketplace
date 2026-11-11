@@ -1,3 +1,8 @@
+## 2026-11-10 — Client Demo shared sidebar browser navigation/geometry regression
+- Extend existing hosted Chromium Client Demo smoke with real computed desktop width/background/side-by-side layout and mobile stacked layout checks on both Inspections in Progress and Client commercial pages.
+- Exercise sidebar-only Billing & Payment → Contracts → Profile navigation, active highlights, contract-type filtering, browser back/forward, direct-link restoration and return to seven synthetic in-progress inspections without login.
+- Synthetic UI/browser tests only. No live authentication, financial data, bank credentials, production matching or database changes. Validate via both mandatory hosted workflows, confirm Vercel preview READY before merge and production READY plus smoke thereafter.
+
 
 ## 2026-11-10 — InspectorHub demo opportunity offered-rate acceptance consistency
 - One fixed fictional OP-1048 day rate ($950/day) already appears in Opportunities list and Preview; preserve that exact shared opportunity rate and project name in the Accept outcome banner so a reviewer sees one commercially coherent offered price through acceptance. Explicitly separate expenses/overtime in the unchanged preview. No live compensation, payment, matching, authorization or contract decision changes.
