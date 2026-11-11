@@ -19,7 +19,7 @@ test("calendar exposes all required InspectSource availability states", () => {
 test("calendar exposes Personal Busy to inspectors while retaining the internal Busy status", () => {
   assert.match(calendar, /const availabilityLabel = \(state: AvailabilityState\) => state === "Busy" \? "Personal Busy" : state/);
   assert.match(calendar, /className=\{stateClass\(state as AvailabilityState\)\}>\{availabilityLabel\(state as AvailabilityState\)\}/);
-  assert.match(calendar, /<option key=\{state\} value=\{state\}>\{availabilityLabel\(state\)\}<\/option>/);
+  assert.match(calendar, /<option key=\{state\} value=\{state\}>\{availabilityLabel\(state as AvailabilityState\)\}<\/option>/);
   assert.match(calendar, /blockState === "Busy" \? "Personal Busy · Inspector only"/);
 });
 
