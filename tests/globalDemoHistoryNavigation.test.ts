@@ -21,6 +21,11 @@ test("Inspector Demo reports are reached from Work History and legacy demo links
  assert.match(routes,/"\/inspection-reports": "\/demo\/inspector-work-history"/);
  assert.doesNotMatch(routes,/"\/inspection-reports": "\/demo\/inspector-reports"/);
 });
+test("Agency global navigation excludes the section removed from the one-page Agency Demo",()=>{
+ assert.match(nav,/\["Resource Pool", "\/demo\/agency#resource-pool"\]/);
+ assert.doesNotMatch(nav,/\/demo\/agency#find-inspectors-recruiting/);
+});
+
 test("live account links remain available independently from synthetic demo navigation",()=>{
  assert.match(nav,/\["Client Dashboard", "\/client-dashboard"\]/);
  assert.match(nav,/\["InspectorHub", "\/inspectorhub"\]/);

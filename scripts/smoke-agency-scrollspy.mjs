@@ -23,6 +23,15 @@ try{
  const errors=[];page.on("pageerror",e=>errors.push(e.stack||String(e)));
  // Homepage Agency CTA needs a valid target after the recruiting section was removed.
  await page.goto(base+"/",{waitUntil:"networkidle"});
+ // Global Agency dropdown must not send reviewers to a deleted scrollspy target.
+ const globalAgencyToggle=page.getByRole("button",{name:/Agencies/});
+ await globalAgencyToggle.click();
+ const globalAgencyMenu=page.locator("#nav-agencies-menu");
+ if(await globalAgencyMenu.getByRole("link",{name:"Find Inspectors / Recruiting"}).count())
+   throw Error("Global Agency menu still advertises removed recruiting section");
+ if(await globalAgencyMenu.getByRole("link",{name:"Resource Pool"}).getAttribute("href")!=="/demo/agency#resource-pool")
+   throw Error("Global Agency menu lost valid Resource Pool deep link");
+ await globalAgencyToggle.click();
  const resourceCta=page.getByRole("link",{name:/Explore Agency Resource Pool/});
  if(await resourceCta.getAttribute("href")!=="/demo/agency#resource-pool")
    throw Error("Homepage still points to removed Agency recruiting section");

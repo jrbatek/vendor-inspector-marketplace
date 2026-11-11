@@ -1,3 +1,7 @@
+## 2026-11-11 — Remove dead global Agency recruiting anchor after one-page reduction
+- Followed the owner-approved removal of Agency Demo Analytics, Find Inspectors / Recruiting, and Integrations sections through to the sitewide Agency dropdown. Removed its stale `#find-inspectors-recruiting` link while retaining valid Resource Pool and Opportunities links; no shared recruitment data or functionality was deleted.
+- Added a source regression contract and a real hosted Chromium homepage navigation check; tests, synthetic checks, migrations, typecheck, production build and preview must pass before any merge. No production auth, privacy, payment or matching changes.
+
 ## 2026-11-11 — Calendar preserves inspector-added demo Block Dates across section navigation
 - Fixed an interactive Calendar state-loss regression: clicking another InspectorHub section unmounted Availability & Calendar and discarded browser-local Block Dates, selected range and Month/Week/List choice. Keep one Calendar mounted in a natively hidden non-focusable pane when inactive, retaining session state until a full reload.
 - Extended Chromium smoke to Block November 29, visit Active Assignments, check the inactive Calendar is absent from the accessibility tree, return and verify the Unavailable block, selected start date and Month view, then clear only the inspector-added date. No client-visible private titles, production calendar writes, auth, RLS, bank/payment, PII, matching or OAuth changes.
