@@ -32,6 +32,18 @@ try {
   assert(names.join("|") === ["Profile Home","Opportunities","Active Assignments","Availability & Calendar","Selection Insights & Feedback","Qualifications & Documents","Work History","Income & Tax Center"].join("|"), "InspectorHub navigation order or consolidated Work History incorrect: " + names);
   assert(await page.getByText("Inspector Demo · Synthetic data").count() === 1, "Synthetic demo guard banner missing");
 
+  // Home cards must register hash/history, not only change local section state.
+  await page.getByRole("button", { name: "Review opportunities" }).click();
+  assert(page.url().endsWith("#opportunities"), "Home opportunities CTA did not update deep-link URL");
+  assert(await page.getByRole("heading", { name: "Matched inspection work" }).count() === 1, "Opportunities CTA did not open its content");
+  await page.evaluate(() => window.history.back());
+  await page.getByRole("heading", { name: "Inspection background" }).waitFor();
+  assert(await navigation.getByRole("button", { name: "Profile Home" }).getAttribute("aria-current") === "page", "Back navigation did not restore InspectorHub Home");
+  await page.getByRole("button", { name: "Open Selection Insights" }).click();
+  assert(page.url().endsWith("#insights"), "Home insights CTA did not update deep-link URL");
+  assert(await page.getByRole("heading", { name: "Aggregate peer positioning" }).count() === 1, "Insights CTA did not open its content");
+  await page.evaluate(() => window.history.back());
+  await page.getByRole("heading", { name: "Inspection background" }).waitFor();
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
   assert(await page.getByRole("button", { name: "Open assignment" }).count() === 3, "Three synthetic active assignments expected");
   for (const name of ["LNG Compressor Package", "Gulf Horizon Refinery Upgrade", "Orion Deepwater Platform"]) {
@@ -160,6 +172,7 @@ try {
   await tabs.getByRole("button", { name: "Month" }).click();
   await cal.getByRole("button", { name: "Open assignment" }).first().click();
   assert(await page.getByRole("heading", { name: /LNG Compressor Package|Gulf Horizon Refinery Upgrade|Orion Deepwater Platform/ }).count() > 0, "Calendar inspection did not open a populated assignment");
+  assert(page.url().endsWith("#assignments"), "Calendar Open assignment must deep-link the assignments content");
   assert(await page.getByText(/Opportunity declined/).count() === 0, "Stale opportunity alert appeared on assignment");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   const calendar = page.getByRole("region", { name: "Inspector availability calendar" });
