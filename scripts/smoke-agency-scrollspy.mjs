@@ -21,6 +21,15 @@ try{
  await ready();browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:1280,height:900}});
  const errors=[];page.on("pageerror",e=>errors.push(e.stack||String(e)));
+ // Homepage Agency CTA needs a valid target after the recruiting section was removed.
+ await page.goto(base+"/",{waitUntil:"networkidle"});
+ const resourceCta=page.getByRole("link",{name:/Explore Agency Resource Pool/});
+ if(await resourceCta.getAttribute("href")!=="/demo/agency#resource-pool")
+   throw Error("Homepage still points to removed Agency recruiting section");
+ await resourceCta.click();
+ await active(page,"resource-pool");
+ if(!page.url().endsWith("/demo/agency#resource-pool"))
+   throw Error("Homepage Resource Pool deep link did not stay inside Agency Demo");
  await page.goto(base+"/demo/agency",{waitUntil:"networkidle"});
  const nav=page.locator('aside[aria-label="Agency Workspace navigation"] nav');
  await nav.waitFor({state:"visible",timeout:15000});
