@@ -27,7 +27,7 @@ Others:[{name:"Client NDA Template",type:"Confidentiality",status:"Evergreen",ef
 
 const profileFields=[["Login email","demo.client@inspectsource.example"],["Phone / SMS","+1 (713) 555-0148 · SMS enabled"],["Preferred contact","Email first; SMS for urgent exceptions"],["Company","Gulf Horizon Energy — Synthetic Client"],["Title / department","Inspection Manager · Capital Projects"],["Timezone","America/Chicago"],["Language","English (US)"],["Notifications","Assignments, reports, NCRs, invoice approvals"],["Working hours","Mon–Fri, 07:00–17:00 local"],["Access level / roles","Client Administrator · Inspection Manager"],["Approval authority","Inspection requests and invoices up to $25,000"],["Account security","Demo-only account controls; live security policy is not changed here"]];
 
-export default function ClientOperationsDemo(){return <Suspense fallback={<main aria-label="Client operations loading">Loading synthetic Client Workspace…</main>}><ClientOperationsDemoContent/></Suspense>}
+export default function ClientOperationsDemo(){return <Suspense fallback={<main aria-label="Client operations loading"><strong>Demo Mode · Synthetic data</strong><h1>Commercial and account management</h1><p>Loading synthetic Client Workspace…</p></main>}><ClientOperationsDemoContent/></Suspense>}
 function ClientOperationsDemoContent(){
  const searchParams=useSearchParams();
  const [invoiceStatus,setInvoiceStatus]=useState("All");
