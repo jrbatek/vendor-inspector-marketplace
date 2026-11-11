@@ -1,3 +1,8 @@
+## 2026-11-11 — Client Demo shared sidebar regression audit across all Client pages
+- Extend hosted Chromium P0-A checks beyond Inspections in Progress and commercial tabs: directly load Request Inspectors, Analytics, completed history, agency sourcing and Data & Integrations; assert fixed-width dark-blue desktop sidebar on the left, responsive stacked mobile sidebar, no authenticated-workspace prompt, and no Client Demo sidebar links to live /client-dashboard.
+- Confirm returning from the page audit still shows all seven synthetic Client Inspections in Progress and intact two-column layout. Add static coverage of seven shared Client Demo sidebar mounts.
+- Browser regression only; no auth, production persistence, synthetic database seeding, payment, banking or matching changes. Require both GitHub validation suites, migrations, synthetic checks, typecheck, build and real Chromium smoke; exact-head Vercel preview READY, then production READY and exact-commit smoke after merge.
+
 ## 2026-11-11 — InspectorHub in-content navigation deep-link consistency
 - Fix two Home dashboard actions (Review opportunities and Open Selection Insights) that changed the content pane without synchronizing the InspectorHub hash/history. Browser Back previously could restore the wrong section or leave an incorrect highlighted sidebar item.
 - Fix Availability & Calendar Open assignment to place the user in the #assignments route with the correct active sidebar highlight; preserve the synthetic assignment detail and clear section-scoped messages.
