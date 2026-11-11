@@ -17,3 +17,11 @@ test("InspectorHub green sidebar uses text-only navigation with accessible activ
   assert.match(smoke,/Focused InspectorHub sidebar link/);
   assert.match(smoke,/InspectorHub sidebar click failed to show embedded Work History/);
 });
+
+
+test("global stylesheet targets the actual helper-generated InspectorHub nav buttons",()=>{
+ const css=readFileSync("app/globals.css","utf8");
+ assert.match(css,/nav\[aria-label="Inspector Workspace navigation"\] button\.sidebarTextLink:not\(:disabled\)/);
+ assert.match(css,/button\.sidebarTextLink:not\(:disabled\)\{[^}]*background:transparent!important;[^}]*border-radius:0!important;/);
+ assert.match(css,/button\.sidebarTextLink\.active:not\(:disabled\)\{[^}]*border-left-color:#5eead4!important/);
+});
