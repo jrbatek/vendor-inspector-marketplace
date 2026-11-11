@@ -1,3 +1,8 @@
+## 2026-11-11 — Calendar view transitions track the inspector-selected day
+- Fix synthetic InspectorHub Calendar Month-to-Week transitions that reopened a stale earlier week after clicking a date on the Month calendar. Month/List also follow the current selected start date. View switching never writes availability, touches private events or changes production data.
+- Add hosted Chromium interaction coverage (November 25 selected in Month must appear pressed in Week, not reset to old week) and independent source regression checks. Preserve Month default, private Doctor Appointment and Our Anniversary, Block dates, responsive controls, and assignment navigation.
+- Safe demo-only batch. Require GitHub Validate application and Autonomous QA (unit, synthetic, migrations, typecheck, build, browser), same-commit Vercel preview READY before merge, then exact-main production READY/smoke.
+
 ## 2026-11-11 — Embed complete Qualifications & Documents workflow in InspectorHub
 - Replace InspectorHub Qualifications teaser and separate-page CTA with the existing full synthetic qualification document dashboard inside the persistent green sidebar's right pane. Show sample evidence upload, issue/expiry/verification statuses, preview/share dialogs, and regional/expertise-relevant recommendations with authoritative issuer links. No production share, file upload, credentials or real identity data.
 - Preserve standalone /demo/inspector-documents for direct links; omit its redundant Back link in embedded mode, use no nested main landmark and remove embedded page margins for responsive layout.
