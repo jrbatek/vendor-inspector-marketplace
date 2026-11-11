@@ -21,8 +21,7 @@ try{
  await ready();browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:1280,height:900}});
  const errors=[];page.on("pageerror",e=>errors.push(e.stack||String(e)));
- // Homepage agency secondary CTA must resolve to an existing section after
- // the obsolete recruiting section was removed from the one-page Agency Demo.
+ // Homepage Agency CTA needs a valid target after the recruiting section was removed.
  await page.goto(base+"/",{waitUntil:"networkidle"});
  const resourceCta=page.getByRole("link",{name:/Explore Agency Resource Pool/});
  if(await resourceCta.getAttribute("href")!=="/demo/agency#resource-pool")

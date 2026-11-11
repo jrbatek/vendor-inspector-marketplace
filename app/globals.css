@@ -59,3 +59,10 @@ input::placeholder,textarea::placeholder{color:#64748b;opacity:1}
 @media (min-width:981px){:is(main,div):has(> aside.clientSide){display:grid!important;grid-template-columns:250px minmax(0,1fr)!important;gap:20px;align-items:start}}
 @media (max-width:980px){:is(main,div):has(> aside.clientSide){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px}}
 :is(main,div):has(> aside.clientSide)>:not(aside){min-width:0}
+
+/* InspectorHub demo-only navigation: styled-jsx inside a returned nav helper does not
+   scope to the button. Keep the real green sidebar text links legible regardless of
+   shared button defaults; do not alter any other audience's controls. */
+.side nav[aria-label="Inspector Workspace navigation"] button.sidebarTextLink:not(:disabled){appearance:none;background:transparent!important;color:#ecfdf5!important;border:0!important;border-left:3px solid transparent!important;border-radius:0!important;box-shadow:none!important;text-align:left;justify-content:flex-start}
+.side nav[aria-label="Inspector Workspace navigation"] button.sidebarTextLink.active:not(:disabled){background:transparent!important;color:#99f6e4!important;border-left-color:#5eead4!important}
+.side nav[aria-label="Inspector Workspace navigation"] button.sidebarTextLink:hover:not(:disabled),.side nav[aria-label="Inspector Workspace navigation"] button.sidebarTextLink:focus-visible:not(:disabled){background:transparent!important;color:#fff!important}
