@@ -27,16 +27,14 @@ test("expanded billing and contract records expose accessible detail relationshi
   assert.match(page, /aria-hidden="true"/);
 });
 
-test("client operations demo exposes accessible tab semantics", () => {
-  assert.match(page, /role="tablist"/);
-  assert.match(page, /role="tab"/);
-  assert.match(page, /aria-selected=\{tab==="billing"\}/);
-  assert.match(page, /aria-controls="billing-panel"/);
-  assert.match(page, /role="tabpanel"/);
-  assert.match(page, /id="billing-panel"/);
-  assert.match(page, /aria-labelledby="billing-tab"/);
+test("client operations expose accessible routed regions and only contract-type tabs", () => {
+  assert.match(page, /role="region" id="billing-panel" aria-label="Billing & Payment"/);
+  assert.match(page, /role="region" id="contracts-panel" aria-label="Contracts"/);
+  assert.match(page, /role="region" id="profile-panel" aria-label="Client Profile"/);
+  assert.match(page, /useSearchParams\(\)/);
   assert.match(page, /aria-label="Contract relationship types"/);
   assert.match(page, /aria-selected=\{contractTab===t\}/);
+  assert.doesNotMatch(page, /aria-label="Client operations sections"/);
 });
 
 test("client operations demo structures contracts by relationship type with expandable synthetic detail", () => {

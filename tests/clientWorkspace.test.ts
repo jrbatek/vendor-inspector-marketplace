@@ -49,7 +49,7 @@ test("client workspace navigation exposes landmarks and current-page state to as
 });
 
 test("client navigation uses the Client blue identity with visible interaction states", () => {
-  assert.match(sidebarSource, /background:#eff6ff/);
+  assert.match(sidebarSource, /background:#102b50/);
   assert.match(sidebarSource, /background:#2563eb;color:#fff/);
   assert.match(sidebarSource, /:focus-visible/);
 });
