@@ -1,3 +1,8 @@
+## 2026-11-11 — Calendar preserves inspector-added demo Block Dates across section navigation
+- Fixed an interactive Calendar state-loss regression: clicking another InspectorHub section unmounted Availability & Calendar and discarded browser-local Block Dates, selected range and Month/Week/List choice. Keep one Calendar mounted in a natively hidden non-focusable pane when inactive, retaining session state until a full reload.
+- Extended Chromium smoke to Block November 29, visit Active Assignments, check the inactive Calendar is absent from the accessibility tree, return and verify the Unavailable block, selected start date and Month view, then clear only the inspector-added date. No client-visible private titles, production calendar writes, auth, RLS, bank/payment, PII, matching or OAuth changes.
+- Maintain all eight sidebar entries, route state, assignment opening, synthetic boundaries and desktop/mobile layout. Gate on both hosted validation workflows (unit, synthetic-data, migration, typecheck, build and browser) and Vercel Preview READY before merge, Production READY plus exact-main smoke afterward.
+
 ## 2026-11-11 — Analytics exception recovery after Agency CTA merge
 - Reconciled synthetic-only Analytics recovery sidebar with latest validated #254 main, preserving full layout/links and pending independent root-cause investigation #154. Re-run all gates before merge.
 
