@@ -213,6 +213,70 @@ try{
  assert(await project.inputValue()!==""&&await page.locator("article.inspection").count()===1,"Clearing dates must preserve unrelated project filtering");
  await page.getByRole("button",{name:"Reset filters"}).click();
  assert(await page.locator("article.inspection").count()===7,"Second reset did not restore all inspections");
+
+ // Owner Nov 10: Browser regression for Client Demo fixed-width sidebar, mobile stacking,
+ // commercial section navigation and browser history, without accessing authenticated data.
+ async function verifyClientSidebarLayout(label, desktop) {
+  const m=await page.evaluate(()=>{
+   const side=document.querySelector("aside.clientSide"), content=side?.nextElementSibling;
+   if(!side||!content)return null;
+   const s=side.getBoundingClientRect(), c=content.getBoundingClientRect();
+   return {sideRight:s.right,sideBottom:s.bottom,contentLeft:c.left,contentTop:c.top,
+    width:s.width,background:getComputedStyle(side).backgroundColor};
+  });
+  assert(m!==null,label+": Client Workspace sidebar/content missing");
+  assert(m.background==="rgb(16, 43, 80)",label+": dark-blue sidebar lost: "+JSON.stringify(m));
+  if(desktop){
+   assert(m.width>=230&&m.width<=270,label+": sidebar must remain fixed around 250px: "+JSON.stringify(m));
+   assert(m.contentLeft>=m.sideRight+8,label+": content should be to RIGHT of sidebar: "+JSON.stringify(m));
+  }else{
+   assert(m.contentTop>=m.sideBottom-5,label+": mobile sidebar must STACK ABOVE content: "+JSON.stringify(m));
+  }
+ }
+ await page.setViewportSize({width:1366,height:900});
+ await verifyClientSidebarLayout("Inspections desktop",true);
+ assert(await page.locator("aside.clientSide").getByRole("link",{name:"Inspections in Progress"}).getAttribute("aria-current")==="page",
+  "Inspections sidebar active highlight missing");
+ await page.setViewportSize({width:760,height:900});
+ await verifyClientSidebarLayout("Inspections mobile",false);
+ await page.setViewportSize({width:1366,height:900});
+ await page.locator("aside.clientSide").getByRole("link",{name:"Billing & Payment"}).click();
+ await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="billing");
+ await page.getByRole("region",{name:"Billing & Payment"}).waitFor();
+ await verifyClientSidebarLayout("Billing desktop",true);
+ assert(await page.locator("aside.clientSide").getByRole("link",{name:"Billing & Payment"}).getAttribute("aria-current")==="page",
+  "Billing sidebar active highlight missing");
+ await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).click();
+ await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="contracts");
+ await page.getByRole("region",{name:"Contracts"}).waitFor();
+ assert(await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).getAttribute("aria-current")==="page",
+  "Contracts sidebar active highlight missing");
+ assert(await page.getByRole("tab",{name:"Agencies"}).count()===1,
+  "Contract relationship-type filters must remain inside Contracts");
+ await page.locator("aside.clientSide").getByRole("link",{name:"Profile",exact:true}).click();
+ await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="profile");
+ await page.getByRole("region",{name:"Client Profile"}).waitFor();
+ assert(await page.locator("aside.clientSide").getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")==="page",
+  "Profile sidebar active highlight missing");
+ await page.goBack();
+ await page.getByRole("region",{name:"Contracts"}).waitFor();
+ assert(await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).getAttribute("aria-current")==="page",
+  "Back navigation must restore Contracts highlight");
+ await page.goForward();
+ await page.getByRole("region",{name:"Client Profile"}).waitFor();
+ await page.goto(base+"/demo/client-operations?tab=contracts",{waitUntil:"domcontentloaded"});
+ await page.getByRole("region",{name:"Contracts"}).waitFor();
+ await verifyClientSidebarLayout("Direct-linked Contracts desktop",true);
+ await page.setViewportSize({width:760,height:900});
+ await verifyClientSidebarLayout("Commercial mobile",false);
+ await page.setViewportSize({width:1366,height:900});
+ assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+  "Client commercial demo must never require live-workspace login");
+ await page.locator("aside.clientSide").getByRole("link",{name:"Inspections in Progress"}).click();
+ await page.waitForURL("**/demo/client-inspections");
+ assert(await page.locator("article.inspection").count()===7,
+  "Commercial sidebar navigation must return all seven synthetic inspections");
+
  const analytics=page.locator('a[href="/demo/client-analytics"]').first();
  assert(await analytics.count()===1,"Cross-demo Analytics navigation missing");
  await analytics.click();
