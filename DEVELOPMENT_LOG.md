@@ -1,3 +1,9 @@
+## 2026-11-11 — InspectorHub in-content navigation deep-link consistency
+- Fix two Home dashboard actions (Review opportunities and Open Selection Insights) that changed the content pane without synchronizing the InspectorHub hash/history. Browser Back previously could restore the wrong section or leave an incorrect highlighted sidebar item.
+- Fix Availability & Calendar Open assignment to place the user in the #assignments route with the correct active sidebar highlight; preserve the synthetic assignment detail and clear section-scoped messages.
+- Add hosted Chromium click/back/history and calendar-entry assertions plus source regression tests. No live inspector credentials, availability, financial data, authorization, payments, production matching or synthetic DB seeding.
+- Require GitHub-hosted tests, synthetic-data validation, migrations, typecheck, build, browser smoke and Vercel preview READY before merging; exact-main production READY and smoke after merge.
+
 ## 2026-11-10 — Prevent stale-production-alias false positives in commit-specific smoke tests
 - GitHub push production smoke could report successful HTTP routes while Vercel was still building the newly merged main SHA, because the canonical alias could serve the previous release. This occurred during the smoke/production readiness window following #246; a smoke result without exact-commit READY is not proof that the latest release was deployed.
 - Gate HTTP smoke on GitHub's exact merged-main Vercel status SUCCESS, reject if the main branch advances or Vercel reports failure/error, and retain all existing route/marker/Demo Mode/retry checks. Bound the wait and extend the runner timeout. Add deterministic release-workflow regression tests.
