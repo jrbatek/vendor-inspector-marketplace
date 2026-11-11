@@ -76,6 +76,8 @@ jobs:
 
       - name: Exercise synthetic Agency capacity region filters in Chromium
         run: npm run smoke:agency-capacity
+      - name: Exercise Agency one-page scrollspy and removed sections in Chromium
+        run: npm run smoke:agency-scrollspy
 
       - name: Exercise InspectorHub demo routing, calendar, availability and notice isolation
         run: npm run smoke:inspector-demo

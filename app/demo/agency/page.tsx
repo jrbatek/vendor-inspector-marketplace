@@ -42,6 +42,8 @@ export default function AgencyDemoPage() {
       const threshold=Math.min(220,Math.max(100,window.innerHeight*0.25));
       let current=elements[0].id;
       for(const element of elements)if(element.getBoundingClientRect().top<=threshold)current=element.id;
+      // The last section may be shorter than a viewport; at page end it is nevertheless active.
+      if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=elements[elements.length-1].id;
       setActiveSection(current);
     };
     const onHash=()=>{const hash=window.location.hash.slice(1);if(sectionIds.includes(hash)){document.getElementById(hash)?.scrollIntoView({behavior:"auto",block:"start"});}updateActive();};

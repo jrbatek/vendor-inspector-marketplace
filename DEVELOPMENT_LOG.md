@@ -1,4 +1,9 @@
 
+## 2026-11-10 — Agency Demo scrollspy live-browser and last-section edge correction (#244 rebase)
+- When the last Contracts & Commercials section is shorter than the viewport, scrolling to document bottom can wrongly keep Reports & NCRs highlighted. At the bottom of the one-page Agency Demo, select the last section; preserve the purple navigation and eight operational targets.
+- Add Chromium Playwright regression for keyboard/click/deep-link/manual scroll both directions/mobile and verifying three obsolete sections removed. Wire both mandatory GitHub CI suites. No live data/auth/payments/commercial matching changes.
+- Rebase onto production smoke fix #243; require all tests, synthetic/migration/typecheck/build/real-browser, exact-head Vercel preview READY before merge and production READY/smoke afterward.
+
 ## 2026-11-10 — Client commercial Suspense SSR smoke visibility (post-#240)
 - Production smoke failed on /demo/client-operations because Next.js server-rendered only its Suspense fallback while query-based commercial content hydrates; the previously expected route heading and Demo Mode label were present only inside the client component. All other checked production routes passed.
 - Added the correct route-specific heading and explicit synthetic Demo Mode boundary to the server-visible loading fallback, preserving query/active-sidebar navigation and client-side content. Added a regression contract to ensure release smoke and fallback remain aligned; no production auth, account data, payments or matching changes.
