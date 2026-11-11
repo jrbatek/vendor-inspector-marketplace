@@ -41,7 +41,15 @@ try {
   assert(await navigation.getByRole("button", { name: "Profile Home" }).getAttribute("aria-current") === "page", "Back navigation did not restore InspectorHub Home");
   await page.getByRole("button", { name: "Open Selection Insights" }).click();
   assert(page.url().endsWith("#insights"), "Home insights CTA did not update deep-link URL");
-  assert(await page.getByRole("heading", { name: "Aggregate peer positioning" }).count() === 1, "Insights CTA did not open its content");
+  assert(await page.getByRole("heading", { name: "Ratings & feedback" }).count() === 1, "Insights CTA did not open full inline feedback dashboard");
+  const inlineInsights=page.locator(".insightsPage.embedded");
+  assert(await inlineInsights.count()===1,"InspectorHub Insights must render in persistent green sidebar workspace");
+  assert(await inlineInsights.getByRole("heading",{name:"Compare relevant peer groups"}).count()===1,"Inline peer filters/comparisons missing");
+  assert(await inlineInsights.getByLabel("Geography").count()===1,"Inline peer geography filter missing");
+  assert(await inlineInsights.getByRole("link",{name:"Back to Inspector Demo"}).count()===0,"Embedded Insights must not add a redundant back link");
+  const ratingsBox=await inlineInsights.getByRole("heading",{name:"Ratings & feedback"}).boundingBox();
+  const compareBox=await inlineInsights.getByRole("heading",{name:"Compare relevant peer groups"}).boundingBox();
+  assert(ratingsBox&&compareBox&&ratingsBox.y<compareBox.y,"Client ratings must appear above peer comparisons");
   await page.evaluate(() => window.history.back());
   await page.getByRole("heading", { name: "Inspection background" }).waitFor();
   await navigation.getByRole("button", { name: "Active Assignments" }).click();

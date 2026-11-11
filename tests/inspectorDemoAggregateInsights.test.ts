@@ -2,19 +2,24 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const source = fs.readFileSync("app/demo/inspector/page.tsx", "utf8");
+const source=fs.readFileSync("app/demo/inspector/page.tsx","utf8");
+const inline=fs.readFileSync("app/demo/inspector-selection-outcomes/page.tsx","utf8");
 
-test("Inspector Demo insights entry points expose aggregate peers without individual selection outcomes", () => {
-  assert.match(source, /4\.9 \/ 5 · Peer insights/);
-  assert.match(source, /No individual selection outcomes, named selections, or client decisions are shown/);
-  assert.match(source, /href="\/demo\/inspector-selection-outcomes"/);
-  assert.match(source, /Ratings detail/);
-  assert.doesNotMatch(source, /Selected · Gulf Horizon|Shortlisted · North Sea Aurora|2 selected · 1 shortlisted/);
+test("Inspector sidebar displays full synthetic peer-positioning dashboard with ratings first",()=>{
+ assert.match(source,/4\.9 \/ 5 · Peer insights/);
+ assert.match(source,/import InspectorSelectionOutcomesDemo/);
+ assert.match(source,/section==="insights"&&<InspectorSelectionOutcomesDemo\/>/);
+ assert.doesNotMatch(source,/Open Selection Insights &amp; peer comparisons/);
+ assert.match(inline,/Ratings &amp; feedback/);
+ assert.ok(inline.indexOf('className="ratings"') < inline.indexOf('className="comparison"'));
+ assert.match(inline,/No individual selection decisions or competing inspectors are shown/);
+ assert.match(inline,/minimum-cohort protections/);
 });
-
-test("Inspector Demo selection insights do not make real data requests", () => {
-  assert.match(source, /deterministic synthetic demo content/);
-  assert.match(source, /No production inspector records are used/);
-  assert.doesNotMatch(source, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
-  assert.ok(fs.existsSync("app/demo/inspector-selection-outcomes/page.tsx"));
+test("embedded insights keeps standalone route intact without duplicate back navigation",()=>{
+ assert.match(inline,/usePathname\(\) === "\/demo\/inspector"/);
+ assert.match(inline,/className=\{embedded \? "insightsPage embedded" : "insightsPage"\}/);
+ assert.match(inline,/!embedded && <Link href="\/demo\/inspector">Back to Inspector Demo<\/Link>/);
+ assert.match(inline,/\.insightsPage\.embedded\{max-width:none;margin:0\}/);
+ assert.doesNotMatch(inline,/supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
+ assert.match(source,/No production inspector records are used/);
 });

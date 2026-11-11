@@ -5,6 +5,7 @@ import InspectorDemoAssignment from "@/components/InspectorDemoAssignment";
 import InspectorAvailabilityCalendar from "@/components/InspectorAvailabilityCalendar";
 import InspectorWorkHistoryDemo from "../inspector-work-history/page";
 import InspectorIncomeDemo from "../inspector-income/page";
+import InspectorSelectionOutcomesDemo from "../inspector-selection-outcomes/page";
 
 type Section="home"|"opportunities"|"assignments"|"calendar"|"insights"|"qualifications"|"work"|"income";
 type Region="USA"|"UK"|"Mexico";
@@ -35,8 +36,8 @@ export default function InspectorDemo(){
    {section==="assignments"&&assignment&&<InspectorDemoAssignment project={assignment} inspector={p.name} onClose={()=>setAssignment(null)}/>}
    {section==="assignments"&&!assignment&&<section className="panel"><p className="eyebrow">Active assignments</p><h2>Work in progress</h2><div className="cards">{[["LNG Compressor Package","FAT scheduled","Confirm November FAT witness schedule"],["Gulf Horizon Refinery Upgrade","Scheduled","Review ITP revision"],["Orion Deepwater Platform","Travel pending","Confirm itinerary"]].map(a=><article key={a[0]}><strong>{a[0]}</strong><span>{a[1]}</span><p><b>Next:</b> {a[2]}</p><button onClick={()=>setAssignment(a[0])}>Open assignment</button></article>)}</div></section>}
    {section==="calendar"&&<section className="panel"><InspectorAvailabilityCalendar onOpenAssignment={project => {setNotice("");setNoticeSection(null);setAssignment(project);setSection("assignments");window.history.pushState(null,"","#assignments");}}/></section>}
-   {section==="insights"&&<><section className="panel"><p className="eyebrow">Selection Insights</p><h2>Aggregate peer positioning</h2><p>Insights never expose competing inspector identities. No individual selection outcomes, named selections, or client decisions are shown. Compare relevant peers by geography, expertise, inspection type, day-rate percentile, availability, qualifications, experience, travel flexibility and profile completeness.</p><a href="/demo/inspector-selection-outcomes">Open Selection Insights &amp; peer comparisons</a></section><section className="panel"><p className="eyebrow">Client feedback</p><h2>Ratings detail</h2><div className="cards"><article><strong>4.9 / 5</strong><p>Clear reporting and strong document review.</p></article><article><strong>5.0 / 5</strong><p>Dependable, concise and technically strong.</p></article></div><p>All names, projects, ratings and comments shown here are deterministic synthetic demo content.</p><p>For minimum-cohort suppression and improvement guidance, open the aggregate peer comparison above.</p></section></>}
-   {section==="qualifications"&&<section className="panel"><p className="eyebrow">Document center</p><h2>Qualifications & Documents</h2><div className="badges">{p.certs.map(x=><span key={x}>{x}</span>)}</div><p>Add qualifications, upload fictional supporting documentation, and review recommended credentials in the dedicated synthetic documents workspace.</p><a href="/demo/inspector-documents">Add Qualification &amp; Upload Documentation</a></section>}
+   {section==="insights"&&<InspectorSelectionOutcomesDemo/>}
+    {section==="qualifications"&&<section className="panel"><p className="eyebrow">Document center</p><h2>Qualifications & Documents</h2><div className="badges">{p.certs.map(x=><span key={x}>{x}</span>)}</div><p>Add qualifications, upload fictional supporting documentation, and review recommended credentials in the dedicated synthetic documents workspace.</p><a href="/demo/inspector-documents">Add Qualification &amp; Upload Documentation</a></section>}
    {section==="work"&&<InspectorWorkHistoryDemo/>}
    {section==="income"&&<InspectorIncomeDemo/>}
   </section>

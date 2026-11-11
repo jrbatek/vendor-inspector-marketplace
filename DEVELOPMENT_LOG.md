@@ -1,3 +1,9 @@
+## 2026-11-11 — Embed complete Selection Insights & Feedback in green InspectorHub shell
+- Replace the Inspector sidebar's Selection Insights teaser/standalone-page link and separate duplicated ratings card with the existing full synthetic peer-positioning dashboard directly in its right-hand pane. Ratings & feedback appear before peer comparisons. Preserve synthetic aggregate geography/expertise/inspection-type filters, day-rate positioning, evidence guidance, minimum-cohort suppression and privacy boundary.
+- Keep the standalone Insights URL usable for direct links, but suppress its redundant Back to Inspector Demo link while embedded. The persistent green sidebar remains the navigation source; no nested page shell or production matching/peer-data access.
+- Add real Chromium checks for inline ratings order, comparison filters, no redundant back link, plus regression contracts; update legacy Inspector Demo tests. No live inspector data, auth, RLS, financial/bank changes or production synthetic seeding.
+- Gate on both GitHub-hosted validation suites and exact-head Vercel preview READY; sequential merge then verify production READY and exact-commit smoke.
+
 ## 2026-11-11 — Client Demo shared sidebar regression audit across all Client pages
 - Extend hosted Chromium P0-A checks beyond Inspections in Progress and commercial tabs: directly load Request Inspectors, Analytics, completed history, agency sourcing and Data & Integrations; assert fixed-width dark-blue desktop sidebar on the left, responsive stacked mobile sidebar, no authenticated-workspace prompt, and no Client Demo sidebar links to live /client-dashboard.
 - Confirm returning from the page audit still shows all seven synthetic Client Inspections in Progress and intact two-column layout. Add static coverage of seven shared Client Demo sidebar mounts.
