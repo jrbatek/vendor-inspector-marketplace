@@ -5,6 +5,7 @@ import test from "node:test";
 
 const inspectorHub = fs.readFileSync(path.join(process.cwd(), "app/inspectorhub/page.tsx"), "utf8");
 const dedicatedDemo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector/page.tsx"), "utf8");
+const insightsDemo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector-selection-outcomes/page.tsx"), "utf8");
 
 test("unauthenticated InspectorHub uses synthetic demo records instead of live account data", () => {
   assert.match(inspectorHub, /const DEMO_WORK:Work\[\]=\[/);
@@ -22,9 +23,11 @@ test("inspector demo covers the end-to-end professional workspace", () => {
 });
 
 test("dedicated Inspector Demo exposes selection insights, feedback, assignments and safety boundaries", () => {
-  for (const label of ["Active Assignments","Selection Insights & Feedback","Selection Insights","Client feedback","Ratings detail","Document center","InspectorWorkHistoryDemo","InspectorIncomeDemo"]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
-  assert.match(dedicatedDemo, /Insights never expose competing inspector identities/);
-  assert.match(dedicatedDemo, /deterministic synthetic demo content/);
+  for (const label of ["Active Assignments","Selection Insights & Feedback","InspectorSelectionOutcomesDemo","Document center","InspectorWorkHistoryDemo","InspectorIncomeDemo"]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
+  assert.match(insightsDemo, /Client feedback/);
+  assert.match(insightsDemo, /Ratings &amp; feedback/);
+  assert.match(insightsDemo, /No individual selection decisions or competing inspectors are shown/);
+  assert.match(insightsDemo, /deterministic synthetic examples/);
   assert.match(dedicatedDemo, /No production inspector records are used/);
   assert.match(dedicatedDemo, /no production record was changed/);
   assert.match(dedicatedDemo, /section==="income"&&<InspectorIncomeDemo\/>/);
