@@ -20,12 +20,14 @@ concurrency:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 14
     env:
       PRODUCTION_URL: https://vendor-inspector-marketplace.vercel.app
       EXPECTED_SHA: ${{ inputs.expected_sha || '' }}
     steps:
       - name: Wait for deployment and verify live routes
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [ -n "$EXPECTED_SHA" ]; then
@@ -34,6 +36,35 @@ jobs:
               exit 1
             fi
             echo "Production smoke pinned to merged main $EXPECTED_SHA."
+          fi
+
+          # A successful HTTP check against the canonical domain can still read
+          # the PREVIOUS production deployment while Vercel is building main.
+          # Require the exact running main commit's Vercel READY status first.
+          # Keep the existing route/marker checks and retry propagation afterward.
+          production_ready=false
+          for attempt in $(seq 1 32); do
+            current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+            if [ "$current_main" != "$GITHUB_SHA" ]; then
+              echo "main moved beyond $GITHUB_SHA before smoke verification; not certifying a stale commit."
+              exit 1
+            fi
+            vercel_state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status" --jq '([.statuses[] | select(.context == "Vercel")][0].state) // "pending"')"
+            if [ "$vercel_state" = "success" ]; then
+              production_ready=true
+              echo "Vercel READY recorded for exact main $GITHUB_SHA."
+              break
+            fi
+            if [ "$vercel_state" = "failure" ] || [ "$vercel_state" = "error" ]; then
+              echo "Vercel returned $vercel_state for main $GITHUB_SHA; fail smoke instead of checking the old alias."
+              exit 1
+            fi
+            echo "Vercel main $GITHUB_SHA is $vercel_state; waiting ($attempt/32)."
+            sleep 10
+          done
+          if [ "$production_ready" != true ]; then
+            echo "Exact-main Vercel READY not established; production smoke cannot pass."
+            exit 1
           fi
 
           routes=(
