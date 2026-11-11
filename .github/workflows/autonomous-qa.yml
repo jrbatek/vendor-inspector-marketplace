@@ -15,6 +15,10 @@ permissions:
 jobs:
   synthetic-and-app-validation:
     runs-on: ubuntu-latest
+    # Browsers and native dependencies are preinstalled in the official, version-pinned image.
+    # Avoid host 'apt' downloads, which stalled on runner Ubuntu archive DNS on 2026-11-11.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     timeout-minutes: 25
     env:
       SYNTHETIC_SEED: '20260831'
@@ -50,8 +54,9 @@ jobs:
       - name: Production build
         run: npm run build
 
-      - name: Install Chromium and Firefox for client interaction regression
-        run: npx playwright install --with-deps chromium firefox
+      - name: Verify pinned Chromium and Firefox are installed in CI image
+        run: |
+          node -e "const fs=require('fs'); const p=require('playwright'); for (const name of ['chromium','firefox']) { const path=p[name].executablePath(); if(!fs.existsSync(path)) throw Error(name+' browser missing: '+path); }"
 
       - name: Smoke-test built routes
         run: npm run smoke:local
