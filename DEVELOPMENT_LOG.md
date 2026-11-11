@@ -1,3 +1,9 @@
+## 2026-11-11 — Embed complete Qualifications & Documents workflow in InspectorHub
+- Replace InspectorHub Qualifications teaser and separate-page CTA with the existing full synthetic qualification document dashboard inside the persistent green sidebar's right pane. Show sample evidence upload, issue/expiry/verification statuses, preview/share dialogs, and regional/expertise-relevant recommendations with authoritative issuer links. No production share, file upload, credentials or real identity data.
+- Preserve standalone /demo/inspector-documents for direct links; omit its redundant Back link in embedded mode, use no nested main landmark and remove embedded page margins for responsive layout.
+- Expand hosted Chromium tests to cover the embedded three synthetic certificate records, workflow, recommendations, modal open/close and link-state safety. No live auth, RLS, bank, payment, matching, or production DB changes.
+- Require both GitHub-hosted validation suites, synthetic validation, migrations, typecheck, build, browser tests, Vercel preview READY before merge and exact-main production READY/smoke after.
+
 ## 2026-11-11 — Embed complete Selection Insights & Feedback in green InspectorHub shell
 - Replace the Inspector sidebar's Selection Insights teaser/standalone-page link and separate duplicated ratings card with the existing full synthetic peer-positioning dashboard directly in its right-hand pane. Ratings & feedback appear before peer comparisons. Preserve synthetic aggregate geography/expertise/inspection-type filters, day-rate positioning, evidence guidance, minimum-cohort suppression and privacy boundary.
 - Keep the standalone Insights URL usable for direct links, but suppress its redundant Back to Inspector Demo link while embedded. The persistent green sidebar remains the navigation source; no nested page shell or production matching/peer-data access.
