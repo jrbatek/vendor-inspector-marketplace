@@ -238,10 +238,10 @@ try {
   await calendar.getByRole("button", { name: "Connect Outlook Calendar" }).click();
   assert(await calendar.getByText(/demo|simulat/i).count() > 0, "Calendar connection is not clearly labeled simulated");
   await navigation.getByRole("button", { name: "Work History" }).click();
-  assert(await page.getByRole("link", { name: /Open Work History/ }).count() === 1, "Consolidated Work History link unavailable");
+  assert(await page.getByRole("heading", { name: "Work History" }).count() === 1, "Full Work History must render directly beside green sidebar");
+  assert(new URL(page.url()).pathname === "/demo/inspector", "Work History must not redirect to standalone route");
+  assert(await page.getByRole("link", { name: /Open Work History/ }).count() === 0, "Redundant Work History teaser should be removed");
   // Work History keyword search is a shared filter for completed assignments and reports.
-  await page.getByRole("link", { name: /Open Work History/ }).first().click();
-  await page.waitForURL("**/demo/inspector-work-history");
   const historySearch=page.getByRole("searchbox",{name:"Search work history"});
   assert(await historySearch.count()===1,"Work History search control missing");
   await historySearch.fill("Seabrook");
@@ -282,6 +282,18 @@ try {
   assert((await page.locator(".resultCount").innerText()).includes("2 of 10"),
     "Recovery must remain correct after switching consolidated Work History views");
 
+  await navigation.getByRole("button", { name: "Income & Tax Center" }).click();
+  assert(await page.getByRole("heading", { name: "Income & Tax Center" }).count() === 1, "Income dashboard must be embedded");
+  assert(new URL(page.url()).pathname === "/demo/inspector", "Income must stay in persistent InspectorHub shell");
+  assert(await page.getByLabel("Tax and earnings year").inputValue() === "2026", "Embedded Income default must be 2026 YTD");
+  assert(await page.getByText(/2026-11-01T23:59:59-06:00/).count() > 0, "Income data-through timestamp missing");
+  assert(await page.getByRole("button", { name: "Download synthetic income report PDF" }).count() === 1, "Income PDF action missing");
+  assert(await page.getByRole("link", { name: /Open Income & Tax Center demo/ }).count() === 0, "Income teaser still rendered");
+  await page.goBack();
+  assert(await page.getByRole("heading", { name: "Work History" }).count() === 1, "Browser back must restore Work History");
+  await page.goForward();
+  assert(await page.getByRole("heading", { name: "Income & Tax Center" }).count() === 1, "Browser forward must restore Income");
+  assert(await navigation.getByRole("button", { name: "Income & Tax Center" }).getAttribute("aria-current") === "page", "Sidebar highlight not restored");
   assert(errors.length === 0, "Inspector Demo browser exceptions: " + errors.join("\n"));
   console.log("Inspector Demo Chromium OK: sidebar, opportunity alert isolation, Month/Week/List, private events, assignment, date conflicts and demo-only connectors.");
 } catch (e) {

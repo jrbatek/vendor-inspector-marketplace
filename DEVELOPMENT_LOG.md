@@ -1,4 +1,9 @@
 
+## 2026-11-10 — Embedded InspectorHub Work History and Income Center (PR #242, validated rebase)
+- Embed existing full synthetic Work History and 2026-YTD Income dashboards inside the persistent InspectorHub green sidebar instead of teaser links. Preserve stand-alone URLs, safe sample PDFs and filters.
+- Enable sidebar section hash navigation/back-forward, update route browser smoke and regression tests. Align older banner isolation regression with new pushState behavior. No live bank, tax, authentication, matching or payments changes.
+- Validate with GitHub Actions synthetic data, unit tests, migration checks, typecheck, production build and browser tests; require Vercel preview READY before merge and production READY/smoke afterward.
+
 ## 2026-11-10 — Agency one-page scrollspy and final three section removals (PR #241)
 - Remove visible Analytics, Find Inspectors / Recruiting and Integrations from Agency Demo sidebar and sections, retaining one purple-sidebar scrolling page with eight operational sections and scrollspy/hash navigation. Shared capabilities elsewhere untouched.
 - Rebased onto currently merged Client and Inspector fixes. CI and Vercel preview READY required before merge, production smoke after.
