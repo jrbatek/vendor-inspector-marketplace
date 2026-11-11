@@ -60,16 +60,16 @@ export default function HomePage() {
         <article className="audienceCard agencyCard">
           <div className="cardLabel">For Agencies</div>
           <h2>Manage your inspection resources and extend your reach.</h2>
-          <p>Coordinate affiliated inspectors, manage capacity and opportunities, and find qualified marketplace inspectors when your own resource pool needs support.</p>
+          <p>Coordinate affiliated inspectors, manage capacity and opportunities, and track assigned inspections, reports, and nonconformance follow-up.</p>
           <div className="featureList">
             <span>Resource pool and affiliation management</span>
             <span>Availability, opportunities, and assignments</span>
             <span>Contract and commercial visibility</span>
-            <span>Find additional qualified inspectors</span>
+            <span>Inspection reports and NCR follow-up</span>
           </div>
           <div className="actions">
             <Link className="button agencyButton" href="/demo/agency">Explore Agency Workspace</Link>
-            <Link className="textLink" href="/demo/agency#find-inspectors-recruiting">Find Inspectors →</Link>
+            <Link className="textLink" href="/demo/agency#resource-pool">Explore Agency Resource Pool →</Link>
           </div>
           <div className="demoEntry agencyDemo">
             <div>
