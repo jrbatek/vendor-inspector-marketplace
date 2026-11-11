@@ -1,3 +1,8 @@
+## 2026-11-11 — Calendar view transitions track the inspector-selected day
+- Fix synthetic InspectorHub Calendar Month-to-Week transitions that reopened a stale earlier week after clicking a date on the Month calendar. Month/List also follow the current selected start date. View switching never writes availability, touches private events or changes production data.
+- Add hosted Chromium interaction coverage (November 25 selected in Month must appear pressed in Week, not reset to old week) and independent source regression checks. Preserve Month default, private Doctor Appointment and Our Anniversary, Block dates, responsive controls, and assignment navigation.
+- Safe demo-only batch. Require GitHub Validate application and Autonomous QA (unit, synthetic, migrations, typecheck, build, browser), same-commit Vercel preview READY before merge, then exact-main production READY/smoke.
+
 ### 2026-11-11 CI remediation follow-up: Firefox container HOME
 - Official Playwright image successfully avoided the failing host Ubuntu APT/DNS dependency installation. Both workflows passed tests, typecheck, build, and Chromium headed/headless checks, then Firefox refused launch because the container runs as root with GitHub-provided `HOME=/github/home` owned by `pwuser`. Runner error explicitly instructs using `HOME=/root` for Playwright in GitHub Actions. Set HOME only for both mandatory Firefox smoke steps (do not skip Firefox or weaken assertions); rerun all gates. No app files changed.
 
