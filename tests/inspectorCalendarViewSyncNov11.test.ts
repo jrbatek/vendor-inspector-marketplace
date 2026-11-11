@@ -8,7 +8,7 @@ const browser=readFileSync("scripts/smoke-inspector-demo.mjs","utf8");
 test("Calendar Month/Week/List view switches follow selected date without updating availability",()=>{
   const match=source.match(/const switchView=\(nextView:View\)=>\{([\s\S]*?)\n  \};/);
   assert.ok(match,"switchView handler must be present");
-  assert.match(match[1],/selectedDay=.*start\?start:weekAnchor/);
+  assert.match(match[1],/selectedDay=.*test\(start\)\?start:weekAnchor/);
   assert.match(match[1],/if\(nextView==="Week"\)setWeekAnchor\(selectedDay\)/);
   assert.match(match[1],/else setMonth\(selectedDay\.slice\(0,7\)\)/);
   assert.match(match[1],/setView\(nextView\)/);
