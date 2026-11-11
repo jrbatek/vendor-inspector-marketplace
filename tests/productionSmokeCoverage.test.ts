@@ -92,3 +92,19 @@ test("Agency Affiliations production smoke marker matches the meaningful first s
   assert.match(agencyPage, /if\(!hydrated\) return <main[^;]*<h1>Resource Affiliations<\/h1>/);
   assert.match(agencyPage, /No login is required/);
 });
+
+
+test("production smoke refuses to pass against an older production alias while main is still building", () => {
+  assert.match(workflow, /GH_TOKEN:\s*\$\{\{ github\.token \}\}/);
+  assert.match(workflow, /gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/heads\/main"/);
+  assert.match(workflow, /current_main.*GITHUB_SHA/);
+  assert.match(workflow, /gh api "repos\/\$GITHUB_REPOSITORY\/commits\/\$GITHUB_SHA\/status"/);
+  assert.match(workflow, /\.context == "Vercel"/);
+  assert.match(workflow, /if \[ "\$vercel_state" = "success" \]/);
+  assert.match(workflow, /if \[ "\$vercel_state" = "failure" \]/);
+  assert.match(workflow, /if \[ "\$production_ready" != true \]/);
+  assert.ok(workflow.indexOf("production_ready=false") > 0);
+  assert.ok(workflow.indexOf("production_ready=false") < workflow.indexOf("routes=("),
+    "Exact-main READY must precede every HTTP route probe");
+  assert.match(workflow, /timeout-minutes: 14/);
+});
