@@ -17,7 +17,9 @@ test("Firefox and Chromium exercise identical synthetic Client Analytics interac
 for (const workflow of [".github/workflows/validate.yml", ".github/workflows/autonomous-qa.yml"]) {
   test(`${workflow} validates the same Analytics transitions in Firefox after Chromium`, () => {
     const content = readFileSync(workflow, "utf8");
-    assert.match(content, /npx playwright install --with-deps chromium firefox/);
+    assert.match(content, /mcr\.microsoft\.com\/playwright:v1\.56\.1-noble/);
+    assert.match(content, /Verify pinned Chromium and Firefox are installed in CI image/);
+    assert.doesNotMatch(content, /npx playwright install --with-deps/);
     assert.match(content, /name: Exercise client analytics in real Chromium/);
     assert.match(content, /name: Exercise Client Analytics in headed Chromium \(Xvfb\)/);
     assert.match(content, /name: Exercise Client Analytics source transitions in Firefox/);

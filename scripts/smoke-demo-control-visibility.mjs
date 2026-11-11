@@ -141,6 +141,39 @@ try {
         if (await records.count() !== 5) throw new Error("Client export reset must restore all five rows");
         if (errors.length) throw new Error("Client data filter caused browser exception: " + errors.join("\\n"));
       }
+      if (route === "/demo/inspector") {
+        // P0-B: real computed InspectorHub sidebar links must remain readable
+        // text on green, not black/navy rounded button pills.
+        const nav = page.getByRole("navigation", { name: "Inspector Workspace navigation" });
+        const buttons = nav.getByRole("button");
+        if (await buttons.count() !== 8)
+          throw new Error("InspectorHub must retain eight accessible sidebar text links");
+        const appearance = async button => button.evaluate(element => {
+          const style = getComputedStyle(element);
+          return { background: style.backgroundColor, radius: style.borderTopLeftRadius,
+            color: style.color, shadow: style.boxShadow };
+        });
+        const assertTextLink = (style, context) => {
+          if (!["rgba(0, 0, 0, 0)", "transparent"].includes(style.background) ||
+              style.radius !== "0px" || style.shadow !== "none" ||
+              !["rgb(236, 253, 245)", "rgb(153, 246, 228)", "rgb(255, 255, 255)"].includes(style.color))
+            throw new Error(context + " resurrected an unreadable InspectorHub button pill: " + JSON.stringify(style));
+        };
+        for (const item of await buttons.all())
+          assertTextLink(await appearance(item), "Default InspectorHub sidebar link");
+        const workLink = nav.getByRole("button", { name: "Work History" });
+        await workLink.click();
+        if (await workLink.getAttribute("aria-current") !== "page")
+          throw new Error("InspectorHub active sidebar highlight is missing");
+        assertTextLink(await appearance(workLink), "Active InspectorHub sidebar link");
+        await workLink.hover();
+        assertTextLink(await appearance(workLink), "Hovered InspectorHub sidebar link");
+        const incomeLink = nav.getByRole("button", { name: "Income & Tax Center" });
+        await incomeLink.focus();
+        assertTextLink(await appearance(incomeLink), "Focused InspectorHub sidebar link");
+        if (await page.getByRole("heading", { name: "Work History" }).count() !== 1)
+          throw new Error("InspectorHub sidebar click failed to show embedded Work History");
+      }
       if (route === "/demo/client-operations") {
         const invoiceFilter = page.getByLabel("Invoice status");
         await invoiceFilter.selectOption("Paid");

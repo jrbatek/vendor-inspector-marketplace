@@ -93,6 +93,14 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     // Navigating the week dismisses warnings tied to an earlier date range.
     setNotice("");
   };
+  // View changes follow the date selected in the calendar or date-range form.
+  // The change only affects visible dates, never underlying availability events.
+  const switchView=(nextView:View)=>{
+    const selectedDay=/^\d{4}-\d{2}-\d{2}$/.test(start)?start:weekAnchor;
+    if(nextView==="Week")setWeekAnchor(selectedDay);
+    else setMonth(selectedDay.slice(0,7));
+    setView(nextView);
+  };
   const stepWeek=(delta:number)=>selectWeek(shiftIsoDate(weekAnchor,delta*7));
   const [events, setEvents] = useState(DEMO_EVENTS);
   const [start, setStart] = useState("2026-11-22");
@@ -139,7 +147,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     <section className="calendarConnections" aria-label="Calendar connections"><div><h3>Calendar connections</h3><p>Simulated connections only · No real calendar account access</p></div><div className="connectors"><button onClick={() => connect("Google Calendar")}>Google Calendar · Connected (demo)</button><button onClick={() => connect("Outlook Calendar")}>Connect Outlook Calendar</button><button onClick={() => connect("Other Calendar")}>Link Other Calendar</button></div></section>
     {notice && <p role={noticeIsWarning ? "alert" : "status"} className={noticeIsWarning ? "notice warning" : "notice"}>{notice}</p>}
     <div className="viewTabs" role="group" aria-label="Calendar view">
-      {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => setView(item)}>{item}</button>)}
+      {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => switchView(item)}>{item}</button>)}
     </div>
     <div className="legend" aria-label="Availability states">{["Available", "Tentative / Hold", "Assigned", "Unavailable", "Busy"].map((state) => <span key={state} className={stateClass(state as AvailabilityState)}>{state}</span>)}<span className="not-set">Not set</span></div>
     {view === "Month" && <div className="month" aria-label={monthLabel+" month view"}>
