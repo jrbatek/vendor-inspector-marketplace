@@ -22,12 +22,13 @@ test("inspector demo covers the end-to-end professional workspace", () => {
 });
 
 test("dedicated Inspector Demo exposes selection insights, feedback, assignments and safety boundaries", () => {
-  for (const label of ["Active Assignments","Selection Insights & Feedback","Selection Insights","Client feedback","Ratings detail","Document center","Reports & billing","My Work History"]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
+  for (const label of ["Active Assignments","Selection Insights & Feedback","Selection Insights","Client feedback","Ratings detail","Document center","InspectorWorkHistoryDemo","InspectorIncomeDemo"]) assert.match(dedicatedDemo, new RegExp(label.replace(/[&]/g, "&")));
   assert.match(dedicatedDemo, /Insights never expose competing inspector identities/);
   assert.match(dedicatedDemo, /deterministic synthetic demo content/);
   assert.match(dedicatedDemo, /No production inspector records are used/);
   assert.match(dedicatedDemo, /no production record was changed/);
-  assert.match(dedicatedDemo, /No payment execution, tax filing, bank credentials or inspector compensation rules are changed or exposed in this demo/);
+  assert.match(dedicatedDemo, /section==="income"&&<InspectorIncomeDemo\/>/);
+  assert.match(dedicatedDemo, /section==="work"&&<InspectorWorkHistoryDemo\/>/);
   assert.doesNotMatch(dedicatedDemo, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 
