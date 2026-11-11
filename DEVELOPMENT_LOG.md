@@ -1,4 +1,9 @@
 
+## 2026-11-10 — InspectorHub demo opportunity offered-rate acceptance consistency
+- One fixed fictional OP-1048 day rate ($950/day) already appears in Opportunities list and Preview; preserve that exact shared opportunity rate and project name in the Accept outcome banner so a reviewer sees one commercially coherent offered price through acceptance. Explicitly separate expenses/overtime in the unchanged preview. No live compensation, payment, matching, authorization or contract decision changes.
+- Extend actual hosted Chromium inspector demo smoke to accept the fictional offer, verify list/preview/acceptance $950/day continuity, then reopen and decline to test existing notice isolation; add unit regression and DEVELOPMENT_LOG.md.
+- Mandatory CI with synthetic/migration/typecheck/build/browser tests, Vercel preview READY before merge and production READY/smoke after.
+
 ## 2026-11-10 — Agency Demo scrollspy live-browser and last-section edge correction (#244 rebase)
 - When the last Contracts & Commercials section is shorter than the viewport, scrolling to document bottom can wrongly keep Reports & NCRs highlighted. At the bottom of the one-page Agency Demo, select the last section; preserve the purple navigation and eight operational targets.
 - Add Chromium Playwright regression for keyboard/click/deep-link/manual scroll both directions/mobile and verifying three obsolete sections removed. Wire both mandatory GitHub CI suites. No live data/auth/payments/commercial matching changes.
