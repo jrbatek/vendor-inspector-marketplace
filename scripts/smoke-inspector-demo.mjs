@@ -65,9 +65,19 @@ try {
     await page.getByRole("button", { name: "Open assignment" }).count() === 3,
     "Leaving an assignment for another section must clear stale detail when returning");
   await navigation.getByRole("button", { name: "Opportunities" }).click();
-  await page.getByRole("button", { name: "Preview Opportunity" }).first().click();
+  // A fictional offer has one shared day rate in listing, preview and acceptance notice.
+  const firstOpportunity=page.locator("article.row").filter({hasText:"Gulf Horizon Refinery Upgrade"});
+  assert((await firstOpportunity.innerText()).includes("Offered rate: $950/day"),"Opportunity card rate must be a single $950/day");
+  await firstOpportunity.getByRole("button", { name: "Preview Opportunity" }).click();
   const dialog = page.getByRole("dialog", { name: "Opportunity preview" });
   assert(await dialog.count() === 1, "Opportunity preview did not open");
+  assert((await dialog.innerText()).includes("Offered day rate: $950/day"),"Opportunity preview day rate differs from list");
+  assert(!(await dialog.innerText()).includes("$850–$1,050"),"Rate range unexpectedly reintroduced");
+  await dialog.getByRole("button", { name: "Accept" }).click();
+  assert(await page.getByRole("status").filter({hasText:"Opportunity accepted at $950/day for Gulf Horizon Refinery Upgrade"}).count() === 1,
+    "Acceptance confirmation does not preserve exact fictional offered day rate and project");
+  await firstOpportunity.getByRole("button", { name: "Preview Opportunity" }).click();
+  assert(await dialog.count() === 1, "Opportunity preview did not reopen after acceptance");
   await dialog.getByRole("button", { name: "Decline" }).click();
   assert(await page.getByRole("status").filter({ hasText: "Opportunity declined" }).count() === 1, "Declined feedback missing in Opportunities");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
