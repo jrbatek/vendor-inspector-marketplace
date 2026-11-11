@@ -1,3 +1,16 @@
+## 2026-11-11 — Calendar view transitions track the inspector-selected day
+- Fix synthetic InspectorHub Calendar Month-to-Week transitions that reopened a stale earlier week after clicking a date on the Month calendar. Month/List also follow the current selected start date. View switching never writes availability, touches private events or changes production data.
+- Add hosted Chromium interaction coverage (November 25 selected in Month must appear pressed in Week, not reset to old week) and independent source regression checks. Preserve Month default, private Doctor Appointment and Our Anniversary, Block dates, responsive controls, and assignment navigation.
+- Safe demo-only batch. Require GitHub Validate application and Autonomous QA (unit, synthetic, migrations, typecheck, build, browser), same-commit Vercel preview READY before merge, then exact-main production READY/smoke.
+
+### 2026-11-11 CI remediation follow-up: Firefox container HOME
+- Official Playwright image successfully avoided the failing host Ubuntu APT/DNS dependency installation. Both workflows passed tests, typecheck, build, and Chromium headed/headless checks, then Firefox refused launch because the container runs as root with GitHub-provided `HOME=/github/home` owned by `pwuser`. Runner error explicitly instructs using `HOME=/root` for Playwright in GitHub Actions. Set HOME only for both mandatory Firefox smoke steps (do not skip Firefox or weaken assertions); rerun all gates. No app files changed.
+
+## 2026-11-11 — GitHub Actions browser-install DNS blocker triage (CI infrastructure PR)
+- Both mandatory CI workflows for #252/#253/#254 stalled at `npx playwright install --with-deps chromium firefox` after successful tests, migrations, synthetic checks, typecheck and build. A cancelled run's full log shows repeated `Temporary failure resolving azure.archive.ubuntu.com / archive.ubuntu.com / security.ubuntu.com`, not a test failure. At least the first pair reached the 25-minute timeout.
+- Propose pinning the existing Playwright library to v1.56.1 and running both mandatory workflows in Microsoft's corresponding official `mcr.microsoft.com/playwright:v1.56.1-noble` browser image. Assert Chromium+Firefox executable availability up front; retain ALL Chromium, headed Xvfb, Firefox and route smokes, synthetic/migration/typecheck/build checks. Avoid host apt downloads and do not use Vercel pushes to debug.
+- This is not yet a validated repair until its own GitHub CI and Vercel Preview complete. Do NOT merge queued demo PRs or this infrastructure PR on cancelled/failed checks. No production secrets, deployment settings, live auth, banking or matching behavior touched.
+
 ## 2026-11-11 — Embed complete Qualifications & Documents workflow in InspectorHub
 - Replace InspectorHub Qualifications teaser and separate-page CTA with the existing full synthetic qualification document dashboard inside the persistent green sidebar's right pane. Show sample evidence upload, issue/expiry/verification statuses, preview/share dialogs, and regional/expertise-relevant recommendations with authoritative issuer links. No production share, file upload, credentials or real identity data.
 - Preserve standalone /demo/inspector-documents for direct links; omit its redundant Back link in embedded mode, use no nested main landmark and remove embedded page margins for responsive layout.
@@ -2453,9 +2466,3 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 ### 2026-11-09 — P0-B mobile Source of Inspectors and channel-state regression
 - Expanded built-app Chromium sourcing smoke into a separate 390px mobile browser session, checking all three Source of Inspectors selectors fit the viewport and remain legible in rest, hover, selected and keyboard-focus states. Tests selected/unselected Agency and Independent channel text contrast, source-specific counts, visible channel confirmation, selection clearing across source changes, and returning to both sources.
 - Added deterministic test contracts for the mobile interactions. No production records, matching rules, auth/RLS, private data, payment/bank information, or schema touched. Change is isolated from the Client Demo NCR drilldown PR; validate both exact-head GitHub workflows, migrations, synthetic fixtures, typecheck/build and Chromium smoke plus preview READY before sequential merge, followed by production READY/smoke.
-
-## 2026-11-11 — Enforce InspectorHub green sidebar text links in real browser visibility QA
-- Extend existing desktop and mobile Chromium demo-control audit to check computed label, transparent background, zero rounded radius and shadow-free styling for every InspectorHub navigation link. Exercise Work History active, hovered and Income focused states; verify the selected section renders its full inline dashboard.
-- Protect the owner's November 10 visual correction against regression to black/navy rounded button pills despite global button CSS. Add independent source regression coverage. This is validation-only, with no route/role/payment/production data changes.
-- Gate on complete GitHub-hosted tests, synthetic-data validation, migration checks, typecheck, production build and Chromium smoke, Vercel Preview READY before merge, then exact production READY/smoke.
-

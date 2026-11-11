@@ -168,6 +168,14 @@ try {
   assert(await cal.getByLabel("Start date").inputValue() === "2026-11-11", "Week date must prefill start");
   assert(await cal.getByLabel("End date").inputValue() === "2026-11-11", "Week date must prefill end");
   assert((await weekDatePicker.locator("xpath=..").innerText()).includes("Not set"), "Week date selection must not auto-mark availability");
+  // Month → Week must show the newly chosen day, not an older week anchor.
+  await tabs.getByRole("button", { name: "Month" }).click();
+  await cal.getByRole("button", { name: "Choose 2026-11-25 for availability" }).click();
+  await tabs.getByRole("button", { name: "Week" }).click();
+  assert(await cal.getByLabel("Week containing").inputValue() === "2026-11-25",
+    "Month to Week switched to stale anchor instead of selected day");
+  assert(await cal.getByRole("button", { name: "Choose 2026-11-25 for availability" }).getAttribute("aria-pressed") === "true",
+    "Switching Month to Week lost the selected day");
   await tabs.getByRole("button", { name: "List" }).click();
   assert(await tabs.getByRole("button", { name: "List" }).getAttribute("aria-pressed") === "true", "List view cannot be selected");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "List view lacks privacy label for external events");
