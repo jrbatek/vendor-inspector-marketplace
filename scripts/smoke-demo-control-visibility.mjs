@@ -152,11 +152,11 @@ try {
         await page.getByRole("button", { name: "Clear invoice filter" }).click();
         if (await page.locator("article.invoice").count() !== 4)
           throw new Error("Clearing invoice filter must restore all four synthetic invoices");
-        const tabs = page.getByRole("tablist", { name: "Client operations sections" });
-        await tabs.getByRole("tab", { name: "Billing & Payment" }).focus();
-        await page.keyboard.press("ArrowRight");
-        if (await tabs.getByRole("tab", { name: "Contracts" }).getAttribute("aria-selected") !== "true")
-          throw new Error("Client operations ArrowRight did not activate Contracts");
+        const sidebar = page.getByRole("complementary", { name: "Client Workspace navigation" });
+        await sidebar.getByRole("link", { name: "Contracts", exact: true }).click();
+        await page.getByRole("region", { name: "Contracts" }).waitFor();
+        if (await sidebar.getByRole("link", { name: "Contracts", exact: true }).getAttribute("aria-current") !== "page")
+          throw new Error("Contracts sidebar link did not become active");
         const contractTabs = page.getByRole("tablist", { name: "Contract relationship types" });
         await contractTabs.getByRole("tab", { name: "InspectSource" }).focus();
         await page.keyboard.press("End");
@@ -165,7 +165,6 @@ try {
         await page.keyboard.press("Home");
         if (await contractTabs.getByRole("tab", { name: "InspectSource" }).getAttribute("aria-selected") !== "true")
           throw new Error("Contract tabs Home did not restore InspectSource");
-        // An agreement whose fictional expiry is Sep 30, 2026 must not appear Active in the November demo.
         await contractTabs.getByRole("tab", { name: "Individual Inspectors" }).click();
         const expired = page.locator(".contractWrap").first();
         if (!(await expired.innerText()).includes("Expired") || !(await expired.innerText()).includes("Sep 30, 2026"))
@@ -175,14 +174,20 @@ try {
         }));
         if (expiredColor.background !== "rgb(255, 247, 237)" || expiredColor.color !== "rgb(154, 52, 18)")
           throw new Error("Expired inspector contract status is not visibly legible: " + JSON.stringify(expiredColor));
-        await contractTabs.getByRole("tab", { name: "InspectSource" }).click();
-        await tabs.getByRole("tab", { name: "Contracts" }).focus();
-        await page.keyboard.press("ArrowLeft");
-        if (await tabs.getByRole("tab", { name: "Billing & Payment" }).getAttribute("aria-selected") !== "true")
-          throw new Error("Client operations ArrowLeft did not activate Billing");
-        await page.keyboard.press("ArrowLeft");
-        if (await tabs.getByRole("tab", { name: "Client Profile" }).getAttribute("aria-selected") !== "true")
-          throw new Error("Client operations ArrowLeft did not wrap to Profile");
+        await sidebar.getByRole("link", { name: "Billing & Payment" }).click();
+        await page.getByRole("region", { name: "Billing & Payment" }).waitFor();
+        await sidebar.getByRole("link", { name: "Profile", exact: true }).click();
+        await page.getByRole("region", { name: "Client Profile" }).waitFor();
+        if (await sidebar.getByRole("link", { name: "Profile", exact: true }).getAttribute("aria-current") !== "page")
+          throw new Error("Client Profile sidebar link did not become active");
+        await page.goBack();
+        await page.getByRole("region", { name: "Billing & Payment" }).waitFor();
+        if (await sidebar.getByRole("link", { name: "Billing & Payment" }).getAttribute("aria-current") !== "page")
+          throw new Error("Browser back failed to restore Billing section and sidebar highlight");
+        await page.goForward();
+        await page.getByRole("region", { name: "Client Profile" }).waitFor();
+        if (await page.getByRole("tablist", { name: "Client operations sections" }).count())
+          throw new Error("Redundant in-content client section buttons remain");
         if (errors.length) throw new Error("Client operations keyboard interactions threw: " + errors.join("\\n"));
       }
       console.log("Demo control visibility OK:", width + "px", route, result.checked);
