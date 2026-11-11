@@ -1,3 +1,8 @@
+## 2026-11-10 — Prevent stale-production-alias false positives in commit-specific smoke tests
+- GitHub push production smoke could report successful HTTP routes while Vercel was still building the newly merged main SHA, because the canonical alias could serve the previous release. This occurred during the smoke/production readiness window following #246; a smoke result without exact-commit READY is not proof that the latest release was deployed.
+- Gate HTTP smoke on GitHub's exact merged-main Vercel status SUCCESS, reject if the main branch advances or Vercel reports failure/error, and retain all existing route/marker/Demo Mode/retry checks. Bound the wait and extend the runner timeout. Add deterministic release-workflow regression tests.
+- This changes only release smoke orchestration, not authorization, application runtime, data, payments, privacy, matching or deployment behavior. Require both exact-head CI suites, Vercel preview READY, and post-merge production READY + exact-commit smoke; treat this release-safety PR separately from functional Client Demo #246 and Client Analytics #154.
+
 ## 2026-11-10 — Client Demo shared sidebar browser navigation/geometry regression
 - Extend existing hosted Chromium Client Demo smoke with real computed desktop width/background/side-by-side layout and mobile stacked layout checks on both Inspections in Progress and Client commercial pages.
 - Exercise sidebar-only Billing & Payment → Contracts → Profile navigation, active highlights, contract-type filtering, browser back/forward, direct-link restoration and return to seven synthetic in-progress inspections without login.
