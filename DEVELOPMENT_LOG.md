@@ -2453,3 +2453,9 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 ### 2026-11-09 — P0-B mobile Source of Inspectors and channel-state regression
 - Expanded built-app Chromium sourcing smoke into a separate 390px mobile browser session, checking all three Source of Inspectors selectors fit the viewport and remain legible in rest, hover, selected and keyboard-focus states. Tests selected/unselected Agency and Independent channel text contrast, source-specific counts, visible channel confirmation, selection clearing across source changes, and returning to both sources.
 - Added deterministic test contracts for the mobile interactions. No production records, matching rules, auth/RLS, private data, payment/bank information, or schema touched. Change is isolated from the Client Demo NCR drilldown PR; validate both exact-head GitHub workflows, migrations, synthetic fixtures, typecheck/build and Chromium smoke plus preview READY before sequential merge, followed by production READY/smoke.
+
+## 2026-11-11 — Enforce InspectorHub green sidebar text links in real browser visibility QA
+- Extend existing desktop and mobile Chromium demo-control audit to check computed label, transparent background, zero rounded radius and shadow-free styling for every InspectorHub navigation link. Exercise Work History active, hovered and Income focused states; verify the selected section renders its full inline dashboard.
+- Protect the owner's November 10 visual correction against regression to black/navy rounded button pills despite global button CSS. Add independent source regression coverage. This is validation-only, with no route/role/payment/production data changes.
+- Gate on complete GitHub-hosted tests, synthetic-data validation, migration checks, typecheck, production build and Chromium smoke, Vercel Preview READY before merge, then exact production READY/smoke.
+
