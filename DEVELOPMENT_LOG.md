@@ -1,3 +1,8 @@
+## 2026-11-11 — Client Analytics crash recovery retains Client Workspace navigation (safe demo-only PR)
+- When the synthetic Analytics page encounters the still-unresolved browser-specific exception (#154), show the same fixed-width dark-blue Client Workspace sidebar beside the recoverable error panel, rather than replacing the client shell with a standalone centered page.
+- Keep demo-only navigation targets, error details, reset action, accessible mobile single-column fallback, and strict no-login boundary. No assertion that the underlying exception is fixed; no telemetry or database changes.
+- Added source regression assertions for desktop two-column geometry, mobile collapse and synthetic navigation. Required CI, migration/synthetic validation, build, Playwright and Vercel Preview READY must pass before merge; verify production READY/smoke afterward.
+
 ## 2026-11-11 — Embed complete Qualifications & Documents workflow in InspectorHub
 - Replace InspectorHub Qualifications teaser and separate-page CTA with the existing full synthetic qualification document dashboard inside the persistent green sidebar's right pane. Show sample evidence upload, issue/expiry/verification statuses, preview/share dialogs, and regional/expertise-relevant recommendations with authoritative issuer links. No production share, file upload, credentials or real identity data.
 - Preserve standalone /demo/inspector-documents for direct links; omit its redundant Back link in embedded mode, use no nested main landmark and remove embedded page margins for responsive layout.

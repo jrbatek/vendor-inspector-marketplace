@@ -32,3 +32,13 @@ test("client-only Analytics recovery offers bounded, copyable synthetic crash di
   assert.match(content,/No account data is accessed and no error information is submitted automatically/);
   assert.doesNotMatch(content,/navigator\.sendBeacon|fetch\(|\.insert\(|\.update\(|\/client-dashboard/);
 });
+
+
+test("Analytics exception recovery preserves Client Demo two-column shell and mobile navigation",()=>{
+  assert.match(content,/import ClientWorkspaceSidebar from "@\/components\/ClientWorkspaceSidebar"/);
+  assert.match(content,/<ClientWorkspaceSidebar demo\s*\/>/);
+  assert.match(content,/grid-template-columns:250px minmax\(0,1fr\)/);
+  assert.match(content,/@media\(max-width:980px\)\{\.analyticsRecovery\{grid-template-columns:1fr\}\}/);
+  assert.match(content,/Technical details for troubleshooting/);
+  assert.doesNotMatch(content,/href="\/client-dashboard|href="\/login/);
+});

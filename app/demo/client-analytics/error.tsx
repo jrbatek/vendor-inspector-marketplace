@@ -1,5 +1,7 @@
 "use client";
 
+import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
+
 type DemoAnalyticsErrorProps = {
   error: Error & { digest?: string };
   reset: () => void;
@@ -17,6 +19,7 @@ export default function ClientAnalyticsError({ error, reset }: DemoAnalyticsErro
     error.stack ? `Stack: ${error.stack}` : "Stack trace unavailable in this browser",
   ].filter(Boolean).join("\n").slice(0, 6000);
   return <main className="analyticsRecovery" role="main">
+    <ClientWorkspaceSidebar demo />
     <section className="recoveryPanel" aria-labelledby="analytics-recovery-title">
       <p className="eyebrow">Client Demo · Synthetic data only</p>
       <h1 id="analytics-recovery-title">Analytics view could not load</h1>
@@ -35,8 +38,8 @@ export default function ClientAnalyticsError({ error, reset }: DemoAnalyticsErro
       <p className="fine">This is a demo recovery view, not a request to log into the live client workspace.</p>
     </section>
     <style jsx>{`
-      .analyticsRecovery{min-height:65vh;display:grid;place-items:center;padding:30px 18px;background:#f8fafc;color:#0f172a}
-      .recoveryPanel{background:#fff;border:1px solid #cbd5e1;border-radius:14px;padding:28px;width:min(100%,710px);box-shadow:0 8px 30px rgba(15,23,42,.06)}
+      .analyticsRecovery{max-width:1440px;margin:0 auto;min-height:65vh;display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px;align-items:start;padding:18px;background:#f8fafc;color:#0f172a}
+      .recoveryPanel{background:#fff;border:1px solid #cbd5e1;border-radius:14px;padding:28px;min-width:0;width:100%;box-sizing:border-box;box-shadow:0 8px 30px rgba(15,23,42,.06)}
       .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#115e59;margin:0}
       h1{font-size:clamp(1.5rem,3vw,2rem);margin:10px 0}
       p{line-height:1.6;color:#334155}
@@ -52,6 +55,7 @@ export default function ClientAnalyticsError({ error, reset }: DemoAnalyticsErro
       .diagnostics p{font-size:.85rem;color:#334155}
       .diagnostics pre{max-height:240px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.75rem;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:12px}
       .fine{font-size:.8rem;color:#475569}
+      @media(max-width:980px){.analyticsRecovery{grid-template-columns:1fr}}
     `}</style>
   </main>;
 }
