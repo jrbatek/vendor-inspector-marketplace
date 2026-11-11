@@ -1,4 +1,8 @@
 
+## 2026-11-10 — Client Demo sidebar commercial navigation (revalidated PR #240)
+- Restore desktop fixed-width dark-blue left Client Workspace sidebar, mobile collapse and Billing/Contracts/Profile sidebar-only routing with back/forward; remove redundant content buttons. Preserve seven no-login synthetic inspections and PDF/NCR filters.
+- Built as safe demo-only UI. Require all CI and Vercel preview READY before merge and production smoke READY after.
+
 ## 2026-11-10 — Inspector Demo owner UI correction batch (pending validated release)
 - Removed InspectorHub Demo region selector and full Profile Strength card, kept synthetic geography/qualifications internally. Added strong explicit transparent override to sidebar text buttons to eliminate global black-pill style.
 - Grouped simulated Google/Outlook/Other calendar controls with responsive sizing; no external OAuth.
