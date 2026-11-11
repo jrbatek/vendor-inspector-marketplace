@@ -1,4 +1,9 @@
 
+## 2026-11-10 — Client commercial Suspense SSR smoke visibility (post-#240)
+- Production smoke failed on /demo/client-operations because Next.js server-rendered only its Suspense fallback while query-based commercial content hydrates; the previously expected route heading and Demo Mode label were present only inside the client component. All other checked production routes passed.
+- Added the correct route-specific heading and explicit synthetic Demo Mode boundary to the server-visible loading fallback, preserving query/active-sidebar navigation and client-side content. Added a regression contract to ensure release smoke and fallback remain aligned; no production auth, account data, payments or matching changes.
+- Release gates: GitHub-hosted unit/synthetic/migrations/typecheck/build/browser, Vercel preview READY before merge; production READY and route smoke after.
+
 ## 2026-11-10 — Embedded InspectorHub Work History and Income Center (PR #242, validated rebase)
 - Embed existing full synthetic Work History and 2026-YTD Income dashboards inside the persistent InspectorHub green sidebar instead of teaser links. Preserve stand-alone URLs, safe sample PDFs and filters.
 - Enable sidebar section hash navigation/back-forward, update route browser smoke and regression tests. Align older banner isolation regression with new pushState behavior. No live bank, tax, authentication, matching or payments changes.
