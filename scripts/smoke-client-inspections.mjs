@@ -282,6 +282,34 @@ try{
  await analytics.click();
  await page.waitForURL("**/demo/client-analytics");
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Cross-demo link led to authenticated shell");
+ // Owner Nov 10 P0-A: audit the common two-column shell across all other synthetic
+ // Client Workspace pages, not just Inspections and commercial tabs.
+ const otherClientDemoRoutes=[
+  ["/demo/client","Request Inspectors"],
+  ["/demo/client-analytics","Analytics"],
+  ["/demo/client-history","Completed history within Analytics"],
+  ["/demo/client-agency-sourcing","Source of Inspectors"],
+  ["/demo/client-data","Data & Integrations"]
+ ];
+ for (const [path,label] of otherClientDemoRoutes) {
+  await page.setViewportSize({width:1366,height:900});
+  await page.goto(base+path,{waitUntil:"domcontentloaded"});
+  await page.locator("aside.clientSide").waitFor();
+  await verifyClientSidebarLayout(label+" desktop",true);
+  assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+   label+": synthetic Client Demo must not render authenticated workspace prompt");
+  assert(await page.locator('aside.clientSide a[href^="/client-dashboard"]').count()===0,
+   label+": Client Demo sidebar must never navigate to live client dashboard");
+  await page.setViewportSize({width:760,height:900});
+  await verifyClientSidebarLayout(label+" mobile",false);
+ }
+ // Finish the multi-page audit at the owner's seven-record priority demo entry.
+ await page.setViewportSize({width:1366,height:900});
+ await page.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+ await page.locator("article.inspection").first().waitFor();
+ assert(await page.locator("article.inspection").count()===7,
+  "Multi-page sidebar audit lost the seven no-login in-progress demo inspections");
+ await verifyClientSidebarLayout("Client Inspections after route audit",true);
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
