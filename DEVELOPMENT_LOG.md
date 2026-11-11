@@ -1,4 +1,8 @@
 
+## 2026-11-10 — Agency one-page scrollspy and final three section removals (PR #241)
+- Remove visible Analytics, Find Inspectors / Recruiting and Integrations from Agency Demo sidebar and sections, retaining one purple-sidebar scrolling page with eight operational sections and scrollspy/hash navigation. Shared capabilities elsewhere untouched.
+- Rebased onto currently merged Client and Inspector fixes. CI and Vercel preview READY required before merge, production smoke after.
+
 ## 2026-11-10 — Client Demo sidebar commercial navigation (revalidated PR #240)
 - Restore desktop fixed-width dark-blue left Client Workspace sidebar, mobile collapse and Billing/Contracts/Profile sidebar-only routing with back/forward; remove redundant content buttons. Preserve seven no-login synthetic inspections and PDF/NCR filters.
 - Built as safe demo-only UI. Require all CI and Vercel preview READY before merge and production smoke READY after.
