@@ -268,6 +268,23 @@ try {
   assert(await calendar.getByText(/Private events cannot be cleared/).count() === 1,"Clearing must not override imported personal Busy events");
   await calendar.getByRole("button", { name: "Connect Outlook Calendar" }).click();
   assert(await calendar.getByText(/demo|simulat/i).count() > 0, "Calendar connection is not clearly labeled simulated");
+  // Qualifications follow the same persistent InspectorHub sidebar pattern as Work History and Income.
+  await navigation.getByRole("button", { name: "Qualifications & Documents" }).click();
+  assert(page.url().endsWith("#qualifications"), "Qualifications sidebar must retain correct deep-link");
+  const inlineDocuments=page.locator(".page.embedded");
+  assert(await inlineDocuments.getByRole("heading", { name: "Qualification Documents" }).count()===1,
+    "Full Qualifications workflow must render inside InspectorHub right pane");
+  assert(await inlineDocuments.getByRole("heading", { name: "Add Qualification & Upload Documentation" }).count()===1,
+    "Inline qualification evidence form is missing");
+  assert(await inlineDocuments.getByRole("heading", { name: "Recommended Additional Qualifications" }).count()===1,
+    "Inline demand-ranked qualification recommendations missing");
+  assert(await inlineDocuments.locator("article.document").count()===3,"Three baseline fictional certificate documents expected");
+  assert(await inlineDocuments.getByRole("link",{name:"Back to Inspector Demo"}).count()===0,
+    "Embedded qualifications must omit the redundant standalone back link");
+  await inlineDocuments.getByRole("button",{name:"View certificate"}).first().click();
+  assert(await page.getByRole("dialog").count()===1,"Inline synthetic certificate preview must open");
+  await page.getByRole("button",{name:"Close certificate preview"}).click();
+  assert(await page.getByRole("dialog").count()===0,"Inline synthetic certificate preview must close");
   await navigation.getByRole("button", { name: "Work History" }).click();
   assert(await page.getByRole("heading", { name: "Work History" }).count() === 1, "Full Work History must render directly beside green sidebar");
   assert(new URL(page.url()).pathname === "/demo/inspector", "Work History must not redirect to standalone route");
