@@ -1,3 +1,7 @@
+## 2026-11-11 — Inspector Calendar labels Personal Busy without changing privacy semantics
+- Updated the synthetic Calendar legend and Block Dates selector to display “Personal Busy” rather than the ambiguous “Busy”, matching the owner-approved availability taxonomy. The internal Busy value, private appointment names, conflict handling and client-only Busy redaction remain unchanged.
+- Added static regression assertions and a real Chromium smoke check of both labels and underlying option value. No real calendar OAuth, production data or auth changes. Pending full GitHub-hosted validation, Vercel Preview READY and exact-commit release smoke before merging.
+
 ## 2026-11-11 — Calendar preserves inspector-added demo Block Dates across section navigation
 - Fixed an interactive Calendar state-loss regression: clicking another InspectorHub section unmounted Availability & Calendar and discarded browser-local Block Dates, selected range and Month/Week/List choice. Keep one Calendar mounted in a natively hidden non-focusable pane when inactive, retaining session state until a full reload.
 - Extended Chromium smoke to Block November 29, visit Active Assignments, check the inactive Calendar is absent from the accessibility tree, return and verify the Unavailable block, selected start date and Month view, then clear only the inspector-added date. No client-visible private titles, production calendar writes, auth, RLS, bank/payment, PII, matching or OAuth changes.

@@ -104,6 +104,9 @@ try {
   assert(await page.getByText("Opportunity declined").count() === 0, "Opportunity feedback leaked across InspectorHub sections");
   const cal = page.getByRole("region", { name: "Inspector availability calendar" });
   assert(await cal.count() === 1, "Calendar missing");
+  assert(await cal.locator(".legend .busy").innerText() === "Personal Busy", "Calendar legend must clearly name Personal Busy");
+  const busyOption = cal.locator(".availabilityActions select option[value=\"Busy\"]");
+  assert(await busyOption.innerText() === "Personal Busy", "Block Dates should label Personal Busy without altering its underlying status");
   const tabs = cal.getByRole("group", { name: "Calendar view" });
   assert(await tabs.getByRole("button", { name: "Month" }).getAttribute("aria-pressed") === "true", "Month not the default calendar view");
   assert(await cal.getByText(/Our Anniversary · All day/).count() >= 1, "Private synthetic anniversary missing");
