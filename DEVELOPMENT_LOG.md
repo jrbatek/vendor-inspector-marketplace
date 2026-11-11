@@ -1,3 +1,6 @@
+## 2026-11-11 — Analytics exception recovery after Agency CTA merge
+- Reconciled synthetic-only Analytics recovery sidebar with latest validated #254 main, preserving full layout/links and pending independent root-cause investigation #154. Re-run all gates before merge.
+
 ## 2026-11-11 — Homepage Agency CTA repaired for retained one-page Resource Pool
 - Reconciled #254 with current main: the obsolete recruiting hash CTA now opens retained Agency Resource Pool, and agency copy reflects eight approved sections. Chromium tests cover homepage click, hash and scrollspy; no production behavior or data affected.
 
