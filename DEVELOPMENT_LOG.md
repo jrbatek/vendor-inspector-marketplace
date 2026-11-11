@@ -1,3 +1,9 @@
+
+## 2026-11-10 — Inspector Demo owner UI correction batch (pending validated release)
+- Removed InspectorHub Demo region selector and full Profile Strength card, kept synthetic geography/qualifications internally. Added strong explicit transparent override to sidebar text buttons to eliminate global black-pill style.
+- Grouped simulated Google/Outlook/Other calendar controls with responsive sizing; no external OAuth.
+- Offered one fixed synthetic day rate for each opportunity (OP-1048 $950/day; OP-1051 $1,050/day; OP-1057 £725/day) in list and preview; clarified expenses/OT.
+- Added tests. CI, preview READY, sequential merge and production smoke remain mandatory. No live pay/auth/payment changes.
 ### 2026-11-10 — P0-B: restore keyboard-accessible live file uploads without changing upload behavior
 - Found the Client Find Inspectors “Upload Scope” and InspectorHub “Upload CSV” native file inputs styled with `display:none`, which removes them from keyboard focus and leaves their visible custom labels inaccessible without a pointer. Replaced only those CSS rules with focusable visually-hidden native inputs, legible hover states and high-contrast `:focus-within` outlines, following the working Client Demo upload pattern.
 - Added deterministic source regression tests for both inputs, accessible focus treatment, preserved accepted formats and absence of `display:none`. This CSS-only fix does not change upload processing, live credentials, DB writes, authorization, matching, financial data or demo fixtures.
