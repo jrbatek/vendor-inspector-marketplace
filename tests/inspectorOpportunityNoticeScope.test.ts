@@ -10,9 +10,10 @@ test("Opportunity Declined success/error notices stay in their originating Inspe
  assert.match(page,/setNoticeSection\(null\);setOpp\(null\);setAssignment\(null\);setSection\(s\)/);
  assert.match(page,/setNotice\(""\)/);
 });
-test("each preview and region change resets stale opportunity notice, with no live writes",()=>{
+test("each preview and sidebar change resets stale notice without an obsolete region control or live writes",()=>{
  assert.match(page,/setNotice\(""\);setNoticeSection\(null\);setOpp\(o\)/);
- assert.match(page,/setRegion\(e\.target\.value as Region\);setNotice\(""\);setNoticeSection\(null\)/);
+ assert.doesNotMatch(page, /<label>Demo region|setRegion\(/);
+ assert.match(page,/setNotice\(""\);setNoticeSection\(null\);setOpp\(null\);setAssignment\(null\);setSection\(s\)/);
  assert.match(page,/Opportunity declined/);
  assert.doesNotMatch(page,/supabaseBrowser|\.insert\(|\.update\(|fetch\(/);
 });
