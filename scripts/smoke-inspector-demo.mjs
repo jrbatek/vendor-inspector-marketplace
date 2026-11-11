@@ -266,6 +266,21 @@ try {
   assert(await calendar.getByText("1 dates updated in this synthetic session only.").count() === 1, "Non-conflicting synthetic date update failed");
   const manuallyBlocked = calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).locator("xpath=..");
   assert((await manuallyBlocked.innerText()).includes("Unavailable"),"Demo block did not display an Unavailable calendar event");
+  // Browser-local Calendar edits must survive trips to other InspectorHub sections,
+  // without leaking the inactive calendar into keyboard or screen-reader navigation.
+  await navigation.getByRole("button", { name: "Active Assignments" }).click();
+  assert(await page.getByRole("region", { name: "Inspector availability calendar" }).count() === 0,
+    "Inactive Calendar must be hidden from the accessibility tree");
+  await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
+  assert((await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" })
+    .locator("xpath=..").innerText()).includes("Unavailable"),
+    "Inspector-added demo Block Dates disappeared after sidebar navigation");
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-29",
+    "Returning to Calendar lost the inspector-selected date");
+  assert(await calendar.getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Month" }).getAttribute("aria-pressed") === "true",
+    "Returning to Calendar changed the selected calendar view");
+
   await calendar.getByRole("button", { name: "Clear inspector-added demo dates" }).click();
   assert(await calendar.getByText(/1 inspector-added demo date cleared/).count() === 1,"Manual clearing did not confirm one removed synthetic date");
   assert((await manuallyBlocked.innerText()).includes("Not set"),"Cleared inspector-added date did not return to Not set");
