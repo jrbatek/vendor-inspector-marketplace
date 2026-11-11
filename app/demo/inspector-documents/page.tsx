@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { INSPECTOR_QUALIFICATION_CATALOG, type QualificationCategory } from "@/lib/inspector-qualification-catalog";
 import { DEMO_DOCUMENT_AS_OF, DEMO_FOCUS_AREAS, MAX_SAMPLE_FILE_BYTES, validateQualificationDraft, validateSampleFile, expiryStatus, recommendDemoQualifications, type DemoRegion } from "@/lib/demoQualificationWorkflow";
 
@@ -26,6 +27,7 @@ const DOCUMENTS: DemoDocument[] = [
 ];
 
 export default function InspectorQualificationDocumentsDemo() {
+  const embedded = usePathname() === "/demo/inspector";
   const [documents, setDocuments] = useState(DOCUMENTS);
   const [qualificationId, setQualificationId] = useState("api-510");
   const [issued, setIssued] = useState("");
@@ -100,12 +102,12 @@ export default function InspectorQualificationDocumentsDemo() {
   }
 
   return (
-    <main className="page">
+    <div className={embedded ? "page embedded" : "page"} role={embedded ? undefined : "main"}>
       <header className="hero">
         <p className="eyebrow">InspectorHub · Demo Mode</p>
         <h1>Qualification Documents</h1>
         <p>View qualification evidence and preview permission-gated sharing. Built-in records are synthetic; no production certificates or personal data are used. Use sample files only. Added files remain in memory in this page and are cleared on refresh or when you leave; nothing is sent to a server.</p>
-        <a href="/demo/inspector">Back to Inspector Demo</a>
+        {!embedded && <a href="/demo/inspector">Back to Inspector Demo</a>}
       </header>
 
       {notice && <p className="notice" role="status">{notice}</p>}
@@ -178,9 +180,9 @@ export default function InspectorQualificationDocumentsDemo() {
       </div>}
 
       <style jsx>{`
-        .page{max-width:1100px;margin:auto;padding:28px 18px 70px;color:#163331}.hero,.card{background:#fff;border:1px solid #d8e6e3;border-radius:18px;padding:24px}.hero{margin-bottom:18px}.hero h1,.card h2{margin:4px 0 8px}.eyebrow{margin:0;text-transform:uppercase;letter-spacing:.08em;font-size:.76rem;font-weight:800;color:#14766d}.sectionHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.badge,.status{border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800}.badge{background:#e8f5f2;color:#12665f}.documents{display:grid;gap:12px;margin-top:18px}.document{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;border:1px solid #dce8e6;border-radius:14px;padding:16px}.document strong,.document span{display:block}.document div>span{margin-top:5px;color:#607572;font-size:.9rem}.status.ok{background:#e6f6ed;color:#17663a}.status.warning{background:#fff3d6;color:#7a5200}.status.pending{background:#eff6ff;color:#1e40af}.actions,.shareActions{display:flex;gap:8px;flex-wrap:wrap}button{border:1px solid #0d6f67;border-radius:10px;background:#0d6f67;color:#fff;padding:9px 12px;font-weight:800;cursor:pointer}button:hover{background:#095a54}button:focus-visible{outline:3px solid #72c8bf;outline-offset:2px}.secondary,.close{background:#fff;color:#0d6f67}.secondary:hover,.close:hover{background:#e8f5f2}.privacy,.notice{margin-top:18px;padding:12px 14px;border-radius:12px;background:#f3f8f7;color:#365754}.notice{border:1px solid #b9ddd7}.backdrop{position:fixed;inset:0;background:rgba(8,34,31,.58);display:grid;place-items:center;padding:20px;z-index:50}.dialog{width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.25)}.preview{min-height:300px;margin-top:18px;border:2px solid #bfd8d4;border-radius:14px;padding:30px;display:grid;place-content:center;text-align:center;background:#f8fbfa}.preview span{font-size:.72rem;letter-spacing:.12em;color:#718985}.preview strong{font-size:1.35rem;margin-top:18px}.shareActions{margin-top:18px}@media(max-width:760px){.document{grid-template-columns:1fr}.sectionHead{align-items:flex-start}.actions{width:100%}.actions button{flex:1}}
+        .page{max-width:1100px;margin:auto;padding:28px 18px 70px;color:#163331}.page.embedded{max-width:none;margin:0;padding:0}.hero,.card{background:#fff;border:1px solid #d8e6e3;border-radius:18px;padding:24px}.hero{margin-bottom:18px}.hero h1,.card h2{margin:4px 0 8px}.eyebrow{margin:0;text-transform:uppercase;letter-spacing:.08em;font-size:.76rem;font-weight:800;color:#14766d}.sectionHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.badge,.status{border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800}.badge{background:#e8f5f2;color:#12665f}.documents{display:grid;gap:12px;margin-top:18px}.document{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;border:1px solid #dce8e6;border-radius:14px;padding:16px}.document strong,.document span{display:block}.document div>span{margin-top:5px;color:#607572;font-size:.9rem}.status.ok{background:#e6f6ed;color:#17663a}.status.warning{background:#fff3d6;color:#7a5200}.status.pending{background:#eff6ff;color:#1e40af}.actions,.shareActions{display:flex;gap:8px;flex-wrap:wrap}button{border:1px solid #0d6f67;border-radius:10px;background:#0d6f67;color:#fff;padding:9px 12px;font-weight:800;cursor:pointer}button:hover{background:#095a54}button:focus-visible{outline:3px solid #72c8bf;outline-offset:2px}.secondary,.close{background:#fff;color:#0d6f67}.secondary:hover,.close:hover{background:#e8f5f2}.privacy,.notice{margin-top:18px;padding:12px 14px;border-radius:12px;background:#f3f8f7;color:#365754}.notice{border:1px solid #b9ddd7}.backdrop{position:fixed;inset:0;background:rgba(8,34,31,.58);display:grid;place-items:center;padding:20px;z-index:50}.dialog{width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.25)}.preview{min-height:300px;margin-top:18px;border:2px solid #bfd8d4;border-radius:14px;padding:30px;display:grid;place-content:center;text-align:center;background:#f8fbfa}.preview span{font-size:.72rem;letter-spacing:.12em;color:#718985}.preview strong{font-size:1.35rem;margin-top:18px}.shareActions{margin-top:18px}@media(max-width:760px){.document{grid-template-columns:1fr}.sectionHead{align-items:flex-start}.actions{width:100%}.actions button{flex:1}}
         .addCard,.recommendationCard{margin-bottom:18px}.dateFields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.addCard form{margin-top:16px}.expiry{color:#475569;font-size:.85rem}.recommendations{padding-left:24px}.recommendations li{padding:14px 0;border-top:1px solid #dce8e6}.recommendations p{line-height:1.6;color:#475569}.recommendations a,.localPreview a{color:#115e59;font-weight:800;text-decoration:underline;display:block;margin:12px 0}.recommendations button{display:block}.localPreview img{max-width:100%;max-height:60vh;object-fit:contain}.localPreview iframe{width:100%;height:55vh;border:1px solid #cbd5e1}input,select{color:#0f172a;background:#fff;border-color:#64748b}button:disabled{background:#e2e8f0;color:#475569;border-color:#94a3b8}.backdrop{z-index:200}@media(max-width:760px){.dateFields{grid-template-columns:1fr}}
       `}</style>
-    </main>
+    </div>
   );
 }
