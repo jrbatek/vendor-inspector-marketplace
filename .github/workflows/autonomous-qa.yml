@@ -69,6 +69,10 @@ jobs:
 
       - name: Exercise Client Analytics source transitions in Firefox
         run: ANALYTICS_BROWSER=firefox npm run smoke:client-analytics
+        env:
+          # Official Playwright image runs as root; GitHub sets /github/home (pwuser-owned).
+          # Firefox refuses to launch when HOME is not owned by the current user.
+          HOME: /root
 
       - name: Exercise active Client Demo in real Chromium
         run: npm run smoke:client-inspections
