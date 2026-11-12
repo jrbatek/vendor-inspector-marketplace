@@ -1,3 +1,10 @@
+## 2026-11-11 — Agency Mass Resource Connect scrollspy last-section remediation
+- Autonomous QA passed unit tests, synthetic-data checks, migrations, typecheck, build and most browser tests, but its real Chromium scrollspy test timed out after clicking Contracts & Commercials. The short final section cannot always rise above the earlier fixed pixel threshold; preserve normal scrolling and select the final section once it meaningfully enters the viewport (or the page reaches the bottom). Retain the assertion and rerun both mandatory workflows and Preview READY before merging. No real API calls, credentials or production writes.
+
+## 2026-11-11 — Agency Mass Resource Connect demo walkthrough (safe independent batch)
+- Renamed the one-page Agency Demo Bulk Upload entry to Mass Resource Connect, preserved the CSV roster template, and added a functional simulated Connect API walkthrough with source choice, field mapping and dry-run status. No credentials, real integrations, production data or affiliation writes; no change to Agency scrollspy architecture.
+- Updated Agency scrollspy navigation and Chromium verification for the renamed anchor and API guide open/source/preview/close sequence. Validation, Vercel preview READY, merge and exact-commit production smoke remain release gates. The separately requested Agency Availability & Capacity removal and 2,823-resource searchable pool are pending follow-on work.
+
 ## 2026-11-11 — Client vertical request layout CI regression assertion updated
 - The first hosted Validate application / Autonomous QA runs on PR #262 failed a legacy source assertion that demanded the old heading `Select your inspection criteria`. Updated the test to require the owner-approved `Structured Selection` heading, preserving its actual behavior and new desktop/mobile browser geometry checks. Re-run all required validation; do not merge on failed checks or assume preview success implies test success.
 

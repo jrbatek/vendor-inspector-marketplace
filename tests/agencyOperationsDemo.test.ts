@@ -9,7 +9,7 @@ const activeInspectionSource = fs.readFileSync(path.join(process.cwd(), "app/dem
 test("agency demo exposes the complete operational workspace spine", () => {
   for (const marker of [
     "Resource Pool & Affiliations",
-    "Bulk Resource Upload",
+    "Mass Resource Connect",
     "Availability & Capacity",
     "Opportunities & source attribution",
     "Active Inspections",
