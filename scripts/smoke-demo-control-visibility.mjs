@@ -236,9 +236,9 @@ try {
           throw new Error(route + " lost its accessible continuous-scroll sidebar links");
         const readContrast = async (link) => link.evaluate(el => {
           const rgb = value => {
-            const found = value.match(/rgba?\\(([^)]+)\\)/);
+            const found = value.match(/rgba?\(([^)]+)\)/);
             if (!found) return null;
-            const numbers = found[1].split(/[\\s,]+/).map(Number);
+            const numbers = found[1].split(/[\s,]+/).map(Number);
             return [...numbers.slice(0, 3), numbers.length > 3 ? numbers[3] : 1];
           };
           const lum = values => values.slice(0, 3).map(value => {
