@@ -28,30 +28,21 @@ try{
  if(await resourceRows.count()!==0)throw Error("Combined nonmatching filters should show empty state");
  if(await page.getByText("No fictional resources match these filters.").count()!==1)throw Error("No-results explanation missing");
  await page.getByRole("button",{name:"Reset resource filters"}).click();
- if(await resourceRows.count()!==5||await resourceSearch.inputValue()!==""||!(await resourceCount.innerText()).includes("5 of 5"))throw Error("Resource filters did not restore all fictional rows");
- const select=page.getByRole("combobox",{name:"Capacity region"});
- const cards=page.locator("#availability-capacity [data-capacity-region]");
- const status=page.locator("#availability-capacity [role=status]");
- if(await cards.count()!==4)throw Error("Expected four fictional region cards");
- if(!(await status.innerText()).includes("39 available / 95 resources"))throw Error("Incorrect overall capacity");
- for(const [region,available,capacity] of [["Gulf Coast",14,32],["Middle East",11,27],["Europe",8,21],["West Africa",6,15]]){
-   await select.selectOption({label:region});
-   if(await cards.count()!==1)throw Error(region+" filter did not isolate one card");
-   if(!(await cards.first().innerText()).includes(available+" available / "+capacity))throw Error(region+" data mismatch");
-   if(!(await status.innerText()).includes("Showing 1 of 4"))throw Error(region+" status mismatch");
- }
- // Export follows the selected fictional region, without hitting any live API.
- await select.selectOption({label:"Europe"});
- const downloadEvent=page.waitForEvent("download");
- await page.getByRole("link",{name:"Download 1 synthetic capacity regions as CSV"}).click();
- const download=await downloadEvent;
- if(download.suggestedFilename()!=="inspectsource-synthetic-agency-capacity.csv")throw Error("Capacity download filename wrong");
+ if(await resourceRows.count()!==5||await resourceSearch.inputValue()!==""||!(await resourceCount.innerText()).includes("5 of 2,823"))throw Error("Resource filters did not restore all fictional rows");
+ // The owner-retired Availability & Capacity UI must remain absent, while the shared
+ // 2,823 fictional resource directory is reachable from the five-row preview.
+ if(await page.locator("#availability-capacity").count())throw Error("Retired Agency Capacity section reappeared");
+ if(await page.locator('aside[aria-label="Agency Workspace navigation"] a[href="#availability-capacity"]').count())
+   throw Error("Retired Capacity sidebar target reappeared");
+ const fullPoolLink=page.getByRole("link",{name:"Search all 2,823 resources"});
+ if(await fullPoolLink.getAttribute("href")!=="/demo/agency-resources")
+   throw Error("Agency roster not linked to complete synthetic resource directory");
+ await fullPoolLink.click();
+ if(!page.url().includes("/demo/agency-resources"))
+   throw Error("Synthetic resource directory is unreachable");
+ await page.goBack({waitUntil:"networkidle"});
+ await page.locator('#reports-ncrs').waitFor({state:"visible"});
  const {readFile}=await import("node:fs/promises");
- const csv=await readFile(await download.path(),"utf8");
- if(!csv.startsWith("\uFEFF")||!csv.includes('"Europe","8","8","3","2","21"')||csv.includes('"Gulf Coast"')||!csv.includes("SYNTHETIC - NOT VERIFIED"))
-   throw Error("Filtered capacity CSV is not synthetic, properly scoped, or export-safe");
- await page.getByRole("button",{name:"Reset capacity"}).click();
- if(await cards.count()!==4)throw Error("Reset did not restore all capacity regions");
  const ncrFilter=page.getByRole("combobox",{name:"Sample NCR status"});
  const reportRows=page.locator('#reports-ncrs tr[data-sample-ncr]');
  const ncrCount=page.locator('#reports-ncrs [role=status]');
@@ -95,6 +86,6 @@ try{
  await page.getByRole("button",{name:"Reset inspection stage"}).click();
  if(await agencyExamples.count()!==3)throw Error("Agency stage reset failed to restore three synthetic inspections");
  if(errors.length)throw Error("Agency capacity/NCR browser errors: "+errors.join("\n"));
- console.log("Agency capacity real-browser regional filter, totals, reset and anonymous demo PASS");
+ console.log("Agency five-of-2823 resource directory, retired capacity, reports/NCR and inspection detail Chromium PASS");
 }catch(e){console.error(e);process.exitCode=1}
 finally{await browser?.close();if(child){child.kill("SIGTERM");setTimeout(()=>child.kill("SIGKILL"),2000).unref()}}
