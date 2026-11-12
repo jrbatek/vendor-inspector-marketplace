@@ -21,7 +21,7 @@ test("accelerated client and inspector demo backlog remains represented", () => 
   assert.match(nav, /className="globalLogin" href="\/login"/);
   assert.doesNotMatch(nav, /Client Login|Agency Login|Inspector Login/);
   assert.match(client, /10,000|10000/);
-  assert.match(client, /Select your inspection criteria/);
+  assert.match(client, /<h2>Structured Selection<\/h2>/);
   assert.match(history, /Active Inspections/);
   assert.match(history, /Pending Requests/);
   assert.match(history, /Submitted Reports/);

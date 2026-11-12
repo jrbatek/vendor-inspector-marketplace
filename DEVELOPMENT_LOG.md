@@ -1,3 +1,11 @@
+## 2026-11-11 — Client vertical request layout CI regression assertion updated
+- The first hosted Validate application / Autonomous QA runs on PR #262 failed a legacy source assertion that demanded the old heading `Select your inspection criteria`. Updated the test to require the owner-approved `Structured Selection` heading, preserving its actual behavior and new desktop/mobile browser geometry checks. Re-run all required validation; do not merge on failed checks or assume preview success implies test success.
+
+## 2026-11-11 — Client Request Inspectors vertical full-width layout (first safe single-page architecture batch)
+- Start the latest owner-directed Client continuous-scroll transition with the three request mechanisms already on the main Client Demo page: Natural Language – AI, Email Requirements and Structured Selection, each in its own full-width vertically stacked section on desktop and mobile. Eliminate three-column tiles and excess fixed card height; keep sidebar, no-login synthetic boundaries, scope upload, email guidance and structured shortlist entry operational.
+- Add source regression and hosted Chromium desktop/mobile geometry and heading-order assertions while preserving seven Client Inspections in Progress and existing demo/live route safety checks. The larger full Client Workspace single-page embed and scrollspy require separate coherent follow-on work; this PR does not claim to complete them.
+- Safe demo-only. Require BOTH mandatory GitHub workflows (unit/synthetic/migrations/typecheck/production build/real browser), exact-head Vercel Preview READY, then merge and exact-main production READY plus smoke. No sensitive auth, PII, banking, payment, OAuth or production matching changes.
+
 ## 2026-11-11 — Agency resource pool browser accessibility coverage correction
 - Hosted mandatory Validate application and Autonomous QA reported the new `/demo/agency-resources` route lacked inclusion in the exhaustive desktop/mobile live contrast audit (`tests/demoControlRouteCoverage.test.ts`). Added this exact route to `scripts/smoke-demo-control-visibility.mjs` rather than weakening the invariant or skipping controls. Require fresh GitHub tests, synthetic-data/migrations/typecheck/build, Chromium checks and Vercel Preview READY on corrected branch before merge. No live data, credentials, RLS or API writes.
 
