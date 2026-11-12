@@ -23,7 +23,7 @@ test("opportunity actions remain simulated and section-scoped",()=>{
    assert.ok(page.includes(action), action);
  }
  assert.match(page,/demoAction\("Opportunity declined"\);closeOpportunity\(\)/);
- assert.match(page,/setNoticeSection\(section\)/);
+ assert.match(page,/setNoticeSection\("opportunities"\)/);
  assert.match(page,/No live assignment decisions will be made/);
  assert.doesNotMatch(page,/supabaseBrowser|\.insert\(|\.update\(|\.delete\(/);
 });
