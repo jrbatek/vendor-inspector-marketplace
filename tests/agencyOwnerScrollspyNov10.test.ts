@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 const agency=readFileSync("app/demo/agency/page.tsx","utf8");
-test("Agency remains one operational page with eight retained sections",()=>{
- const ids=["overview","resource-pool","mass-resource-connect","availability-capacity","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
+test("Agency remains one operational page with seven retained sections",()=>{
+ const ids=["overview","resource-pool","mass-resource-connect","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
  for(const id of ids)assert.ok(agency.includes('id="'+id+'"'),id);
- for(const id of ["analytics","integrations","find-inspectors-recruiting"])assert.doesNotMatch(agency,new RegExp('id="'+id+'"'));
- assert.match(agency,/const nav = \["Overview", "Resource Pool", "Mass Resource Connect", "Availability & Capacity", "Opportunities", "Active Inspections", "Reports & NCRs", "Contracts & Commercials"\]/);
+ for(const id of ["analytics","integrations","find-inspectors-recruiting","availability-capacity"])assert.doesNotMatch(agency,new RegExp('id="'+id+'"'));
+ assert.match(agency,/const nav = \["Overview", "Resource Pool", "Mass Resource Connect", "Opportunities", "Active Inspections", "Reports & NCRs", "Contracts & Commercials"\]/);
  assert.doesNotMatch(agency,/Agency Analytics|Resource-system connectivity|Find Inspectors \/ Recruiting|marketplaceOpen/);
 });
 test("Agency scrollspy tracks viewport, manual reverse scroll, hashes and link interactions",()=>{

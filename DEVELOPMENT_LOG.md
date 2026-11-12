@@ -1,3 +1,15 @@
+### 2026-11-12 — Agency browser smoke follows owner-retired Capacity UI
+- Follow-up Autonomous QA passed 404 unit tests plus migration/typecheck/build checks, but the hosted Agency capacity smoke still assumed 5-of-5 resources and interactive Capacity cards. Replaced those retired UI steps with a real-browser assertion for five-of-2,823 synthetic resources, functional full resource directory navigation, absence of the removed Capacity section/sidebar, and preserved NCR/report/inspection interactions. Reusable capacity data and CSV remain unit-tested independent of the removed Agency page.
+- Re-run both mandatory workflows and Preview READY on the exact corrected head; no merge until green. No production auth, PII, finance, API credential or database changes.
+
+### 2026-11-12 — Agency 2,823-resource release-gate regression repair
+- Both mandatory GitHub workflows on the first Agency #265 head failed three legacy unit assertions expecting the owner-retired Availability & Capacity section and old five-resource denominator. Updated tests to assert the section, sidebar target, and UI export are absent while continuing to validate the reusable synthetic capacity dataset/CSV independently. Roster assertions now require the shared 2,823 total and searchable resource-pool link.
+- Initial failures remain evidence; the corrected exact branch head must pass both GitHub workflows and Vercel Preview READY before any merge, followed by exact-commit production READY and smoke. No production data, auth, payment, banking, OAuth or matching modifications.
+
+
+### 2026-11-12 — Agency 2,823-resource count consistency and owner removal of Capacity section
+- Matched Agency KPI and five-row preview denominator to shared deterministic synthetic total (2,823), with link to already implemented searchable fictional resource pool. Preserved five featured examples and synthetic/privacy isolation.
+- Removed Agency Demo Availability & Capacity section, sidebar entry and scrollspy target, preserving reusable underlying capacity library for other features. Updated seven-section source tests and hosted Chromium smoke. No live API, auth, bank, payment, matching, or production DB changes. Mandated validation, Preview READY and production exact-commit smoke before release.
 ## 2026-11-11 — Agency Mass Resource Connect scrollspy last-section remediation
 - Autonomous QA passed unit tests, synthetic-data checks, migrations, typecheck, build and most browser tests, but its real Chromium scrollspy test timed out after clicking Contracts & Commercials. The short final section cannot always rise above the earlier fixed pixel threshold; preserve normal scrolling and select the final section once it meaningfully enters the viewport (or the page reaches the bottom). Retain the assertion and rerun both mandatory workflows and Preview READY before merging. No real API calls, credentials or production writes.
 
