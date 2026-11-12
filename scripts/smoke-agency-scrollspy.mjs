@@ -11,9 +11,20 @@ let output="",browser;
 server?.stdout.on("data",x=>output+=String(x));
 server?.stderr.on("data",x=>output+=String(x));
 async function ready(){for(let i=0;i<40;i++){try{if((await fetch(base+"/demo/agency")).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}throw Error("Agency demo server unavailable: "+output.slice(-2000))}
-const ids=["overview","resource-pool","bulk-upload","availability-capacity","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
+const ids=["overview","resource-pool","mass-resource-connect","availability-capacity","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
 async function active(page,id){
-  await page.waitForFunction(expected=>document.querySelector('aside[aria-label="Agency Workspace navigation"] a[aria-current="page"]')?.getAttribute("href")==="#"+expected,id,{timeout:10000});
+  try {
+    await page.waitForFunction(expected=>document.querySelector('aside[aria-label="Agency Workspace navigation"] a[aria-current="page"]')?.getAttribute("href")==="#"+expected,id,{timeout:10000});
+  } catch (error) {
+    const detail=await page.evaluate(expected=>({
+      expected,
+      active:document.querySelector('aside[aria-label="Agency Workspace navigation"] a[aria-current="page"]')?.getAttribute("href"),
+      scrollY:window.scrollY,viewport:window.innerHeight,documentHeight:document.documentElement.scrollHeight,
+      targetTop:document.getElementById(expected)?.getBoundingClientRect().top,
+      targetBottom:document.getElementById(expected)?.getBoundingClientRect().bottom
+    }),id);
+    throw new Error("Agency scrollspy section did not activate: "+JSON.stringify(detail),{cause:error});
+  }
   const selected=await page.locator('aside[aria-label="Agency Workspace navigation"] a[aria-current="page"]').count();
   if(selected!==1)throw Error("Exactly one Agency sidebar item must be active; got "+selected);
 }
@@ -39,6 +50,17 @@ try{
  for(const id of ["analytics","find-inspectors-recruiting","integrations"])
    if(await page.locator("#"+id).count()!==0)throw Error("Obsolete Agency section still rendered: "+id);
  await active(page,"overview");
+ await nav.getByRole("link",{name:"Mass Resource Connect"}).click();
+ await active(page,"mass-resource-connect");
+ const apiGuide=page.locator("#agency-api-connection-guide");
+ if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
+ await page.getByRole("button",{name:"Connect API"}).click();
+ if(!await apiGuide.isVisible())throw Error("Connect API did not open synthetic walkthrough");
+ await apiGuide.getByRole("combobox",{name:"Example source"}).selectOption("Agency HRIS");
+ await apiGuide.getByRole("button",{name:"Preview synthetic mapping"}).click();
+ if(!await apiGuide.getByRole("status").getByText(/Dry run complete \(Agency HRIS\)/).isVisible())throw Error("Synthetic API preview not functional");
+ await page.getByRole("button",{name:"Close API walkthrough"}).click();
+ if(await apiGuide.isVisible())throw Error("API walkthrough failed to close");
  await nav.getByRole("link",{name:"Reports & NCRs"}).click();
  await active(page,"reports-ncrs");
  await page.waitForTimeout(600);

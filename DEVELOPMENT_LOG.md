@@ -1,3 +1,10 @@
+## 2026-11-11 — Agency Mass Resource Connect scrollspy last-section remediation
+- Autonomous QA passed unit tests, synthetic-data checks, migrations, typecheck, build and most browser tests, but its real Chromium scrollspy test timed out after clicking Contracts & Commercials. The short final section cannot always rise above the earlier fixed pixel threshold; preserve normal scrolling and select the final section once it meaningfully enters the viewport (or the page reaches the bottom). Retain the assertion and rerun both mandatory workflows and Preview READY before merging. No real API calls, credentials or production writes.
+
+## 2026-11-11 — Agency Mass Resource Connect demo walkthrough (safe independent batch)
+- Renamed the one-page Agency Demo Bulk Upload entry to Mass Resource Connect, preserved the CSV roster template, and added a functional simulated Connect API walkthrough with source choice, field mapping and dry-run status. No credentials, real integrations, production data or affiliation writes; no change to Agency scrollspy architecture.
+- Updated Agency scrollspy navigation and Chromium verification for the renamed anchor and API guide open/source/preview/close sequence. Validation, Vercel preview READY, merge and exact-commit production smoke remain release gates. The separately requested Agency Availability & Capacity removal and 2,823-resource searchable pool are pending follow-on work.
+
 ## 2026-11-11 — Client vertical request layout CI regression assertion updated
 - The first hosted Validate application / Autonomous QA runs on PR #262 failed a legacy source assertion that demanded the old heading `Select your inspection criteria`. Updated the test to require the owner-approved `Structured Selection` heading, preserving its actual behavior and new desktop/mobile browser geometry checks. Re-run all required validation; do not merge on failed checks or assume preview success implies test success.
 
@@ -2501,3 +2508,10 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 ### 2026-11-09 — P0-B mobile Source of Inspectors and channel-state regression
 - Expanded built-app Chromium sourcing smoke into a separate 390px mobile browser session, checking all three Source of Inspectors selectors fit the viewport and remain legible in rest, hover, selected and keyboard-focus states. Tests selected/unselected Agency and Independent channel text contrast, source-specific counts, visible channel confirmation, selection clearing across source changes, and returning to both sources.
 - Added deterministic test contracts for the mobile interactions. No production records, matching rules, auth/RLS, private data, payment/bank information, or schema touched. Change is isolated from the Client Demo NCR drilldown PR; validate both exact-head GitHub workflows, migrations, synthetic fixtures, typecheck/build and Chromium smoke plus preview READY before sequential merge, followed by production READY/smoke.
+
+### 2026-11-11 — Agency Mass Resource Connect browser scrollspy reconciliation
+- `#260` hosted Chromium validation initially failed only at click-through to the short final Contracts & Commercials section: prior smooth scrolling stopped before the target entered the viewport (`scrollY=2335`, target top 1121px). Autonomous QA, typecheck, synthetic/migration validation and build passed.
+- Corrected the Agency sidebar click handler to calculate an explicit viewport scroll coordinate (with the existing reduced-motion preference), protecting final-section navigation from nested alignment/overlapping animations. The normal scrollspy, hash state, and original fictional API walkthrough remain intact.
+- Re-run both mandatory workflows and verify Vercel preview READY at the revised exact head before any merge; production must be READY with successful smoke after merge. Do not bypass the failed earlier check.
+
+- Hosted Chromium still reproduced the same final Contracts navigation failure after the explicit `window.scrollTo` change (two workflow failures), confirming that changing only the scrolling coordinate was insufficient. Replaced intercepted sidebar clicks with native hash links, preserving the on-hash hydration/back-forward handler and respecting reduced-motion preference. Both checks must be rerun on this new head; prior failures remain blocking.
