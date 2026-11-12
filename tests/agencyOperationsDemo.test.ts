@@ -15,7 +15,7 @@ test("agency demo exposes the complete operational workspace spine", () => {
     "Active Inspections",
     "Reports & NCRs",
     "Contracts & Commercials",
-  ]) assert.match(source + featuredOpportunitySource, new RegExp(marker.replace(/[&/]/g, "\\  ]) assert.match(source, new RegExp(marker.replace(/[&/]/g, "\\$&")));")));
+  ]) assert.match(source + featuredOpportunitySource, new RegExp(marker.replace(/[&/]/g, "\\$&")));
 });
 
 test("agency sidebar uses one purple workspace navigation with real active state", () => {
