@@ -32,8 +32,8 @@ test("dedicated Inspector Demo exposes selection insights, feedback, assignments
   assert.match(insightsDemo, /deterministic synthetic examples/);
   assert.match(dedicatedDemo, /No production inspector records are used/);
   assert.match(dedicatedDemo, /no production record was changed/);
-  assert.match(dedicatedDemo, /section==="income"&&<InspectorIncomeDemo\/>/);
-  assert.match(dedicatedDemo, /section==="work"&&<InspectorWorkHistoryDemo\/>/);
+  assert.match(dedicatedDemo, /id="income" className="demoSection" aria-label="Income & Tax Center"><InspectorIncomeDemo\/>/);
+  assert.match(dedicatedDemo, /id="work" className="demoSection" aria-label="Work History"><InspectorWorkHistoryDemo\/>/);
   assert.doesNotMatch(dedicatedDemo, /supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
 });
 

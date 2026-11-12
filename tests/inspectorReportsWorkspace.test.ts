@@ -69,7 +69,7 @@ test("submitted reports offer functional, correctly encoded and visibly syntheti
 test("InspectorHub consolidates the reports navigation into Work History and maintains deep links", () => {
   assert.match(hub,/\["work","Work History"\]/);
   assert.doesNotMatch(hub,/\["reports","Inspection Reports"\]/);
-  assert.match(hub,/section==="work"&&<InspectorWorkHistoryDemo\/>/);
+  assert.match(hub,/id="work" className="demoSection" aria-label="Work History"><InspectorWorkHistoryDemo\/>/);
   assert.doesNotMatch(hub,/Open Work History &amp; sample inspection PDFs/);
   assert.match(page,/Assignments Performed/);
   assert.match(page,/Reports Submitted/);

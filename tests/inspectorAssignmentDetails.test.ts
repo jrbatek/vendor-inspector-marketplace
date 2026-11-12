@@ -18,7 +18,7 @@ test("synthetic assignment workspace includes evidence and next actions", () => 
 test("section navigation clears opportunity outcome banners", () => {
   assert.match(demo, /onClick=\{\(\)=>\{setNotice\(""\);setNoticeSection\(null\);setOpp\(null\);setAssignment\(null\);setSection\(s\);/);
   assert.match(demo, /window\.history\.pushState\(null,"","#"\+s\)/);
-  assert.match(demo, /notice && noticeSection === section/);
+  assert.match(demo, /notice&&noticeSection==="opportunities"/);
 });
 
 test("Inspector Demo sidebar resets stale assignment details", () => {

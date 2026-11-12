@@ -14,6 +14,6 @@ test("Inspector home action cards register deep-link history for browser back/fo
 });
 
 test("Calendar Open assignment keeps the URL and sidebar selected on Active Assignments",()=>{
-  assert.match(source,/onOpenAssignment=\{project => \{setNotice\(""\);setNoticeSection\(null\);setAssignment\(project\);setSection\("assignments"\);window\.history\.pushState\(null,"","#assignments"\);\}\}/);
+  assert.match(source,/onOpenAssignment=\{project => \{setNotice\(""\);setNoticeSection\(null\);setAssignment\(project\);setSection\("assignments"\);window\.history\.pushState\(null,"","#assignments"\);jumpTo\("assignments"\);\}\}/);
   assert.match(smoke,/Calendar Open assignment must deep-link the assignments content/);
 });

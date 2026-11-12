@@ -8,7 +8,7 @@ const inline=fs.readFileSync("app/demo/inspector-selection-outcomes/page.tsx","u
 test("Inspector sidebar displays full synthetic peer-positioning dashboard with ratings first",()=>{
  assert.match(source,/4\.9 \/ 5 · Peer insights/);
  assert.match(source,/import InspectorSelectionOutcomesDemo/);
- assert.match(source,/section==="insights"&&<InspectorSelectionOutcomesDemo\/>/);
+ assert.match(source,/id="insights" className="demoSection" aria-label="Selection Insights & Feedback"><InspectorSelectionOutcomesDemo\/>/);
  assert.doesNotMatch(source,/Open Selection Insights &amp; peer comparisons/);
  assert.match(inline,/Ratings &amp; feedback/);
  assert.ok(inline.indexOf('className="ratings"') < inline.indexOf('className="comparison"'));
