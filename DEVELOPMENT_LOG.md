@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency global nav retired recruiting link reconciled after #270
+- Rebased the original #266 fix onto current main 1bb96773, preserving Agency contract PDFs, featured opportunity directory, 2,823-resource search and scrollspy tests. Removed the obsolete recruiting link from the global Agencies dropdown, preserved live account navigation, and added source plus Chromium drop-down assertions. No new auth, production sourcing, records, banking, API or credentials.
+- Both GitHub workflows and exact-head Vercel Preview READY required before merge, then exact merged Production READY plus smoke test. Older #266 retains a historical Vercel free-build quota failure and is superseded rather than force-merged.
+
 ### 2026-11-12 — Agency opportunity directory safely reconciled with #267
 - Carried four fully fictional opportunity previews and a searchable/filterable 24-row directory onto current main 21e57a70. Preserved the one-page Agency scrollspy, named fictional client-agency contracts and working sample PDFs; extended source and Chromium smoke regression checks, without any live sourcing, bank details, authentication, matching, API credentials or production records.
 - Require BOTH mandatory CI workflows and exact-head Vercel Preview READY before merge. Then require production READY for exact merged commit and smoke test. Vercel build quota failures remain release blockers. Supersedes stale conflicting #268.
