@@ -38,7 +38,15 @@ try{
  await page.setViewportSize({width:1366,height:900});
  // The embedded email and structured controls must actually work in Chromium.
  const emailCard=page.locator("#email-requirements");
+ // Next.js hydration and clipboard promises are asynchronous: await client
+ // initialization and observable status instead of racing React's state flush.
+ await page.waitForLoadState("networkidle");
  await emailCard.getByRole("button",{name:"Copy Sample Request"}).click();
+ await page.waitForFunction(
+   () => /Sample request copied|Clipboard unavailable/.test(
+     document.querySelector("#email-requirements [role=status]")?.textContent||""),
+   null,{timeout:8000}
+ );
  assert(/Sample request copied|Clipboard unavailable/.test(await emailCard.getByRole("status").innerText()),
    "On-page Email Requirements copy action did not return accessible feedback");
  const structured=page.locator("#structured-selection");
