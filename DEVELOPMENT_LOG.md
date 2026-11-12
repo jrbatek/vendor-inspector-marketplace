@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency browser smoke follows owner-retired Capacity UI
+- Follow-up Autonomous QA passed 404 unit tests plus migration/typecheck/build checks, but the hosted Agency capacity smoke still assumed 5-of-5 resources and interactive Capacity cards. Replaced those retired UI steps with a real-browser assertion for five-of-2,823 synthetic resources, functional full resource directory navigation, absence of the removed Capacity section/sidebar, and preserved NCR/report/inspection interactions. Reusable capacity data and CSV remain unit-tested independent of the removed Agency page.
+- Re-run both mandatory workflows and Preview READY on the exact corrected head; no merge until green. No production auth, PII, finance, API credential or database changes.
+
 ### 2026-11-12 — Agency 2,823-resource release-gate regression repair
 - Both mandatory GitHub workflows on the first Agency #265 head failed three legacy unit assertions expecting the owner-retired Availability & Capacity section and old five-resource denominator. Updated tests to assert the section, sidebar target, and UI export are absent while continuing to validate the reusable synthetic capacity dataset/CSV independently. Roster assertions now require the shared 2,823 total and searchable resource-pool link.
 - Initial failures remain evidence; the corrected exact branch head must pass both GitHub workflows and Vercel Preview READY before any merge, followed by exact-commit production READY and smoke. No production data, auth, payment, banking, OAuth or matching modifications.
