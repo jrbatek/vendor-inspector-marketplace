@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { AGENCY_CAPACITY, capacityByRegion, capacityTotals, exportAgencyCapacityCsv } from "@/lib/agencyDemoCapacity";
+import { AGENCY_SYNTHETIC_RESOURCE_TOTAL } from "@/lib/agencyDemoResources";
 import { exportAgencyDemoReportsCsv } from "@/lib/agencyDemoReports";
 
 const AgencyActiveInspections = dynamic(() => import("./ActiveInspectionsClient"), {
@@ -26,7 +26,7 @@ const sampleReports = [
   { inspection:"Qatar compression package", inspector:"Omar Haddad", source:"Northstar · Subcontractor", report:"Submitted", finding:"NCR-204 · Open", findingStatus:"Open", next:"Supplier response due" },
   { inspection:"Italian valve package", inspector:"Elena Rossi", source:"Northstar · Affiliate", report:"Accepted", finding:"NCR-198 · Follow-up", findingStatus:"Follow-up", next:"Reinspection Nov 20, 2026" }
 ] as const;
-const nav = ["Overview", "Resource Pool", "Mass Resource Connect", "Availability & Capacity", "Opportunities", "Active Inspections", "Reports & NCRs", "Contracts & Commercials"];
+const nav = ["Overview", "Resource Pool", "Mass Resource Connect", "Opportunities", "Active Inspections", "Reports & NCRs", "Contracts & Commercials"];
 const anchorFor = (item: string) => item.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g, "");
 
 export default function AgencyDemoPage() {
@@ -70,7 +70,7 @@ export default function AgencyDemoPage() {
   const [apiGuideOpen,setApiGuideOpen]=useState(false);
   const [apiSource,setApiSource]=useState("Generic REST API");
   const [apiPreview,setApiPreview]=useState(false);
-  const [capacityRegion,setCapacityRegion]=useState("All regions");
+  
   const [reportFocus,setReportFocus]=useState("All findings");
   const [rosterStatus,setRosterStatus]=useState("All statuses");
   const [rosterQuery,setRosterQuery]=useState("");
@@ -79,9 +79,9 @@ export default function AgencyDemoPage() {
     && rosterWords.every(word=>row.slice(0,5).join(" ").toLocaleLowerCase().includes(word)));
   const visibleSampleReports=reportFocus==="All findings"?sampleReports:sampleReports.filter(row=>row.findingStatus===reportFocus);
   const sampleReportsCsvHref=`data:text/csv;charset=utf-8,${encodeURIComponent(exportAgencyDemoReportsCsv(visibleSampleReports))}`;
-  const selectedCapacity=capacityByRegion(capacityRegion);
-  const capacitySummary=capacityTotals(selectedCapacity);
-  const capacityCsvHref=`data:text/csv;charset=utf-8,${encodeURIComponent(exportAgencyCapacityCsv(selectedCapacity))}`;
+  
+  
+  
   // Stable server/client loading state prevents hydration divergence before interactive Agency UI mounts.
   if (!agencyPageReady) return <main className="shell" aria-label="Synthetic Agency Demo"><section role="status" aria-live="polite">Preparing fictional Agency Workspace examples. No login is required.</section></main>;
   return <main className="shell">
@@ -93,14 +93,14 @@ export default function AgencyDemoPage() {
       <div className="notice"><strong>Demo Mode</strong> — fictional records only. Nothing on this page reads from or writes to production.</div>
       <header id="overview"><div><span className="eyebrow">Three-sided marketplace</span><h2>Agency operations at a glance</h2><p>Manage your own resources, fulfill contracted client work, and recruit marketplace inspectors without losing agency identity or commercial provenance.</p></div><button type="button" aria-expanded={claimOpen} aria-controls="agency-claim-preview" onClick={() => setClaimOpen(current => !current)}>+ Add / claim resource</button></header>
       <section id="agency-claim-preview" className="card" hidden={!claimOpen} aria-label="Synthetic affiliation claim preview"><h3>Preview an affiliation claim</h3><p>This demo does not collect personal details or submit agency claims. A claim is pending until the inspector confirms and verification is completed.</p><p><strong>Example:</strong> SYN-1001 · Sample Inspector A · Employee · Pending confirmation</p><a className="actionLink" href="/demo/agency-affiliations">Explore the affiliation lifecycle</a></section>
-      <div className="kpis"><article><b>126</b><span>Resources</span></article><article><b>83%</b><span>30-day capacity booked</span></article><article><b>18</b><span>Open opportunities</span></article><article><b>41</b><span>Active inspections</span></article><article><b>7</b><span>Open NCRs</span></article><article><b>$428k</b><span>90-day awarded value</span></article></div>
+      <div className="kpis"><article><b>{AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")}</b><span>Synthetic resources</span></article><article><b>83%</b><span>30-day capacity booked</span></article><article><b>18</b><span>Open opportunities</span></article><article><b>41</b><span>Active inspections</span></article><article><b>7</b><span>Open NCRs</span></article><article><b>$428k</b><span>90-day awarded value</span></article></div>
       <section id="resource-pool" className="card"><div className="sectionHead"><div><h3>Resource Pool & Affiliations</h3><p>One InspectSource inspector identity; agency relationships are separate, dual-confirmed affiliation records.</p></div><span className="pill">Permanent Inspector ID matching</span></div><div className="legend"><span>Agency Claimed</span><span>Inspector Confirmation Pending</span><span>Verified</span><span>Expiring</span><span>Expired / Ended</span><span>Disputed</span></div><div className="rosterTools">
         <label>Affiliation status<select aria-label="Affiliation status" value={rosterStatus} onChange={e=>setRosterStatus(e.target.value)}>
           <option>All statuses</option>{Array.from(new Set(resources.map(row=>row[3]))).map(status=><option key={status}>{status}</option>)}
         </select></label>
         <label>Search fictional resources<input type="search" aria-label="Search fictional resources" placeholder="Name, inspector ID, location or relationship" value={rosterQuery} onChange={e=>setRosterQuery(e.target.value)}/></label>
         <button type="button" disabled={rosterStatus==="All statuses"&&!rosterQuery} onClick={()=>{setRosterStatus("All statuses");setRosterQuery("");}}>Reset resource filters</button>
-        <span role="status" aria-live="polite">Showing {visibleResources.length} of {resources.length} synthetic agency resources.</span>
+        <span role="status" aria-live="polite">Showing {visibleResources.length} of {AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")} resources (synthetic).</span><a className="actionLink" href="/demo/agency-resources">Search all {AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")} resources</a>
       </div>
       {visibleResources.length===0&&<p role="status">No fictional resources match these filters. Reset to see all sample resources.</p>}
       <div className="tableWrap"><table><thead><tr><th>Inspector</th><th>Relationship</th><th>Affiliation</th><th>Coverage</th><th>Capacity</th><th>Agency rate</th><th>Terms</th><th>Commercial package</th></tr></thead><tbody>{visibleResources.map(r => <tr key={r[0]}><td><b>{r[1]}</b><small>{r[0]}</small></td>{r.slice(2).map((v,i)=><td key={i}>{v}</td>)}</tr>)}</tbody></table></div><p className="fine">Claims use name, email/phone, country, agency internal resource ID and InspectSource Inspector ID after matching — never SSN, passport, national ID or other government identifiers. Inspector confirmation or dispute is required before an affiliation becomes Verified.</p></section>
@@ -124,24 +124,6 @@ export default function AgencyDemoPage() {
           {apiPreview&&<p className="apiPreview" role="status"><strong>Step 3 · Dry run complete ({apiSource}):</strong> 5 fictional resources parsed; 3 matched, 2 need inspector confirmation; 0 records submitted. No external API call or affiliation write occurred.</p>}
           <p className="fine">Real API credentials, OAuth, webhooks, production matching rules and synchronization require a separate security-reviewed integration.</p>
         </div>
-      </section>
-      <section id="availability-capacity" className="card">
-        <div className="sectionHead"><div><h3>Availability & Capacity</h3><p>Forward-looking synthetic capacity by region and relationship type, with assigned work and tentative holds visible before proposing a resource.</p></div><span className="pill">30-day view</span></div>
-        <div className="capacityTools">
-          <label htmlFor="agency-capacity-region">Capacity region</label>
-          <select id="agency-capacity-region" aria-label="Capacity region" value={capacityRegion} onChange={e=>setCapacityRegion(e.target.value)}>
-            <option>All regions</option>{AGENCY_CAPACITY.map(item=><option key={item.region}>{item.region}</option>)}
-          </select>
-          <button type="button" disabled={capacityRegion==="All regions"} onClick={()=>setCapacityRegion("All regions")}>Reset capacity</button>
-          <a className="capacityExport" aria-label={`Download ${selectedCapacity.length} synthetic capacity regions as CSV`} download="inspectsource-synthetic-agency-capacity.csv" href={capacityCsvHref}>Download filtered capacity (CSV)</a>
-          <span role="status" aria-live="polite">Showing {selectedCapacity.length} of {AGENCY_CAPACITY.length} synthetic regions. {capacitySummary.available} available / {capacitySummary.total} resources; {capacitySummary.assigned} assigned, {capacitySummary.tentative} holds, {capacitySummary.blocked} blocked.</span>
-        </div>
-        <div className="capacityGrid">{selectedCapacity.map(item=><article key={item.region} data-capacity-region={item.region}>
-          <b>{item.region}</b><strong>{item.available} available / {item.available+item.assigned+item.tentative+item.blocked}</strong>
-          <span>{item.assigned} assigned · {item.tentative} tentative · {item.blocked} blocked</span>
-          <progress aria-label={item.region+" booked capacity"} max={item.available+item.assigned+item.tentative+item.blocked} value={item.assigned+item.tentative+item.blocked}/>
-        </article>)}</div>
-        <p className="fine">Capacity is synthetic and coarse by region; this demo does not collect precise inspector location. Verified affiliation and qualification status remain distinct from schedule availability.</p>
       </section>
       <section id="opportunities" className="card"><h3>Opportunities & source attribution</h3><div className="opps"><article><b>Gulf Coast LNG — rotating equipment</b><span>Client contract: Northstar MSA • Agency-only search</span><p>3 qualified resources • 2 available • USD 8,500 budget</p><strong>Opportunity attributed to Northstar</strong></article><article><b>North Sea valve surveillance</b><span>Broad contracted-agencies + marketplace search</span><p>Eligible channels shown per inspector; commercial sourcing channel recorded at selection.</p><strong>No ownership from upload order</strong></article></div></section>
       <section id="active-inspections" className="card"><h3>Active Inspections</h3><p><b>41 active</b> • 6 reports due • 7 open NCRs</p><progress max="100" value="83"/><small>83% on schedule</small><p className="fine">Three detailed synthetic examples from this fictional agency portfolio. The examples are not the entire 41-inspection portfolio.</p>

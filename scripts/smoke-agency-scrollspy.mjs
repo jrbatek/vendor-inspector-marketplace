@@ -11,7 +11,7 @@ let output="",browser;
 server?.stdout.on("data",x=>output+=String(x));
 server?.stderr.on("data",x=>output+=String(x));
 async function ready(){for(let i=0;i<40;i++){try{if((await fetch(base+"/demo/agency")).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}throw Error("Agency demo server unavailable: "+output.slice(-2000))}
-const ids=["overview","resource-pool","mass-resource-connect","availability-capacity","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
+const ids=["overview","resource-pool","mass-resource-connect","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
 async function active(page,id){
   try {
     await page.waitForFunction(expected=>document.querySelector('aside[aria-label="Agency Workspace navigation"] a[aria-current="page"]')?.getAttribute("href")==="#"+expected,id,{timeout:10000});
@@ -45,10 +45,12 @@ try{
  const nav=page.locator('aside[aria-label="Agency Workspace navigation"] nav');
  await nav.waitFor({state:"visible",timeout:15000});
  const hrefs=await nav.locator("a").evaluateAll(els=>els.map(a=>a.getAttribute("href")));
- if(hrefs.join(",")!==ids.map(x=>"#"+x).join(","))throw Error("Agency scrollspy navigation must have exactly eight ordered operational sections: "+hrefs);
+ if(hrefs.join(",")!==ids.map(x=>"#"+x).join(","))throw Error("Agency scrollspy navigation must have exactly seven ordered operational sections: "+hrefs);
  for(const id of ids)if(await page.locator("#"+id).count()!==1)throw Error("Missing or duplicate operational section "+id);
- for(const id of ["analytics","find-inspectors-recruiting","integrations"])
+ for(const id of ["analytics","find-inspectors-recruiting","integrations","availability-capacity"])
    if(await page.locator("#"+id).count()!==0)throw Error("Obsolete Agency section still rendered: "+id);
+ const searchAll=page.getByRole("link",{name:"Search all 2,823 resources"});
+ if(await searchAll.getAttribute("href")!=="/demo/agency-resources")throw Error("Agency 2,823 pool entry is missing or broken");
  await active(page,"overview");
  await nav.getByRole("link",{name:"Mass Resource Connect"}).click();
  await active(page,"mass-resource-connect");
@@ -84,6 +86,6 @@ try{
  await nav.getByRole("link",{name:"Resource Pool"}).click();
  await active(page,"resource-pool");
  if(errors.length)throw Error("Agency scrollspy browser exceptions: "+errors.join("\n"));
- console.log("Agency scrollspy PASS: 8 sections, one active link, click/keyboard/hash/manual up/down, mobile, removed obsolete sections");
+ console.log("Agency scrollspy PASS: 7 sections, one active link, click/keyboard/hash/manual up/down, mobile, removed obsolete sections");
 }catch(e){console.error(e);process.exitCode=1}
 finally{await browser?.close();if(server){server.kill("SIGTERM");setTimeout(()=>server.kill("SIGKILL"),2000).unref()}}

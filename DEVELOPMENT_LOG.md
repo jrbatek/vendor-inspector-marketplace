@@ -1,3 +1,7 @@
+
+### 2026-11-12 — Agency 2,823-resource count consistency and owner removal of Capacity section
+- Matched Agency KPI and five-row preview denominator to shared deterministic synthetic total (2,823), with link to already implemented searchable fictional resource pool. Preserved five featured examples and synthetic/privacy isolation.
+- Removed Agency Demo Availability & Capacity section, sidebar entry and scrollspy target, preserving reusable underlying capacity library for other features. Updated seven-section source tests and hosted Chromium smoke. No live API, auth, bank, payment, matching, or production DB changes. Mandated validation, Preview READY and production exact-commit smoke before release.
 ## 2026-11-11 — Agency Mass Resource Connect scrollspy last-section remediation
 - Autonomous QA passed unit tests, synthetic-data checks, migrations, typecheck, build and most browser tests, but its real Chromium scrollspy test timed out after clicking Contracts & Commercials. The short final section cannot always rise above the earlier fixed pixel threshold; preserve normal scrolling and select the final section once it meaningfully enters the viewport (or the page reaches the bottom). Retain the assertion and rerun both mandatory workflows and Preview READY before merging. No real API calls, credentials or production writes.
 

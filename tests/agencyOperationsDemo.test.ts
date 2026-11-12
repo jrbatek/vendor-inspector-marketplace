@@ -10,7 +10,6 @@ test("agency demo exposes the complete operational workspace spine", () => {
   for (const marker of [
     "Resource Pool & Affiliations",
     "Mass Resource Connect",
-    "Availability & Capacity",
     "Opportunities & source attribution",
     "Active Inspections",
     "Reports & NCRs",
@@ -27,14 +26,12 @@ test("agency sidebar uses one purple workspace navigation with real active state
   assert.doesNotMatch(source, /View Client Demo|View Inspector Demo/);
 });
 
-test("capacity and inspection operations are populated synthetic examples", () => {
-  assert.match(source + activeInspectionSource, /30-day view/);
+test("inspection operations remain populated while retired capacity section is absent", () => {
   assert.match(source + activeInspectionSource, /Gulf Coast/);
   assert.match(source + activeInspectionSource, /Middle East/);
   assert.match(source + activeInspectionSource, /Europe/);
   assert.match(source + activeInspectionSource, /West Africa/);
-  assert.match(source + activeInspectionSource, /tentative/);
-  assert.match(source + activeInspectionSource, /blocked/);
+  assert.doesNotMatch(source, /id="availability-capacity"/);
   assert.match(source + activeInspectionSource, /Mechanical test witness report · draft due Nov 16/);
   assert.match(source + activeInspectionSource, /Open Inspection/);
   assert.match(source + activeInspectionSource, /NCR-204/);
@@ -44,7 +41,6 @@ test("capacity and inspection operations are populated synthetic examples", () =
 
 test("agency demo remains isolated from production and precise location", () => {
   assert.match(source, /fictional records only/);
-  assert.match(source, /does not collect precise inspector location/);
   assert.doesNotMatch(source, /supabaseBrowser|createClient|process\.env|navigator\.geolocation/);
 });
 
@@ -59,4 +55,11 @@ test("agency demo primary actions are usable and always synthetic",()=>{
  assert.match(source,/\.actionLink:focus-visible/);
  assert.doesNotMatch(source,/id="analytics"|id="integrations"|id="find-inspectors-recruiting"|marketplaceOpen/);
  assert.doesNotMatch(source,/<button>Search marketplace<\/button>|<button>Download synthetic template<\/button>/);
+});
+
+test('Agency headline and five-row preview use one synthetic resource total',()=>{
+  assert.match(source,/AGENCY_SYNTHETIC_RESOURCE_TOTAL/);
+  assert.match(source,/Search all \{AGENCY_SYNTHETIC_RESOURCE_TOTAL\.toLocaleString/);
+  assert.match(source,/href="\/demo\/agency-resources"/);
+  assert.doesNotMatch(source,/id="availability-capacity"/);
 });
