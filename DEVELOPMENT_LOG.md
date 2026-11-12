@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency named fictional contracts reconciled to current Client Workspace main
+- Reconciled PR #267 with exact main `34770e4` and preserved continuous Client Workspace and existing one-page Agency resources/scrollspy. Three clearly fictional client-agency contracts now appear inline under Contracts & Commercials, with named client, status, dates, terms, expandable details and in-browser PDF downloads explicitly marked NOT BINDING.
+- Unit tests assert synthetic contract completeness and PDF content; Chromium tests open details and download/decode a sample PDF. No production contracts, signing, identities, finances, banking, API or DB changes. Both hosted workflows and exact-head Preview READY required before merge; Production READY and exact-commit smoke afterward. Vercel quota blocker #232 active.
+
 ### 2026-11-12 — Real Chromium exercises both embedded Client intake mechanisms
 - Extended existing full Client Workspace desktop/mobile browser smoke to click Copy Sample Request and verify accessible clipboard-status feedback; change geography, certification and experience in Structured Selection, submit demo preview, assert selected criteria and no-production-request disclaimer. This tests actual interactions, not just source presence.
 - Preserve seven-inspection counts, PDF/NCR/download, sticky sidebar, hash scrollspy, mobile geometry and demo/live separation. Both hosted CI workflows must pass at exact latest head; Vercel Preview READY remains mandatory. Hobby deployment quota currently exhausted (Issue #232).
