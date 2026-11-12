@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency opportunity directory safely reconciled with #267
+- Carried four fully fictional opportunity previews and a searchable/filterable 24-row directory onto current main 21e57a70. Preserved the one-page Agency scrollspy, named fictional client-agency contracts and working sample PDFs; extended source and Chromium smoke regression checks, without any live sourcing, bank details, authentication, matching, API credentials or production records.
+- Require BOTH mandatory CI workflows and exact-head Vercel Preview READY before merge. Then require production READY for exact merged commit and smoke test. Vercel build quota failures remain release blockers. Supersedes stale conflicting #268.
+
 ### 2026-11-12 — Agency named fictional contracts reconciled to current Client Workspace main
 - Reconciled PR #267 with exact main `34770e4` and preserved continuous Client Workspace and existing one-page Agency resources/scrollspy. Three clearly fictional client-agency contracts now appear inline under Contracts & Commercials, with named client, status, dates, terms, expandable details and in-browser PDF downloads explicitly marked NOT BINDING.
 - Unit tests assert synthetic contract completeness and PDF content; Chromium tests open details and download/decode a sample PDF. No production contracts, signing, identities, finances, banking, API or DB changes. Both hosted workflows and exact-head Preview READY required before merge; Production READY and exact-commit smoke afterward. Vercel quota blocker #232 active.

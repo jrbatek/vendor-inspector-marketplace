@@ -5,6 +5,7 @@ import path from "node:path";
 
 const source = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/page.tsx"), "utf8");
 const activeInspectionSource = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/ActiveInspectionsClient.tsx"), "utf8");
+const featuredOpportunitySource = fs.readFileSync(path.join(process.cwd(), "components/AgencyFeaturedOpportunities.tsx"), "utf8");
 
 test("agency demo exposes the complete operational workspace spine", () => {
   for (const marker of [
@@ -14,7 +15,7 @@ test("agency demo exposes the complete operational workspace spine", () => {
     "Active Inspections",
     "Reports & NCRs",
     "Contracts & Commercials",
-  ]) assert.match(source, new RegExp(marker.replace(/[&/]/g, "\\$&")));
+  ]) assert.match(source + featuredOpportunitySource, new RegExp(marker.replace(/[&/]/g, "\\  ]) assert.match(source, new RegExp(marker.replace(/[&/]/g, "\\$&")));")));
 });
 
 test("agency sidebar uses one purple workspace navigation with real active state", () => {

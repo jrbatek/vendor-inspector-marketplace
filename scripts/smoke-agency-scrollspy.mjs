@@ -98,6 +98,18 @@ try{
  await page.goto(base+"/demo/agency#opportunities",{waitUntil:"networkidle"});
  await active(page,"opportunities");
  if(await page.locator("#opportunities").count()!==1)throw Error("Deep-link did not preserve Opportunities content");
+ // All fictional Agency Opportunity highlights remain on the long page and open.
+ await nav.getByRole("link",{name:"Opportunities"}).click();
+ await active(page,"opportunities");
+ const featured=page.locator("#opportunities .featuredGrid article");
+ if(await featured.count()!==4)throw Error("Expected four fictional Agency opportunity previews");
+ await featured.first().getByRole("button",{name:"Preview Opportunity"}).click();
+ if(!await featured.first().getByRole("region",{name:/Featured sample/}).isVisible())
+   throw Error("Featured Agency opportunity preview not functional");
+ const allOpportunities=page.getByRole("link",{name:/View\/Search all opportunities/});
+ if(await allOpportunities.getAttribute("href")!=="/demo/agency-opportunities")
+   throw Error("Agency opportunity search link is broken");
+ 
  await nav.getByRole("link",{name:"Overview"}).focus();
  await page.keyboard.press("Enter");
  await active(page,"overview");
