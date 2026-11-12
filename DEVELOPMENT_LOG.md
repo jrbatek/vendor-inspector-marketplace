@@ -1,3 +1,7 @@
+### 2026-11-12 — Reconcile Client intake regression tests with functional inline controls
+- The first CI run after the new on-page Email and Structured Selection interactions failed two stale source tests expecting a static November 16 span, old guidance-copy wording, and no mailto link. The owner-directed inline date input is now controlled (`2026-11-16`) and the email section intentionally includes a user-triggered, non-sending mailto action.
+- Updated the tests to assert the actual date input, current future example, visible exact email subject, accessible clipboard action, and the explicitly nonautomatic mailto. Retained no-production-write checks. Both mandatory workflows and matching SHA Preview READY remain release gates; Vercel Hobby API deployment quota currently blocks preview creation (Issue #232).
+
 ### 2026-11-12 — Client single-page intake mechanisms now usable in place
 - Expanded Email Requirements inside the vertically stacked Client Workspace: existing inspection inbox and subject, readable scope/ITP attachment guidance and confidentiality note, browser-local Copy Sample Request with accessible status, plus optional email-app action. No email is sent automatically.
 - Added an independently usable Structured Selection demo form for geography, certification, inspection start, experience and agency/independent source. Submitting previews selected criteria only in local browser state, not a real match, client request, payment or DB write. Kept sourcing route as an optional drill-down.

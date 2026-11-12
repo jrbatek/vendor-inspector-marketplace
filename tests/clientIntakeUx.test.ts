@@ -56,8 +56,10 @@ test("Client Demo mirrors the current request-intake UX", () => {
   assert.match(clientDemo, /Upload Scope/);
   assert.match(clientDemo, />Find Inspectors<\/Link>/);
   assert.match(clientDemo, /href="\/demo\/email-requirements"/);
-  assert.match(clientDemo, /InspectSource-prefixed subject/);
+  assert.match(clientDemo, /<strong>InspectSource - Inspection Request<\/strong>/);
+  assert.match(clientDemo, /onClick=\{\(\)=>void copyEmailSample\(\)\}/);
   assert.doesNotMatch(clientDemo, /Find qualified inspectors/);
   assert.doesNotMatch(clientDemo, /className="step"/);
-  assert.doesNotMatch(clientDemo, /mailto:inspectsource2026@gmail\.com/);
+  assert.match(clientDemo, /mailto:inspectsource2026@gmail\.com\?subject=InspectSource%20-%20Inspection%20Request/);
+  assert.match(clientDemo, /Opening the email app does not send anything automatically/);
 });
