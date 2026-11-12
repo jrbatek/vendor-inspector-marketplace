@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency global dropdown reconciled with latest Client Workspace main
+- Rebuilt safe #266 against exact main `34770e4`, preserving the continuous Client Workspace and existing InspectorHub scroll tests; removed obsolete recruiting link only from global Agencies dropdown while retaining Resource Pool and Opportunities.
+- Added hosted Chromium dropdown click/deep-link checks and a source regression; retained valid live login/nav destinations. Did not overwrite the current shared demo-controls smoke or any Client additions. Both workflows and exact-head Vercel Preview READY remain mandatory before merge; Vercel daily quota blocker tracked in #232.
+
 ### 2026-11-12 — Real Chromium exercises both embedded Client intake mechanisms
 - Extended existing full Client Workspace desktop/mobile browser smoke to click Copy Sample Request and verify accessible clipboard-status feedback; change geography, certification and experience in Structured Selection, submit demo preview, assert selected criteria and no-production-request disclaimer. This tests actual interactions, not just source presence.
 - Preserve seven-inspection counts, PDF/NCR/download, sticky sidebar, hash scrollspy, mobile geometry and demo/live separation. Both hosted CI workflows must pass at exact latest head; Vercel Preview READY remains mandatory. Hobby deployment quota currently exhausted (Issue #232).

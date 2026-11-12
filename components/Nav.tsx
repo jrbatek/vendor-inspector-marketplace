@@ -34,7 +34,6 @@ const groups = [
     ["Agency Workspace", "/demo/agency"],
     ["Resource Pool", "/demo/agency#resource-pool"],
     ["Opportunities", "/demo/agency#opportunities"],
-    ["Find Inspectors / Recruiting", "/demo/agency#find-inspectors-recruiting"],
   ]},
 ];
 
