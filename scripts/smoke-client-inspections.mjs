@@ -20,6 +20,22 @@ try{
  const page=await browser.newPage();
  page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+ // Owner Nov 11: three independent Request Inspectors methods must be full-width,
+ // vertically stacked in the specified order on desktop and narrow mobile screens.
+ const requestCards=page.locator(".requestOptions > article");
+ assert(await requestCards.count()===3,"Client Request Inspectors must expose three distinct methods");
+ const headings=await requestCards.locator("h2").allTextContents();
+ assert(headings.join("|")==="Natural Language – AI|Email Requirements|Structured Selection",
+  "Client request method order or labels regressed: "+headings.join("|"));
+ for(const width of [1366,390]){
+  await page.setViewportSize({width,height:900});
+  const boxes=await requestCards.evaluateAll(nodes=>nodes.map(node=>{const {x,y,width}=node.getBoundingClientRect();return {x,y,width}}));
+  assert(boxes.every((box,i)=>i===0 || (box.y>boxes[i-1].y+20 && Math.abs(box.x-boxes[0].x)<3)),
+   "Client methods no longer stacked vertically at "+width+"px: "+JSON.stringify(boxes));
+  if(width===1366)assert(boxes.every(box=>box.width>600),
+   "Client request methods must be full available content width on desktop: "+JSON.stringify(boxes));
+ }
+ await page.setViewportSize({width:1366,height:900});
  const entry=page.locator('a[href="/demo/client-inspections"]').first();
  assert(await entry.count()===1,"Client Demo entry link to synthetic inspections missing");
  await entry.click();
