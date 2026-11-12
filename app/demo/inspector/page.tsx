@@ -49,7 +49,7 @@ export default function InspectorDemo(){
  },[]);
  useEffect(()=>{const onHistory=()=>{const key=window.location.hash.slice(1);const next=NAV.find(([value])=>value===key)?.[0]||"home";setSection(next);setAssignment(null);setOpp(null);setNotice("");setNoticeSection(null);requestAnimationFrame(()=>jumpTo(next,"auto"))};onHistory();window.addEventListener("popstate",onHistory);window.addEventListener("hashchange",onHistory);return()=>{window.removeEventListener("popstate",onHistory);window.removeEventListener("hashchange",onHistory)}},[]);
  const nav=(s:Section,label:string)=><button type="button" className={section===s?"sidebarTextLink active":"sidebarTextLink"} aria-current={section===s?"page":undefined} onClick={()=>{setNotice("");setNoticeSection(null);setOpp(null);setAssignment(null);setSection(s);if(window.location.hash!=="#"+s)window.history.pushState(null,"","#"+s);jumpTo(s)}}>{label}</button>;
- const demoAction=(message:string)=>{setNotice(`${message} — demo only; no production record was changed.`);setNoticeSection(section);};
+ const demoAction=(message:string)=>{setNotice(`${message} — demo only; no production record was changed.`);setNoticeSection("opportunities");};
  return <main className="shell">
   <aside className="side"><div className="sideTitle"><span>Inspector Workspace</span><strong>InspectorHub</strong></div><nav aria-label="Inspector Workspace navigation">{NAV.map(([s,l])=><span key={s}>{nav(s,l)}</span>)}</nav></aside>
   <section className="workspace">

@@ -2574,3 +2574,8 @@ The public synthetic Client Analytics Source Type=Independent control reproducib
 
 ### 2026-11-12 — Rebase contrast release gates after latest main
 - Rebased P0-B computed text contrast checks on post-#271 main e99ef113 with current Agency opportunity browser, contracts and Client Demo retained. Exact-head CI plus Vercel Preview READY required before merge, followed by production READY and exact-commit smoke.
+
+### 2026-11-12 — InspectorHub opportunity notice anchored to originating workflow
+- Fixed a continuous-scroll regression in the synthetic InspectorHub opportunity modal: its accept/decline feedback now always targets Opportunities, not a potentially different active scrollspy section. This prevents a silently missing result if the page scrolls while a modal is open; other sections still never render the opportunity banner.
+- Added unit-level contract assertions and a Chromium browser regression that changes the active viewport section with the opportunity modal open before declining, then checks visibility/scoping and sidebar reset. No live records, payments, rates, authentication or production rules changed.
+- Release only after both mandatory GitHub validation workflows and exact-head Vercel preview READY. Preserve production READY and exact-commit smoke requirements.

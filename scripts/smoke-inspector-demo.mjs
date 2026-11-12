@@ -121,6 +121,10 @@ try {
     "Acceptance confirmation does not preserve exact fictional offered day rate and project");
   await firstOpportunity.getByRole("button", { name: "Preview Opportunity" }).click();
   assert(await dialog.count() === 1, "Opportunity preview did not reopen after acceptance");
+  // The modal can stay open when viewport scrollspy changes sections (e.g. programmatic scroll).
+  // The action outcome must belong to Opportunities, not to whichever section is visible.
+  await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Income & Tax Center");
   await dialog.getByRole("button", { name: "Decline" }).click();
   assert(await page.locator("#opportunities").getByRole("status").filter({ hasText: "Opportunity declined" }).count() === 1, "Declined feedback missing in Opportunities");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();

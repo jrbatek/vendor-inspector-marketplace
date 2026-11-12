@@ -5,7 +5,8 @@ const page=fs.readFileSync("app/demo/inspector/page.tsx","utf8");
 
 test("Opportunity Declined success/error notices stay in their originating InspectorHub section",()=>{
  assert.match(page,/const \[noticeSection,setNoticeSection\]=useState<Section\|null>\(null\)/);
- assert.match(page,/setNoticeSection\(section\)/);
+ assert.match(page,/setNoticeSection\("opportunities"\)/);
+ assert.doesNotMatch(page,/setNoticeSection\(section\)/);
  assert.match(page,/notice&&noticeSection==="opportunities"/);
  assert.match(page,/setNoticeSection\(null\);setOpp\(null\);setAssignment\(null\);setSection\(s\)/);
  assert.match(page,/setNotice\(""\)/);
