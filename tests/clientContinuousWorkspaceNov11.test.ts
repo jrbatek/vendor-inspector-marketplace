@@ -37,3 +37,13 @@ test("Sticky dark-blue sidebar keeps nine accessible scrollspy links for demos o
  assert.match(sidebar,/window\.addEventListener\("popstate",onHash/);
  assert.match(sidebar,/@media\(max-width:980px\)/);
 });
+
+test("Client sidebar native anchors use motion-aware smooth scrolling and preserve shareable history",()=>{
+ assert.match(sidebar,/type MouseEvent/);
+ assert.match(sidebar,/event\.metaKey\|\|event\.ctrlKey/);
+ assert.match(sidebar,/event\.preventDefault\(\)/);
+ assert.match(sidebar,/window\.history\.pushState\(null,"","#"\+id\)/);
+ assert.match(sidebar,/scrollIntoView\(\{/);
+ assert.match(sidebar,/prefers-reduced-motion: reduce/);
+ assert.match(sidebar,/onClick=\{event=>onNavigate\(event,id\)\}/);
+});
