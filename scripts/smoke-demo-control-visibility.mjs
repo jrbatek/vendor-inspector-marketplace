@@ -18,7 +18,7 @@ const routes = [
   "/", "/demo/client", "/demo/client-agency-sourcing", "/demo/client-inspections",
   "/demo/client-analytics", "/demo/client-history", "/demo/inspector",
   "/demo/inspector-documents", "/demo/inspector-work-history", "/demo/inspector-income",
-  "/demo/agency", "/demo/agency-affiliations", "/demo/agency-commercials",
+  "/demo/agency", "/demo/agency-resources", "/demo/agency-affiliations", "/demo/agency-commercials",
   "/demo/client-data", "/demo/client-operations", "/demo/inspector-selection-outcomes",
   "/demo/inspector-affiliations", "/demo/inspector-reports", "/demo/email-requirements"
 ];
