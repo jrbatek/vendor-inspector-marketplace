@@ -52,21 +52,19 @@ export default function AgencyDemoPage() {
         current=lastSection.id;
       setActiveSection(current);
     };
-    const onHash=()=>{const hash=window.location.hash.slice(1);if(sectionIds.includes(hash)){document.getElementById(hash)?.scrollIntoView({behavior:"auto",block:"start"});}updateActive();};
+    const onHash=()=>{const hash=window.location.hash.slice(1);if(sectionIds.includes(hash)){document.getElementById(hash)?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});}updateActive();};
     const frame=window.requestAnimationFrame(()=>{if(window.location.hash)onHash();else updateActive();});
     window.addEventListener("scroll",updateActive,{passive:true});
     window.addEventListener("resize",updateActive);
     window.addEventListener("hashchange",onHash);
     return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("scroll",updateActive);window.removeEventListener("resize",updateActive);window.removeEventListener("hashchange",onHash)};
   },[agencyPageReady]);
-  const scrollToSection=(event:React.MouseEvent<HTMLAnchorElement>,id:string)=>{
-    const target=document.getElementById(id);if(!target)return;
-    event.preventDefault();setActiveSection(id);window.history.replaceState(null,"","#"+id);
-    // Use an explicit viewport target, rather than delegating to nested scroll-container
-    // alignment. A preceding smooth scroll can otherwise interrupt this navigation,
-    // especially when a short final section cannot reach the top of the viewport.
-    const targetTop=window.scrollY+target.getBoundingClientRect().top-24;
-    window.scrollTo({top:Math.max(0,targetTop),behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+  // Native anchor navigation supplies correct deep-link history and stable scrolling
+  // even while a prior smooth scroll is settling. The hashchange listener handles
+  // first-hydration deep links and back/forward; reduced-motion users jump immediately.
+  const scrollToSection=(_event:React.MouseEvent<HTMLAnchorElement>,id:string)=>{
+    if(!document.getElementById(id))return;
+    setActiveSection(id);
   };
   const [claimOpen, setClaimOpen] = useState(false);
   const [apiGuideOpen,setApiGuideOpen]=useState(false);
