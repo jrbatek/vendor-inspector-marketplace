@@ -5,7 +5,10 @@ import test from "node:test";
 const page = fs.readFileSync("app/demo/client-analytics/page.tsx", "utf8");
 
 test("nested chart and filter controls use page-scoped global CSS, not unreachable parent styled-jsx selectors", () => {
-  assert.match(page, /className="clientAnalyticsPage shell"/);
+  assert.match(page, /clientAnalyticsPage shell embedded/);
+  assert.match(page, /clientAnalyticsPage shell/);
+  assert.match(page, /!embedded&&<ClientWorkspaceSidebar demo\/>/);
+  assert.match(page, /\.shell\.embedded\{display:block/);
   assert.match(page, /<style jsx global>/);
   for (const cls of [".filter select", ".barRow.clickable:focus-visible", ".barRow.clickable[aria-pressed=true]", ".kpi", ".grid .panel", ".track", ".fill"]) {
     assert.ok(page.includes(".clientAnalyticsPage " + cls), "missing page-scoped nested style: " + cls);
