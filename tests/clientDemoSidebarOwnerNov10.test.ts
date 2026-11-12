@@ -21,7 +21,9 @@ test("dark blue Client sidebar links are the single owner of commercial section 
  assert.match(ops,/useSearchParams\(\)/);
  assert.match(ops,/Suspense fallback=/);
  assert.match(ops,/const tab:Tab=selectedTab==="contracts"\|\|selectedTab==="profile"\?selectedTab:"billing"/);
- assert.match(ops,/role="region" id="contracts-panel"/);
+ assert.match(ops,/role="region" id=\{embedded\?"contracts":"contracts-panel"\}/);
+ assert.match(ops,/embedded\|\|tab==="contracts"/);
+ assert.match(ops,/<ClientWorkspaceSidebar demo\/>/);
  assert.doesNotMatch(ops,/Client operations sections|id="billing-tab"|id="profile-tab"/);
  assert.match(ops,/Contract relationship types/);
 });

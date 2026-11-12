@@ -28,9 +28,9 @@ test("expanded billing and contract records expose accessible detail relationshi
 });
 
 test("client operations expose accessible routed regions and only contract-type tabs", () => {
-  assert.match(page, /role="region" id="billing-panel" aria-label="Billing & Payment"/);
-  assert.match(page, /role="region" id="contracts-panel" aria-label="Contracts"/);
-  assert.match(page, /role="region" id="profile-panel" aria-label="Client Profile"/);
+  assert.match(page, /role="region" id=\{embedded\?"billing-payment":"billing-panel"\} aria-label="Billing & Payment"/);
+  assert.match(page, /role="region" id=\{embedded\?"contracts":"contracts-panel"\} aria-label="Contracts"/);
+  assert.match(page, /role="region" id=\{embedded\?"profile":"profile-panel"\} aria-label="Client Profile"/);
   assert.match(page, /useSearchParams\(\)/);
   assert.match(page, /aria-label="Contract relationship types"/);
   assert.match(page, /aria-selected=\{contractTab===t\}/);
@@ -96,6 +96,7 @@ test("expired synthetic individual inspector contract must not be labeled Active
 });
 
 test("Expired status outside parent styled-JSX scope inherits high-contrast demo-specific global CSS",()=>{
-  assert.match(page, /<main className="shell clientOperationsDemo">/);
+  assert.match(page, /className=\{embedded\?"shell clientOperationsDemo embedded":"shell clientOperationsDemo"\}/);
+  assert.match(page, /!embedded&&<ClientWorkspaceSidebar demo\/>/);
   assert.match(page, /<style jsx global>\{\x60\.clientOperationsDemo \.status\.Expired\{background:#fff7ed;color:#9a3412\}\x60\}<\/style>/);
 });

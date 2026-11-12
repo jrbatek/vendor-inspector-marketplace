@@ -16,7 +16,12 @@ const smoke=readFileSync("scripts/smoke-client-inspections.mjs","utf8");
 test("all seven core Client Demo pages use the same dark-blue sidebar",()=>{
  for(const path of routes){
   const source=readFileSync(path,"utf8");
-  assert.match(source,/<ClientWorkspaceSidebar demo\s*\/>/,path);
+  if(path==="app/demo/client/page.tsx"){
+   assert.match(source,/<ClientContinuousSidebar\/>/,path);
+   assert.match(source,/ClientDemoEmbeddedContext\.Provider/,path);
+  }else{
+   assert.match(source,/<ClientWorkspaceSidebar demo\s*\/>/,path);
+  }
  }
 });
 

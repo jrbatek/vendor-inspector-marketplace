@@ -9,7 +9,7 @@ test("Client operations suspense server fallback visibly preserves its demo boun
   assert.match(source,/fallback=\{<main aria-label="Client operations loading">/);
   assert.match(source,/<strong>Demo Mode · Synthetic data<\/strong><h1>Commercial and account management<\/h1>/);
   assert.match(source,/Loading synthetic Client Workspace/);
-  assert.match(source,/<ClientOperationsDemoContent\/>/);
+  assert.match(source,/<ClientOperationsDemoContent embedded=\{embedded\}\/>/);
   assert.match(smoke,/"\/demo\/client-operations"/);
   assert.match(smoke,/"Commercial and account management"/);
 });

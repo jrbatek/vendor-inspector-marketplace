@@ -36,10 +36,73 @@ try{
    "Client request methods must be full available content width on desktop: "+JSON.stringify(boxes));
  }
  await page.setViewportSize({width:1366,height:900});
- const entry=page.locator('a[href="/demo/client-inspections"]').first();
- assert(await entry.count()===1,"Client Demo entry link to synthetic inspections missing");
- await entry.click();
- await page.waitForURL("**/demo/client-inspections");
+ // The embedded email and structured controls must actually work in Chromium.
+ const emailCard=page.locator("#email-requirements");
+ // Next.js hydration and clipboard promises are asynchronous: await client
+ // initialization and observable status instead of racing React's state flush.
+ await page.waitForLoadState("networkidle");
+ await emailCard.getByRole("button",{name:"Copy Sample Request"}).click();
+ await page.waitForFunction(
+   () => /Sample request copied|Clipboard unavailable/.test(
+     document.querySelector("#email-requirements [role=status]")?.textContent||""),
+   null,{timeout:8000}
+ );
+ assert(/Sample request copied|Clipboard unavailable/.test(await emailCard.getByRole("status").innerText()),
+   "On-page Email Requirements copy action did not return accessible feedback");
+ const structured=page.locator("#structured-selection");
+ await structured.getByLabel("Geography").selectOption("Europe");
+ await structured.getByLabel("Required certification").selectOption("AWS CWI");
+ await structured.getByLabel("Minimum experience (years)").fill("7");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ const criteriaStatus=await structured.getByRole("status").innerText();
+ assert(criteriaStatus.includes("Europe")&&criteriaStatus.includes("AWS CWI")&&criteriaStatus.includes("7+ years")&&
+   criteriaStatus.includes("No matching, commercial offer or production request was created"),
+   "Structured Selection failed to preview changed fictional criteria safely");
+ assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
+   "New inline request mechanism unexpectedly routed to authenticated workspace");
+ // Nov 11 owner: the Client Workspace is one continuous public page, not a
+ // row of cards linking to separate Client, Analytics and commercial shells.
+ const clientNav=page.getByRole("navigation",{name:"Client Workspace sections"});
+ const clientSide=page.locator(".clientContinuousSide");
+ const clientIds=["request-inspectors","natural-language","email-requirements",
+   "structured-selection","inspections-in-progress","analytics","billing-payment","contracts","profile"];
+ for(const id of clientIds){
+   assert(await page.locator("#"+id).count()===1,"Client continuous section missing or duplicated: "+id);
+   assert(await clientNav.locator('a[href="#'+id+'"]').count()===1,"Client sidebar anchor missing: "+id);
+ }
+ let sideBox=await clientSide.boundingBox(), contentBox=await page.locator("#request-inspectors").boundingBox();
+ assert(sideBox&&contentBox&&sideBox.width>=220&&sideBox.width<=290&&sideBox.x+sideBox.width<contentBox.x,
+   "Client sidebar is not a fixed-width LEFT rail alongside right-hand content on desktop");
+ assert(await clientSide.evaluate(el=>getComputedStyle(el).position)==="sticky","Client desktop sidebar is no longer sticky");
+ assert(await page.locator("#inspections-in-progress article.inspection").count()===7,
+   "Continuous Client page must preserve seven fictional inspections without login");
+ assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+   "Continuous public Client page leaked an authenticated workspace placeholder");
+ await clientNav.locator('a[href="#inspections-in-progress"]').click();
+ await page.waitForFunction(()=>location.hash==="#inspections-in-progress" &&
+   document.querySelector('a[href="#inspections-in-progress"]')?.getAttribute("aria-current")==="location");
+ await clientNav.locator('a[href="#contracts"]').click();
+ await page.waitForFunction(()=>location.hash==="#contracts" &&
+   document.querySelector('a[href="#contracts"]')?.getAttribute("aria-current")==="location");
+ assert(await page.getByRole("region",{name:"Contracts"}).count()===1,
+   "Full synthetic Contracts must be embedded in Client Workspace");
+ await clientNav.locator('a[href="#profile"]').click();
+ await page.waitForFunction(()=>location.hash==="#profile" &&
+   document.querySelector('a[href="#profile"]')?.getAttribute("aria-current")==="location");
+ assert(await page.getByRole("region",{name:"Client Profile"}).count()===1,
+   "Full Client Profile must be embedded under persistent sidebar");
+ await page.goBack({waitUntil:"domcontentloaded"});
+ await page.waitForFunction(()=>location.hash==="#contracts" &&
+   document.querySelector('a[href="#contracts"]')?.getAttribute("aria-current")==="location");
+ await page.setViewportSize({width:390,height:844});
+ sideBox=await clientSide.boundingBox();contentBox=await page.locator("#request-inspectors").boundingBox();
+ assert(sideBox&&contentBox&&sideBox.y+sideBox.height<contentBox.y+8,
+   "Client mobile sidebar should stack ABOVE continuous content rather than overlap it");
+ assert(sideBox.x>=-1&&sideBox.x+sideBox.width<=391,"Client mobile sidebar overflows screen");
+ await page.setViewportSize({width:1366,height:900});
+ // Standalone URLs remain supported for old shared links, but are no longer the
+ // primary Client sidebar navigation architecture.
+ await page.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
  await page.locator("article.inspection").first().waitFor();
  assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
  assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
@@ -310,14 +373,31 @@ try{
  for (const [path,label] of otherClientDemoRoutes) {
   await page.setViewportSize({width:1366,height:900});
   await page.goto(base+path,{waitUntil:"domcontentloaded"});
-  await page.locator("aside.clientSide").waitFor();
-  await verifyClientSidebarLayout(label+" desktop",true);
+  if(path==="/demo/client"){
+   // Canonical Client now has a sticky, hash-linked rail on the full embedded page.
+   const continuous=page.locator("aside.clientContinuousSide");
+   await continuous.waitFor();
+   const side=await continuous.boundingBox(),body=await page.locator("#request-inspectors").boundingBox();
+   assert(side&&body&&side.width>=220&&side.width<=290&&side.x+side.width<body.x,
+    "Canonical Client continuous sidebar is not fixed-width at left");
+   assert(await continuous.evaluate(el=>getComputedStyle(el).position)==="sticky",
+    "Canonical Client sidebar should be sticky on desktop");
+   assert(await continuous.locator('a[href="#inspections-in-progress"]').count()===1,
+    "Canonical Client sidebar lost its in-page seven-inspection anchor");
+   await page.setViewportSize({width:760,height:900});
+   const ms=await continuous.boundingBox(),mb=await page.locator("#request-inspectors").boundingBox();
+   assert(ms&&mb&&ms.y+ms.height<=mb.y+8,
+    "Canonical Client mobile sidebar did not stack above content");
+  }else{
+   await page.locator("aside.clientSide").waitFor();
+   await verifyClientSidebarLayout(label+" desktop",true);
+   await page.setViewportSize({width:760,height:900});
+   await verifyClientSidebarLayout(label+" mobile",false);
+   assert(await page.locator('aside.clientSide a[href^="/client-dashboard"]').count()===0,
+    label+": Client Demo sidebar must never navigate to live client dashboard");
+  }
   assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
    label+": synthetic Client Demo must not render authenticated workspace prompt");
-  assert(await page.locator('aside.clientSide a[href^="/client-dashboard"]').count()===0,
-   label+": Client Demo sidebar must never navigate to live client dashboard");
-  await page.setViewportSize({width:760,height:900});
-  await verifyClientSidebarLayout(label+" mobile",false);
  }
  // Finish the multi-page audit at the owner's seven-record priority demo entry.
  await page.setViewportSize({width:1366,height:900});
