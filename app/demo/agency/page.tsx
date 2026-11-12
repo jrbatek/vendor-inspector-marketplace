@@ -62,7 +62,11 @@ export default function AgencyDemoPage() {
   const scrollToSection=(event:React.MouseEvent<HTMLAnchorElement>,id:string)=>{
     const target=document.getElementById(id);if(!target)return;
     event.preventDefault();setActiveSection(id);window.history.replaceState(null,"","#"+id);
-    target.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+    // Use an explicit viewport target, rather than delegating to nested scroll-container
+    // alignment. A preceding smooth scroll can otherwise interrupt this navigation,
+    // especially when a short final section cannot reach the top of the viewport.
+    const targetTop=window.scrollY+target.getBoundingClientRect().top-24;
+    window.scrollTo({top:Math.max(0,targetTop),behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
   };
   const [claimOpen, setClaimOpen] = useState(false);
   const [apiGuideOpen,setApiGuideOpen]=useState(false);
