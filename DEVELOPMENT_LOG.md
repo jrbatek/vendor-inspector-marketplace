@@ -1,3 +1,8 @@
+### 2026-11-12 — Client single-page intake mechanisms now usable in place
+- Expanded Email Requirements inside the vertically stacked Client Workspace: existing inspection inbox and subject, readable scope/ITP attachment guidance and confidentiality note, browser-local Copy Sample Request with accessible status, plus optional email-app action. No email is sent automatically.
+- Added an independently usable Structured Selection demo form for geography, certification, inspection start, experience and agency/independent source. Submitting previews selected criteria only in local browser state, not a real match, client request, payment or DB write. Kept sourcing route as an optional drill-down.
+- Added regression assertions for labels, keyboard focus, no production writes and no hidden submission. PR #264 is held until both exact-head GitHub workflows pass and Vercel Preview READY. Vercel Hobby currently rejects new deployments with api-deployments-free-per-day (Issue #232); no upgrade, bypass or merge.
+
 ### 2026-11-12 — Client real Chromium cross-demo shell audit adapted to new canonical architecture
 - Following six restored source-test assertions, Autonomous QA next reached Chromium and revealed its old all-pages loop still demanded `aside.clientSide` on `/demo/client`. The canonical route intentionally now uses sticky `aside.clientContinuousSide`; standalone Client routes retain `aside.clientSide`. Updated browser smoke to inspect both layouts on desktop and mobile without weakening auth/login and seven-synthetic-inspection boundary checks.
 - Both mandatory workflows must rerun on this exact commit and Vercel Preview must be READY before merge; subsequently production READY and exact-commit smoke. Earlier failures were not overridden.
