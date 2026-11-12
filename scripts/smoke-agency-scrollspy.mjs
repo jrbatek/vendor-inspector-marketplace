@@ -69,6 +69,26 @@ try{
  await nav.getByRole("link",{name:"Contracts & Commercials"}).click();
  await page.waitForTimeout(1000);
  await active(page,"contracts-commercials");
+ // Owner: every named fictional contract must open in-place and download a
+ // readable, explicitly nonbinding PDF. Test real Chromium, not just unit bytes.
+ const contracts=page.locator("#contracts-commercials .agreementCard");
+ if(await contracts.count()!==3)throw Error("Agency needs three named synthetic contracts");
+ const sample=contracts.first();
+ await sample.getByRole("button",{name:"Open contract details"}).click();
+ const detail=sample.getByRole("region",{name:"Synthetic agreement SYN-MSA-2026-001"});
+ if(!await detail.isVisible() || !(await detail.innerText()).includes("Net 45"))
+   throw Error("Agency fictional contract details did not open or lost commercial terms");
+ const pdfEvent=page.waitForEvent("download",{timeout:15000});
+ await sample.getByRole("button",{name:"Download fictional PDF SYN-MSA-2026-001"}).click();
+ const downloaded=await pdfEvent;
+ if(downloaded.suggestedFilename()!=="inspectsource-fictional-SYN-MSA-2026-001.pdf")
+   throw Error("Agency fictional PDF download name is incorrect");
+ const {readFile}=await import("node:fs/promises");
+ const {PDFDocument}=await import("pdf-lib");
+ const pdf=await PDFDocument.load(await readFile(await downloaded.path()));
+ if(pdf.getPageCount()!==1 || !pdf.getTitle()?.includes("SYNTHETIC SAMPLE") ||
+    !pdf.getSubject()?.includes("FICTIONAL"))
+   throw Error("Downloaded Agency contract PDF lacks explicit nonbinding synthetic content");
  await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
  await active(page,"contracts-commercials");
  await page.evaluate(()=>document.querySelector("#resource-pool")?.scrollIntoView({behavior:"instant",block:"start"}));
