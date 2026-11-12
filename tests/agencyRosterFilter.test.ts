@@ -10,7 +10,10 @@ test("agency synthetic resource search and status compose without touching live 
  assert.match(page,/value=\{rosterStatus\}/);
  assert.match(page,/value=\{rosterQuery\}/);
  assert.match(page,/visibleResources\.map\(r =>/);
- assert.match(page,/Showing \{visibleResources\.length\} of \{resources\.length\} synthetic agency resources/);
+ assert.match(page,/Showing \\{visibleResources\\.length\\} of \\{AGENCY_SYNTHETIC_RESOURCE_TOTAL\\.toLocaleString\\("en-US"\\)\\} resources \\(synthetic\\)/);
+ assert.match(page,/Search all \\{AGENCY_SYNTHETIC_RESOURCE_TOTAL\\.toLocaleString\\("en-US"\\)\\} resources/);
+ assert.match(page,/href="\\/demo\\/agency-resources"/);
+ assert.doesNotMatch(page,/id="availability-capacity"/);
  assert.match(page,/Reset resource filters/);
  assert.match(page,/\.rosterTools input:focus-visible/);
  assert.match(page,/\.rosterTools button:disabled/);
