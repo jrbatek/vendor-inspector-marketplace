@@ -226,6 +226,50 @@ try {
           throw new Error("Redundant in-content client section buttons remain");
         if (errors.length) throw new Error("Client operations keyboard interactions threw: " + errors.join("\\n"));
       }
+      // P0-B: Client and Agency sticky nav must retain readable text through
+      // inactive, hovered, keyboard-focused and active visual states on desktop/mobile.
+      if (route === "/demo/client" || route === "/demo/agency") {
+        const navSelector = route === "/demo/client"
+          ? ".clientContinuousSide nav a" : "aside.side nav a";
+        const links = page.locator(navSelector);
+        if (await links.count() < 3)
+          throw new Error(route + " lost its accessible continuous-scroll sidebar links");
+        const readContrast = async (link) => link.evaluate(el => {
+          const rgb = value => {
+            const found = value.match(/rgba?\(([^)]+)\)/);
+            if (!found) return null;
+            const numbers = found[1].split(/[\s,]+/).map(Number);
+            return [...numbers.slice(0, 3), numbers.length > 3 ? numbers[3] : 1];
+          };
+          const lum = values => values.slice(0, 3).map(value => {
+            const n = value / 255;
+            return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+          const fg = rgb(getComputedStyle(el).color);
+          let bg = [255, 255, 255, 1];
+          for (let node = el; node; node = node.parentElement) {
+            const candidate = rgb(getComputedStyle(node).backgroundColor);
+            if (candidate && candidate[3] >= 0.95) { bg = candidate; break; }
+          }
+          return { name: el.textContent?.trim(), contrast: fg
+            ? (Math.max(lum(fg), lum(bg)) + 0.05) / (Math.min(lum(fg), lum(bg)) + 0.05) : 0 };
+        });
+        const check = async (link, state) => {
+          const appearance = await readContrast(link);
+          if (!appearance.name || appearance.contrast < 4.5)
+            throw new Error(route + " " + state + " sidebar text is not legible: " + JSON.stringify(appearance));
+        };
+        const inactive = links.nth(1);
+        await check(inactive, "default");
+        await inactive.hover();
+        await check(inactive, "hover");
+        await inactive.focus();
+        await check(inactive, "focus");
+        const active = page.locator(navSelector + "[aria-current]");
+        if (await active.count() !== 1)
+          throw new Error(route + " sidebar scrollspy must highlight exactly one section");
+        await check(active, "selected");
+      }
       console.log("Demo control visibility OK:", width + "px", route, result.checked);
     }
     await page.close();
