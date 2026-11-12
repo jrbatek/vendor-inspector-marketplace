@@ -64,6 +64,13 @@ try{
  await active(page,"overview");
  await nav.getByRole("link",{name:"Mass Resource Connect"}).click();
  await active(page,"mass-resource-connect");
+ await page.locator("#agency-roster-upload").setInputFiles({
+   name:"fictional-roster.csv",mimeType:"text/csv",
+   buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,Sample Inspector A,Employee,USA,Pending\nSYN-1002,Sample Inspector B,Subcontractor,Mexico,Pending\n")
+ });
+ const uploadSummary=await page.locator("#agency-roster-preview").innerText();
+ if(!uploadSummary.includes("2 complete unique records")||!uploadSummary.includes("No records submitted"))
+   throw Error("Mass Resource Connect did not preview fictional CSV rows without submitting them");
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
  await page.getByRole("button",{name:"Connect API"}).click();
