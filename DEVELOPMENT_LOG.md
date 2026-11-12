@@ -1,3 +1,7 @@
+### 2026-11-12 — Agency 2,823-resource release-gate regression repair
+- Both mandatory GitHub workflows on the first Agency #265 head failed three legacy unit assertions expecting the owner-retired Availability & Capacity section and old five-resource denominator. Updated tests to assert the section, sidebar target, and UI export are absent while continuing to validate the reusable synthetic capacity dataset/CSV independently. Roster assertions now require the shared 2,823 total and searchable resource-pool link.
+- Initial failures remain evidence; the corrected exact branch head must pass both GitHub workflows and Vercel Preview READY before any merge, followed by exact-commit production READY and smoke. No production data, auth, payment, banking, OAuth or matching modifications.
+
 
 ### 2026-11-12 — Agency 2,823-resource count consistency and owner removal of Capacity section
 - Matched Agency KPI and five-row preview denominator to shared deterministic synthetic total (2,823), with link to already implemented searchable fictional resource pool. Preserved five featured examples and synthetic/privacy isolation.
