@@ -7,8 +7,8 @@ const income=fs.readFileSync("app/demo/inspector-income/page.tsx","utf8");
 test("Work History and Income render their complete dashboard inside the green InspectorHub sidebar shell",()=>{
  assert.match(hub,/import InspectorWorkHistoryDemo/);
  assert.match(hub,/import InspectorIncomeDemo/);
- assert.match(hub,/section==="work"&&<InspectorWorkHistoryDemo\/>/);
- assert.match(hub,/section==="income"&&<InspectorIncomeDemo\/>/);
+ assert.match(hub,/id="work" className="demoSection" aria-label="Work History"><InspectorWorkHistoryDemo\/>/);
+ assert.match(hub,/id="income" className="demoSection" aria-label="Income & Tax Center"><InspectorIncomeDemo\/>/);
  assert.doesNotMatch(hub,/Open Work History &amp; sample inspection PDFs|Open Income &amp; Tax Center demo/);
  assert.match(history,/usePathname\(\)==="\/demo\/inspector"/);
  assert.match(income,/usePathname\(\)==="\/demo\/inspector"/);

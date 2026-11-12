@@ -31,6 +31,29 @@ try {
   const names = await navigation.getByRole("button").allTextContents();
   assert(names.join("|") === ["Profile Home","Opportunities","Active Assignments","Availability & Calendar","Selection Insights & Feedback","Qualifications & Documents","Work History","Income & Tax Center"].join("|"), "InspectorHub navigation order or consolidated Work History incorrect: " + names);
   assert(await page.getByText("Inspector Demo · Synthetic data").count() === 1, "Synthetic demo guard banner missing");
+  // Single-page InspectorHub: every dashboard is present, with viewport-driven active
+  // sidebar state, sticky desktop navigation, deep links and keyboard controls.
+  const sectionIds=["home","opportunities","assignments","calendar","insights","qualifications","work","income"];
+  for(const id of sectionIds){
+    assert(await page.locator("#"+id).count()===1,"InspectorHub missing continuous section "+id);
+  }
+  const sidePos=await navigation.boundingBox();
+  const contentPos=await page.locator("#opportunities").boundingBox();
+  assert(sidePos&&contentPos&&sidePos.x+sidePos.width<=contentPos.x,
+    "InspectorHub desktop sidebar must be to the left of the content");
+  await navigation.getByRole("button",{name:"Work History"}).click();
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Work History");
+  assert(page.url().endsWith("#work"),"InspectorHub click must preserve deep-link hash");
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Profile Home");
+  await navigation.getByRole("button",{name:"Profile Home"}).focus();
+  await page.keyboard.press("Enter");
+  assert(page.url().endsWith("#home"),"InspectorHub keyboard navigation must update hash");
+  await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Income & Tax Center");
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Profile Home");
+
 
   // Home cards must register hash/history, not only change local section state.
   await page.getByRole("button", { name: "Review opportunities" }).click();
@@ -53,9 +76,9 @@ try {
   await page.evaluate(() => window.history.back());
   await page.getByRole("heading", { name: "Inspection background" }).waitFor();
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
-  assert(await page.getByRole("button", { name: "Open assignment" }).count() === 3, "Three synthetic active assignments expected");
+  assert(await page.locator("#assignments").getByRole("button", { name: "Open assignment" }).count() === 3, "Three synthetic active assignments expected");
   for (const name of ["LNG Compressor Package", "Gulf Horizon Refinery Upgrade", "Orion Deepwater Platform"]) {
-    await page.locator("article").filter({ hasText: name }).getByRole("button", { name: "Open assignment" }).click();
+    await page.locator("#assignments article").filter({ hasText: name }).getByRole("button", { name: "Open assignment" }).click();
     const assignment = page.getByRole("region", { name: "Open assignment details" });
     assert(await assignment.count() === 1, "Assignment workspace missing for " + name);
     assert(await assignment.getByRole("heading", { name: "Milestones" }).count() === 1, "Milestones section missing for " + name);
@@ -69,20 +92,20 @@ try {
     await assignment.getByRole("button", { name: /Back to active assignments/ }).click();
   }
   // Sidebar navigation always returns to the list, not a previously opened detail.
-  await page.locator("article").filter({ hasText: "LNG Compressor Package" })
+  await page.locator("#assignments article").filter({ hasText: "LNG Compressor Package" })
     .getByRole("button", { name: "Open assignment" }).click();
   assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 1,
     "Assignment must open before testing sidebar reset");
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
   assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 0 &&
-    await page.getByRole("button", { name: "Open assignment" }).count() === 3,
+    await page.locator("#assignments").getByRole("button", { name: "Open assignment" }).count() === 3,
     "Active Assignments sidebar should return to three-record list from detail");
-  await page.locator("article").filter({ hasText: "Orion Deepwater Platform" })
+  await page.locator("#assignments article").filter({ hasText: "Orion Deepwater Platform" })
     .getByRole("button", { name: "Open assignment" }).click();
   await navigation.getByRole("button", { name: "Profile Home" }).click();
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
   assert(await page.getByRole("region", { name: "Open assignment details" }).count() === 0 &&
-    await page.getByRole("button", { name: "Open assignment" }).count() === 3,
+    await page.locator("#assignments").getByRole("button", { name: "Open assignment" }).count() === 3,
     "Leaving an assignment for another section must clear stale detail when returning");
   await navigation.getByRole("button", { name: "Opportunities" }).click();
   // A fictional offer has one shared day rate in listing, preview and acceptance notice.
@@ -94,12 +117,12 @@ try {
   assert((await dialog.innerText()).includes("Offered day rate: $950/day"),"Opportunity preview day rate differs from list");
   assert(!(await dialog.innerText()).includes("$850–$1,050"),"Rate range unexpectedly reintroduced");
   await dialog.getByRole("button", { name: "Accept" }).click();
-  assert(await page.getByRole("status").filter({hasText:"Opportunity accepted at $950/day for Gulf Horizon Refinery Upgrade"}).count() === 1,
+  assert(await page.locator("#opportunities").getByRole("status").filter({hasText:"Opportunity accepted at $950/day for Gulf Horizon Refinery Upgrade"}).count() === 1,
     "Acceptance confirmation does not preserve exact fictional offered day rate and project");
   await firstOpportunity.getByRole("button", { name: "Preview Opportunity" }).click();
   assert(await dialog.count() === 1, "Opportunity preview did not reopen after acceptance");
   await dialog.getByRole("button", { name: "Decline" }).click();
-  assert(await page.getByRole("status").filter({ hasText: "Opportunity declined" }).count() === 1, "Declined feedback missing in Opportunities");
+  assert(await page.locator("#opportunities").getByRole("status").filter({ hasText: "Opportunity declined" }).count() === 1, "Declined feedback missing in Opportunities");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   assert(await page.getByText("Opportunity declined").count() === 0, "Opportunity feedback leaked across InspectorHub sections");
   const cal = page.getByRole("region", { name: "Inspector availability calendar" });
@@ -272,8 +295,8 @@ try {
   // Browser-local Calendar edits must survive trips to other InspectorHub sections,
   // without leaking the inactive calendar into keyboard or screen-reader navigation.
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
-  assert(await page.getByRole("region", { name: "Inspector availability calendar" }).count() === 0,
-    "Inactive Calendar must be hidden from the accessibility tree");
+  assert(await page.getByRole("region", { name: "Inspector availability calendar" }).count() === 1,
+    "Calendar must remain in the continuous page when scrolling to other sections");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   assert((await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" })
     .locator("xpath=..").innerText()).includes("Unavailable"),

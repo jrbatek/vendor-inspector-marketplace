@@ -7,7 +7,7 @@ const docs=fs.readFileSync("app/demo/inspector-documents/page.tsx","utf8");
 
 test("InspectorHub Qualifications embeds complete synthetic evidence workflow under green sidebar",()=>{
  assert.match(inspector,/import InspectorQualificationDocumentsDemo from "\.\.\/inspector-documents\/page"/);
- assert.match(inspector,/section==="qualifications"&&<InspectorQualificationDocumentsDemo\/>/);
+ assert.match(inspector,/id="qualifications" className="demoSection" aria-label="Qualifications & Documents"><InspectorQualificationDocumentsDemo\/>/);
  assert.doesNotMatch(inspector,/href="\/demo\/inspector-documents">Add Qualification/);
  assert.match(docs,/Add Qualification &amp; Upload Documentation/);
  assert.match(docs,/Recommended Additional Qualifications/);
