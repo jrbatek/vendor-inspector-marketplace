@@ -12,16 +12,15 @@ test("capacity regions are valid synthetic data with auditable totals",()=>{
  assert.equal(capacityByRegion("All regions").length,4);
  assert.equal(capacityByRegion("unknown").length,0);
 });
-test("agency capacity selector, reset and summary are visible and accessible",()=>{
+test("Agency one-page Demo does not reintroduce retired Availability & Capacity section",()=>{
  const s=readFileSync("app/demo/agency/page.tsx","utf8");
- assert.match(s,/aria-label="Capacity region"/);
- assert.match(s,/value=\{capacityRegion\}/);
- assert.match(s,/selectedCapacity\.map\(/);
- assert.match(s,/onClick=\{\(\)=>setCapacityRegion\("All regions"\)\}/);
- assert.match(s,/aria-live="polite"/);
- assert.match(s,/Capacity is synthetic/);
+ assert.doesNotMatch(s,/id="availability-capacity"/);
+ assert.doesNotMatch(s,/"Availability & Capacity"/);
+ assert.doesNotMatch(s,/aria-label="Capacity region"/);
+ assert.doesNotMatch(s,/download="inspectsource-synthetic-agency-capacity.csv"/);
+ assert.match(s,/Mass Resource Connect/);
+ assert.match(s,/AGENCY_SYNTHETIC_RESOURCE_TOTAL/);
 });
-
 test("exported fictional capacity CSV respects region filter, totals and synthetic-only boundaries",()=>{
  const all=exportAgencyCapacityCsv(AGENCY_CAPACITY);
  assert.ok(all.startsWith("\uFEFF"));
@@ -36,13 +35,11 @@ test("exported fictional capacity CSV respects region filter, totals and synthet
  }
  assert.deepEqual(exportAgencyCapacityCsv([]).split("\r\n").filter(Boolean).length,1);
 });
-test("Agency Demo capacity export is a readable, accessible browser-only downloadable CSV",()=>{
+test("retired Agency capacity UI does not remove reusable synthetic capacity fixtures or exports",()=>{
  const source=readFileSync("app/demo/agency/page.tsx","utf8");
- const browser=readFileSync("scripts/smoke-agency-capacity.mjs","utf8");
- assert.match(source,/download="inspectsource-synthetic-agency-capacity.csv"/);
- assert.match(source,/encodeURIComponent\(exportAgencyCapacityCsv\(selectedCapacity\)\)/);
- assert.match(source,/capacityExport:focus-visible/);
- assert.match(browser,/page.waitForEvent\("download"\)/);
- assert.match(browser,/SYNTHETIC - NOT VERIFIED/);
+ const library=readFileSync("lib/agencyDemoCapacity.ts","utf8");
+ assert.doesNotMatch(source,/capacityByRegion|capacityTotals|exportAgencyCapacityCsv/);
+ assert.doesNotMatch(source,/id="availability-capacity"/);
+ assert.match(library,/export (const|function) exportAgencyCapacityCsv|exportAgencyCapacityCsv/);
  assert.doesNotMatch(source,/\.insert\(|\.update\(/);
 });
