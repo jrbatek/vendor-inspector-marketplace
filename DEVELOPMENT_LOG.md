@@ -1,3 +1,6 @@
+## 2026-11-11 — Agency resource pool browser accessibility coverage correction
+- Hosted mandatory Validate application and Autonomous QA reported the new `/demo/agency-resources` route lacked inclusion in the exhaustive desktop/mobile live contrast audit (`tests/demoControlRouteCoverage.test.ts`). Added this exact route to `scripts/smoke-demo-control-visibility.mjs` rather than weakening the invariant or skipping controls. Require fresh GitHub tests, synthetic-data/migrations/typecheck/build, Chromium checks and Vercel Preview READY on corrected branch before merge. No live data, credentials, RLS or API writes.
+
 ## 2026-11-11 — 2,823-record fictional Agency resource search (independent follow-on)
 - Added a deterministic 2,823-record, entirely browser-local Agency synthetic resource corpus with the five existing featured resource identities at the front and unique demo inspector IDs. No network API, production database writes, PII, OAuth or authorization changes.
 - Added /demo/agency-resources with composable keyword, region, affiliation and relationship filters, page-by-page browsing, fictional preview details and accessible mobile styles. Added source/unit and hosted Chromium smoke tests to both mandatory validation workflows.
