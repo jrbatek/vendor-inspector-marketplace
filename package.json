@@ -21,6 +21,7 @@
     "smoke:agency-commercials": "node scripts/smoke-agency-commercials.mjs",
     "smoke:agency-capacity": "node scripts/smoke-agency-capacity.mjs",
     "smoke:agency-scrollspy": "node scripts/smoke-agency-scrollspy.mjs",
+    "smoke:agency-resources": "node scripts/smoke-agency-resources.mjs",
     "smoke:inspector-demo": "node scripts/smoke-inspector-demo.mjs",
     "smoke:work-history": "node scripts/smoke-work-history-summary.mjs",
     "smoke:demo-controls": "node scripts/smoke-demo-control-visibility.mjs",

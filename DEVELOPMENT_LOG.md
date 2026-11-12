@@ -1,3 +1,8 @@
+## 2026-11-11 — 2,823-record fictional Agency resource search (independent follow-on)
+- Added a deterministic 2,823-record, entirely browser-local Agency synthetic resource corpus with the five existing featured resource identities at the front and unique demo inspector IDs. No network API, production database writes, PII, OAuth or authorization changes.
+- Added /demo/agency-resources with composable keyword, region, affiliation and relationship filters, page-by-page browsing, fictional preview details and accessible mobile styles. Added source/unit and hosted Chromium smoke tests to both mandatory validation workflows.
+- This safe independent PR deliberately does not modify the currently active Agency main-page PR; a subsequent integration will change the Agency summary and resource-pool count to "Showing 5 of 2,823 resources" and add the requested search-all link. Hold merging until all required tests and Vercel preview READY; verify production exact-commit READY/smoke after merge.
+
 ## 2026-11-11 — Inspector Calendar labels Personal Busy without changing privacy semantics
 - Updated the synthetic Calendar legend and Block Dates selector to display “Personal Busy” rather than the ambiguous “Busy”, matching the owner-approved availability taxonomy. The internal Busy value, private appointment names, conflict handling and client-only Busy redaction remain unchanged.
 - Added static regression assertions and a real Chromium smoke check of both labels and underlying option value. An initial preview build exposed TypeScript's string-array inference for the selector, fixed by an explicit AvailabilityState cast. No real calendar OAuth, production data or auth changes. Full hosted validations and Preview READY remain required before merging.
