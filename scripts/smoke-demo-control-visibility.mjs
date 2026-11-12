@@ -163,8 +163,11 @@ try {
           assertTextLink(await appearance(item), "Default InspectorHub sidebar link");
         const workLink = nav.getByRole("button", { name: "Work History" });
         await workLink.click();
-        if (await workLink.getAttribute("aria-current") !== "page")
-          throw new Error("InspectorHub active sidebar highlight is missing");
+        await page.waitForFunction(() => {
+          const nav = document.querySelector('nav[aria-label="Inspector Workspace navigation"]');
+          return Array.from(nav?.querySelectorAll("button") || []).some(button =>
+            button.textContent?.trim() === "Work History" && button.getAttribute("aria-current") === "page");
+        }, null, { timeout: 5000 }).catch(() => { throw new Error("InspectorHub active sidebar highlight is missing after scroll settles"); });
         assertTextLink(await appearance(workLink), "Active InspectorHub sidebar link");
         await workLink.hover();
         assertTextLink(await appearance(workLink), "Hovered InspectorHub sidebar link");
