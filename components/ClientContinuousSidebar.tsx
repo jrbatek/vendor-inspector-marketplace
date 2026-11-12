@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useState,type MouseEvent} from "react";
 
 const SECTIONS=[
   ["request-inspectors","Request Inspectors",false],
@@ -47,12 +47,26 @@ export default function ClientContinuousSidebar(){
    window.addEventListener("popstate",onHash);
    return()=>{cancelAnimationFrame(initialFrame);cancelAnimationFrame(frame);window.removeEventListener("scroll",schedule);window.removeEventListener("resize",schedule);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
  },[]);
+ const onNavigate=(event:MouseEvent<HTMLAnchorElement>,id:string)=>{
+   // Keep real anchors usable for copying and modified-click; ordinary clicks
+   // update shareable history while respecting the system reduced-motion setting.
+   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+   const element=document.getElementById(id);
+   if(!element)return;
+   event.preventDefault();
+   if(window.location.hash!=="#"+id)window.history.pushState(null,"","#"+id);
+   setActive(id);
+   element.scrollIntoView({
+     behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
+     block:"start",
+   });
+ };
  return <aside className="clientContinuousSide" aria-label="Client Workspace navigation">
    <div className="brand"><small>Client Workspace</small><strong>InspectSource</strong></div>
    <nav aria-label="Client Workspace sections">
     {SECTIONS.map(([id,label,child])=><a key={id} href={"#"+id} className={child?"subsection":""}
      aria-current={active===id?"location":undefined}
-     onClick={()=>setActive(id)}>{label}</a>)}
+     onClick={event=>onNavigate(event,id)}>{label}</a>)}
    </nav>
    <style jsx>{`
     .clientContinuousSide{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 36px);overflow-y:auto;border-radius:16px;background:#102b50;border:1px solid #1e40af;color:#fff;padding:16px}
