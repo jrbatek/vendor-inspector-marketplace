@@ -36,6 +36,22 @@ try{
    "Client request methods must be full available content width on desktop: "+JSON.stringify(boxes));
  }
  await page.setViewportSize({width:1366,height:900});
+ // The embedded email and structured controls must actually work in Chromium.
+ const emailCard=page.locator("#email-requirements");
+ await emailCard.getByRole("button",{name:"Copy Sample Request"}).click();
+ assert(/Sample request copied|Clipboard unavailable/.test(await emailCard.getByRole("status").innerText()),
+   "On-page Email Requirements copy action did not return accessible feedback");
+ const structured=page.locator("#structured-selection");
+ await structured.getByLabel("Geography").selectOption("Europe");
+ await structured.getByLabel("Required certification").selectOption("AWS CWI");
+ await structured.getByLabel("Minimum experience (years)").fill("7");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ const criteriaStatus=await structured.getByRole("status").innerText();
+ assert(criteriaStatus.includes("Europe")&&criteriaStatus.includes("AWS CWI")&&criteriaStatus.includes("7+ years")&&
+   criteriaStatus.includes("No matching, commercial offer or production request was created"),
+   "Structured Selection failed to preview changed fictional criteria safely");
+ assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
+   "New inline request mechanism unexpectedly routed to authenticated workspace");
  // Nov 11 owner: the Client Workspace is one continuous public page, not a
  // row of cards linking to separate Client, Analytics and commercial shells.
  const clientNav=page.getByRole("navigation",{name:"Client Workspace sections"});

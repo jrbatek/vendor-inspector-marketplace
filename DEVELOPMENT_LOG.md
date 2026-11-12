@@ -1,3 +1,7 @@
+### 2026-11-12 — Real Chromium exercises both embedded Client intake mechanisms
+- Extended existing full Client Workspace desktop/mobile browser smoke to click Copy Sample Request and verify accessible clipboard-status feedback; change geography, certification and experience in Structured Selection, submit demo preview, assert selected criteria and no-production-request disclaimer. This tests actual interactions, not just source presence.
+- Preserve seven-inspection counts, PDF/NCR/download, sticky sidebar, hash scrollspy, mobile geometry and demo/live separation. Both hosted CI workflows must pass at exact latest head; Vercel Preview READY remains mandatory. Hobby deployment quota currently exhausted (Issue #232).
+
 ### 2026-11-12 — Reconcile Client intake regression tests with functional inline controls
 - The first CI run after the new on-page Email and Structured Selection interactions failed two stale source tests expecting a static November 16 span, old guidance-copy wording, and no mailto link. The owner-directed inline date input is now controlled (`2026-11-16`) and the email section intentionally includes a user-triggered, non-sending mailto action.
 - Updated the tests to assert the actual date input, current future example, visible exact email subject, accessible clipboard action, and the explicitly nonautomatic mailto. Retained no-production-write checks. Both mandatory workflows and matching SHA Preview READY remain release gates; Vercel Hobby API deployment quota currently blocks preview creation (Issue #232).
