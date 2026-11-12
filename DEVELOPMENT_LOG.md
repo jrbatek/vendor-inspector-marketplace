@@ -1,4 +1,8 @@
 
+### 2026-11-12 — One-page Agency featured opportunities with actionable previews
+- Embedded four featured synthetic opportunities directly into the Agency long-page Opportunities section. Each expands to show fictional client, vendor, site, schedule, qualifications, scope and a single offered day rate; added a working View/Search all opportunities entry to the 24-row fictional directory. No actual agency response, client offer or matching action is performed.
+- Extended Chromium Agency scrollspy coverage to click preview and verify the directory link without removing any existing navigation or security assertions. Safe demo only; require both validation workflows, Preview READY and production exact-commit READY/smoke.
+
 ### 2026-11-12 — Independently searchable fictional Agency opportunity browser
 - Added 24 deterministic, fully synthetic agency opportunities with fixed non-range rates, fictional clients/vendors/sites, qualifications, schedules and projects. Search, region/discipline/status filters, inspection-detail previews, and clearly non-submitting interest feedback are browser-local and accessible, including mobile layouts. No production sourcing, matching, API calls, emails or offers.
 - New route /demo/agency-opportunities has unit/search contract tests and is included in mandatory real-browser control-visibility coverage. Linking featured cards from Agency one-page is a later nonconflicting integration with current Agency contract work. Require all CI, Vercel Preview READY and production exact-commit smoke before release.

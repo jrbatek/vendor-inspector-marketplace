@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import AgencyFeaturedOpportunities from "@/components/AgencyFeaturedOpportunities";
 import { AGENCY_SYNTHETIC_RESOURCE_TOTAL } from "@/lib/agencyDemoResources";
 import { exportAgencyDemoReportsCsv } from "@/lib/agencyDemoReports";
 
@@ -125,7 +126,7 @@ export default function AgencyDemoPage() {
           <p className="fine">Real API credentials, OAuth, webhooks, production matching rules and synchronization require a separate security-reviewed integration.</p>
         </div>
       </section>
-      <section id="opportunities" className="card"><h3>Opportunities & source attribution</h3><div className="opps"><article><b>Gulf Coast LNG — rotating equipment</b><span>Client contract: Northstar MSA • Agency-only search</span><p>3 qualified resources • 2 available • USD 8,500 budget</p><strong>Opportunity attributed to Northstar</strong></article><article><b>North Sea valve surveillance</b><span>Broad contracted-agencies + marketplace search</span><p>Eligible channels shown per inspector; commercial sourcing channel recorded at selection.</p><strong>No ownership from upload order</strong></article></div></section>
+      <section id="opportunities" className="card"><AgencyFeaturedOpportunities/></section>
       <section id="active-inspections" className="card"><h3>Active Inspections</h3><p><b>41 active</b> • 6 reports due • 7 open NCRs</p><progress max="100" value="83"/><small>83% on schedule</small><p className="fine">Three detailed synthetic examples from this fictional agency portfolio. The examples are not the entire 41-inspection portfolio.</p>
         <AgencyActiveInspections />
         </section>

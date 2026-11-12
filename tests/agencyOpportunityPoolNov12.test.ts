@@ -28,3 +28,14 @@ test("public agency opportunity browser exposes accessible filters and real synt
  assert.doesNotMatch(source,/supabaseBrowser|createClient\(|fetch\(|process\.env/);
  assert.match(readFileSync("scripts/smoke-demo-control-visibility.mjs","utf8"),/"\/demo\/agency-opportunities"/);
 });
+
+test("Agency one-page featured opportunities have actionable previews and complete search link",()=>{
+ const main=readFileSync("app/demo/agency/page.tsx","utf8");
+ const featured=readFileSync("components/AgencyFeaturedOpportunities.tsx","utf8");
+ assert.match(main,/id="opportunities" className="card"><AgencyFeaturedOpportunities\/>/);
+ assert.match(featured,/AGENCY_DEMO_OPPORTUNITIES\.slice\(0,4\)/);
+ assert.match(featured,/aria-expanded=\{open===op\.id\}/);
+ assert.match(featured,/href="\/demo\/agency-opportunities"|href="\/demo\/agency-opportunities"/);
+ assert.match(featured,/View\/Search all opportunities/);
+ assert.doesNotMatch(featured,/fetch\(|supabase|\.insert\(/);
+});
