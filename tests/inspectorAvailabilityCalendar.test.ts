@@ -16,6 +16,13 @@ test("calendar exposes all required InspectSource availability states", () => {
   for (const state of ["Available", "Tentative \/ Hold", "Assigned", "Unavailable", "Busy"]) assert.match(calendar, new RegExp(state.replace("/", "\\/")));
 });
 
+test("calendar exposes Personal Busy to inspectors while retaining the internal Busy status", () => {
+  assert.match(calendar, /const availabilityLabel = \(state: AvailabilityState\) => state === "Busy" \? "Personal Busy" : state/);
+  assert.match(calendar, /className=\{stateClass\(state as AvailabilityState\)\}>\{availabilityLabel\(state as AvailabilityState\)\}/);
+  assert.match(calendar, /<option key=\{state\} value=\{state\}>\{availabilityLabel\(state as AvailabilityState\)\}<\/option>/);
+  assert.match(calendar, /blockState === "Busy" \? "Personal Busy · Inspector only"/);
+});
+
 test("external demo events protect private calendar detail", () => {
   assert.match(calendar, /external: true/);
   assert.match(calendar, /Inspector only; client view: Busy/);
