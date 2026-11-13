@@ -18,3 +18,14 @@ test("control visibility browser audit covers every public demo route on desktop
     assert.ok(script.includes('"' + route + '"'), route + " lacks browser contrast coverage");
   }
 });
+
+test("browser audit rejects public demo-to-live workspace exits and login placeholders", () => {
+  assert.ok(script.includes('route.startsWith("/demo/")'));
+  assert.ok(script.includes('document.querySelectorAll("main a[href], main form[action]")'));
+  assert.ok(script.includes("protectedDemoRoutes.some"));
+  for (const route of ["login", "register", "client-dashboard", "client-workspace", "inspector-dashboard", "inspectorhub", "agency-dashboard", "agency-workspace"])
+    assert.ok(script.includes('"/' + route + '"'), "Missing protected live route: " + route);
+  assert.ok(script.includes("contains demo-to-live workspace exits"));
+  assert.ok(script.includes("rendered an authenticated workspace placeholder"));
+  assert.ok(script.includes("Log in to view the client workspace"));
+});

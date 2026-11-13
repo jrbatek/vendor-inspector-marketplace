@@ -43,6 +43,29 @@ try {
       }
       await page.waitForTimeout(160);
       if (page.url().includes("/login")) throw new Error(route + " redirected demo reviewer to Login");
+      // P0-A: public demo content must not send reviewers into authenticated
+      // workspaces. Global site-header Login links are intentional; inspect
+      // only actionable links and forms within the demo main element.
+      if (route.startsWith("/demo/")) {
+        const liveExits = await page.evaluate(() => {
+          const protectedDemoRoutes = ["/login", "/register", "/client-dashboard",
+            "/client-workspace", "/inspector-dashboard", "/inspectorhub",
+            "/agency-dashboard", "/agency-workspace"];
+          return [...document.querySelectorAll("main a[href], main form[action]")].flatMap(element => {
+            const raw = element.getAttribute(element.tagName === "FORM" ? "action" : "href");
+            if (!raw) return [];
+            let url;
+            try { url = new URL(raw, location.href); } catch { return []; }
+            if (url.origin !== location.origin ||
+                !protectedDemoRoutes.some(path => url.pathname === path || url.pathname.startsWith(path + "/")))
+              return [];
+            return [{ label: (element.textContent || element.getAttribute("aria-label") || "").trim().slice(0, 70), path: url.pathname }];
+          });
+        });
+        if (liveExits.length) throw new Error(route + " contains demo-to-live workspace exits: " + JSON.stringify(liveExits));
+        if (await page.getByText(/Log in to view the client workspace|Log in to view the inspector workspace/i).count())
+          throw new Error(route + " rendered an authenticated workspace placeholder instead of synthetic demo content");
+      }
       const result = await page.evaluate(() => {
         const rgb = s => {
           const m = s.match(/[\d.]+/g);
