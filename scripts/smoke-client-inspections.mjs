@@ -80,6 +80,19 @@ try{
  assert(criteriaStatus.includes("Europe")&&criteriaStatus.includes("AWS CWI")&&criteriaStatus.includes("7+ years")&&
    criteriaStatus.includes("No matching, commercial offer or production request was created"),
    "Structured Selection failed to preview changed fictional criteria safely");
+ // A previous summary is no longer current once the user changes any input.
+ await structured.getByLabel("Geography").selectOption("Middle East");
+ assert(await structured.getByRole("status").count()===0,
+   "Structured preview remained visible after changing geography");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert((await structured.getByRole("status").innerText()).includes("Middle East"),
+   "Structured preview did not reflect updated geography");
+ await structured.getByLabel("Required certification").selectOption("API 510");
+ assert(await structured.getByRole("status").count()===0,
+   "Structured preview remained visible after changing qualification");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert((await structured.getByRole("status").innerText()).includes("API 510"),
+   "Structured preview did not reflect updated certification");
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
    "New inline request mechanism unexpectedly routed to authenticated workspace");
  // Nov 11 owner: the Client Workspace is one continuous public page, not a
