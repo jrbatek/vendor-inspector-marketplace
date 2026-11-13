@@ -57,6 +57,17 @@ try{
  assert((await natural.locator("#demo-upload-status").innerText()).includes("over the 256 KB"),
    "Natural-language upload failed to reject oversized demo file before reading it");
  assert(await request.inputValue()==="short","Oversize scope upload replaced the user's existing draft");
+ // Re-selecting a corrected file with the same name must work; empty files
+ // must not erase a drafted inspection request.
+ const scopeInput=natural.locator('input[type="file"]');
+ await scopeInput.setInputFiles({name:"scope-demo.txt",mimeType:"text/plain",buffer:Buffer.from("   ")});
+ await page.waitForFunction(()=>document.querySelector("#demo-upload-status")?.textContent?.includes("scope file is empty"));
+ assert(await request.inputValue()==="short","Empty uploaded file erased the existing inspection scope");
+ assert(await scopeInput.inputValue()==="","Scope file input must reset to allow selecting an updated file with the same name");
+ const corrected="Synthetic scope: API 510 vessel inspection, Houston FAT, supplier dossier verification.";
+ await scopeInput.setInputFiles({name:"scope-demo.txt",mimeType:"text/plain",buffer:Buffer.from(corrected)});
+ await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,corrected);
+ assert(await request.inputValue()===corrected,"Corrected same-name scope file was not loaded");
  await request.fill(originalText);
  // The embedded email and structured controls must actually work in Chromium.
  const emailCard=page.locator("#email-requirements");
