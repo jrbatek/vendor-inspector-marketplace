@@ -1,3 +1,8 @@
+### 2026-11-13 — Agency one-page sidebar smooth scroll and browser history corrections
+- Fixed a gap between the owner-requested Agency scrollspy behavior and the existing native-only link handler: unmodified clicks now scroll smoothly to their operational sections, honor prefers-reduced-motion, preserve copyable hash URLs and active highlighting, and do not intercept modified clicks. Back/Forward navigation now repositions the one-page Agency workspace to the restored hash rather than leaving a stale section.
+- Extended existing source and real Chromium smoke regression tests for hash history, active section and keyboard access. Seven Agency sections and privacy-safe synthetic data remain intact; Client and Inspector layouts unchanged.
+- Require all hosted validation, synthetic data, migrations, typecheck, build, exact-head Preview READY, then post-merge exact-commit production READY and smoke. GitHub Git Data fallback used because local DNS does not resolve GitHub.
+
 ### 2026-11-13 — Client natural-language request preview and safe oversized-scope handling
 - Kept the Natural Language – AI section independently usable on the continuous public Client Demo: a new inline Preview request action validates minimum scope detail, displays accessible browser-local feedback, clearly labels the fixed fictional shortlist as illustrative rather than personalized, and creates no production request or AI matching. The existing synthetic sourcing drill-down remains available.
 - Scope text uploads now cap source file size at 256 KB **before reading**, preserve the current draft on invalid/oversized/unreadable files, retain the 10,000-character content limit and clear stale preview feedback on edit/upload.

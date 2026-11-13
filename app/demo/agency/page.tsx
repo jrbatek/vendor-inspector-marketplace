@@ -60,14 +60,24 @@ export default function AgencyDemoPage() {
     window.addEventListener("scroll",updateActive,{passive:true});
     window.addEventListener("resize",updateActive);
     window.addEventListener("hashchange",onHash);
-    return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("scroll",updateActive);window.removeEventListener("resize",updateActive);window.removeEventListener("hashchange",onHash)};
+    window.addEventListener("popstate",onHash);
+    return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("scroll",updateActive);window.removeEventListener("resize",updateActive);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
   },[agencyPageReady]);
-  // Native anchor navigation supplies correct deep-link history and stable scrolling
-  // even while a prior smooth scroll is settling. The hashchange listener handles
-  // first-hydration deep links and back/forward; reduced-motion users jump immediately.
-  const scrollToSection=(_event:React.MouseEvent<HTMLAnchorElement>,id:string)=>{
-    if(!document.getElementById(id))return;
+  // Keep native copy-link/modified-click behavior. Ordinary sidebar activation
+  // updates same-document history and smoothly scrolls the visible section.
+  // Back/Forward and direct-hash entry are handled by onHash; reduced-motion
+  // users jump immediately. Scrollspy still follows manual scrolling.
+  const scrollToSection=(event:React.MouseEvent<HTMLAnchorElement>,id:string)=>{
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const target=document.getElementById(id);
+    if(!target)return;
+    event.preventDefault();
+    if(window.location.hash!=="#"+id)window.history.pushState(null,"","#"+id);
     setActiveSection(id);
+    target.scrollIntoView({
+      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
+      block:"start"
+    });
   };
   const [claimOpen, setClaimOpen] = useState(false);
   const [apiGuideOpen,setApiGuideOpen]=useState(false);
