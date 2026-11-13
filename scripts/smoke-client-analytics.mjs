@@ -69,8 +69,8 @@ try {
   await page.goto(base+"/demo/client-analytics",{waitUntil:"domcontentloaded"});
   const source = page.getByRole("group",{name:"Quick source type filters"});
   await page.waitForSelector(".filters select");
-  if (await page.locator(".filters select").count() !== 8)
-    throw new Error("Expected eight stable native slicers plus prominent Source Type button controls");
+  if (await page.locator(".filters select").count() !== 9)
+    throw new Error("Expected nine native slicers (including Status) plus prominent Source Type button controls");
   if (await page.locator(".filters label").filter({hasText:"Source Type"}).count())
     throw new Error("Obsolete graphical-browser-crashing Source Type native selector remains");
   await assertCohort(page,"All",60);
@@ -124,6 +124,25 @@ try {
       if (errors.length) throw new Error("Browser exception after "+label+":\n"+errors.join("\n"));
     }
   }
+  // Completed history belongs to the embedded Analytics experience, not a
+  // separate Client History shell. Exercise the real filter and its visible rows.
+  await page.getByRole("button",{name:"Reset filters"}).click();
+  await assertCohort(page,"All",60);
+  await page.getByRole("button",{name:"View completed history here"}).click();
+  const statusFilter=page.getByRole("combobox",{name:"Status"});
+  await page.waitForFunction(() => {
+    const selected=Array.from(document.querySelectorAll(".filters select"))
+      .find(el=>el.closest("label")?.textContent?.includes("Status"));
+    const rows=Array.from(document.querySelectorAll(".records tbody tr"));
+    return selected?.value==="Completed" && rows.length>0
+      && rows.every(row=>row.querySelector("td:last-child")?.textContent?.trim()==="Completed")
+      && document.querySelector(".activeFilterBar")?.textContent?.includes("Status: Completed");
+  },null,{timeout:15000});
+  if(await statusFilter.inputValue()!=="Completed")
+    throw Error("Completed history shortcut did not select the Analytics Status slicer");
+  if(!page.url().includes("/demo/client-analytics"))
+    throw Error("Completed history shortcut left the Analytics demo");
+  if(errors.length)throw new Error("Analytics browser error after completed history: "+errors.join("\n"));
   const downloadPromise=page.waitForEvent("download");
   await page.getByRole("button",{name:/Download data/}).click();
   const download=await downloadPromise;

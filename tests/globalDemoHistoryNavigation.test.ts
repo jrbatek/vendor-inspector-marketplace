@@ -38,8 +38,10 @@ test("client demo keeps completed inspection history inside Analytics rather tha
  const sidebar=fs.readFileSync("components/ClientWorkspaceSidebar.tsx","utf8");
  assert.doesNotMatch(hub,/title:"Inspection history"/);
  assert.match(hub,/title:"Analytics"/);
- assert.match(analytics,/className="historyLink" href="\/demo\/client-history"/);
- assert.match(analytics,/Browse completed inspection history/);
+ assert.match(analytics,/className="historyLink" onClick=/);
+ assert.doesNotMatch(analytics,/href="\/demo\/client-history"/);
+ assert.match(analytics,/View completed history here/);
+ assert.match(analytics,/id="analytics-records"/);
  assert.match(analytics,/\.actions \.historyLink:focus-visible/);
  assert.match(sidebar,/Analytics<\/Link>/);
  assert.doesNotMatch(sidebar,/>Inspection History<\/Link>/);
