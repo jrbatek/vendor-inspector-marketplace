@@ -173,13 +173,25 @@ try {
           throw new Error("InspectorHub must retain eight accessible sidebar text links");
         const appearance = async button => button.evaluate(element => {
           const style = getComputedStyle(element);
+          const rgb = color => (color.match(/\\d+(?:\\.\\d+)?/g) || []).slice(0,3).map(Number);
+          const luminance = color => rgb(color).map(value => {
+            const x = value / 255;
+            return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, index) => sum + value * [0.2126,0.7152,0.0722][index], 0);
+          const sidebar = element.closest("aside.side");
+          const background = sidebar ? getComputedStyle(sidebar).backgroundColor : "rgb(255, 255, 255)";
+          const textLuminance = luminance(style.color);
+          const backgroundLuminance = luminance(background);
+          const contrast = (Math.max(textLuminance, backgroundLuminance) + 0.05) /
+            (Math.min(textLuminance, backgroundLuminance) + 0.05);
           return { background: style.backgroundColor, radius: style.borderTopLeftRadius,
-            color: style.color, shadow: style.boxShadow };
+            color: style.color, shadow: style.boxShadow, contrast };
         });
         const assertTextLink = (style, context) => {
           if (!["rgba(0, 0, 0, 0)", "transparent"].includes(style.background) ||
               style.radius !== "0px" || style.shadow !== "none" ||
-              !["rgb(236, 253, 245)", "rgb(153, 246, 228)", "rgb(255, 255, 255)"].includes(style.color))
+              !["rgb(236, 253, 245)", "rgb(153, 246, 228)", "rgb(255, 255, 255)"].includes(style.color) ||
+              !Number.isFinite(style.contrast) || style.contrast < 4.5)
             throw new Error(context + " resurrected an unreadable InspectorHub button pill: " + JSON.stringify(style));
         };
         for (const item of await buttons.all())

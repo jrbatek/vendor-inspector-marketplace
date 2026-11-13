@@ -1,3 +1,7 @@
+### 2026-11-13 — InspectorHub P0-B real-browser sidebar contrast hardening
+- Extended the existing desktop/mobile Chromium sidebar test to compute foreground-to-opaque-green-sidebar contrast for every InspectorHub text link. It now requires WCAG AA 4.5:1 for default, active, hover and focus, in addition to rejecting dark pills, rounded backgrounds and shadows; focused tests guard the coverage.
+- Source-only test hardening, no production data, authentication, RLS, payments, inspector compensation or API changes. Hosted CI must complete all required tests, synthetic validation, migrations, typecheck and build; exact-head Vercel preview READY and exact-commit production READY/smoke remain mandatory.
+
 ### 2026-11-13 — Client Structured Selection resets stale previews after edits
 - Unified geography, certification, start, experience and source updates through a typed helper that clears the previous browser-only criteria summary. Reviewers now cannot confuse an outdated synthetic preview with their revised inputs.
 - Extended the real Chromium Client Demo smoke with edit/invalidate/repreview checks for geography and certification, plus focused source regressions for all five fields.
