@@ -1,3 +1,8 @@
+### 2026-11-13 — P0-A browser audit of demo-to-live navigation exits
+- Expanded the existing Chromium desktop/mobile control scan to inspect actionable links and form submissions inside every Client, Inspector and Agency public demo page for accidental navigation to Login/Register or authenticated Client/Inspector/Agency workspaces. Legitimate global site-header login remains out of scope.
+- Fail validation if any public demo unexpectedly renders an empty authenticated workspace prompt. Added source regression assertions to require the check in the existing comprehensive browser audit.
+- Demo-only safety/test improvement; no authentication, RLS, production data, commercial matching or banking changes. Require hosted synthetic validation, migration check, unit and Chromium tests, typecheck, production build, Vercel Preview READY and exact-commit production READY/smoke before release.
+
 ### 2026-11-13 — Agency one-page sidebar smooth scroll and browser history corrections
 - Fixed a gap between the owner-requested Agency scrollspy behavior and the existing native-only link handler: unmodified clicks now scroll smoothly to their operational sections, honor prefers-reduced-motion, preserve copyable hash URLs and active highlighting, and do not intercept modified clicks. Back/Forward navigation now repositions the one-page Agency workspace to the restored hash rather than leaving a stale section.
 - Extended existing source and real Chromium smoke regression tests for hash history, active section and keyboard access. Seven Agency sections and privacy-safe synthetic data remain intact; Client and Inspector layouts unchanged.
