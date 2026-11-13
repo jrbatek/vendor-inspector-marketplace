@@ -25,3 +25,12 @@ test("Client scope upload rejects oversized files before reading and retains exi
  assert.match(smoke,/Buffer\.alloc\(256\*1024\+1,65\)/);
  assert.match(smoke,/Oversize scope upload replaced the user's existing draft/);
 });
+
+test("empty scope files preserve drafts and same-name uploads can be retried",()=>{
+ assert.match(source,/if\(!loaded\.trim\(\)\)/);
+ assert.match(source,/This scope file is empty/);
+ assert.match(source,/const file=e\.currentTarget\.files\?\.\[0\];e\.currentTarget\.value=""/);
+ assert.match(smoke,/Empty uploaded file erased the existing inspection scope/);
+ assert.match(smoke,/Scope file input must reset to allow selecting an updated file with the same name/);
+ assert.match(smoke,/Corrected same-name scope file was not loaded/);
+});
