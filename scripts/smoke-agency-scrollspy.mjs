@@ -127,6 +127,20 @@ try{
  if(await allOpportunities.getAttribute("href")!=="/demo/agency-opportunities")
    throw Error("Agency opportunity search link is broken");
  
+ // Same-document history must return to the correct operational section
+ // without reloading the synthetic Agency one-page workspace.
+ await nav.getByRole("link",{name:"Resource Pool"}).click();
+ await active(page,"resource-pool");
+ await nav.getByRole("link",{name:"Opportunities"}).click();
+ await active(page,"opportunities");
+ await page.goBack({waitUntil:"domcontentloaded"});
+ await active(page,"resource-pool");
+ assert((await page.evaluate(()=>location.hash))==="#resource-pool",
+   "Agency browser Back lost the prior same-page sidebar anchor");
+ await page.goForward({waitUntil:"domcontentloaded"});
+ await active(page,"opportunities");
+ assert((await page.evaluate(()=>location.hash))==="#opportunities",
+   "Agency browser Forward lost the next same-page sidebar anchor");
  await nav.getByRole("link",{name:"Overview"}).focus();
  await page.keyboard.press("Enter");
  await active(page,"overview");
@@ -135,6 +149,6 @@ try{
  await nav.getByRole("link",{name:"Resource Pool"}).click();
  await active(page,"resource-pool");
  if(errors.length)throw Error("Agency scrollspy browser exceptions: "+errors.join("\n"));
- console.log("Agency scrollspy PASS: 7 sections, one active link, click/keyboard/hash/manual up/down, mobile, removed obsolete sections");
+ console.log("Agency scrollspy PASS: 7 sections, one active link, smooth click/keyboard/hash/Back/Forward/manual up/down, mobile, removed obsolete sections");
 }catch(e){console.error(e);process.exitCode=1}
 finally{await browser?.close();if(server){server.kill("SIGTERM");setTimeout(()=>server.kill("SIGKILL"),2000).unref()}}

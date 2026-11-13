@@ -15,7 +15,12 @@ test("Agency scrollspy tracks viewport, manual reverse scroll, hashes and link i
  assert.match(agency,/window\.removeEventListener\("scroll",updateActive\)/);
  assert.match(agency,/window\.addEventListener\("hashchange",onHash\)/);
  assert.match(agency,/document\.getElementById\(hash\)\?\.scrollIntoView\(\{behavior:window\.matchMedia/);
- assert.doesNotMatch(agency,/event\.preventDefault\(\)/);
+ assert.match(agency,/event\.preventDefault\(\)/);
+ assert.match(agency,/window\.history\.pushState\(null,"","#"\+id\)/);
+ assert.match(agency,/target\.scrollIntoView\(\{/);
+ assert.match(agency,/window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+ assert.match(agency,/window\.addEventListener\("popstate",onHash\)/);
+ assert.match(agency,/window\.removeEventListener\("popstate",onHash\)/);
  assert.match(agency,/aria-current=\{activeSection === anchor \? "page" : undefined\}/);
  assert.match(agency,/\[id\]\{scroll-margin-top:24px\}/);
 });
