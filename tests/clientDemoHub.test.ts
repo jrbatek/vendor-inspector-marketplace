@@ -18,7 +18,9 @@ test("Client Demo hub exposes the complete requested synthetic client experience
   assert.match(clientDemo, /\/demo\/client-agency-sourcing/);
   assert.doesNotMatch(clientDemo, /href:"\/demo\/client-history"/);
   const analytics = fs.readFileSync(path.join(process.cwd(), "app/demo/client-analytics/page.tsx"), "utf8");
-  assert.match(analytics, /href="\/demo\/client-history"/);
+  assert.match(analytics, /View completed history here/);
+  assert.match(analytics, /id="analytics-records"/);
+  assert.doesNotMatch(analytics, /href="\/demo\/client-history"/);
   assert.match(clientDemo, /\/demo\/client-analytics/);
   assert.match(clientDemo, /\/demo\/client-operations/);
   assert.match(clientDemo, /\/demo\/client-data/);
