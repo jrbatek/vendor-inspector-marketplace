@@ -173,7 +173,7 @@ try {
           throw new Error("InspectorHub must retain eight accessible sidebar text links");
         const appearance = async button => button.evaluate(element => {
           const style = getComputedStyle(element);
-          const rgb = color => (color.match(/\\d+(?:\\.\\d+)?/g) || []).slice(0,3).map(Number);
+          const rgb = color => (color.match(/\d+(?:\.\d+)?/g) || []).slice(0,3).map(Number);
           const luminance = color => rgb(color).map(value => {
             const x = value / 255;
             return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
