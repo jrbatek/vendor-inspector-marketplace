@@ -36,6 +36,28 @@ try{
    "Client request methods must be full available content width on desktop: "+JSON.stringify(boxes));
  }
  await page.setViewportSize({width:1366,height:900});
+ // Natural-language intake remains functional inside the same public Client Demo.
+ const natural=page.locator("#natural-language");
+ const request=natural.getByRole("textbox",{name:"Inspection requirement"});
+ const originalText=await request.inputValue();
+ await request.fill("Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.");
+ await natural.getByRole("button",{name:"Preview request (demo)"}).click();
+ const localPreview=await natural.getByRole("status").last().innerText();
+ assert(localPreview.includes("No AI matching, external submission, or production record was created")&&
+   localPreview.includes("not personalized to this request"),"Natural-language preview must be useful and explicitly fictional");
+ assert(page.url().includes("/demo/client"),"Natural-language preview navigated away from the public Client Demo");
+ await request.fill("short");
+ assert(await natural.locator(".naturalPreview").count()===0,"Preview status stayed stale after editing the scope");
+ await natural.getByRole("button",{name:"Preview request (demo)"}).click();
+ assert((await natural.locator(".naturalPreview").innerText()).includes("at least 20 characters"),
+   "Natural-language intake failed to validate a nearly empty request");
+ await natural.locator('input[type="file"]').setInputFiles({
+   name:"fictional-oversize.txt",mimeType:"text/plain",buffer:Buffer.alloc(256*1024+1,65)
+ });
+ assert((await natural.locator("#demo-upload-status").innerText()).includes("over the 256 KB"),
+   "Natural-language upload failed to reject oversized demo file before reading it");
+ assert(await request.inputValue()==="short","Oversize scope upload replaced the user's existing draft");
+ await request.fill(originalText);
  // The embedded email and structured controls must actually work in Chromium.
  const emailCard=page.locator("#email-requirements");
  // Next.js hydration and clipboard promises are asynchronous: await client
