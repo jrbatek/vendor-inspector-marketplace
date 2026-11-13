@@ -24,6 +24,10 @@ export default function ClientDemo(){
  const [naturalPreview,setNaturalPreview]=useState("");
  const [criteria,setCriteria]=useState({region:"Gulf Coast",qualification:"API 570",start:"2026-11-16",experience:"5",source:"Both"});
  const [criteriaPreview,setCriteriaPreview]=useState("");
+ const updateCriterion=(key:keyof typeof criteria,value:string)=>{
+  setCriteria(current=>({...current,[key]:value}));
+  setCriteriaPreview("");
+ };
  async function copyEmailSample(){
   const message="Location: Houston, Texas\nStart: November 16, 2026\nDuration: 3 weeks\nScope: API 570 piping inspection\nQualification: API 570 and TWIC\nEquipment: refinery process piping\nBudget: USD 950/day\nTravel: local preferred";
   try{await navigator.clipboard.writeText(message);setEmailCopyStatus("Sample request copied.");}
@@ -72,11 +76,11 @@ export default function ClientDemo(){
  <p>Structured selection uses standard fields for location, dates, discipline, certifications, experience, commodity, travel and rate. Enter criteria here to preview the selected fictional requirements without submitting them to production.</p>
  <form aria-label="Structured inspector criteria (demo)" onSubmit={e=>{e.preventDefault();setCriteriaPreview("Demo criteria preview: "+criteria.region+" · "+criteria.qualification+" · "+criteria.start+" · "+criteria.experience+"+ years · "+criteria.source+". No matching, commercial offer or production request was created.");}}>
  <div className="intakeFields">
- <label>Geography<select value={criteria.region} onChange={e=>setCriteria(c=>({...c,region:e.target.value}))}><option>Gulf Coast</option><option>Middle East</option><option>Europe</option><option>All regions</option></select></label>
- <label>Required certification<select value={criteria.qualification} onChange={e=>setCriteria(c=>({...c,qualification:e.target.value}))}><option>API 570</option><option>API 510</option><option>AWS CWI</option><option>Any qualification</option></select></label>
- <label>Inspection start<input type="date" required value={criteria.start} onChange={e=>setCriteria(c=>({...c,start:e.target.value}))}/></label>
- <label>Minimum experience (years)<input type="number" min="0" max="40" required value={criteria.experience} onChange={e=>setCriteria(c=>({...c,experience:e.target.value}))}/></label>
- <label>Inspector source<select value={criteria.source} onChange={e=>setCriteria(c=>({...c,source:e.target.value}))}><option>Both</option><option>Agency</option><option>Independent</option></select></label></div>
+ <label>Geography<select value={criteria.region} onChange={e=>updateCriterion("region",e.target.value)}><option>Gulf Coast</option><option>Middle East</option><option>Europe</option><option>All regions</option></select></label>
+ <label>Required certification<select value={criteria.qualification} onChange={e=>updateCriterion("qualification",e.target.value)}><option>API 570</option><option>API 510</option><option>AWS CWI</option><option>Any qualification</option></select></label>
+ <label>Inspection start<input type="date" required value={criteria.start} onChange={e=>updateCriterion("start",e.target.value)}/></label>
+ <label>Minimum experience (years)<input type="number" min="0" max="40" required value={criteria.experience} onChange={e=>updateCriterion("experience",e.target.value)}/></label>
+ <label>Inspector source<select value={criteria.source} onChange={e=>updateCriterion("source",e.target.value)}><option>Both</option><option>Agency</option><option>Independent</option></select></label></div>
  <button type="submit" className="primaryButton actionable">Preview selected criteria</button></form>
  {criteriaPreview&&<p role="status" className="criteriaNotice" aria-live="polite">{criteriaPreview}</p>}
  <Link className="quietLink" href="/demo/client-agency-sourcing">Explore synthetic sourcing channels and inspector examples</Link></article></div></section>

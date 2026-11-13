@@ -1,3 +1,8 @@
+### 2026-11-13 — Client Structured Selection resets stale previews after edits
+- Unified geography, certification, start, experience and source updates through a typed helper that clears the previous browser-only criteria summary. Reviewers now cannot confuse an outdated synthetic preview with their revised inputs.
+- Extended the real Chromium Client Demo smoke with edit/invalidate/repreview checks for geography and certification, plus focused source regressions for all five fields.
+- Synthetic-only presentation; no production request, auth, RLS, privacy, payments or matching changes. Require hosted QA/CI, synthetic corpus, migration safety, typecheck, production build, Vercel Preview READY and exact-commit production READY/smoke.
+
 ### 2026-11-13 — P0-A browser audit of demo-to-live navigation exits
 - Expanded the existing Chromium desktop/mobile control scan to inspect actionable links and form submissions inside every Client, Inspector and Agency public demo page for accidental navigation to Login/Register or authenticated Client/Inspector/Agency workspaces. Legitimate global site-header login remains out of scope.
 - Fail validation if any public demo unexpectedly renders an empty authenticated workspace prompt. Added source regression assertions to require the check in the existing comprehensive browser audit.
