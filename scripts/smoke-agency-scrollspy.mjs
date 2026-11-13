@@ -11,6 +11,7 @@ let output="",browser;
 server?.stdout.on("data",x=>output+=String(x));
 server?.stderr.on("data",x=>output+=String(x));
 async function ready(){for(let i=0;i<40;i++){try{if((await fetch(base+"/demo/agency")).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}throw Error("Agency demo server unavailable: "+output.slice(-2000))}
+const assert=(condition,message)=>{if(!condition)throw new Error(message)};
 const ids=["overview","resource-pool","mass-resource-connect","opportunities","active-inspections","reports-ncrs","contracts-commercials"];
 async function active(page,id){
   try {
