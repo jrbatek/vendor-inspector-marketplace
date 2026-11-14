@@ -8,11 +8,11 @@ const dedicatedDemo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspect
 const insightsDemo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector-selection-outcomes/page.tsx"), "utf8");
 const documentsDemo = fs.readFileSync(path.join(process.cwd(), "app/demo/inspector-documents/page.tsx"), "utf8");
 
-test("unauthenticated InspectorHub uses synthetic demo records instead of live account data", () => {
-  assert.match(inspectorHub, /const DEMO_WORK:Work\[\]=\[/);
-  assert.match(inspectorHub, /if\(!a\.user\)\{setMode\("demo"\);setItems\(DEMO_WORK\)/);
-  assert.match(inspectorHub, /Demo Mode · Synthetic data/);
-  assert.match(inspectorHub, /deterministic synthetic data/);
+test("live InspectorHub requires login; the dedicated inspector demo remains public and synthetic", () => {
+  assert.match(inspectorHub, /if\(!a\.user\)\{router\.replace\("\/login\?role=inspector"\);return;\}/);
+  assert.doesNotMatch(inspectorHub, /if\(!a\.user\)\{setMode\("demo"\)/);
+  assert.match(dedicatedDemo, /Inspector Demo · Synthetic data/);
+  assert.match(dedicatedDemo, /No production inspector records are used/);
 });
 
 test("inspector demo covers the end-to-end professional workspace", () => {

@@ -1,3 +1,10 @@
+### 2026-11-14 — REVIEW REQUIRED: additional unauthenticated inspector workspace redirects
+- Extended review-gated #288 to live `/inspectorhub/schedule` and `/inspector-inquiries`, which previously showed dead Login warning shells. Both now redirect anonymous users to role-aware `/login?role=inspector`, matching the main live InspectorHub. The public `/demo/inspector` remains unaffected. Added source isolation regression assertions; all production auth changes remain held for owner/security review despite green CI.
+
+### 2026-11-14 — REVIEW REQUIRED: live InspectorHub anonymous authentication boundary
+- Prepared a narrowly scoped auth-sensitive correction: unauthenticated /inspectorhub replaces the route with /login?role=inspector; the explicitly public /demo/inspector remains the no-login synthetic experience. Removed the live path from the synthetic demo banner allowlist and updated isolation regression tests.
+- Deliberately NOT authorized for automatic merge: changes production authentication navigation and must stop at a validated, reviewable PR. No RLS, schema, write paths, payment, bank, production matching or synthetic seeding changes. Check hosted CI, synthetic validation, migration safety, typecheck/build and preview before review; do not claim deployed.
+
 ### 2026-11-14 — Agency Mass Resource Connect: actionable privacy-preserving CSV validation
 - Extended the fictional browser-local CSV summary to count missing values by required header (Inspector ID, Name, Relationship, Country and Affiliation Status) alongside duplicate inspector IDs. The UI displays specific fix guidance only when review is needed, without returning or rendering actual roster names/IDs.
 - Added unit and real Chromium coverage for blank columns, case-insensitive duplicates, visible validation guidance and no record submission. Only synthetic preview data in browser state, no API requests, credentials, affiliation writes or production DB changes. Preserve all existing CI, migration, synthetic fixture, typecheck/build, Vercel preview and exact-commit production gates.
