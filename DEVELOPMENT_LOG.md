@@ -1,3 +1,8 @@
+### 2026-11-14 — P0 demo/live and private-calendar title isolation guard
+- Expanded hosted Chromium Client Demo and standalone Inspections in Progress smoke to reject inspector-private appointment titles (Doctor Appointment / Our Anniversary) in rendered Client content, and explicitly reject the unauthenticated live workspace's empty login shell. The Inspector Demo continues to show fictional private event titles, while Client availability must show Busy only.
+- Added a source regression verifying Client Demo and the seven-record inspection component do not import/render private calendar fixtures. Pure browser safety coverage; no auth/RLS, real appointments, OAuth, personal data, banking, payment, production matching or database writes.
+- Mandatory hosted tests, synthetic corpus/migration scan, typecheck, build, Vercel exact-head Preview READY and post-merge production READY/exact-commit smoke remain required.
+
 ### 2026-11-14 — Inspector Calendar: distinguish unique protected days from overlapping events
 - Corrected the selected-range impact preview to count distinct non-editable dates instead of summing assigned inspection and linked personal Busy events. When two protected events share the same date, the preview counts one protected day, while separately retaining each event category count.
 - Added a unit regression with overlapping synthetic events and expanded hosted Chromium assertions for one private day and the six protected November 9–20 demo dates. No event titles are disclosed in the aggregate; no change to explicit Block dates safeguards, linked-calendar simulation or production records.
