@@ -95,6 +95,9 @@ try{
     buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,,Employee,,Pending\nSYN-1001,Another Sample,Employee,USA,Pending\n")
   });
   const issues=page.getByRole("group",{name:"CSV columns requiring attention"});
+  // File.text() and the React validation state update are asynchronous.
+  // Wait for the expected fictional breakdown before checking its details.
+  await issues.getByText("Inspector ID: 1 duplicate row (case-insensitive)").waitFor({state:"visible",timeout:8000});
   if(!await issues.isVisible()||
     !await issues.getByText("Name: missing in 1 row").isVisible()||
     !await issues.getByText("Country: missing in 1 row").isVisible()||
@@ -102,6 +105,22 @@ try{
     throw Error("Agency CSV validation does not identify missing columns and duplicate IDs");
   if((await issues.innerText()).includes("Another Sample")||(await issues.innerText()).includes("SYN-1001"))
     throw Error("Agency CSV preview exposed uploaded identity details");
+
+  // Reviewers must be able to discard even the browser-local preview without
+  // preserving old aggregate counts or sensitive file contents in visible UI.
+  await page.getByRole("button", {name:"Clear browser-local roster preview"}).click();
+  if(await page.locator("#agency-roster-preview").count() || await issues.count())
+    throw Error("Agency Clear roster preview retained old CSV counts or validation breakdown");
+  if(!await page.getByText("Roster preview cleared from this browser session. No records were submitted.").isVisible())
+    throw Error("Agency Clear roster preview did not announce browser-local clearance");
+  await rosterInput.setInputFiles({
+    name:"fictional-bad-roster.csv",mimeType:"text/csv",
+    buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1004,Sample Inspector D,Employee,USA,Pending\n")
+  });
+  if(!((await page.locator("#agency-roster-preview").innerText()).includes("1 complete unique records")) ||
+    await page.getByText("Roster preview cleared from this browser session. No records were submitted.").count())
+    throw Error("Agency new CSV upload did not replace cleared preview and reset clearance notice");
+
 
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
