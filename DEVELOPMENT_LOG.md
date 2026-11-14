@@ -1,3 +1,7 @@
+### 2026-11-14 — Active Assignments: show actionable deadlines before opening details
+- Added clearly readable exact due dates to all three synthetic InspectorHub Active Assignments cards; dates use the same source as Open Assignment details to avoid contradictory schedule summaries. Existing next actions, stages, fictional contacts, documents, report PDFs, calendar links and continuous green-sidebar navigation remain unchanged.
+- Added direct due-date unit assertions and hosted Chromium comparison between each list card and its Open Assignment detail. Demo only: no production assignment, credentials, authorization or matching changes. Hosted validation, Vercel Preview READY, merge and exact-commit production smoke remain mandatory.
+
 ### 2026-11-14 — Agency Mass Resource Connect: discard browser-local roster review on demand
 - Added a dedicated accessible **Clear browser-local roster preview** action to remove the current CSV aggregate summary and validation breakdown without submitting records. The reset announces completion, also clears stale validation warnings, and returns to a blank preview state; choosing another fictional CSV clears the notice and recalculates counts.
 - Added visible keyboard-focus, hover, and high-contrast button states. Hosted Chromium exercises clearing an invalid example and uploading another sample with the same filename, while focused unit contracts protect privacy and accessible state.
