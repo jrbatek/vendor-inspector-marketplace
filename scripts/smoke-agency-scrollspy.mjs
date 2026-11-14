@@ -88,6 +88,21 @@ try{
     throw Error("Agency same-name corrected roster was not re-previewed without a submission");
   if(await page.locator("#agency-roster-error").count()!==0 || await rosterInput.inputValue()!=="")
     throw Error("Agency corrected CSV did not clear warning or reset file input");
+  // Preview-only validation gives an actionable aggregate breakdown without
+  // displaying the actual (fictional) names or IDs from the uploaded file.
+  await rosterInput.setInputFiles({
+    name:"fictional-bad-roster.csv",mimeType:"text/csv",
+    buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,,Employee,,Pending\nSYN-1001,Another Sample,Employee,USA,Pending\n")
+  });
+  const issues=page.getByRole("group",{name:"CSV columns requiring attention"});
+  if(!await issues.isVisible()||
+    !await issues.getByText("Name: missing in 1 row").isVisible()||
+    !await issues.getByText("Country: missing in 1 row").isVisible()||
+    !await issues.getByText("Inspector ID: 1 duplicate row (case-insensitive)").isVisible())
+    throw Error("Agency CSV validation does not identify missing columns and duplicate IDs");
+  if((await issues.innerText()).includes("Another Sample")||(await issues.innerText()).includes("SYN-1001"))
+    throw Error("Agency CSV preview exposed uploaded identity details");
+
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
  await page.getByRole("button",{name:"Connect API"}).click();
