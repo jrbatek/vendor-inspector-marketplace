@@ -270,6 +270,10 @@ try {
     assert(await calendar.getByRole("button", { name: `Choose ${date} for availability` }).getAttribute("aria-pressed") === "true",
       "Date in selected range must be visibly pressed: " + date);
   }
+  const impact = calendar.locator(".rangePreview");
+  assert((await impact.innerText()).includes("3 selected dates") && (await impact.innerText()).includes("0 assigned inspection days"),
+    "Calendar range impact must summarize three non-conflicting dates before update");
+  assert(await impact.getAttribute("role") === "status", "Range impact must be announced accessibly");
   assert(await calendar.getByRole("button", { name: "Choose 2026-11-27 for availability" }).getAttribute("aria-pressed") === "false",
     "Outside date must not appear selected");
   assert((await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).locator("xpath=..").innerText()).includes("Not set"),
@@ -299,6 +303,12 @@ try {
   }
   await calendar.getByLabel("Start date").fill("2026-11-18");
   await calendar.getByLabel("End date").fill("2026-11-18");
+  assert((await impact.innerText()).includes("1 linked private Busy day") &&
+    (await impact.innerText()).includes("Protected dates cannot be overwritten or cleared"),
+    "Protected personal appointment must be counted before updating without leaking its title into the summary");
+  const impactColors=await impact.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
+  assert(impactColors.color==="rgb(127, 29, 29)"&&impactColors.background==="rgb(255, 247, 247)",
+    "Selected protected-date warning must remain legible: "+JSON.stringify(impactColors));
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
   const conflictAlert=calendar.getByRole("alert").filter({hasText:"overlaps a linked personal Busy event"});
   assert(await conflictAlert.count()===1,"Private event conflict should be announced as a warning");
@@ -326,9 +336,13 @@ try {
   assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 0,
     "Stale calendar conflict warning persisted after month navigation");
   await calendar.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  await calendar.getByLabel("Start date").fill("2026-11-09");
+  await calendar.getByLabel("End date").fill("2026-11-09");
+  assert((await impact.innerText()).includes("1 assigned inspection day"), "Assigned inspection conflict must be shown before update");
   await calendar.getByLabel("Start date").fill("2026-11-29");
   await calendar.getByLabel("End date").fill("2026-11-29");
   await calendar.getByRole("button", { name: "Block dates / Update availability" }).click();
+  assert((await impact.innerText()).includes("1 inspector-added day"), "Range impact must refresh after inspector-added date is blocked");
   assert(await calendar.getByText("1 dates updated in this synthetic session only.").count() === 1, "Non-conflicting synthetic date update failed");
   const manuallyBlocked = calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).locator("xpath=..");
   assert((await manuallyBlocked.innerText()).includes("Unavailable"),"Demo block did not display an Unavailable calendar event");
