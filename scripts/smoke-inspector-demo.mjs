@@ -306,6 +306,13 @@ try {
   assert((await impact.innerText()).includes("1 linked private Busy day") &&
     (await impact.innerText()).includes("Protected dates cannot be overwritten or cleared"),
     "Protected personal appointment must be counted before updating without leaking its title into the summary");
+  assert((await impact.innerText()).includes("1 protected day"),"A single private Busy date must count as one non-editable date");
+  await calendar.getByLabel("Start date").fill("2026-11-09");
+  await calendar.getByLabel("End date").fill("2026-11-20");
+  assert((await impact.innerText()).includes("6 protected days"),
+    "Calendar range must count unique protected dates across assigned work and private Busy appointments");
+  await calendar.getByLabel("Start date").fill("2026-11-18");
+  await calendar.getByLabel("End date").fill("2026-11-18");
   const impactColors=await impact.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
   assert(impactColors.color==="rgb(127, 29, 29)"&&impactColors.background==="rgb(255, 247, 247)",
     "Selected protected-date warning must remain legible: "+JSON.stringify(impactColors));

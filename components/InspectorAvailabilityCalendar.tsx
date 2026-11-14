@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { clearInspectorAddedDemoAvailability, overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
+import { clearInspectorAddedDemoAvailability, countProtectedDemoAvailabilityDays, overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
 
 type View = "Month" | "Week" | "List";
 type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavailable" | "Busy";
@@ -115,7 +115,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
   const assignedRangeDays = rangeDates.filter(date=>events.some(event=>event.date===date && event.state==="Assigned")).length;
   const privateRangeDays = rangeDates.filter(date=>events.some(event=>event.date===date && event.external && event.state==="Busy")).length;
   const manualRangeDays = rangeDates.filter(date=>events.some(event=>event.date===date && event.manuallySet)).length;
-  const protectedRangeDays = assignedRangeDays + privateRangeDays;
+  const protectedRangeDays = countProtectedDemoAvailabilityDays(events,rangeDates);
   // Visually select every day of a chosen range, without writing availability.
   // ISO calendar dates sort chronologically, and reversed ranges select none.
   const isDateSelected = (date: string) => start <= end && date >= start && date <= end;
@@ -198,7 +198,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     }}><div className="availabilityActions"><label>Start date<input type="date" required value={start} aria-invalid={invalidRange} aria-describedby={invalidRange ? "calendar-range-warning" : undefined} onChange={e => setStart(e.target.value)}/></label><label>End date<input type="date" required value={end} aria-invalid={invalidRange} aria-describedby={invalidRange ? "calendar-range-warning" : undefined} onChange={e => setEnd(e.target.value)}/></label><label>Availability<select value={blockState} onChange={e => setBlockState(e.target.value as AvailabilityState)}>{["Available", "Tentative / Hold", "Busy", "Unavailable"].map(state => <option key={state} value={state}>{availabilityLabel(state as AvailabilityState)}</option>)}</select></label><button>Block dates / Update availability</button><button type="button" className="clearManual" onClick={clearManualAvailability}>Clear inspector-added demo dates</button></div></form>
     <p className={protectedRangeDays ? "rangePreview conflict" : "rangePreview"} role="status" aria-live="polite">
       <strong>Selected range impact: </strong>
-      {invalidRange ? "Choose an ordered range of 1–62 valid dates." : `${rangeDates.length} selected date${rangeDates.length===1?"":"s"} · ${assignedRangeDays} assigned inspection day${assignedRangeDays===1?"":"s"} · ${privateRangeDays} linked private Busy day${privateRangeDays===1?"":"s"} · ${manualRangeDays} inspector-added day${manualRangeDays===1?"":"s"}.`}
+      {invalidRange ? "Choose an ordered range of 1–62 valid dates." : `${rangeDates.length} selected date${rangeDates.length===1?"":"s"} · ${assignedRangeDays} assigned inspection day${assignedRangeDays===1?"":"s"} · ${privateRangeDays} linked private Busy day${privateRangeDays===1?"":"s"} · ${manualRangeDays} inspector-added day${manualRangeDays===1?"":"s"} · ${protectedRangeDays} protected day${protectedRangeDays===1?"":"s"}.`}
       {!invalidRange && <span>{protectedRangeDays ? " Protected dates cannot be overwritten or cleared. Choose other dates or open the assignment." : " No protected conflicts. Nothing changes until an update or clear action is selected."}</span>}
     </p>
     {invalidRange && <p id="calendar-range-warning" className="rangeWarning" role="alert">Choose a valid date range of no more than 62 days, with the start on or before the end.</p>}

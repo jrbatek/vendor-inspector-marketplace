@@ -1,3 +1,8 @@
+### 2026-11-14 — Inspector Calendar: distinguish unique protected days from overlapping events
+- Corrected the selected-range impact preview to count distinct non-editable dates instead of summing assigned inspection and linked personal Busy events. When two protected events share the same date, the preview counts one protected day, while separately retaining each event category count.
+- Added a unit regression with overlapping synthetic events and expanded hosted Chromium assertions for one private day and the six protected November 9–20 demo dates. No event titles are disclosed in the aggregate; no change to explicit Block dates safeguards, linked-calendar simulation or production records.
+- Mandatory hosted tests, synthetic fixture checks, migrations, typecheck, build, exact-head Vercel Preview READY and post-merge production READY/smoke apply. No local full build because GitHub checkout DNS remains restricted.
+
 ### 2026-11-14 — Income & Tax Center: clear year-specific YTD versus completed-year context
 - The embedded InspectorHub Income & Tax Center now labels the precise November 1, 2026 synthetic cutoff as **current-year YTD** only when viewing 2026. Selecting 2025 or 2024 instead displays a historical fictional dataset snapshot notice and explicitly explains that completed-year activity is not YTD.
 - Added a synthetic-only source contract and expanded the pre-existing GitHub-hosted Chromium PDF download smoke for all three years to verify correct year-specific labeling. Existing earnings, applicable sample 1099/W-2, work verification and demo payment preference functionality are unchanged.

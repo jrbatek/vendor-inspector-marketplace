@@ -11,7 +11,7 @@ test("range impact derives aggregate protected and editable day counts from curr
     'event.date===date && event.state==="Assigned"',
     'event.date===date && event.external && event.state==="Busy"',
     'event.date===date && event.manuallySet',
-    'const protectedRangeDays = assignedRangeDays + privateRangeDays',
+    'const protectedRangeDays = countProtectedDemoAvailabilityDays(events,rangeDates)',
     'role="status" aria-live="polite"',
     "Protected dates cannot be overwritten or cleared",
     "No protected conflicts. Nothing changes until an update or clear action is selected"
