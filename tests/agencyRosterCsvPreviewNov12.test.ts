@@ -33,7 +33,7 @@ test("Agency Mass Resource Connect exposes a keyboard usable private preview wit
 });
 
 test("Agency CSV audit reports missing required columns without leaking inspector identities",()=>{
- const text=headers+"\\nSYN-1001,,Employee,,Pending\\nSYN-1001,Duplicate,Employee,USA,Pending\\n,Unknown,Affiliate,Mexico,Pending\\n";
+ const text=headers+"\nSYN-1001,,Employee,,Pending\nSYN-1001,Duplicate,Employee,USA,Pending\n,Unknown,Affiliate,Mexico,Pending\n";
  const summary=previewAgencyRosterCsv(text);
  assert.equal(summary.totalRows,3);
  assert.equal(summary.reviewRows,3);
