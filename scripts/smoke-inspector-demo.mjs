@@ -138,6 +138,37 @@ try {
   assert(await tabs.getByRole("button", { name: "Month" }).getAttribute("aria-pressed") === "true", "Month not the default calendar view");
   assert(await cal.getByText(/Our Anniversary · All day/).count() >= 1, "Private synthetic anniversary missing");
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count() >= 1, "Private synthetic doctor appointment missing");
+   // All provider links must toggle only synthetic state, preserve private events and remain legible.
+   const connections = cal.locator(".calendarConnections");
+   const googleConnected = connections.getByRole("button", { name: "Google Calendar · Connected (demo)" });
+   assert(await googleConnected.getAttribute("aria-pressed") === "true", "Google demo connection should start linked");
+   const outlookLink = connections.getByRole("button", { name: "Connect Outlook Calendar" });
+   assert(await outlookLink.getAttribute("aria-pressed") === "false", "Outlook should start unlinked");
+   await outlookLink.click();
+   assert(await connections.getByRole("button", { name: "Outlook Calendar · Connected (demo)" }).getAttribute("aria-pressed") === "true",
+     "Outlook demo connection did not show the linked state");
+   await connections.getByRole("button", { name: "Link Other Calendar" }).click();
+   assert(await connections.getByRole("button", { name: "Other Calendar · Connected (demo)" }).getAttribute("aria-pressed") === "true",
+     "Other Calendar demo connection did not show the linked state");
+   await googleConnected.click();
+   const googleUnlinked = connections.getByRole("button", { name: "Link Google Calendar" });
+   assert(await googleUnlinked.getAttribute("aria-pressed") === "false", "Google demo connection cannot be unlinked");
+   // The preceding click leaves the pointer hovering on the button. Measure resting and hover states independently.
+   await page.mouse.move(0, 0);
+   const unlinkedColors = await googleUnlinked.evaluate(node => ({ foreground: getComputedStyle(node).color, background: getComputedStyle(node).backgroundColor }));
+   await googleUnlinked.hover();
+   const hoveredColors = await googleUnlinked.evaluate(node => ({ foreground: getComputedStyle(node).color, background: getComputedStyle(node).backgroundColor }));
+   assert(hoveredColors.foreground === "rgb(6, 78, 59)" && hoveredColors.background === "rgb(204, 251, 241)",
+     "Unlinked calendar hover must remain readable on pale mint: " + JSON.stringify(hoveredColors));
+   assert(unlinkedColors.foreground === "rgb(17, 94, 89)" && unlinkedColors.background === "rgb(255, 255, 255)",
+     "Unlinked calendar controls must remain visible on white: " + JSON.stringify(unlinkedColors));
+   await googleUnlinked.click();
+   assert(await connections.getByRole("button", { name: "Google Calendar · Connected (demo)" }).getAttribute("aria-pressed") === "true",
+     "Google demo connection did not relink");
+   assert((await connections.locator(".connectionStatus").innerText()).includes("Google Calendar, Outlook Calendar, Other Calendar"),
+     "Linked calendar providers are not summarized in one compact section");
+   assert(await cal.getByText(/Our Anniversary · All day/).count() >= 1 && await cal.getByText(/Doctor Appointment · 10:00/).count() >= 1,
+     "Simulated connection toggles altered private inspector sample events");
   // Calendar jump returns to the fixed demo reference date in any view, without modifying events.
   await cal.getByRole("button", { name: "Next month" }).click();
   assert(await cal.getByRole("heading", { name: "December 2026" }).count()===1,"Month navigation failed before demo-today jump");
@@ -319,7 +350,10 @@ try {
   await calendar.getByLabel("End date").fill("2026-11-18");
   await calendar.getByRole("button", { name: "Clear inspector-added demo dates" }).click();
   assert(await calendar.getByText(/Private events cannot be cleared/).count() === 1,"Clearing must not override imported personal Busy events");
-  await calendar.getByRole("button", { name: "Connect Outlook Calendar" }).click();
+  // The continuous InspectorHub page preserves earlier Outlook link state.
+  await calendar.getByRole("button", { name: "Outlook Calendar · Connected (demo)" }).click();
+  assert(await calendar.getByRole("button", { name: "Connect Outlook Calendar" }).getAttribute("aria-pressed") === "false",
+    "Returning to Calendar must preserve and allow unlinking prior demo connections");
   assert(await calendar.getByText(/demo|simulat/i).count() > 0, "Calendar connection is not clearly labeled simulated");
   // Qualifications follow the same persistent InspectorHub sidebar pattern as Work History and Income.
   await navigation.getByRole("button", { name: "Qualifications & Documents" }).click();

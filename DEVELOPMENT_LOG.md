@@ -1,3 +1,8 @@
+### 2026-11-13 — Inspector Calendar: independent synthetic provider connections
+- Made Google (initially linked), Outlook, and Other Calendar connection controls usable with independent browser-only link/unlink states and explicit aria-pressed plus a compact live status summary. No live OAuth, credentials, remote requests, browser persistence or calendar synchronization.
+- Added clear high-contrast linked/unlinked/hover states, retaining the grouped responsive Calendar connections presentation. Private Doctor Appointment and Our Anniversary examples never change when a provider is toggled.
+- Added source and GitHub-hosted Chromium regression checks of provider toggles, visible colors and private-event isolation. Require mandatory CI/tests, synthetic fixtures, migration safety, typecheck/build, exact-head Vercel Preview READY before merge, and production READY plus exact-commit smoke after. Demo-only; no auth, payments, RLS, production data or matching changes.
+
 ### 2026-11-13 — Agency Mass Resource Connect: preserve CSV preview and same-name retry
 - Browser-only roster preview now retains the last valid fictional result when a replacement file is invalid, oversized or blank. Empty CSV content receives clear recovery guidance rather than a zero-row preview.
 - Reset the native file input after selection so a corrected CSV can be reselected with the same filename; Chromium smoke covers valid → blank → corrected same-name flow, with zero submissions.
