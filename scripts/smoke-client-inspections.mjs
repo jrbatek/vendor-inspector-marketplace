@@ -20,6 +20,15 @@ try{
  const page=await browser.newPage();
  page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+  // Verify rendered Client content never reveals Inspector-only private appointment titles.
+  const clientVisibleText=await page.locator("body").innerText();
+  for(const privateTitle of ["Doctor Appointment","Our Anniversary"]){
+    assert(!clientVisibleText.includes(privateTitle),
+      "Inspector-private calendar title leaked into Client Demo: "+privateTitle);
+  }
+  assert(!clientVisibleText.includes("Log in to view the client workspace"),
+    "Public Client Demo rendered an authenticated workspace login shell");
+
  // Owner Nov 11: three independent Request Inspectors methods must be full-width,
  // vertically stacked in the specified order on desktop and narrow mobile screens.
  const requestCards=page.locator(".requestOptions > article");
@@ -149,6 +158,14 @@ try{
  // Standalone URLs remain supported for old shared links, but are no longer the
  // primary Client sidebar navigation architecture.
  await page.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+  const inspectionVisibleText=await page.locator("body").innerText();
+  for(const privateTitle of ["Doctor Appointment","Our Anniversary"]){
+    assert(!inspectionVisibleText.includes(privateTitle),
+      "Inspector-private calendar title leaked into Client Inspections: "+privateTitle);
+  }
+  assert(!inspectionVisibleText.includes("Log in to view the client workspace"),
+    "Standalone Client Inspections rendered a live login shell");
+
  await page.locator("article.inspection").first().waitFor();
  assert(await page.locator("article.inspection").count()===7,"Expected seven synthetic active inspections");
  assert((await page.locator(".resultCount").innerText()).includes("7 of 7"),"Initial count is incorrect");
