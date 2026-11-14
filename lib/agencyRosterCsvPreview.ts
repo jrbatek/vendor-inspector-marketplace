@@ -4,6 +4,8 @@ export type AgencyRosterCsvPreview = {
   validRows: number;
   reviewRows: number;
   duplicateIds: number;
+  /** Counts per missing required column; no inspector IDs, names or row contents are returned. */
+  missingByColumn: Record<string, number>;
 };
 
 function csvRows(text: string): string[][] {
@@ -46,21 +48,27 @@ export function previewAgencyRosterCsv(text: string): AgencyRosterCsvPreview {
   const [rawHeader, ...rows] = csvRows(text);
   if (!rawHeader) throw new Error("The CSV must include a header row.");
   const headers = rawHeader.map(value => value.replace(/^\uFEFF/, "").trim().toLowerCase());
-  const required = ["inspector id", "name", "relationship", "country", "affiliation status"];
-  const positions = required.map(value => headers.indexOf(value));
+  const required = ["Inspector ID", "Name", "Relationship", "Country", "Affiliation Status"];
+  const positions = required.map(value => headers.indexOf(value.toLowerCase()));
   if (positions.some(index => index < 0)) {
     throw new Error("Expected headers: Inspector ID, Name, Relationship, Country, Affiliation Status.");
   }
   if (!rows.length) throw new Error("The roster has no resource rows.");
   let validRows = 0;
   let duplicateIds = 0;
+  const missingByColumn: Record<string, number> = Object.fromEntries(required.map(column => [column, 0]));
   const usedIds = new Set<string>();
   for (const row of rows) {
     const id = row[positions[0]]?.trim().toLowerCase() ?? "";
-    const complete = positions.every(index => (row[index] ?? "").trim().length > 0);
+    const missing = positions.map((index, column) => {
+      const isMissing = !(row[index] ?? "").trim();
+      if (isMissing) missingByColumn[required[column]]++;
+      return isMissing;
+    });
+    const complete = !missing.some(Boolean);
     if (id && usedIds.has(id)) duplicateIds++;
     if (complete && !usedIds.has(id)) validRows++;
     if (id) usedIds.add(id);
   }
-  return {totalRows: rows.length, validRows, reviewRows: rows.length - validRows, duplicateIds};
+  return {totalRows: rows.length, validRows, reviewRows: rows.length - validRows, duplicateIds, missingByColumn};
 }
