@@ -1,3 +1,8 @@
+### 2026-11-14 — Inspector Calendar: preview selected-date impact before changing availability
+- Added a live read-only selected-range summary for the synthetic inspector calendar: selected day count, assigned inspection conflicts, private linked Busy conflicts and inspector-added dates. Protected dates are flagged with legible high-contrast warning styling; event titles never enter the aggregate summary.
+- The preview follows Month/Week/List selections, range edits and browser-local availability changes. Existing explicit update/clear actions and conflict protection remain unchanged. Added source tests and hosted Chromium checks for valid, assigned, private and newly blocked dates.
+- Safe demo-only change; no production availability, calendar OAuth, credentials, auth, payments or database writes. Hosted CI, migrations, synthetic validation, typecheck/build, exact-head Vercel Preview READY, production READY and exact-commit smoke are required.
+
 ### 2026-11-14 — P0-B Client Source of Inspectors: mobile tap targets and disabled-state contrast
 - Increased synthetic Client sourcing segment options, agency/independent channel controls, and Clear selection feedback action to accessible 44px minimum touch targets without changing source logic or commercial routing.
 - Strengthened GitHub-hosted Chromium mobile checks for real rendered button dimensions and disabled source selector contrast/semantics; retained existing selected/unselected/hover/focus browser coverage. No production matching, auth, affiliations, banking, or data writes.
