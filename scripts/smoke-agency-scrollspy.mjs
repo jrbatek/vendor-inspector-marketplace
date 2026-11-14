@@ -72,6 +72,22 @@ try{
  const uploadSummary=await page.locator("#agency-roster-preview").innerText();
  if(!uploadSummary.includes("2 complete unique records")||!uploadSummary.includes("No records submitted"))
    throw Error("Mass Resource Connect did not preview fictional CSV rows without submitting them");
+  const rosterInput=page.locator("#agency-roster-upload");
+  if(await rosterInput.inputValue()!=="")throw Error("Agency CSV file input must reset to permit same-name retry");
+  await rosterInput.setInputFiles({name:"fictional-roster.csv",mimeType:"text/csv",buffer:Buffer.from("   ")});
+  if(!await page.locator("#agency-roster-error").getByText(/CSV file is empty/).isVisible())
+    throw Error("Agency empty CSV should show a readable, actionable warning");
+  if((await page.locator("#agency-roster-preview").innerText())!==uploadSummary)
+    throw Error("Agency empty CSV erased the previous valid synthetic roster preview");
+  await rosterInput.setInputFiles({
+    name:"fictional-roster.csv",mimeType:"text/csv",
+    buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1003,Sample Inspector C,Employee,USA,Pending\n")
+  });
+  const correctedSummary=await page.locator("#agency-roster-preview").innerText();
+  if(!correctedSummary.includes("1 complete unique records")||!correctedSummary.includes("No records submitted"))
+    throw Error("Agency same-name corrected roster was not re-previewed without a submission");
+  if(await page.locator("#agency-roster-error").count()!==0 || await rosterInput.inputValue()!=="")
+    throw Error("Agency corrected CSV did not clear warning or reset file input");
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
  await page.getByRole("button",{name:"Connect API"}).click();
