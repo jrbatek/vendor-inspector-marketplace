@@ -15,7 +15,7 @@ test("synthetic assignment cards and next-30-day availability agree", () => {
   assert.match(source, /Tentative hold · Houston/);
 });
 test("InspectorHub demo fixtures remain synthetic and cannot be persisted without a live user", () => {
-  assert.match(source, /setMode\("demo"\);setItems\(DEMO_WORK\)/);
+  assert.match(source, /if\(!a\.user\)\{router\.replace\("\/login\?role=inspector"\);return;\}/);
   assert.match(source, /if\(mode!=="live"\)\{demoNotice\(\);return;\}/);
   assert.match(source, /source:"synthetic-demo"/);
   assert.match(source, /No payment execution, tax filing, bank credentials/);
