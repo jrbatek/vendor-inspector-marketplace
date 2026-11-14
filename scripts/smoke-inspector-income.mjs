@@ -33,6 +33,18 @@ try{
  const yearSelector=page.getByRole("combobox",{name:"Tax and earnings year"});
  for(const [year,count] of [["2026",4],["2025",3],["2024",2]]){
    await yearSelector.selectOption(year);
+   const yearContext=page.getByRole("heading",{name:"Income & Tax Center"}).locator("xpath=..");
+   if(year==="2026"){
+     assert((await yearContext.innerText()).includes("Current-year YTD data through:"),
+       "Current 2026 income must disclose its precise YTD snapshot cutoff");
+     assert(await page.getByText("Viewing completed fictional 2026 earnings").count()===0,
+       "Current year should not claim completion");
+   } else {
+     assert((await yearContext.innerText()).includes("Historical synthetic data snapshot:"),
+       "Completed synthetic tax years must not be labeled current-year YTD");
+     assert((await page.getByRole("status").filter({hasText:"Viewing completed fictional "+year+" earnings"}).count())===1,
+       "Completed tax-year context is missing for "+year);
+   }
    const pending=page.waitForEvent("download",{timeout:20000});
    await page.getByRole("button",{name:"Download synthetic income report PDF"}).click();
    const download=await pending;
