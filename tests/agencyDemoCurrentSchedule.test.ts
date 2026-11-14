@@ -4,12 +4,15 @@ import test from "node:test";
 
 const page = fs.readFileSync("app/demo/agency/page.tsx", "utf8");
 const activeInspectionSource = fs.readFileSync("app/demo/agency/ActiveInspectionsClient.tsx", "utf8");
+import { AGENCY_FEATURED_RESOURCES } from "../lib/agencyDemoResources";
 
 test("Agency Demo synthetic resource availability is aligned to November 2026", () => {
+  const availabilityLabels = AGENCY_FEATURED_RESOURCES.map(resource => resource.capacity);
+  assert.match(page, /AGENCY_FEATURED_RESOURCES\.map/);
   for (const date of ["Nov 12, 2026", "Nov 14, 2026", "Nov 16, 2026", "Nov 19, 2026"]) {
-    assert.ok(page.includes("Available " + date), date);
+    assert.ok(availabilityLabels.includes("Available " + date), date);
   }
-  assert.doesNotMatch(page, /Available Sep \d{1,2}/);
+  assert.doesNotMatch(availabilityLabels.join(" "), /Available Sep \d{1,2}/);
 });
 
 test("Agency Demo inspection and NCR workflow dates are future windows, not stale September labels", () => {
