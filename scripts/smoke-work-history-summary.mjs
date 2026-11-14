@@ -41,6 +41,13 @@ try {
   await page.getByRole("combobox", { name: "Client" }).selectOption("Bluewater LNG");
   assert(JSON.stringify(await counts()) === JSON.stringify([2, 2, 1, 1]), "Client filter must update every summary counter");
   assert(await page.getByRole("heading", { name: "Completed assignment details" }).count() === 0, "Changing filters must close stale assignment detail");
+  const activeFilters=page.getByRole("region", { name: "Active Work History filters" });
+  assert(await activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" }).count()===1,
+    "Selected client must offer a single accessible remove-filter chip");
+  await activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" }).click();
+  assert(JSON.stringify(await counts()) === JSON.stringify([10, 10, 6, 3]), "Clearing one client filter must restore unfiltered counters");
+  assert(await activeFilters.count()===0, "Active filter chips must disappear once all selections are cleared");
+  await page.getByRole("combobox", { name: "Client" }).selectOption("Bluewater LNG");
   await page.getByRole("button", { name: "Reports Submitted" }).click();
   assert(await page.getByRole("heading", { name: "Coastal Liquefaction Train 3" }).count() === 2, "Report cards must identify project, not only inspection type");
   const href = await page.getByRole("link", { name: "Open sample PDF" }).first().getAttribute("href");
