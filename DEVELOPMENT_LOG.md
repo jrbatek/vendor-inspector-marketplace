@@ -1,3 +1,9 @@
+### 2026-11-14 — Inspector Work History: individually clear filters while preserving report context
+- Added dynamically generated active-filter chips for search, client, industry, commodity, closeout status, NCR and both completed-date bounds. One keyboard-accessible remove action clears only its own criterion and updates existing assignments/reports, summary counters, PDFs and CSV results without resetting unrelated fields.
+- Added high-contrast default, hover and focus styling, explicit active-filter count and filtered result status. Hosted Chromium now verifies selecting and clearing a client filter restores all ten fictional work items, then reselects the client for PDF/date regression checks.
+- Synthetic-only Work History improvement; no inspector PII, auth, production data, banking, matching or persistence changes. All mandatory hosted validation, Vercel Preview READY, merge and production smoke gates remain in place.
+
+
 ### 2026-11-14 — Inspector Calendar: preview selected-date impact before changing availability
 - Added a live read-only selected-range summary for the synthetic inspector calendar: selected day count, assigned inspection conflicts, private linked Busy conflicts and inspector-added dates. Protected dates are flagged with legible high-contrast warning styling; event titles never enter the aggregate summary.
 - The preview follows Month/Week/List selections, range edits and browser-local availability changes. Existing explicit update/clear actions and conflict protection remain unchanged. Added source tests and hosted Chromium checks for valid, assigned, private and newly blocked dates.
