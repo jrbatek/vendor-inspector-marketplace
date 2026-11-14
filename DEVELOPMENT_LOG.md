@@ -1,3 +1,9 @@
+### 2026-11-14 — Income & Tax Center: clear year-specific YTD versus completed-year context
+- The embedded InspectorHub Income & Tax Center now labels the precise November 1, 2026 synthetic cutoff as **current-year YTD** only when viewing 2026. Selecting 2025 or 2024 instead displays a historical fictional dataset snapshot notice and explicitly explains that completed-year activity is not YTD.
+- Added a synthetic-only source contract and expanded the pre-existing GitHub-hosted Chromium PDF download smoke for all three years to verify correct year-specific labeling. Existing earnings, applicable sample 1099/W-2, work verification and demo payment preference functionality are unchanged.
+- No banking credentials, personal financial records, real tax documents, production data, authorization, matching, OAuth or payments changed. Hosted tests, migration and synthetic checks, typecheck/build, Vercel Preview READY, merge and production smoke remain mandatory.
+
+
 ### 2026-11-14 — Inspector Work History: individually clear filters while preserving report context
 - Added dynamically generated active-filter chips for search, client, industry, commodity, closeout status, NCR and both completed-date bounds. One keyboard-accessible remove action clears only its own criterion and updates existing assignments/reports, summary counters, PDFs and CSV results without resetting unrelated fields.
 - Added high-contrast default, hover and focus styling, explicit active-filter count and filtered result status. Hosted Chromium now verifies selecting and clearing a client filter restores all ten fictional work items, then reselects the client for PDF/date regression checks.
