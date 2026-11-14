@@ -149,6 +149,46 @@ try {
   if(download.suggestedFilename()!=="inspectsource-client-demo-inspections.csv")
     throw new Error("Filtered Analytics CSV download unavailable");
   if(errors.length)throw new Error("Analytics browser exceptions:\n"+errors.join("\n"));
+  // Embedded continuous Client Workspace first-click regression: the original
+  // graphical-browser crash was reported in the full Client Demo, not just the
+  // standalone Analytics route. Keep the other seven inspection records mounted.
+  await page.goto(base + "/demo/client", {waitUntil:"domcontentloaded"});
+  const embeddedAnalytics = page.locator("#analytics .clientAnalyticsPage");
+  const embeddedSources = embeddedAnalytics.getByRole("group", {name:"Quick source type filters"});
+  await page.waitForFunction(() => {
+    const panel = document.querySelector("#analytics .clientAnalyticsPage");
+    const buttons = panel?.querySelectorAll(".quickSources button");
+    return panel?.querySelectorAll(".filters select").length === 9 &&
+      buttons?.length === 3 && [...buttons].every(button => !button.disabled);
+  }, null, {timeout:15000});
+  const embeddedInspections = page.locator("#inspections-in-progress .inspectionList .inspection");
+  if (await embeddedInspections.count() !== 7)
+    throw new Error("Embedded Client Demo must preserve seven synthetic Inspections in Progress");
+  const clientSidebar = page.getByRole("complementary", {name:"Client Workspace navigation"});
+  await clientSidebar.getByRole("link", {name:"Analytics",exact:true}).click();
+  if (!page.url().endsWith("#analytics"))
+    throw new Error("Client sidebar Analytics navigation did not stay in the synthetic demo");
+  for (const [label,expected] of [["Independent",15],["Agency",45],["All",60],["Independent",15],["All",60]]) {
+    await embeddedSources.getByRole("button", {name:label === "All" ? "All sources" : label, exact:true}).click();
+    await page.waitForFunction(({label,expected}) => {
+      const analytics = document.querySelector("#analytics .clientAnalyticsPage");
+      return analytics?.querySelectorAll(".records tbody tr").length === Math.min(expected,30) &&
+        analytics?.querySelector(".quickSources [role=status]")?.textContent?.includes(
+          "Source: " + label + ". " + expected + " synthetic inspections"
+        );
+    }, {label,expected}, {timeout:15000});
+    await page.waitForTimeout(150);
+    if (await page.locator(".analyticsRecovery").count() ||
+        await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
+      throw new Error("Embedded Client Analytics recovery appeared after " + label);
+    if (errors.length) throw new Error("Embedded Client Analytics browser exception: " + errors.join("\n"));
+  }
+  await clientSidebar.getByRole("link", {name:"Inspections in Progress",exact:true}).click();
+  if (!page.url().endsWith("#inspections-in-progress") || await embeddedInspections.count() !== 7)
+    throw new Error("Client Analytics filters disrupted navigation or removed the seven fictional inspections");
+  if (await page.getByText("Log in to view the client workspace").count())
+    throw new Error("Embedded Client Demo navigated to a live login-required workspace");
+  console.log("Embedded Client Analytics: first-click 15/45/60 source transitions, seven inspections and no recovery boundary passed.");
   console.log(`Client Analytics (${browserName}): fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.`);
 }catch(e){
   failed=true;
