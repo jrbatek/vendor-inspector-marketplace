@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import AgencyContractsPanel from "@/components/AgencyContractsPanel";
 import AgencyFeaturedOpportunities from "@/components/AgencyFeaturedOpportunities";
-import { AGENCY_SYNTHETIC_RESOURCE_TOTAL } from "@/lib/agencyDemoResources";
+import { AGENCY_FEATURED_RESOURCES, AGENCY_SYNTHETIC_RESOURCE_TOTAL } from "@/lib/agencyDemoResources";
 import { exportAgencyDemoReportsCsv } from "@/lib/agencyDemoReports";
 import { previewAgencyRosterCsv, type AgencyRosterCsvPreview } from "@/lib/agencyRosterCsvPreview";
 
@@ -13,13 +13,11 @@ const AgencyActiveInspections = dynamic(() => import("./ActiveInspectionsClient"
   loading: () => <p className="agencyInspectionLoading" role="status">Preparing three fictional inspection examples…</p>,
 });
 
-const resources = [
-  ["IS-20418", "Maya Chen", "Employee", "Verified", "Houston / Gulf Coast", "Available Nov 12, 2026", "USD 1,080/day", "Net 45", "Mileage capped; lodging separate"],
-  ["IS-11742", "Omar Haddad", "Subcontractor", "Verified", "UAE / Qatar", "Available Nov 14, 2026", "USD 1,240/day", "Net 30", "Per diem included; airfare separate"],
-  ["IS-33091", "Elena Rossi", "Affiliate", "Expiring", "Italy / Central Europe", "Available Nov 16, 2026", "EUR 980/day", "Net 45", "Local travel included; OT +25%"],
-  ["IS-28106", "Daniel Okafor", "Subcontractor", "Confirmation pending", "West Africa", "Available Nov 19, 2026", "USD 900/day", "Net 30", "Travel time separately billable"],
-  ["IS-44127", "Priya Nair", "Affiliate", "Disputed", "India / Middle East", "Blocked", "USD 860/day", "Net 60", "Commercials held pending dispute"],
-];
+const resources = AGENCY_FEATURED_RESOURCES.map(resource => [
+  resource.id, resource.name, resource.relationship, resource.affiliation,
+  resource.coverage, resource.capacity, resource.dayRate, resource.terms,
+  resource.commercialPackage,
+] as const);
 
 const syntheticRoster = "Inspector ID,Name,Relationship,Country,Affiliation Status\r\nSYN-1001,Sample Inspector A,Employee,USA,Pending\r\nSYN-1002,Sample Inspector B,Subcontractor,Mexico,Pending\r\n";
 const syntheticRosterHref = `data:text/csv;charset=utf-8,${encodeURIComponent(syntheticRoster)}`;

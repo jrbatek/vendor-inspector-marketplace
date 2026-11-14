@@ -6,6 +6,7 @@ import path from "node:path";
 const source = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/page.tsx"), "utf8");
 const activeInspectionSource = fs.readFileSync(path.join(process.cwd(), "app/demo/agency/ActiveInspectionsClient.tsx"), "utf8");
 const featuredOpportunitySource = fs.readFileSync(path.join(process.cwd(), "components/AgencyFeaturedOpportunities.tsx"), "utf8");
+import { AGENCY_FEATURED_RESOURCES } from "../lib/agencyDemoResources";
 
 test("agency demo exposes the complete operational workspace spine", () => {
   for (const marker of [
@@ -28,10 +29,12 @@ test("agency sidebar uses one purple workspace navigation with real active state
 });
 
 test("inspection operations remain populated while retired capacity section is absent", () => {
-  assert.match(source + activeInspectionSource, /Gulf Coast/);
-  assert.match(source + activeInspectionSource, /Middle East/);
-  assert.match(source + activeInspectionSource, /Europe/);
-  assert.match(source + activeInspectionSource, /West Africa/);
+  const inspectionAndResources = source + activeInspectionSource +
+    AGENCY_FEATURED_RESOURCES.map(resource => resource.coverage + " " + resource.region).join("\n");
+  assert.match(inspectionAndResources, /Gulf Coast/);
+  assert.match(inspectionAndResources, /Middle East/);
+  assert.match(inspectionAndResources, /Europe/);
+  assert.match(inspectionAndResources, /West Africa/);
   assert.doesNotMatch(source, /id="availability-capacity"/);
   assert.match(source + activeInspectionSource, /Mechanical test witness report · draft due Nov 16/);
   assert.match(source + activeInspectionSource, /Open Inspection/);

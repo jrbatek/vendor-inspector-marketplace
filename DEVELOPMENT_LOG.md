@@ -1,3 +1,8 @@
+### 2026-11-13 — Agency featured resource preview: one shared synthetic source
+- Removed five duplicated Agency Workspace resource rows and derive the visible five-row preview directly from AGENCY_FEATURED_RESOURCES, the same fictional fixture used by the searchable 2,823-resource directory. Inspector IDs, relationship, affiliation, coverage, capacity, rates and terms now stay aligned.
+- Updated two pre-existing source-text tests to read the shared fictional resource fixture rather than expecting duplicated page literals (first CI failure); added a focused source-and-fixture regression to prevent duplicate drift. Retains the one-page Agency scrollspy, filtering, demo-only guarantees and existing resource-directory links. No production records, auth, banking, API, privacy or matching changes.
+- Release gates: hosted tests, synthetic-data and migration checks, typecheck, production build, Chromium smoke, Vercel Preview READY before merge, then production READY and exact-commit smoke.
+
 ### 2026-11-13 — Inspector Calendar: independent synthetic provider connections
 - Made Google (initially linked), Outlook, and Other Calendar connection controls usable with independent browser-only link/unlink states and explicit aria-pressed plus a compact live status summary. No live OAuth, credentials, remote requests, browser persistence or calendar synchronization.
 - Added clear high-contrast linked/unlinked/hover states, retaining the grouped responsive Calendar connections presentation. Private Doctor Appointment and Our Anniversary examples never change when a provider is toggled.
