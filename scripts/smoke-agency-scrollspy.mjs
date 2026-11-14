@@ -103,6 +103,22 @@ try{
   if((await issues.innerText()).includes("Another Sample")||(await issues.innerText()).includes("SYN-1001"))
     throw Error("Agency CSV preview exposed uploaded identity details");
 
+  // Reviewers must be able to discard even the browser-local preview without
+  // preserving old aggregate counts or sensitive file contents in visible UI.
+  await page.getByRole("button", {name:"Clear browser-local roster preview"}).click();
+  if(await page.locator("#agency-roster-preview").count() || await issues.count())
+    throw Error("Agency Clear roster preview retained old CSV counts or validation breakdown");
+  if(!await page.getByText("Roster preview cleared from this browser session. No records were submitted.").isVisible())
+    throw Error("Agency Clear roster preview did not announce browser-local clearance");
+  await rosterInput.setInputFiles({
+    name:"fictional-bad-roster.csv",mimeType:"text/csv",
+    buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1004,Sample Inspector D,Employee,USA,Pending\n")
+  });
+  if(!((await page.locator("#agency-roster-preview").innerText()).includes("1 complete unique records")) ||
+    await page.getByText("Roster preview cleared from this browser session. No records were submitted.").count())
+    throw Error("Agency new CSV upload did not replace cleared preview and reset clearance notice");
+
+
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
  await page.getByRole("button",{name:"Connect API"}).click();
