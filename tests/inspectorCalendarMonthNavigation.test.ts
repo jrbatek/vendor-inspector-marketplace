@@ -40,7 +40,8 @@ test("Built-app Chromium verifies month navigation stays Not set until explicit 
 
 
 test("Calendar dates make invalid ranges and private conflicts visibly distinguishable from success", () => {
-  assert.match(source, /const invalidRange = !start \|\| !end \|\| dateRange\(start,end\)\.length === 0/);
+  assert.match(source, /const rangeDates = dateRange\(start,end\)/);
+  assert.match(source, /const invalidRange = !start \|\| !end \|\| rangeDates\.length === 0/);
   assert.match(source, /aria-invalid=\{invalidRange\}/);
   assert.match(source, /calendar-range-warning/);
   assert.match(source, /className=\{noticeIsWarning \? "notice warning" : "notice"\}/);
