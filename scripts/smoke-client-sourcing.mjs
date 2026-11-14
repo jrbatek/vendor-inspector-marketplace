@@ -90,7 +90,7 @@ try {
   const narrowBoth = narrowGroup.getByRole("button", { name: "Contracted agencies + independent inspectors", exact: true });
   for (const option of [narrowAgencies, narrowIndependent, narrowBoth]) {
     const bounds = await option.boundingBox();
-    assert(bounds && bounds.width >= 40 && bounds.height >= 40, "Mobile Source of Inspectors control is missing or clipped");
+    assert(bounds && bounds.width >= 44 && bounds.height >= 44, "Mobile Source of Inspectors control must have a 44px tap target and remain visible");
     assert(bounds.x >= -1 && bounds.x + bounds.width <= 391, "Source selector overflows mobile viewport");
     await legible(option, "mobile source selector resting");
     await option.hover();
@@ -99,10 +99,18 @@ try {
     assert(parseFloat(await option.evaluate(node => getComputedStyle(node).outlineWidth)) >= 2,
       "Mobile Source of Inspectors control lost focus outline");
   }
+  // Disabled state is a supported style even though the synthetic source chooser is normally enabled.
+  await narrowAgencies.evaluate(node => node.setAttribute("disabled", ""));
+  await legible(narrowAgencies, "mobile disabled agency source");
+  assert(await narrowAgencies.isDisabled(), "Disabled source option did not expose native disabled semantics");
+  await narrowAgencies.evaluate(node => node.removeAttribute("disabled"));
   await narrowAgencies.click();
   assert((await narrow.locator(".results > article").count()) === 2, "Mobile agency cohort incorrect");
   await legible(narrowAgencies, "mobile selected agency source");
   const agencyChannel = narrow.locator(".channels button").first();
+  const channelBounds=await agencyChannel.boundingBox();
+  assert(channelBounds && channelBounds.width >= 44 && channelBounds.height >= 44,
+    "Mobile agency channel selection must provide a 44px tap target");
   await legible(agencyChannel, "mobile unselected agency channel");
   await agencyChannel.hover();
   await legible(agencyChannel, "mobile hovered agency channel");
@@ -114,6 +122,9 @@ try {
   assert((await narrow.locator(".results > article").count()) === 2, "Mobile independent cohort incorrect");
   assert((await narrow.locator(".selectionNotice").count()) === 0, "Mobile agency channel selection leaked across sources");
   const independentChannel = narrow.locator(".independent button").first();
+  const independentBounds=await independentChannel.boundingBox();
+  assert(independentBounds && independentBounds.width >= 44 && independentBounds.height >= 44,
+    "Mobile independent channel selection must provide a 44px tap target");
   await independentChannel.click();
   assert(await independentChannel.getAttribute("aria-pressed") === "true", "Mobile independent selection not announced");
   await legible(independentChannel, "mobile selected independent channel");

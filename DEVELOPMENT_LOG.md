@@ -1,3 +1,8 @@
+### 2026-11-14 — P0-B Client Source of Inspectors: mobile tap targets and disabled-state contrast
+- Increased synthetic Client sourcing segment options, agency/independent channel controls, and Clear selection feedback action to accessible 44px minimum touch targets without changing source logic or commercial routing.
+- Strengthened GitHub-hosted Chromium mobile checks for real rendered button dimensions and disabled source selector contrast/semantics; retained existing selected/unselected/hover/focus browser coverage. No production matching, auth, affiliations, banking, or data writes.
+- Require hosted validation, synthetic fixture checks, migrations, typecheck, build and browser smoke before exact-head Vercel Preview READY and merge; verify production READY and exact-commit smoke.
+
 ### 2026-11-14 — Active Assignments: show actionable deadlines before opening details
 - Added clearly readable exact due dates to all three synthetic InspectorHub Active Assignments cards; dates use the same source as Open Assignment details to avoid contradictory schedule summaries. Existing next actions, stages, fictional contacts, documents, report PDFs, calendar links and continuous green-sidebar navigation remain unchanged.
 - Added direct due-date unit assertions and hosted Chromium comparison between each list card and its Open Assignment detail. Demo only: no production assignment, credentials, authorization or matching changes. Hosted validation, Vercel Preview READY, merge and exact-commit production smoke remain mandatory.
