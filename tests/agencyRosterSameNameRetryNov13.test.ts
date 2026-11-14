@@ -8,7 +8,11 @@ test("Agency Mass Resource Connect preserves valid preview after invalid file an
  assert.match(page,/if\(!file\)return;/);
  assert.match(page,/if\(!content\.trim\(\)\)\{setRosterError\("CSV file is empty/);
  assert.match(page,/setRosterPreview\(previewAgencyRosterCsv\(content\)\)/);
- assert.doesNotMatch(page,/setRosterPreview\(null\)/);
+ // A deliberate Clear preview button may reset the summary, but a failed
+ // replacement upload must never discard the existing valid preview.
+ const previewHandler=page.slice(page.indexOf("const previewRoster=async"),page.indexOf("const [reportFocus"));
+ assert.ok(previewHandler.startsWith("const previewRoster=async"));
+ assert.doesNotMatch(previewHandler,/setRosterPreview\(null\)/);
  assert.match(page,/event\.currentTarget\.value=""/);
  assert.doesNotMatch(page,/supabaseBrowser\(|\.insert\(|\.upsert\(/);
 });
