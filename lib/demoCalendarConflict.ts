@@ -20,3 +20,17 @@ export function clearInspectorAddedDemoAvailability<T extends {date:string;manua
   const restore=baseline.filter(event=>selected.has(event.date)&&!kept.some(existing=>existing.date===event.date));
   return {events:[...kept,...restore],cleared};
 }
+
+/** Count unique protected fictional dates, not event rows. An inspection and a
+ * linked private appointment may coexist on the same date; that day is one
+ * non-editable date even though two separate conflicts are present.
+ */
+export function countProtectedDemoAvailabilityDays(
+  events: readonly {date:string;state:string;external?:boolean}[],
+  selectedDates: readonly string[],
+): number {
+  const selected=new Set(selectedDates);
+  return new Set(events.filter(event=>selected.has(event.date) &&
+    (event.state==="Assigned" || (event.external===true && event.state==="Busy")))
+    .map(event=>event.date)).size;
+}
