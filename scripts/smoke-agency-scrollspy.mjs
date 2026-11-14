@@ -95,6 +95,9 @@ try{
     buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,,Employee,,Pending\nSYN-1001,Another Sample,Employee,USA,Pending\n")
   });
   const issues=page.getByRole("group",{name:"CSV columns requiring attention"});
+  // File.text() and the React validation state update are asynchronous.
+  // Wait for the expected fictional breakdown before checking its details.
+  await issues.getByText("Inspector ID: 1 duplicate row (case-insensitive)").waitFor({state:"visible",timeout:8000});
   if(!await issues.isVisible()||
     !await issues.getByText("Name: missing in 1 row").isVisible()||
     !await issues.getByText("Country: missing in 1 row").isVisible()||
