@@ -410,12 +410,12 @@ try {
   // Invalid Work History dates must not masquerade as a genuine empty result.
   const workFilters = page.getByRole("region", { name: "Work History filters" });
   await workFilters.locator(".filters select").first().selectOption("Bluewater LNG");
-  await workFilters.getByLabel("Completed from").fill("2026-10-20");
-  await workFilters.getByLabel("Completed through").fill("2026-08-01");
+  await workFilters.getByLabel("Completed from",{exact:true}).fill("2026-10-20");
+  await workFilters.getByLabel("Completed through",{exact:true}).fill("2026-08-01");
   assert(await page.getByRole("heading", { name: "Invalid completion date range" }).count() === 1,
     "Contradictory Work History dates must have an explicit recovery heading");
   for (const label of ["Completed from", "Completed through"]) {
-    const control = workFilters.getByLabel(label);
+    const control = workFilters.getByLabel(label,{exact:true});
     assert(await control.getAttribute("aria-invalid") === "true", "Reversed Work History dates must be marked invalid");
     const appearance = await control.evaluate(element => { const s = getComputedStyle(element); return {color:s.color,background:s.backgroundColor,border:s.borderTopColor}; });
     assert(appearance.color === "rgb(127, 29, 29)" && appearance.background === "rgb(255, 247, 247)" && appearance.border === "rgb(185, 28, 28)",
@@ -424,8 +424,8 @@ try {
   assert(!(await page.locator(".resultCount").innerText()).includes("Showing 0 of 10"),
     "Invalid range should not be presented as a genuine no-match result");
   await workFilters.getByRole("button", { name: "Clear invalid date range" }).click();
-  assert(await workFilters.getByLabel("Completed from").inputValue() === "" &&
-    await workFilters.getByLabel("Completed through").inputValue() === "",
+  assert(await workFilters.getByLabel("Completed from",{exact:true}).inputValue() === "" &&
+    await workFilters.getByLabel("Completed through",{exact:true}).inputValue() === "",
     "Recovery must clear only the two invalid dates");
   assert(await workFilters.locator(".filters select").first().inputValue() === "Bluewater LNG",
     "Recovery must preserve independently selected client");
