@@ -6,6 +6,9 @@ const DETAILS: Record<string, { status: string; client: string; vendor: string; 
   "Orion Deepwater Platform": { status: "Travel pending", client: "Orion Offshore (synthetic)", vendor: "Hanul Package Systems", location: "Busan, South Korea · Compressor assembly hall", dates: "November 26–27, 2026", scope: "Witness compressor package FAT, review instrumentation calibration and record open punch items.", po: "DEMO-PO-4133", completed: ["November 2 · Assignment accepted", "November 3 · ITP and vendor drawings reviewed", "November 4 · Travel request submitted"], next: "Confirm itinerary and site access; vendor to supply final FAT procedure.", due: "November 18, 2026 · 09:00 KST" },
 };
 
+/** One fictional due-date source for the card and Open Assignment detail. */
+export const getInspectorDemoAssignmentDue = (project: string): string => DETAILS[project]?.due ?? "Due date to be confirmed";
+
 type AssignmentWorkflow = { siteContact: string; equipment: string;
   milestones: { name: string; date: string; status: string }[];
   documents: { name: string; status: string }[];

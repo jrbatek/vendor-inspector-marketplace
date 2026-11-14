@@ -78,7 +78,10 @@ try {
   await navigation.getByRole("button", { name: "Active Assignments" }).click();
   assert(await page.locator("#assignments").getByRole("button", { name: "Open assignment" }).count() === 3, "Three synthetic active assignments expected");
   for (const name of ["LNG Compressor Package", "Gulf Horizon Refinery Upgrade", "Orion Deepwater Platform"]) {
-    await page.locator("#assignments article").filter({ hasText: name }).getByRole("button", { name: "Open assignment" }).click();
+    const assignmentCard=page.locator("#assignments article").filter({ hasText: name });
+    const dueSummary=await assignmentCard.locator(".dueDate").innerText();
+    assert(dueSummary.startsWith("Due: ") && dueSummary.includes("2026"), "Active Assignment card missing readable exact due date for " + name);
+    await assignmentCard.getByRole("button", { name: "Open assignment" }).click();
     const assignment = page.getByRole("region", { name: "Open assignment details" });
     assert(await assignment.count() === 1, "Assignment workspace missing for " + name);
     assert(await assignment.getByRole("heading", { name: "Milestones" }).count() === 1, "Milestones section missing for " + name);
@@ -86,6 +89,8 @@ try {
     assert(await assignment.locator(".documents li").count() === 3, "Expected three document statuses for " + name);
     assert((await assignment.innerText()).includes("example.invalid"), "Site contact must be clearly fictional for " + name);
     assert((await assignment.innerText()).includes("Outstanding items / next action"), "Outstanding action missing for " + name);
+    assert((await assignment.innerText()).includes(dueSummary.slice("Due: ".length)),
+      "Active Assignment card due date differs from Open Assignment details for " + name);
     const pdfLink=assignment.getByRole("link", { name: "Open synthetic report PDF" });
     const pdf=await page.request.get(base+(await pdfLink.getAttribute("href")));
     assert(pdf.ok() && (pdf.headers()["content-type"]||"").includes("application/pdf"),"Synthetic assignment PDF not working for "+name);
