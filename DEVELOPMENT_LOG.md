@@ -1,3 +1,8 @@
+### 2026-11-13 — Agency Mass Resource Connect: preserve CSV preview and same-name retry
+- Browser-only roster preview now retains the last valid fictional result when a replacement file is invalid, oversized or blank. Empty CSV content receives clear recovery guidance rather than a zero-row preview.
+- Reset the native file input after selection so a corrected CSV can be reselected with the same filename; Chromium smoke covers valid → blank → corrected same-name flow, with zero submissions.
+- Demo-only; no production affiliation or matching changes, credentials, API, banking or DB writes. Release only after mandatory hosted tests, synthetic-data validation, migration checks, typecheck/build, Vercel Preview READY and exact-commit production READY/smoke.
+
 ### 2026-11-13 — Client Natural Language scope uploads: empty-file recovery and same-name retry
 - Fixed a browser-local usability edge case in the stacked Natural Language – AI request section: blank or whitespace-only scope files no longer erase a prepared inspection request. File selector resets after selection so reviewers can select a corrected file with the same name; valid text uploads remain browser-local and preview-only.
 - Added real Chromium empty-file preservation, input-reset and corrected same-name retry checks; source regression coverage protects the behavior. Synthetic-only UI; no production request, bank/auth, RLS, matching or API changes. All existing CI, synthetic validation, migration, typecheck/build, Vercel preview and exact-commit production gates still apply.
