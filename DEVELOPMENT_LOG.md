@@ -1,3 +1,8 @@
+### 2026-11-14 — Client Demo request editing clears obsolete loaded-file notification
+- When a reviewer manually edits the Natural Language – AI inspection scope after uploading a valid fictional TXT/MD/CSV/JSON file, the old "Loaded filename" confirmation is now retired immediately. This prevents implying that manually revised requirements still exactly match the uploaded file.
+- Preserves the latest-selection async race protection and success/error behavior. Adds hosted Chromium verification of visible successful upload feedback followed by dismissal after editing, plus a source regression.
+- UI-only browser-local synthetic demo; no real file upload/storage, external email, auth/RLS, payment, banking, production matching or database change. All required CI/migration/synthetic/typecheck/build/browser and exact-head Vercel Preview READY gates apply before merge, then production READY and smoke.
+
 ### 2026-11-14 — Client Demo Natural Language scope: latest upload or manual edit wins
 - Prevented an older asynchronous File.text() result or error from replacing a newer selected scope file or text that the client typed while a file was loading. A selection-generation token invalidates outdated reads; direct typing invalidates pending uploads immediately. Retains the previous fix that rejected invalid/empty/oversized files preserve an existing valid preview.
 - Added deterministic hosted Chromium tests with delayed fictional file reads resolving out of order and after manual editing; added source contract assertions. All data remains in the public synthetic demo browser.
