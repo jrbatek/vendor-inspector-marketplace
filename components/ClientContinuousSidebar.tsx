@@ -24,8 +24,9 @@ export default function ClientContinuousSidebar(){
      let current=elements[0].id;
      for(const el of elements){if(el.getBoundingClientRect().top<=threshold)current=el.id;}
      const last=elements[elements.length-1];
-     if(last.getBoundingClientRect().top<=Math.max(threshold,window.innerHeight-16)||
-        window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id;
+     // Highlight Profile at the end of the document, not when it only peeks
+     // into the viewport bottom while Contracts remains the reading section.
+     if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id;
      setActive(current);
    };
    const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(update);};

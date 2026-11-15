@@ -1,3 +1,7 @@
+### 2026-11-15 — Client single-page scrollspy premature Profile highlight
+- Prevented Client Demo sticky sidebar from marking Profile active merely because its heading entered the viewport bottom. Active section follows the reading threshold; bottom-of-document fallback still selects Profile when fully scrolled.
+- Added regression coverage to real Chromium embedded Client Analytics smoke and source contract. Navigation remains synthetic and accessible; no live auth, records, privacy, banking or production matching changed. CI/Preview/production gates preserved.
+
 ### 2026-11-15 — Inspector Calendar jump to next assigned inspection
 - Added a keyboard-accessible Next assignment button that finds the nearest later scheduled fictional inspection, jumps the calendar and selection to its date and offers Open assignment through the existing event block. If none is later, show an honest no-results notice rather than silently wrapping to old assignments.
 - Hosted Chromium and source regression protect selection and no-write behavior. Synthetic-only; no real OAuth/authentication, banking, privacy, matching or production data changes. Mandatory CI/Preview/production gates apply.
