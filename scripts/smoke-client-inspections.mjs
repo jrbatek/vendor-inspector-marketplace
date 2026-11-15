@@ -480,7 +480,7 @@ try{
   "Commercial sidebar must return seven synthetic inspections");
  await page.getByRole("navigation",{name:"Client Workspace sections"}).getByRole("link",{name:"Analytics",exact:true}).click();
  await page.waitForFunction(()=>location.hash==="#analytics");
- await page.getByRole("region",{name:"Analytics"}).waitFor();
+ await page.getByRole("region",{name:"Analytics",exact:true}).waitFor();
  assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
   "Cross-demo Analytics link led to authenticated shell");
  // Owner Nov 10 P0-A: audit the common two-column shell across all other synthetic
