@@ -1,3 +1,8 @@
+### 2026-11-14 — Client Demo scope preview survives rejected file uploads
+- Corrected Natural Language – AI scope upload to preserve a previously generated synthetic request preview whenever a PDF/unsupported file, oversized file, empty scope or unreadable file is rejected. Existing draft text remains unchanged; a successfully accepted replacement scope invalidates the preview so stale requirements cannot be mistaken for current output.
+- Added GitHub-hosted Chromium smoke assertions for unsupported and oversized uploads while a valid preview exists, and successful same-name scope replacement. Added source regression to guard the placement of preview invalidation after validation.
+- Browser-local synthetic request handling only. No production writes, AI matching, auth/RLS, privacy, email submission, banking, payments or database changes. Mandatory CI tests, synthetic and migration validation, typecheck, production build, Vercel exact-head Preview READY and production READY/smoke are release gates.
+
 ### 2026-11-14 — P0 demo/live and private-calendar title isolation guard
 - Expanded hosted Chromium Client Demo and standalone Inspections in Progress smoke to reject inspector-private appointment titles (Doctor Appointment / Our Anniversary) in rendered Client content, and explicitly reject the unauthenticated live workspace's empty login shell. The Inspector Demo continues to show fictional private event titles, while Client availability must show Busy only.
 - Added a source regression verifying Client Demo and the seven-record inspection component do not import/render private calendar fixtures. Pure browser safety coverage; no auth/RLS, real appointments, OAuth, personal data, banking, payment, production matching or database writes.
