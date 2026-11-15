@@ -159,6 +159,15 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     setView("Month");
     setNotice(`Showing assigned inspection on ${next.date}. Select Open assignment on its calendar block to view details.`);
   };
+  // Read-only navigation through earlier fictional inspection work.
+  const jumpToPreviousAssignment=()=>{
+    const previous=events.filter(event=>event.state==="Assigned" && event.project && event.date<start)
+      .sort((a,b)=>b.date.localeCompare(a.date))[0];
+    if(!previous){setNotice("No earlier assigned demo inspections remain before the selected date.");return;}
+    selectWeek(previous.date);
+    setView("Month");
+    setNotice(`Showing assigned inspection on ${previous.date}. Select Open assignment on its calendar block to view details.`);
+  };
   // Only clear dates added through this inspector demo session. Never erase imported private
   // appointments, assigned work, or the seeded fictional baseline calendar.
   const clearManualAvailability=()=>{
@@ -186,7 +195,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
 
   return <section className="calendarShell" aria-label="Inspector availability calendar">
     <div className="calendarHeader">
-      <div><p className="eyebrow">Availability & Calendar</p><h2>{monthLabel}</h2><p>Calendar View is the default. Private titles below are visible only in this inspector demo. Client availability shows Busy, never private event details. Unmarked dates are not confirmed available.</p><div className="monthControls"><button type="button" aria-label="Previous month" onClick={()=>stepMonth(-1)}>Previous month</button><button type="button" aria-label="Next month" onClick={()=>stepMonth(1)}>Next month</button><label className="monthJump">Jump to month<input aria-label="Jump to month" type="month" value={month} onChange={e=>jumpToMonth(e.target.value)}/></label><button type="button" aria-label="Return to demo today, November 9 2026" onClick={jumpToDemoToday}>Today · Nov 9 (demo)</button><button type="button" aria-label="Next assigned inspection" onClick={jumpToNextAssignment}>Next assignment</button></div></div>
+      <div><p className="eyebrow">Availability & Calendar</p><h2>{monthLabel}</h2><p>Calendar View is the default. Private titles below are visible only in this inspector demo. Client availability shows Busy, never private event details. Unmarked dates are not confirmed available.</p><div className="monthControls"><button type="button" aria-label="Previous month" onClick={()=>stepMonth(-1)}>Previous month</button><button type="button" aria-label="Next month" onClick={()=>stepMonth(1)}>Next month</button><label className="monthJump">Jump to month<input aria-label="Jump to month" type="month" value={month} onChange={e=>jumpToMonth(e.target.value)}/></label><button type="button" aria-label="Return to demo today, November 9 2026" onClick={jumpToDemoToday}>Today · Nov 9 (demo)</button><button type="button" aria-label="Previous assigned inspection" onClick={jumpToPreviousAssignment}>Previous assignment</button><button type="button" aria-label="Next assigned inspection" onClick={jumpToNextAssignment}>Next assignment</button></div></div>
     </div>
     <section className="calendarConnections" aria-label="Calendar connections">
       <div><h3>Calendar connections</h3><p>Simulated connections only · No real calendar account access</p></div>
