@@ -1,3 +1,7 @@
+### 2026-11-15 — Inspector Calendar jump to next assigned inspection
+- Added a keyboard-accessible Next assignment button that finds the nearest later scheduled fictional inspection, jumps the calendar and selection to its date and offers Open assignment through the existing event block. If none is later, show an honest no-results notice rather than silently wrapping to old assignments.
+- Hosted Chromium and source regression protect selection and no-write behavior. Synthetic-only; no real OAuth/authentication, banking, privacy, matching or production data changes. Mandatory CI/Preview/production gates apply.
+
 ### 2026-11-15 — Shareable seven-record Client Demo inspection details
 - Added public synthetic inspection hash deep links (#inspection-DEMO-ACT-1 through -7) to continuous Client Demo and standalone Inspections in Progress. Open Inspection and Outstanding Action register links now update a bookmarkable hash; initial entry, refresh and browser Back/Forward restore the correct fictional detail without authentication or changing live workspace routes.
 - Added hosted Chromium tests for direct detail links, history and action register navigation, plus source isolation regression. All seven synthetic inspection records, filters, reports, NCRs, milestones, PDFs remain unchanged.

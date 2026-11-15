@@ -260,6 +260,13 @@ try {
   const calendar = page.getByRole("region", { name: "Inspector availability calendar" });
   // Selecting a date should prefill the Block Dates form without actually changing
   // the private inspector's synthetic availability until explicitly submitted.
+  await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-26",
+    "Next assigned inspection did not jump to the next real synthetic assignment date");
+  assert(await calendar.getByLabel("End date").inputValue()==="2026-11-26",
+    "Next assignment jump must select only one date, not block availability");
+  assert(await calendar.getByRole("button",{name:"Choose 2026-11-26 for availability"}).getAttribute("aria-pressed")==="true",
+    "Next assignment jump did not visibly select the scheduled date");
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
