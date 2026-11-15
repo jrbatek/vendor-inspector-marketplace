@@ -20,8 +20,8 @@ test("Contract relationship tabs retain accessible keyboard behavior",()=>{
 
 test("real-browser smoke checks Client sidebar sections and contract tab navigation at both widths",()=>{
   assert.match(smoke, /route === "\/demo\/client-operations"/);
-  assert.match(smoke, /Contracts sidebar link did not become active/);
-  assert.match(smoke, /Contract tabs End did not activate Others/);
-  assert.match(smoke, /Contract tabs Home did not restore InspectSource/);
-  assert.match(smoke, /Browser back failed to restore Billing section and sidebar highlight/);
+  assert.match(smoke, /continuousNav = page.getByRole/);
+  assert.match(smoke, /Embedded Contracts tabs End did not activate Others/);
+  assert.match(smoke, /Embedded Contracts tabs Home did not restore InspectSource/);
+  assert.match(smoke, /await page.goBack\(\)/);
 });
