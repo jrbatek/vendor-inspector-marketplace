@@ -212,6 +212,22 @@ try {
   assert(await cal.getByRole("button", { name: "Choose 2026-11-09 for availability" }).getAttribute("aria-current")==="date","Demo today date must be visibly indicated");
   assert(await cal.getByLabel("Start date").inputValue()==="2026-11-09","Demo today did not select the correct date");
   assert(await cal.getByText(/Our Anniversary · All day/).count()>=1,"Today jump changed private synthetic event data");
+  // Direct date navigation is read-only and keeps Month, Week and the range in sync.
+  await cal.getByLabel("Jump to date").fill("2027-01-20");
+  assert(await cal.getByRole("heading", { name: "January 2027" }).count()===1,
+    "Jump to date must show the selected calendar month");
+  assert(await cal.getByLabel("Start date").inputValue()==="2027-01-20" &&
+    await cal.getByLabel("End date").inputValue()==="2027-01-20",
+    "Jump to date must select one date, never an implicit multi-day block");
+  assert(await cal.getByRole("button",{name:"Choose 2027-01-20 for availability"}).getAttribute("aria-pressed")==="true",
+    "Jump to date must visibly select the target day");
+  assert((await cal.getByRole("button",{name:"Choose 2027-01-20 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
+    "Jump to date must not silently mark unknown availability as confirmed");
+  await tabs.getByRole("button",{name:"Week"}).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2027-01-20",
+    "Jump to date must synchronize Week without writing availability");
+  await tabs.getByRole("button",{name:"Month"}).click();
+  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   // Arbitrary month jumps synchronize Month, Week and availability inputs without writing events.
   await cal.getByLabel("Jump to month").fill("2027-02");
   assert(await cal.getByRole("heading",{name:"February 2027"}).count()===1,"Month jump did not show February 2027");

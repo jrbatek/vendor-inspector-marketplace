@@ -1,3 +1,8 @@
+### 2026-11-15 — Direct-day Inspector Calendar navigation (synthetic only)
+- Added a clear Jump to date input beside Jump to month to reach an arbitrary day without repeatedly paging through months. Selecting a date synchronizes the Month display, Week anchor and one-day Block Dates selection; no availability is written until the explicit Update action.
+- Extended real Chromium regression to a January 2027 unmarked day, verifying Not set remains unchanged, a single selected day, Week synchronization and restoration via demo Today. Added a source contract test. All calendar links remain simulated and no production records, OAuth, privacy, auth or payment behavior are changed.
+- Mandatory synthetic/migration validation, typecheck, browser tests, production build, exact-head Vercel Preview READY, sequential merge and exact-commit production smoke remain required.
+
 ### 2026-11-15 — Auxiliary Client Demo navigation returns to continuous Client Workspace
 - Updated the shared legacy dark-blue Client Demo sidebar on secondary synthetic pages so Email Requirements, Inspections in Progress, Analytics, Billing & Payment, Contracts and Profile link directly to their existing full-width sections in /demo/client. Natural Language – AI and Structured Selection already targeted the continuous Client page. All shareable hashes remain within the public fictional demo and never enter live /client-dashboard.
 - The older standalone routes still remain directly accessible for bookmarked demonstrations; the Client sidebar now consistently guides reviewers to one persistent sticky-sidebar, continuous workspace rather than bouncing among disconnected shells. Existing standalone commercial deep-link handling remains intact for direct links.
