@@ -55,7 +55,7 @@ test("sample PDF links encode inspection details and request an attachment", () 
 test("demo entry and open inspection controls preserve demo/live separation", () => {
   const page = read("app/demo/client-inspections/page.tsx");
   assert.match(read("app/demo/client/page.tsx"), /href:"\/demo\/client-inspections"/);
-  assert.match(read("components/ClientWorkspaceSidebar.tsx"), /demo\?"\/demo\/client-inspections"/);
+  assert.match(read("components/ClientWorkspaceSidebar.tsx"), /demo\?"\/demo\/client#inspections-in-progress"/);
   assert.match(page, /Open Inspection/);
   assert.match(page, /aria-expanded=\{open\}/);
   assert.match(page, /aria-controls=/);

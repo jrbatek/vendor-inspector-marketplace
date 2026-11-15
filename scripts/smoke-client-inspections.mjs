@@ -432,30 +432,40 @@ try{
  await page.setViewportSize({width:760,height:900});
  await verifyClientSidebarLayout("Inspections mobile",false);
  await page.setViewportSize({width:1366,height:900});
+ // Secondary Client Demo sidebar entry returns to the single continuous
+ // Client Workspace while preserving fixed-width dark-blue desktop layout.
  await page.locator("aside.clientSide").getByRole("link",{name:"Billing & Payment"}).click();
- await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="billing");
+ await page.waitForFunction(()=>location.pathname==="/demo/client"&&location.hash==="#billing-payment");
+ const continuousSidebar=page.locator("aside.clientContinuousSide");
+ await continuousSidebar.waitFor();
  await page.getByRole("region",{name:"Billing & Payment"}).waitFor();
- await verifyClientSidebarLayout("Billing desktop",true);
- assert(await page.locator("aside.clientSide").getByRole("link",{name:"Billing & Payment"}).getAttribute("aria-current")==="page",
-  "Billing sidebar active highlight missing");
- await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).click();
- await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="contracts");
+ const dimensions=await page.evaluate(()=>{
+   const side=document.querySelector("aside.clientContinuousSide");
+   const content=document.querySelector("#request-inspectors");
+   const a=side?.getBoundingClientRect(),b=content?.getBoundingClientRect();
+   return a&&b?{width:a.width,right:a.right,left:b.left,position:getComputedStyle(side).position}:null;
+ });
+ assert(dimensions&&dimensions.width>=220&&dimensions.width<=290&&dimensions.right<dimensions.left&&dimensions.position==="sticky",
+  "Continuous Client sidebar must be fixed-width, sticky and left of content: "+JSON.stringify(dimensions));
+ assert(await page.locator("article.inspection").count()===7,
+  "Routing to Billing discarded seven synthetic inspections");
+ const continuousNav=page.getByRole("navigation",{name:"Client Workspace sections"});
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Billing & Payment");
+ await continuousNav.getByRole("link",{name:"Contracts",exact:true}).click();
+ await page.waitForFunction(()=>location.hash==="#contracts");
  await page.getByRole("region",{name:"Contracts"}).waitFor();
- assert(await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).getAttribute("aria-current")==="page",
-  "Contracts sidebar active highlight missing");
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Contracts");
  assert(await page.getByRole("tab",{name:"Agencies"}).count()===1,
-  "Contract relationship-type filters must remain inside Contracts");
- await page.locator("aside.clientSide").getByRole("link",{name:"Profile",exact:true}).click();
- await page.waitForURL(u=>u.pathname==="/demo/client-operations"&&u.searchParams.get("tab")==="profile");
+  "Contract relationship-type filters must remain in embedded Contracts");
+ await continuousNav.getByRole("link",{name:"Profile",exact:true}).click();
+ await page.waitForFunction(()=>location.hash==="#profile");
  await page.getByRole("region",{name:"Client Profile"}).waitFor();
- assert(await page.locator("aside.clientSide").getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")==="page",
-  "Profile sidebar active highlight missing");
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Profile");
  await page.goBack();
- await page.getByRole("region",{name:"Contracts"}).waitFor();
- assert(await page.locator("aside.clientSide").getByRole("link",{name:"Contracts",exact:true}).getAttribute("aria-current")==="page",
-  "Back navigation must restore Contracts highlight");
+ await page.waitForFunction(()=>location.hash==="#contracts");
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Contracts");
  await page.goForward();
- await page.getByRole("region",{name:"Client Profile"}).waitFor();
+ await page.waitForFunction(()=>location.hash==="#profile");
  await page.goto(base+"/demo/client-operations?tab=contracts",{waitUntil:"domcontentloaded"});
  await page.getByRole("region",{name:"Contracts"}).waitFor();
  await verifyClientSidebarLayout("Direct-linked Contracts desktop",true);
@@ -465,15 +475,14 @@ try{
  assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
   "Client commercial demo must never require live-workspace login");
  await page.locator("aside.clientSide").getByRole("link",{name:"Inspections in Progress"}).click();
- await page.waitForURL("**/demo/client-inspections");
+ await page.waitForFunction(()=>location.pathname==="/demo/client"&&location.hash==="#inspections-in-progress");
  assert(await page.locator("article.inspection").count()===7,
-  "Commercial sidebar navigation must return all seven synthetic inspections");
-
- const analytics=page.locator('a[href="/demo/client-analytics"]').first();
- assert(await analytics.count()===1,"Cross-demo Analytics navigation missing");
- await analytics.click();
- await page.waitForURL("**/demo/client-analytics");
- assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Cross-demo link led to authenticated shell");
+  "Commercial sidebar must return seven synthetic inspections");
+ await page.getByRole("navigation",{name:"Client Workspace sections"}).getByRole("link",{name:"Analytics",exact:true}).click();
+ await page.waitForFunction(()=>location.hash==="#analytics");
+ await page.getByRole("region",{name:"Analytics",exact:true}).waitFor();
+ assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+  "Cross-demo Analytics link led to authenticated shell");
  // Owner Nov 10 P0-A: audit the common two-column shell across all other synthetic
  // Client Workspace pages, not just Inspections and commercial tabs.
  const otherClientDemoRoutes=[
@@ -555,6 +564,23 @@ try{
  await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({state:"detached",timeout:12000});
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
+
+ // P0: auxiliary synthetic Client pages must return to the single continuous
+ // workspace, not strands of standalone dashboards or an authenticated shell.
+ for(const [label,anchor] of [["Email requirements","email-requirements"],
+   ["Inspections in Progress","inspections-in-progress"],
+   ["Billing & Payment","billing-payment"],
+   ["Contracts","contracts"],["Profile","profile"]]){
+   await page.goto(base+"/demo/client-agency-sourcing",{waitUntil:"domcontentloaded"});
+   const legacySidebar=page.getByRole("complementary",{name:"Client Workspace navigation"});
+   await legacySidebar.getByRole("link",{name:label,exact:true}).click();
+   await page.waitForFunction(anchor=>location.pathname==="/demo/client"&&location.hash==="#"+anchor,anchor,{timeout:20000});
+   await page.locator("#"+anchor).waitFor({state:"visible",timeout:15000});
+   assert(await page.locator("article.inspection").count()===7,
+    "Legacy sidebar navigation discarded the seven synthetic inspection records: "+anchor);
+   assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+    "Legacy sidebar returned to authenticated empty Client Workspace shell: "+anchor);
+ }
 
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});

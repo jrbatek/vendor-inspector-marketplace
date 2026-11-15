@@ -28,7 +28,7 @@ test("upload scope control includes a visible icon and supported text formats", 
 });
 
 test("email requirements opens a guidance page before email", () => {
-  assert.match(sidebar, /const emailHref=demo\?"\/demo\/email-requirements":"\/email-requirements"/);
+  assert.match(sidebar, /const emailHref=demo\?"\/demo\/client#email-requirements":"\/email-requirements"/);
   assert.match(sidebar, /href=\{emailHref\}>Email requirements/);
   assert.doesNotMatch(sidebar, /mailto:inspectsource2026@gmail\.com/);
   assert.match(emailRequirements, /Copy-ready example/);

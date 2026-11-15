@@ -21,7 +21,7 @@ test("email requirements omit redundant bottom callout and keep top email action
 test("public email requirements sidebar leads to synthetic active inspections instead of login", () => {
   assert.match(source, /<ClientWorkspaceSidebar demo=\{demo \|\| pathname === "\/email-requirements"\}\/>/);
   const sidebar = fs.readFileSync("components/ClientWorkspaceSidebar.tsx", "utf8");
-  assert.match(sidebar, /const activeHref=demo\?"\/demo\/client-inspections":"\/client-dashboard\?section=active"/);
+  assert.match(sidebar, /const activeHref=demo\?"\/demo\/client#inspections-in-progress":"\/client-dashboard\?section=active"/);
   const inspections = fs.readFileSync("app/demo/client-inspections/page.tsx", "utf8");
   assert.match(inspections, /<ClientWorkspaceSidebar demo \/>/);
   assert.match(inspections, /Seven fictional inspections/);
