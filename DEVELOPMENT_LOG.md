@@ -1,3 +1,7 @@
+### 2026-11-15 — Deterministic Agency roster same-name retry browser validation
+- Fixed unrelated CI blocker revealed on PR #307: the real Chromium Agency scrollspy/roster smoke asserted a same-name corrected CSV preview before asynchronous File.text() and React state updates finished. Await the fictional 2-row and corrected 1-row previews plus preview clear, without weakening privacy or content assertions.
+- Smoke/regression synchronization only; no demo production logic, synthetic DB writes, authentication, banking, privacy/RLS or matching changes. Preserve mandatory CI, Preview READY, sequential merge and production smoke.
+
 ### 2026-11-15 — Client single-page scrollspy premature Profile highlight
 - Prevented Client Demo sticky sidebar from marking Profile active merely because its heading entered the viewport bottom. Active section follows the reading threshold; bottom-of-document fallback still selects Profile when fully scrolled.
 - Added regression coverage to real Chromium embedded Client Analytics smoke and source contract. Navigation remains synthetic and accessible; no live auth, records, privacy, banking or production matching changed. CI/Preview/production gates preserved.

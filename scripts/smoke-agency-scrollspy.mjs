@@ -69,6 +69,7 @@ try{
    name:"fictional-roster.csv",mimeType:"text/csv",
    buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,Sample Inspector A,Employee,USA,Pending\nSYN-1002,Sample Inspector B,Subcontractor,Mexico,Pending\n")
  });
+ await page.locator("#agency-roster-preview").getByText(/2 complete unique records/).waitFor({state:"visible",timeout:8000});
  const uploadSummary=await page.locator("#agency-roster-preview").innerText();
  if(!uploadSummary.includes("2 complete unique records")||!uploadSummary.includes("No records submitted"))
    throw Error("Mass Resource Connect did not preview fictional CSV rows without submitting them");
@@ -85,6 +86,7 @@ try{
     name:"fictional-roster.csv",mimeType:"text/csv",
     buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1003,Sample Inspector C,Employee,USA,Pending\n")
   });
+  await page.locator("#agency-roster-preview").getByText(/1 complete unique records/).waitFor({state:"visible",timeout:8000});
   const correctedSummary=await page.locator("#agency-roster-preview").innerText();
   if(!correctedSummary.includes("1 complete unique records")||!correctedSummary.includes("No records submitted"))
     throw Error("Agency same-name corrected roster was not re-previewed without a submission");
@@ -111,6 +113,7 @@ try{
   // Reviewers must be able to discard even the browser-local preview without
   // preserving old aggregate counts or sensitive file contents in visible UI.
   await page.getByRole("button", {name:"Clear browser-local roster preview"}).click();
+  await page.locator("#agency-roster-preview").waitFor({state:"detached",timeout:8000});
   if(await page.locator("#agency-roster-preview").count() || await issues.count())
     throw Error("Agency Clear roster preview retained old CSV counts or validation breakdown");
   if(!await page.getByText("Roster preview cleared from this browser session. No records were submitted.").isVisible())
