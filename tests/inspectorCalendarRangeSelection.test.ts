@@ -24,7 +24,7 @@ test("Built-app Chromium covers multi-day visibility and never writes on selecti
 
 test("Date input edits dismiss obsolete calendar action warnings without changing protected event logic",()=>{
   for(const marker of [
-    'onChange={e => { setStart(e.target.value); setNotice(""); }}',
+    'onChange={e => { setStart(e.target.value); selectionAnchor.current=e.target.value; setNotice(""); }}',
     'onChange={e => { setEnd(e.target.value); setNotice(""); }}',
   ]) assert.ok(source.includes(marker),"Missing date-edit notice invalidation: "+marker);
   assert.ok(smoke.includes("Changing selected dates retained a stale personal-event conflict warning"));
