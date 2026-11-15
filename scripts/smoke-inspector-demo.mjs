@@ -322,6 +322,13 @@ try {
   const conflictColors=await conflictAlert.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
   assert(conflictColors.color==="rgb(127, 29, 29)"&&conflictColors.background==="rgb(255, 247, 247)",
     "Calendar private-event conflict must be visibly distinct from green success: "+JSON.stringify(conflictColors));
+  // Correcting the date range dismisses warnings for the previous selection immediately.
+  await calendar.getByLabel("End date").fill("2026-11-19");
+  assert(await conflictAlert.count()===0,
+    "Changing selected dates retained a stale personal-event conflict warning");
+  await calendar.getByLabel("Start date").fill("2026-11-19");
+  assert((await impact.innerText()).includes("0 protected days"),
+    "Editing away from a protected appointment did not refresh range impact");
   // Reversed dates are visibly invalid before clicking, not silently the same as a normal range.
   await calendar.getByLabel("Start date").fill("2026-11-30");
   await calendar.getByLabel("End date").fill("2026-11-28");
@@ -336,7 +343,8 @@ try {
   await calendar.getByLabel("Start date").fill("2026-11-18");
   await calendar.getByLabel("End date").fill("2026-11-18");
   assert(await calendar.getByRole("alert").filter({hasText:"no more than 62 days"}).count()===0,"Valid date recovery must clear invalid guidance");
-  assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 1, "Private calendar conflict not protected");
+  assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 0,
+    "Previously dismissed private-calendar warning reappeared after valid date correction");
   // A warning only applies to the original date range; navigating to a new month
   // or week must not leave the inspector thinking the new range is invalid.
   await calendar.getByRole("button", { name: "Next month" }).click();
