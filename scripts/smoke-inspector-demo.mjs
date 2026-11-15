@@ -323,9 +323,10 @@ try {
   assert(conflictColors.color==="rgb(127, 29, 29)"&&conflictColors.background==="rgb(255, 247, 247)",
     "Calendar private-event conflict must be visibly distinct from green success: "+JSON.stringify(conflictColors));
   // Correcting the date range dismisses warnings for the previous selection immediately.
-  await calendar.getByLabel("Start date").fill("2026-11-19");
+  await calendar.getByLabel("End date").fill("2026-11-19");
   assert(await conflictAlert.count()===0,
     "Changing selected dates retained a stale personal-event conflict warning");
+  await calendar.getByLabel("Start date").fill("2026-11-19");
   assert((await impact.innerText()).includes("0 protected days"),
     "Editing away from a protected appointment did not refresh range impact");
   // Reversed dates are visibly invalid before clicking, not silently the same as a normal range.
