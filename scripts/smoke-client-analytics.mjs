@@ -188,6 +188,24 @@ try {
     throw new Error("Client Analytics filters disrupted navigation or removed the seven fictional inspections");
   if (await page.getByText("Log in to view the client workspace").count())
     throw new Error("Embedded Client Demo navigated to a live login-required workspace");
+  await page.evaluate(()=>{
+    const profile=document.getElementById("profile");
+    if(!profile)throw new Error("Canonical Client profile section missing");
+    const top=profile.getBoundingClientRect().top+window.scrollY;
+    window.scrollTo({top:top-Math.min(window.innerHeight*0.75,650),behavior:"instant"});
+  });
+  await page.waitForTimeout(250);
+  const profileGeometry=await page.evaluate(()=>{
+    const top=document.getElementById("profile")?.getBoundingClientRect().top;
+    return {top,threshold:Math.min(240,Math.max(100,window.innerHeight*0.25)),
+      atBottom:window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4,
+      height:window.innerHeight};
+  });
+  if(profileGeometry.top>profileGeometry.threshold+15 &&
+    profileGeometry.top<profileGeometry.height-20 && !profileGeometry.atBottom){
+    if(await clientSidebar.getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")==="location")
+      throw new Error("Client sidebar prematurely highlighted Profile when only visible at viewport bottom");
+  }
   console.log("Embedded Client Analytics: first-click 15/45/60 source transitions, seven inspections and no recovery boundary passed.");
   console.log(`Client Analytics (${browserName}): fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.`);
 }catch(e){
