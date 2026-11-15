@@ -1,3 +1,8 @@
+### 2026-11-14 — Inspector Calendar range edits dismiss obsolete conflict alerts
+- Corrected a single-page InspectorHub Calendar usability defect: after an invalid Block Dates attempt against a protected private appointment, manually changing either Start date or End date immediately removes the obsolete conflict alert while the live selected-range impact recalculates. Previously the old personal-event warning persisted on unrelated valid dates.
+- Extended hosted Chromium to simulate a private-event conflict, change the range to an unprotected date and assert the stale warning is gone, with source-contract coverage for both date fields and private-event protection.
+- Synthetic in-browser availability only. Does not alter or expose calendar-private titles to Clients, does not connect actual OAuth, and does not change live auth/RLS, matching, production data, banking or payments. Required CI/synthetic/migration/typecheck/build, Vercel Preview READY and post-merge production READY/smoke remain hard gates.
+
 ### 2026-11-14 — Client Demo request editing clears obsolete loaded-file notification
 - When a reviewer manually edits the Natural Language – AI inspection scope after uploading a valid fictional TXT/MD/CSV/JSON file, the old "Loaded filename" confirmation is now retired immediately. This prevents implying that manually revised requirements still exactly match the uploaded file.
 - Preserves the latest-selection async race protection and success/error behavior. Adds hosted Chromium verification of visible successful upload feedback followed by dismissal after editing, plus a source regression.
