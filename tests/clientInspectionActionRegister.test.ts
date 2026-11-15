@@ -29,7 +29,7 @@ test("fictional action register is accessible, links to matching detail and has 
  assert.match(page,/activeInspectionActionRegister\(rows\)/);
  assert.match(page,/href=\{\x60#inspection-\$\{action.inspectionId\}\x60\}/);
  assert.match(page,/id=\{\x60inspection-\$\{row.id\}\x60\}/);
- assert.match(page,/setExpanded\(action.inspectionId\)/);
+ assert.match(page,/event\.preventDefault\(\);openInspection\(action\.inspectionId\)/);
  assert.match(page,/actionRegister td a:focus-visible/);
  assert.match(page,/\.urgencyOverdue\{background:#fee2e2;color:#991b1b\}/);
  assert.match(smoke,/Action register must show all seven fictional outstanding actions/);
