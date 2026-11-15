@@ -263,6 +263,26 @@ try {
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
+  // Shift-click extends the selected range without writing calendar events.
+  const shiftEnd = calendar.getByRole("button", { name: "Choose 2026-11-22 for availability" });
+  await shiftEnd.click({ modifiers: ["Shift"] });
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-19" &&
+    await calendar.getByLabel("End date").inputValue() === "2026-11-22",
+    "Shift-click did not select an inclusive forward range from the first chosen date");
+  assert(await calendar.getByRole("button", { name: "Choose 2026-11-20 for availability" }).getAttribute("aria-pressed") === "true",
+    "Shift-click must visibly include intermediate days without changing their Busy state");
+  assert((await shiftEnd.locator("xpath=..").innerText()).includes("Not set"),
+    "Shift-click selection must not create an availability record");
+  const shiftEarlier = calendar.getByRole("button", { name: "Choose 2026-11-17 for availability" });
+  await shiftEarlier.focus();
+  await page.keyboard.press("Shift+Enter");
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-17" &&
+    await calendar.getByLabel("End date").inputValue() === "2026-11-19",
+    "Shift+Enter did not normalize the reverse date range around the original anchor");
+  await datePicker.click();
+  assert(await calendar.getByLabel("Start date").inputValue() === "2026-11-19" &&
+    await calendar.getByLabel("End date").inputValue() === "2026-11-19",
+    "Unmodified click must still reset selection to a single day");
   // A date range must visibly select every day, without making unmarked days Available.
   await calendar.getByLabel("Start date").fill("2026-11-28");
   await calendar.getByLabel("End date").fill("2026-11-30");

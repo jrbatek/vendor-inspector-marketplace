@@ -1,3 +1,8 @@
+### 2026-11-15 — Calendar Shift-click range selection across Month, Week and List
+- Added Shift-click and Shift+Enter range selection around the original selected day, normalizing reverse selections and enforcing the existing 62-day limit. Ordinary date selection still chooses one day; navigation and manual Start changes update the anchor. Visible guidance clarifies that selecting never blocks dates.
+- Added hosted Chromium forward/reverse tests and a dedicated source regression. Protected assignments and private Busy events retain their existing Block Dates restrictions. Entirely synthetic inspector-browser UI.
+- Release gates: hosted CI, migrations, synthetic validation, typecheck, production build, exact-head Vercel Preview READY, sequential merge, production READY and exact-commit smoke. No auth, OAuth, matching, production data, banking or payments changed.
+
 ### 2026-11-14 — Inspector Active Assignment milestones have distinct status semantics
 - Corrected a misleading visual in Open Assignment: Overdue, Scheduled and Pending/Upcoming milestones previously shared a green success badge with Complete actions. Badges now use legible red for overdue, blue for scheduled, amber for pending/upcoming, and green only for completed, while preserving visible text for accessibility and all scenario evidence.
 - Adds a source regression covering all four milestone status groups, color contrast, and no live data changes. Synthetic Client/Inspector/Agency demo boundaries, permissions, documents and assignment due dates remain unchanged. Mandatory CI, synthetic/migration/typecheck/build, preview READY and production READY/smoke gates apply.
