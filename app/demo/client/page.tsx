@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ClientContinuousSidebar from "@/components/ClientContinuousSidebar";
 import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContext";
 import ClientInspectionsDemo from "@/app/demo/client-inspections/page";
@@ -20,6 +20,7 @@ const portfolioAreas=[
 ];
 export default function ClientDemo(){
  const [requestText,setRequestText]=useState(sampleRequest); const [uploadMessage,setUploadMessage]=useState("");
+ const latestScopeSelection=useRef(0);
  const [emailCopyStatus,setEmailCopyStatus]=useState("");
  const [naturalPreview,setNaturalPreview]=useState("");
  const [criteria,setCriteria]=useState({region:"Gulf Coast",qualification:"API 570",start:"2026-11-16",experience:"5",source:"Both"});
@@ -35,6 +36,8 @@ export default function ClientDemo(){
  }
  async function loadScope(file?:File){
   if(!file)return;
+  // A slower old file read cannot replace a newer file or a manually edited draft.
+  const selection=++latestScopeSelection.current;
   setUploadMessage("");
   const extension=file.name.split(".").pop()?.toLowerCase();
   if(!["txt","md","csv","json"].includes(extension||"")){
@@ -47,6 +50,7 @@ export default function ClientDemo(){
   }
   try{
     const loaded=(await file.text()).slice(0,MAX_REQUEST_CHARS);
+    if(selection!==latestScopeSelection.current)return;
     if(!loaded.trim()){
       setUploadMessage("This scope file is empty. Add inspection requirements or select a file with readable text; your existing request was preserved.");
       return;
@@ -55,7 +59,7 @@ export default function ClientDemo(){
     setRequestText(loaded);
     setUploadMessage(`Loaded ${file.name}${loaded.length===MAX_REQUEST_CHARS?` (limited to ${MAX_REQUEST_CHARS.toLocaleString()} characters)`:""}. Demo uploads stay in this browser and are not sent to production.`);
   }catch{
-    setUploadMessage("Unable to read this scope file in your browser. Paste the relevant text instead; your existing request was preserved.");
+    if(selection===latestScopeSelection.current)setUploadMessage("Unable to read this scope file in your browser. Paste the relevant text instead; your existing request was preserved.");
   }
  }
  function previewNaturalRequest(){
@@ -67,7 +71,7 @@ export default function ClientDemo(){
   setNaturalPreview(`Synthetic request preview: ${length.toLocaleString()} characters reviewed locally. No AI matching, external submission, or production record was created. The three fictional inspectors below are illustrative, not personalized to this request.`);
  }
  return <main className="shell"><ClientContinuousSidebar/><section className="workspace"><section id="request-inspectors" className="requestHero"><p className="eyebrow">Client Demo · Synthetic data</p><h1>Request your inspection</h1><p className="requestIntro">Start the way you already work. Describe the requirement, email it to us, or use structured selection. This demo is fully synthetic, never requires a production login, and never writes synthetic records to production.</p><div className="sourcePreview"><div><strong>Source of Inspectors</strong><span>Contracted agencies · Independent inspectors · Or both</span></div><Link href="/demo/client-agency-sourcing">Configure sourcing & compare agency channels →</Link></div><div className="requestOptions">
- <article id="natural-language" className="requestCard requestCardNatural"><h2>Natural Language – AI</h2><p>Natural language request: Tell InspectSource what you need in plain English. Include location, dates, equipment, certifications, scope, travel requirements and budget.</p><textarea className="naturalInput" rows={6} value={requestText} maxLength={MAX_REQUEST_CHARS} onChange={e=>{setRequestText(e.target.value);setNaturalPreview("");}} aria-label="Inspection requirement" aria-describedby="demo-request-limit demo-upload-status"/><div id="demo-request-limit" className="textMeta">Up to {MAX_REQUEST_CHARS.toLocaleString()} characters · {requestText.length.toLocaleString()} used</div><label className="uploadButton"><span className="uploadIcon" aria-hidden="true">↑</span><span><strong>Upload Scope</strong><em>TXT, MD, CSV or JSON · max 256 KB / 10,000 characters</em></span><input type="file" accept=".txt,.md,.csv,.json" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value="";void loadScope(file);}}/></label>{uploadMessage&&<p id="demo-upload-status" className="uploadStatus" role="status">{uploadMessage}</p>}<button type="button" className="primaryButton actionable" onClick={previewNaturalRequest}>Preview request (demo)</button>{naturalPreview&&<p className="naturalPreview" role="status" aria-live="polite">{naturalPreview}</p>}<Link className="quietLink" href="/demo/client-agency-sourcing">Find Inspectors</Link></article>
+ <article id="natural-language" className="requestCard requestCardNatural"><h2>Natural Language – AI</h2><p>Natural language request: Tell InspectSource what you need in plain English. Include location, dates, equipment, certifications, scope, travel requirements and budget.</p><textarea className="naturalInput" rows={6} value={requestText} maxLength={MAX_REQUEST_CHARS} onChange={e=>{latestScopeSelection.current+=1;setRequestText(e.target.value);setNaturalPreview("");}} aria-label="Inspection requirement" aria-describedby="demo-request-limit demo-upload-status"/><div id="demo-request-limit" className="textMeta">Up to {MAX_REQUEST_CHARS.toLocaleString()} characters · {requestText.length.toLocaleString()} used</div><label className="uploadButton"><span className="uploadIcon" aria-hidden="true">↑</span><span><strong>Upload Scope</strong><em>TXT, MD, CSV or JSON · max 256 KB / 10,000 characters</em></span><input type="file" accept=".txt,.md,.csv,.json" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value="";void loadScope(file);}}/></label>{uploadMessage&&<p id="demo-upload-status" className="uploadStatus" role="status">{uploadMessage}</p>}<button type="button" className="primaryButton actionable" onClick={previewNaturalRequest}>Preview request (demo)</button>{naturalPreview&&<p className="naturalPreview" role="status" aria-live="polite">{naturalPreview}</p>}<Link className="quietLink" href="/demo/client-agency-sourcing">Find Inspectors</Link></article>
  <article id="email-requirements" className="requestCard"><h2>Email Requirements</h2>
  <p>Send requirements to <a href="mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request">inspectsource2026@gmail.com</a> with subject <strong>InspectSource - Inspection Request</strong>. Opening the email app does not send anything automatically.</p>
  <p>Describe project/vendor, inspection location and dates, equipment, scope, qualifications, day-rate expectations, travel and shifts. Attach relevant ITPs, drawings or specs (PDF, DOCX, XLSX, CSV, TXT, JPG, PNG; up to 20 MB total). Do not include unneeded personal data.</p>

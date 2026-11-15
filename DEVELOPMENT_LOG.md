@@ -1,3 +1,9 @@
+### 2026-11-14 — Client Demo Natural Language scope: latest upload or manual edit wins
+- Prevented an older asynchronous File.text() result or error from replacing a newer selected scope file or text that the client typed while a file was loading. A selection-generation token invalidates outdated reads; direct typing invalidates pending uploads immediately. Retains the previous fix that rejected invalid/empty/oversized files preserve an existing valid preview.
+- Added deterministic hosted Chromium tests with delayed fictional file reads resolving out of order and after manual editing; added source contract assertions. All data remains in the public synthetic demo browser.
+- No production request, AI match, real email submission, PII storage, banking, payment, OAuth, auth/RLS, database or matching logic changed. Mandatory hosted tests, synthetic and migration checks, typecheck, build, Vercel exact-head Preview READY and production READY/smoke are required.
+
+
 ### 2026-11-14 — Agency Mass Resource Connect: prevent asynchronous CSV preview race and stale data resurrection
 - Made browser-local CSV previews last-selection-wins: a slow File.text() result or error from an older selected CSV cannot overwrite a newer file's validation summary or error feedback. Clear Preview invalidates any still-pending read so an old result cannot repopulate a discarded preview.
 - Added hosted Chromium out-of-order synthetic file read and clear-during-read scenarios, plus source regression. All fixtures are fictional and only aggregate counts are displayed.

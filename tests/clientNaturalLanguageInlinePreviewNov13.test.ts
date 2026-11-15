@@ -48,3 +48,14 @@ test("invalid Client Demo uploads preserve a previously generated preview; succe
     assert.ok(smoke.includes(reason),reason);
   }
 });
+
+test("newly uploaded Client scope or manual typing defeats stale asynchronous file reads",()=>{
+  assert.match(source,/const latestScopeSelection=useRef\(0\)/);
+  assert.match(source,/const selection=\+\+latestScopeSelection\.current/);
+  assert.match(source,/const loaded=\(await file\.text\(\)\)\.slice\(0,MAX_REQUEST_CHARS\);\s*if\(selection!==latestScopeSelection\.current\)return/);
+  assert.match(source,/if\(selection===latestScopeSelection\.current\)setUploadMessage/);
+  assert.match(source,/onChange=\{e=>\{latestScopeSelection\.current\+=1;setRequestText/);
+  assert.match(smoke,/Delayed Client scope upload replaced a newer selected scope/);
+  assert.match(smoke,/Delayed Client scope upload overwrote manually edited requirements/);
+  assert.match(smoke,/window\.__resolveSlowClientScope/);
+});

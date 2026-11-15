@@ -95,6 +95,32 @@ try{
  await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,corrected);
  assert(await request.inputValue()===corrected,"Corrected same-name scope file was not loaded");
  assert(await natural.locator(".naturalPreview").count()===0,"Successful scope replacement left a stale preview visible");
+ // Browser-local File.text() can resolve out of order; only the newest request may win.
+ await page.evaluate(()=>{
+   const nativeText=File.prototype.text;
+   window.__resolveSlowClientScope=null;
+   File.prototype.text=function(){
+     if(this.name==="delayed-scope.txt")return new Promise(resolve=>{window.__resolveSlowClientScope=resolve;});
+     return nativeText.call(this);
+   };
+ });
+ const delayedScope={name:"delayed-scope.txt",mimeType:"text/plain",buffer:Buffer.from("old delayed scope")};
+ await scopeInput.setInputFiles(delayedScope);
+ await page.waitForFunction(()=>typeof window.__resolveSlowClientScope==="function");
+ const latestText="Newest fictional scope: API 570 inspection in Houston with staged FAT witness plan.";
+ await scopeInput.setInputFiles({name:"fresh-scope.txt",mimeType:"text/plain",buffer:Buffer.from(latestText)});
+ await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,latestText);
+ await page.evaluate(()=>window.__resolveSlowClientScope("Old fictional delayed requirements that must not replace the latest scope."));
+ await page.waitForTimeout(120);
+ assert(await request.inputValue()===latestText,"Delayed Client scope upload replaced a newer selected scope");
+ await page.evaluate(()=>{window.__resolveSlowClientScope=null;});
+ await scopeInput.setInputFiles(delayedScope);
+ await page.waitForFunction(()=>typeof window.__resolveSlowClientScope==="function");
+ const manuallyEdited="Manually edited fictional inspection scope while file is loading.";
+ await request.fill(manuallyEdited);
+ await page.evaluate(()=>window.__resolveSlowClientScope("Old fictional delayed scope that must not overwrite text edits."));
+ await page.waitForTimeout(120);
+ assert(await request.inputValue()===manuallyEdited,"Delayed Client scope upload overwrote manually edited requirements");
  await request.fill(originalText);
  // The embedded email and structured controls must actually work in Chromium.
  const emailCard=page.locator("#email-requirements");
