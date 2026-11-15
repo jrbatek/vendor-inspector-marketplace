@@ -223,38 +223,39 @@ try {
         await page.getByRole("button", { name: "Clear invoice filter" }).click();
         if (await page.locator("article.invoice").count() !== 4)
           throw new Error("Clearing invoice filter must restore all four synthetic invoices");
-        const sidebar = page.getByRole("complementary", { name: "Client Workspace navigation" });
-        await sidebar.getByRole("link", { name: "Contracts", exact: true }).click();
+        // The legacy standalone Client operations page still works as a direct link,
+        // but its sidebar returns the reviewer to embedded sections on the single-page hub.
+        const legacySidebar = page.getByRole("complementary", { name: "Client Workspace navigation" });
+        await legacySidebar.getByRole("link", { name: "Contracts", exact: true }).click();
+        await page.waitForURL(url => url.pathname === "/demo/client" && url.hash === "#contracts");
         await page.getByRole("region", { name: "Contracts" }).waitFor();
-        if (await sidebar.getByRole("link", { name: "Contracts", exact: true }).getAttribute("aria-current") !== "page")
-          throw new Error("Contracts sidebar link did not become active");
+        const continuousNav = page.getByRole("navigation", { name: "Client Workspace sections" });
+        await page.waitForFunction(() => document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim() === "Contracts");
         const contractTabs = page.getByRole("tablist", { name: "Contract relationship types" });
         await contractTabs.getByRole("tab", { name: "InspectSource" }).focus();
         await page.keyboard.press("End");
         if (await contractTabs.getByRole("tab", { name: "Others" }).getAttribute("aria-selected") !== "true")
-          throw new Error("Contract tabs End did not activate Others");
+          throw new Error("Embedded Contracts tabs End did not activate Others");
         await page.keyboard.press("Home");
         if (await contractTabs.getByRole("tab", { name: "InspectSource" }).getAttribute("aria-selected") !== "true")
-          throw new Error("Contract tabs Home did not restore InspectSource");
+          throw new Error("Embedded Contracts tabs Home did not restore InspectSource");
         await contractTabs.getByRole("tab", { name: "Individual Inspectors" }).click();
         const expired = page.locator(".contractWrap").first();
         if (!(await expired.innerText()).includes("Expired") || !(await expired.innerText()).includes("Sep 30, 2026"))
-          throw new Error("Expired inspector contract fixture did not show its actual closeout status");
+          throw new Error("Expired inspector contract fixture lost its closeout status");
         const expiredColor = await expired.locator(".status").evaluate(el => ({
           background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color
         }));
         if (expiredColor.background !== "rgb(255, 247, 237)" || expiredColor.color !== "rgb(154, 52, 18)")
           throw new Error("Expired inspector contract status is not visibly legible: " + JSON.stringify(expiredColor));
-        await sidebar.getByRole("link", { name: "Billing & Payment" }).click();
+        await continuousNav.getByRole("link", { name: "Billing & Payment" }).click();
         await page.getByRole("region", { name: "Billing & Payment" }).waitFor();
-        await sidebar.getByRole("link", { name: "Profile", exact: true }).click();
+        await continuousNav.getByRole("link", { name: "Profile", exact: true }).click();
         await page.getByRole("region", { name: "Client Profile" }).waitFor();
-        if (await sidebar.getByRole("link", { name: "Profile", exact: true }).getAttribute("aria-current") !== "page")
-          throw new Error("Client Profile sidebar link did not become active");
+        await page.waitForFunction(() => document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim() === "Profile");
         await page.goBack();
         await page.getByRole("region", { name: "Billing & Payment" }).waitFor();
-        if (await sidebar.getByRole("link", { name: "Billing & Payment" }).getAttribute("aria-current") !== "page")
-          throw new Error("Browser back failed to restore Billing section and sidebar highlight");
+        await page.waitForFunction(() => document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim() === "Billing & Payment");
         await page.goForward();
         await page.getByRole("region", { name: "Client Profile" }).waitFor();
         if (await page.getByRole("tablist", { name: "Client operations sections" }).count())
