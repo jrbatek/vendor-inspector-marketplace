@@ -1,0 +1,17 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import test from "node:test";
+const source=readFileSync("components/InspectorAvailabilityCalendar.tsx","utf8");
+const smoke=readFileSync("scripts/smoke-inspector-demo.mjs","utf8");
+test("Previous assignment navigates to nearest earlier fictional inspection without modifying calendar records",()=>{
+ const prior=source.slice(source.indexOf("const jumpToPreviousAssignment="),source.indexOf("// Only clear dates"));
+ assert.ok(prior.includes('event.state==="Assigned" && event.project && event.date<start'));
+ assert.ok(prior.includes("b.date.localeCompare(a.date)"));
+ assert.ok(prior.includes('selectWeek(previous.date)'));
+ assert.ok(prior.includes('setView("Month")'));
+ assert.match(prior,/No earlier assigned demo inspections/);
+ assert.doesNotMatch(prior,/setEvents\(|supabase|fetch\(|oauth|\.insert\(/i);
+ assert.ok(source.includes('aria-label="Previous assigned inspection"'));
+ assert.ok(smoke.includes("Previous assignment must select the nearest earlier synthetic inspection date"));
+ assert.ok(smoke.includes("No-previous-assignment response must preserve the current selection"));
+});

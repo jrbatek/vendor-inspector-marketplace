@@ -1,3 +1,7 @@
+### 2026-11-15 — Inspector Calendar previous-assignment navigation
+- Added an accessible Previous assignment control beside Next assignment. It selects the nearest earlier scheduled fictional inspection in Month view and lets inspectors open its existing assignment detail; when no earlier work exists it leaves the selected date unchanged with an explanatory status.
+- Hosted Chromium checks move backward, forward, and test the no-earlier case; a source regression verifies demo-only navigation cannot modify availability events or access live records. No real OAuth, banking, authentication, matching or production data change. Mandatory CI, preview READY, sequential merge and production smoke gates preserved.
+
 ### 2026-11-15 — Client Demo inspection filter/deep-link history recovery
 - On status/project/inspector/date/action/NCR/search/sort changes, clear the now-closed detail URL rather than leaving a stale shared inspection hash. On Back/Forward to a valid fictional inspection bookmark, reset conflicting list filters so that inspection and the other seven-record fixture are visible.
 - Added source and hosted Chromium Back/Forward/filter regression. Demo-only; no real authentication, matching, privacy/RLS, banking/payments, or production data changes. CI and Vercel release gates unchanged.

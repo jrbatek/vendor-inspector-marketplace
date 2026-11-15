@@ -267,6 +267,26 @@ try {
     "Next assignment jump must select only one date, not block availability");
   assert(await calendar.getByRole("button",{name:"Choose 2026-11-26 for availability"}).getAttribute("aria-pressed")==="true",
     "Next assignment jump did not visibly select the scheduled date");
+  // Inspectors can browse backwards through real synthetic assignments, then
+  // return forward without changing the assigned blocks or linked personal Busy events.
+  await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-13" &&
+    await calendar.getByLabel("End date").inputValue()==="2026-11-13",
+    "Previous assignment must select the nearest earlier synthetic inspection date");
+  assert(await calendar.getByRole("button",{name:"Choose 2026-11-13 for availability"}).getAttribute("aria-pressed")==="true",
+    "Previous assignment must visibly select the earlier assigned day");
+  await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-26",
+    "Moving forward again must return to the next assigned inspection, not an arbitrary date");
+  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
+  assert((await calendar.getByRole("status").allInnerTexts()).some(text=>text.includes("No earlier assigned demo inspections")),
+    "Previous assignment must explain when there is no earlier synthetic assignment");
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-09",
+    "No-previous-assignment response must preserve the current selection");
+  await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-10",
+    "Next assignment after demo today must advance to the earliest later assigned day");
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
