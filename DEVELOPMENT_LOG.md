@@ -1,3 +1,7 @@
+### 2026-11-15 — Remove obsolete Client Demo sidebar tab-event dispatch
+- After legacy Client Demo sidebar links were routed into the continuous /demo/client sections, removed the unused synthetic `inspectsource:client-operations-tab` event dispatch and pre-navigation local tab mutation from the Billing, Contracts and Profile links. The sidebar uses native hash anchors as its only navigation action.
+- Kept direct bookmarked standalone Client Operations query tabs and live Client links unchanged. Added source regression assertions; existing hosted Chromium deep-link, Back/Forward and desktop/mobile navigation checks remain mandatory. Demo-only, no auth/RLS, privacy, payment, banking, production matching or database writes.
+
 ### 2026-11-15 — Direct-day Inspector Calendar navigation (synthetic only)
 - Added a clear Jump to date input beside Jump to month to reach an arbitrary day without repeatedly paging through months. Selecting a date synchronizes the Month display, Week anchor and one-day Block Dates selection; no availability is written until the explicit Update action.
 - Extended real Chromium regression to a January 2027 unmarked day, verifying Not set remains unchanged, a single selected day, Week synchronization and restoration via demo Today. Added a source contract test. All calendar links remain simulated and no production records, OAuth, privacy, auth or payment behavior are changed.
