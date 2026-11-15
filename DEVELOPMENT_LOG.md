@@ -1,3 +1,9 @@
+### 2026-11-14 — Agency Mass Resource Connect: prevent asynchronous CSV preview race and stale data resurrection
+- Made browser-local CSV previews last-selection-wins: a slow File.text() result or error from an older selected CSV cannot overwrite a newer file's validation summary or error feedback. Clear Preview invalidates any still-pending read so an old result cannot repopulate a discarded preview.
+- Added hosted Chromium out-of-order synthetic file read and clear-during-read scenarios, plus source regression. All fixtures are fictional and only aggregate counts are displayed.
+- Demo-only local file processing; no network requests, persistent roster storage, OAuth/API credentials, real inspector data, production database writes, payment, bank, matching or auth changes. Require hosted tests, synthetic/migration validation, typecheck, production build and exact-head Vercel Preview READY before merge, then production READY and smoke.
+
+
 ### 2026-11-14 — Client Demo scope preview survives rejected file uploads
 - Corrected Natural Language – AI scope upload to preserve a previously generated synthetic request preview whenever a PDF/unsupported file, oversized file, empty scope or unreadable file is rejected. Existing draft text remains unchanged; a successfully accepted replacement scope invalidates the preview so stale requirements cannot be mistaken for current output.
 - Added GitHub-hosted Chromium smoke assertions for unsupported and oversized uploads while a valid preview exists, and successful same-name scope replacement. Added source regression to guard the placement of preview invalidation after validation.

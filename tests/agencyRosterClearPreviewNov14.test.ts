@@ -22,3 +22,14 @@ test("Hosted Chromium clears old CSV counts and accepts another same-name fictio
     "Agency new CSV upload did not replace cleared preview and reset clearance notice"
   ]) assert.ok(browser.includes(marker), marker);
 });
+
+test("Agency async roster reads cannot replace newer previews or restore a cleared preview",()=>{
+  assert.match(page,/const latestRosterSelection=useRef\(0\)/);
+  assert.match(page,/const selection=\+\+latestRosterSelection\.current/);
+  assert.match(page,/const content=await file\.text\(\);\s*if\(selection!==latestRosterSelection\.current\)return/);
+  assert.match(page,/if\(selection===latestRosterSelection\.current\)setRosterError/);
+  assert.match(page,/onClick=\{\(\)=>\{latestRosterSelection\.current\+=1;setRosterPreview\(null\)/);
+  assert.ok(browser.includes("Agency stale asynchronous CSV read overwrote the latest selected file"));
+  assert.ok(browser.includes("Agency cleared CSV preview was resurrected by an old asynchronous read"));
+  assert.ok(browser.includes("window.__releaseSlowAgencyCsv"));
+});

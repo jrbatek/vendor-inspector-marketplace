@@ -122,6 +122,37 @@ try{
     throw Error("Agency new CSV upload did not replace cleared preview and reset clearance notice");
 
 
+  // Simulate an earlier slow CSV read completing AFTER a newer validated selection.
+  // Clearing must invalidate any still-pending file read rather than resurrecting
+  // a discarded (even fictional) roster preview.
+  await page.evaluate(()=>{
+    const nativeText=File.prototype.text;
+    window.__releaseSlowAgencyCsv=null;
+    File.prototype.text=function(){
+      if(this.name==="agency-slow.csv")return new Promise(resolve=>{window.__releaseSlowAgencyCsv=resolve;});
+      return nativeText.call(this);
+    };
+  });
+  const csvHeader="Inspector ID,Name,Relationship,Country,Affiliation Status\n";
+  const slowFile={name:"agency-slow.csv",mimeType:"text/csv",buffer:Buffer.from(csvHeader+"SYN-2001,Slow Inspector,Employee,USA,Pending\n")};
+  await rosterInput.setInputFiles(slowFile);
+  await page.waitForFunction(()=>typeof window.__releaseSlowAgencyCsv==="function");
+  await rosterInput.setInputFiles({name:"agency-latest.csv",mimeType:"text/csv",buffer:Buffer.from(csvHeader+"SYN-2002,Fast Inspector,Employee,USA,Pending\nSYN-2003,New Inspector,Employee,USA,Pending\n")});
+  await page.waitForFunction(()=>document.querySelector("#agency-roster-preview")?.textContent?.includes("2 complete unique records"));
+  await page.evaluate(csv=>window.__releaseSlowAgencyCsv(csv),csvHeader+"SYN-2001,Slow Inspector,Employee,USA,Pending\n");
+  await page.waitForTimeout(120);
+  if(!(await page.locator("#agency-roster-preview").innerText()).includes("2 complete unique records"))
+    throw Error("Agency stale asynchronous CSV read overwrote the latest selected file");
+  await page.evaluate(()=>{window.__releaseSlowAgencyCsv=null;});
+  await rosterInput.setInputFiles(slowFile);
+  await page.waitForFunction(()=>typeof window.__releaseSlowAgencyCsv==="function");
+  await page.getByRole("button",{name:"Clear browser-local roster preview"}).click();
+  await page.evaluate(csv=>window.__releaseSlowAgencyCsv(csv),csvHeader+"SYN-2001,Slow Inspector,Employee,USA,Pending\n");
+  await page.waitForTimeout(120);
+  if(await page.locator("#agency-roster-preview").count()!==0)
+    throw Error("Agency cleared CSV preview was resurrected by an old asynchronous read");
+
+
  const apiGuide=page.locator("#agency-api-connection-guide");
  if(await apiGuide.isVisible())throw Error("API setup guide should start collapsed");
  await page.getByRole("button",{name:"Connect API"}).click();
