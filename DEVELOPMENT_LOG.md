@@ -1,3 +1,7 @@
+### 2026-11-14 — Inspector Active Assignment milestones have distinct status semantics
+- Corrected a misleading visual in Open Assignment: Overdue, Scheduled and Pending/Upcoming milestones previously shared a green success badge with Complete actions. Badges now use legible red for overdue, blue for scheduled, amber for pending/upcoming, and green only for completed, while preserving visible text for accessibility and all scenario evidence.
+- Adds a source regression covering all four milestone status groups, color contrast, and no live data changes. Synthetic Client/Inspector/Agency demo boundaries, permissions, documents and assignment due dates remain unchanged. Mandatory CI, synthetic/migration/typecheck/build, preview READY and production READY/smoke gates apply.
+
 ### 2026-11-14 — Inspector Calendar range edits dismiss obsolete conflict alerts
 - Corrected a single-page InspectorHub Calendar usability defect: after an invalid Block Dates attempt against a protected private appointment, manually changing either Start date or End date immediately removes the obsolete conflict alert while the live selected-range impact recalculates. Previously the old personal-event warning persisted on unrelated valid dates.
 - Extended hosted Chromium to simulate a private-event conflict, change the range to an unprotected date and assert the stale warning is gone, with source-contract coverage for both date fields and private-event protection.
