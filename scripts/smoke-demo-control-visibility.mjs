@@ -227,7 +227,7 @@ try {
         // but its sidebar returns the reviewer to embedded sections on the single-page hub.
         const legacySidebar = page.getByRole("complementary", { name: "Client Workspace navigation" });
         await legacySidebar.getByRole("link", { name: "Contracts", exact: true }).click();
-        await page.waitForURL(url => url.pathname === "/demo/client" && url.hash === "#contracts");
+        await page.waitForFunction(() => location.pathname === "/demo/client" && location.hash === "#contracts", null, {timeout:20000});
         await page.getByRole("region", { name: "Contracts" }).waitFor();
         const continuousNav = page.getByRole("navigation", { name: "Client Workspace sections" });
         await page.waitForFunction(() => document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim() === "Contracts");
