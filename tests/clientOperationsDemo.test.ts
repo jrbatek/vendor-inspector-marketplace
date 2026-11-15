@@ -92,7 +92,7 @@ test("expired synthetic individual inspector contract must not be labeled Active
   assert.match(page, /\.status\.Expired\{background:#fff7ed;color:#9a3412\}/);
   assert.doesNotMatch(page, /Individual Inspector Assignment Terms",type:"Inspector assignment",status:"Active"/);
   const smoke = fs.readFileSync(path.join(process.cwd(), "scripts/smoke-demo-control-visibility.mjs"), "utf8");
-  assert.match(smoke, /Expired inspector contract fixture did not show its actual closeout status/);
+  assert.match(smoke, /Expired inspector contract fixture lost its closeout status/);
 });
 
 test("Expired status outside parent styled-JSX scope inherits high-contrast demo-specific global CSS",()=>{
