@@ -37,8 +37,8 @@ export default function InspectorDemo(){
      let current:Section="home";
      for(const el of elements)if(el.getBoundingClientRect().top<=threshold)current=el.id as Section;
      const last=elements[elements.length-1];
-     if(last.getBoundingClientRect().top<=Math.max(threshold,window.innerHeight-16)||
-       window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id as Section;
+     // Highlight Income when it reaches the reading threshold, not when its heading peeks in at the bottom.
+     if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id as Section;
      setSection(current);
    };
    const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(update);};
