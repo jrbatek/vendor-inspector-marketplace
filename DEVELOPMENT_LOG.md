@@ -1,3 +1,8 @@
+### 2026-11-15 — Shareable seven-record Client Demo inspection details
+- Added public synthetic inspection hash deep links (#inspection-DEMO-ACT-1 through -7) to continuous Client Demo and standalone Inspections in Progress. Open Inspection and Outstanding Action register links now update a bookmarkable hash; initial entry, refresh and browser Back/Forward restore the correct fictional detail without authentication or changing live workspace routes.
+- Added hosted Chromium tests for direct detail links, history and action register navigation, plus source isolation regression. All seven synthetic inspection records, filters, reports, NCRs, milestones, PDFs remain unchanged.
+- Demo-only navigation; no auth/RLS, matching, production data, external requests, payments or banking. CI tests, migration and synthetic validation, typecheck/build, exact-head Preview READY, production READY and exact-commit smoke required.
+
 ### 2026-11-15 — Calendar Shift-click range selection across Month, Week and List
 - Added Shift-click and Shift+Enter range selection around the original selected day, normalizing reverse selections and enforcing the existing 62-day limit. Ordinary date selection still chooses one day; navigation and manual Start changes update the anchor. Visible guidance clarifies that selecting never blocks dates.
 - Added hosted Chromium forward/reverse tests and a dedicated source regression. Protected assignments and private Busy events retain their existing Block Dates restrictions. Entirely synthetic inspector-browser UI.

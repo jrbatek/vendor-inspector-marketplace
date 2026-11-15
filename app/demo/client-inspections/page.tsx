@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContext";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 import { ACTIVE_DEMO_INSPECTIONS, EMPTY_INSPECTION_FILTERS, filterActiveInspections, activeInspectionReportHref, exportActiveDemoInspectionsCsv, sortActiveInspections, filterActiveInspectionsByActionDue, searchActiveInspections, activeInspectionActionRegister, exportActiveDemoActionRegisterCsv, type ActiveInspectionSort, type InspectionFilters } from "@/lib/clientActiveInspections";
@@ -15,6 +15,34 @@ export default function ClientInspectionsDemo() {
   const [actionOwner, setActionOwner] = useState("");
   const [keyword, setKeyword] = useState("");
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null);
+  // Shareable inspection links reference fictional demo IDs only, never live records.
+  useEffect(() => {
+    const syncFromHash=()=>{
+      const matched=window.location.hash.match(/^#inspection-(DEMO-ACT-[1-7])$/);
+      const id=matched?.[1]??null;
+      const found=id&&ACTIVE_DEMO_INSPECTIONS.some(row=>row.id===id);
+      setExpanded(found?id:null);
+      setExpandedNcr(null);
+      if(found) requestAnimationFrame(()=>document.getElementById("inspection-"+id)?.scrollIntoView({block:"start"}));
+    };
+    syncFromHash();
+    window.addEventListener("hashchange",syncFromHash);
+    window.addEventListener("popstate",syncFromHash);
+    return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
+  },[]);
+  const openInspection=(id:string)=>{
+    setExpanded(id);
+    setExpandedNcr(null);
+    if(window.location.hash!=="#inspection-"+id)window.history.pushState(null,"","#inspection-"+id);
+    requestAnimationFrame(()=>document.getElementById("inspection-"+id)?.scrollIntoView({block:"start"}));
+  };
+  const toggleInspection=(id:string,alreadyOpen:boolean)=>{
+    if(!alreadyOpen){openInspection(id);return;}
+    setExpanded(null);
+    setExpandedNcr(null);
+    window.history.pushState(null,"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
+  };
+
   const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;
   const openNcrCount = ACTIVE_DEMO_INSPECTIONS.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open"))).length;
   const actionOwners = Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.flatMap(row => row.actions.map(action => action.owner)))).sort();
@@ -83,7 +111,7 @@ export default function ClientInspectionsDemo() {
     <section className="actionRegister" aria-labelledby="action-register-title">
       <div className="actionRegisterHeader"><div><p className="eyebrow">Synthetic action queue</p><h3 id="action-register-title">Outstanding action register</h3><p>Prioritized by next due date for the current inspection filters. Urgency is fictional as of November 8, 2026.</p></div><div className="actionRegisterActions"><strong role="status">{actionRegister.length} outstanding {actionRegister.length === 1 ? "action" : "actions"} in view</strong>{actionRegister.length > 0 && <a className="actionExport" aria-label={`Download ${actionRegister.length} synthetic outstanding actions as CSV`} download="inspectsource-synthetic-action-register.csv" href={`data:text/csv;charset=utf-8,${encodeURIComponent(exportActiveDemoActionRegisterCsv(actionRegister))}`}>Download action register (CSV)</a>}</div></div>
       {actionRegister.length > 0 ? <div className="actionTableWrap"><table><thead><tr><th scope="col">Due</th><th scope="col">Urgency</th><th scope="col">Project / inspection</th><th scope="col">Outstanding action</th><th scope="col">Owner</th><th scope="col">Inspect</th></tr></thead><tbody>
-        {actionRegister.map((action,index) => <tr key={action.inspectionId+"-"+index}><td>{action.due}</td><td><span className={action.urgency === "Overdue" ? "urgencyOverdue" : action.urgency === "Due today" ? "urgencyToday" : "urgencyUpcoming"}>{action.urgency}</span></td><td><strong>{action.project}</strong><small>{action.inspectionId} · {action.stage}</small></td><td>{action.task}</td><td>{action.owner}</td><td><a href={`#inspection-${action.inspectionId}`} onClick={() => {setExpanded(action.inspectionId);setExpandedNcr(null);}}>Open inspection</a></td></tr>)}
+        {actionRegister.map((action,index) => <tr key={action.inspectionId+"-"+index}><td>{action.due}</td><td><span className={action.urgency === "Overdue" ? "urgencyOverdue" : action.urgency === "Due today" ? "urgencyToday" : "urgencyUpcoming"}>{action.urgency}</span></td><td><strong>{action.project}</strong><small>{action.inspectionId} · {action.stage}</small></td><td>{action.task}</td><td>{action.owner}</td><td><a href={`#inspection-${action.inspectionId}`} onClick={event => {event.preventDefault();openInspection(action.inspectionId);}}>Open inspection</a></td></tr>)}
       </tbody></table></div> : <p className="actionEmpty">No outstanding actions match the inspection filters. Reset filters to see the fictional action queue.</p>}
     </section>
     <div className="sortBar" role="group" aria-label="Sort synthetic inspections">
@@ -95,7 +123,7 @@ export default function ClientInspectionsDemo() {
     <section className="progressGroup"><div className="groupHead"><h3>Active Inspections</h3><span aria-label={`${rows.length} ${rows.length === 1 ? "inspection" : "inspections"}`}>{rows.length}</span></div><div className="groupBody"><div className="inspectionList">{rows.map(row => {
       const open = expanded === row.id;
       return <article className="inspection" key={row.id} id={`inspection-${row.id}`}>
-        <div className="inspectionSummary"><div><small>Synthetic · {row.id}</small><strong className="inspectionTitle">{row.project}</strong><span>{row.vendor} · {row.site}</span><span>{row.inspector} · {row.start} to {row.end}</span><strong className="stage">{row.stage}</strong><span className="milestoneSummary">Milestones complete: {row.milestones.filter(milestone => milestone.status === "Complete").length} of {row.milestones.length} · {row.milestones.filter(milestone => milestone.status === "In progress").length} in progress</span><span className="nextAction">Next action: {row.actions[0]?.task} · Due {row.actions[0]?.due}</span></div><button type="button" aria-expanded={open} aria-controls={`details-${row.id}`} onClick={() => { setExpanded(open ? null : row.id); setExpandedNcr(null); }}>{open ? "Close Inspection −" : "Open Inspection +"}<span className="srOnly"> {row.id}</span></button></div>
+        <div className="inspectionSummary"><div><small>Synthetic · {row.id}</small><strong className="inspectionTitle">{row.project}</strong><span>{row.vendor} · {row.site}</span><span>{row.inspector} · {row.start} to {row.end}</span><strong className="stage">{row.stage}</strong><span className="milestoneSummary">Milestones complete: {row.milestones.filter(milestone => milestone.status === "Complete").length} of {row.milestones.length} · {row.milestones.filter(milestone => milestone.status === "In progress").length} in progress</span><span className="nextAction">Next action: {row.actions[0]?.task} · Due {row.actions[0]?.due}</span></div><button type="button" aria-expanded={open} aria-controls={`details-${row.id}`} onClick={() => toggleInspection(row.id, open)}>{open ? "Close Inspection −" : "Open Inspection +"}<span className="srOnly"> {row.id}</span></button></div>
         {open && <section id={`details-${row.id}`} className="details" aria-label={`Inspection details ${row.id}`}>
           <h3>Client, project and site</h3><dl><dt>Client</dt><dd>{row.client}</dd><dt>Project</dt><dd>{row.project}</dd><dt>Vendor</dt><dd>{row.vendor}</dd><dt>Site</dt><dd>{row.site}</dd><dt>Contact</dt><dd>{row.contact}</dd><dt>Scope</dt><dd>{row.scope}</dd><dt>Purchase order</dt><dd>{row.po}</dd><dt>Equipment</dt><dd>{row.equipment}</dd><dt>Inspector</dt><dd>{row.inspector}</dd><dt>Schedule</dt><dd>{row.start} to {row.end}</dd></dl>
           <h3>Milestones</h3><ol>{row.milestones.map((milestone, index) => <li key={index}><strong>{milestone.name}</strong> · {milestone.date} · {milestone.status}</li>)}</ol>
