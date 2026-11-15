@@ -267,6 +267,16 @@ try {
         const navSelector = route === "/demo/client"
           ? ".clientContinuousSide nav a" : "aside.side nav a";
         const links = page.locator(navSelector);
+        // Mobile Client navigation is intentionally collapsed. Open its accessible
+        // disclosure before auditing default, hover, focus and active link contrast.
+        if (route === "/demo/client" && width <= 600) {
+          const toggle = page.getByRole("button", { name: "Show sections" });
+          if (!(await toggle.isVisible()) || await toggle.getAttribute("aria-expanded") !== "false")
+            throw new Error("Client mobile sidebar toggle must start visibly collapsed");
+          await toggle.click();
+          if (await page.getByRole("button", { name: "Hide sections" }).getAttribute("aria-expanded") !== "true")
+            throw new Error("Client mobile sidebar did not expand for legibility audit");
+        }
         if (await links.count() < 3)
           throw new Error(route + " lost its accessible continuous-scroll sidebar links");
         const readContrast = async (link) => link.evaluate(el => {
@@ -304,6 +314,11 @@ try {
         if (await active.count() !== 1)
           throw new Error(route + " sidebar scrollspy must highlight exactly one section");
         await check(active, "selected");
+        if (route === "/demo/client" && width <= 600) {
+          await page.getByRole("button", { name: "Hide sections" }).click();
+          if (await links.first().isVisible())
+            throw new Error("Client mobile navigation remained visible after collapse");
+        }
       }
       console.log("Demo control visibility OK:", width + "px", route, result.checked);
     }
