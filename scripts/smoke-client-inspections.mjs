@@ -95,6 +95,12 @@ try{
  await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,corrected);
  assert(await request.inputValue()===corrected,"Corrected same-name scope file was not loaded");
  assert(await natural.locator(".naturalPreview").count()===0,"Successful scope replacement left a stale preview visible");
+ assert((await natural.locator("#demo-upload-status").innerText()).includes("Loaded scope-demo.txt"),
+   "Successful scope upload should announce its filename before any edits");
+ await request.fill(originalText);
+ await natural.locator("#demo-upload-status").waitFor({state:"detached",timeout:8000});
+ assert(await natural.locator("#demo-upload-status").count()===0,
+   "Manually edited Client scope retained a stale Loaded filename status");
  // Browser-local File.text() can resolve out of order; only the newest request may win.
  await page.evaluate(()=>{
    const nativeText=File.prototype.text;

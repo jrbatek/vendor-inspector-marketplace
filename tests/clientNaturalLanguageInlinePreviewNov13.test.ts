@@ -59,3 +59,9 @@ test("newly uploaded Client scope or manual typing defeats stale asynchronous fi
   assert.match(smoke,/Delayed Client scope upload overwrote manually edited requirements/);
   assert.match(smoke,/window\.__resolveSlowClientScope/);
 });
+
+test("Client Demo manual scope edits retire the previously loaded filename announcement",()=>{
+  assert.match(source,/latestScopeSelection\.current\+=1;setRequestText\(e\.target\.value\);setNaturalPreview\(\"\"\);setUploadMessage\(\"\"\)/);
+  assert.match(smoke,/Manually edited Client scope retained a stale Loaded filename status/);
+  assert.match(smoke,/Successful scope upload should announce its filename before any edits/);
+});
