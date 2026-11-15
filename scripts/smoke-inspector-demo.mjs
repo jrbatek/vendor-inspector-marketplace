@@ -55,6 +55,28 @@ try {
   await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Profile Home");
 
 
+  // A section merely entering the viewport bottom must not steal the active nav
+  // from Work History while the inspector is still reading it.
+  await page.evaluate(()=>{
+    const income=document.getElementById("income");
+    if(!income)throw new Error("Inline Income & Tax Center section missing");
+    const top=income.getBoundingClientRect().top+window.scrollY;
+    window.scrollTo({top:top-Math.min(window.innerHeight*0.75,650),behavior:"instant"});
+  });
+  await page.waitForTimeout(250);
+  const incomeGeometry=await page.evaluate(()=>{
+    const top=document.getElementById("income")?.getBoundingClientRect().top;
+    return {top,threshold:Math.min(220,Math.max(100,window.innerHeight*0.25)),
+      atBottom:window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4,
+      height:window.innerHeight};
+  });
+  assert(incomeGeometry.top>incomeGeometry.threshold+15 &&
+    incomeGeometry.top<incomeGeometry.height-20 && !incomeGeometry.atBottom,
+    "Income scrollspy regression did not reach the section-peeking geometry: "+JSON.stringify(incomeGeometry));
+  assert(await navigation.getByRole("button",{name:"Income & Tax Center"}).getAttribute("aria-current")!=="page",
+    "Inspector scrollspy prematurely highlighted Income while only peeking at viewport bottom");
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Profile Home");
   // Home cards must register hash/history, not only change local section state.
   await page.getByRole("button", { name: "Review opportunities" }).click();
   assert(page.url().endsWith("#opportunities"), "Home opportunities CTA did not update deep-link URL");
