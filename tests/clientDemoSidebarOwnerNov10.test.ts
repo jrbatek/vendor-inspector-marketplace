@@ -11,13 +11,14 @@ test("every Client Demo shared-sidebar shell has fixed desktop column and mobile
  assert.match(inspected,/<ClientWorkspaceSidebar demo \/>/);
  assert.match(inspected,/ACTIVE_DEMO_INSPECTIONS/);
 });
-test("dark blue Client sidebar links are the single owner of commercial section routing",()=>{
+test("dark-blue legacy sidebar returns all demo sections to the continuous Client Workspace",()=>{
  assert.match(side,/background:#102b50/);
- assert.match(side,/inspectsource:client-operations-tab/);
- for(const name of ["billing","contracts","profile"]){
-   assert.ok(side.includes('selectDemoTab("'+name+'")'),name);
-   assert.ok(side.includes('tab='+name),name);
- }
+ const anchors=[
+  "natural-language","email-requirements","structured-selection",
+  "inspections-in-progress","analytics","billing-payment","contracts","profile"
+ ];
+ for(const id of anchors)assert.ok(side.includes('/demo/client#'+id),id+" must link to embedded Client content");
+ assert.doesNotMatch(side,/demo\?"\/demo\/client-operations\?tab=/);
  assert.match(ops,/useSearchParams\(\)/);
  assert.match(ops,/Suspense fallback=/);
  assert.match(ops,/const tab:Tab=selectedTab==="contracts"\|\|selectedTab==="profile"\?selectedTab:"billing"/);

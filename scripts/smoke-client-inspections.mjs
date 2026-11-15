@@ -556,6 +556,23 @@ try{
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
 
+ // P0: auxiliary synthetic Client pages must return to the single continuous
+ // workspace, not strands of standalone dashboards or an authenticated shell.
+ for(const [label,anchor] of [["Email requirements","email-requirements"],
+   ["Inspections in Progress","inspections-in-progress"],
+   ["Billing & Payment","billing-payment"],
+   ["Contracts","contracts"],["Profile","profile"]]){
+   await page.goto(base+"/demo/client-agency-sourcing",{waitUntil:"domcontentloaded"});
+   const legacySidebar=page.getByRole("complementary",{name:"Client Workspace navigation"});
+   await legacySidebar.getByRole("link",{name:label,exact:true}).click();
+   await page.waitForURL(url=>url.pathname==="/demo/client"&&url.hash==="#"+anchor,{timeout:15000});
+   await page.locator("#"+anchor).waitFor({state:"visible",timeout:15000});
+   assert(await page.locator("article.inspection").count()===7,
+    "Legacy sidebar navigation discarded the seven synthetic inspection records: "+anchor);
+   assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+    "Legacy sidebar returned to authenticated empty Client Workspace shell: "+anchor);
+ }
+
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
