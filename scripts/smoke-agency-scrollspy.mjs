@@ -75,6 +75,8 @@ try{
   const rosterInput=page.locator("#agency-roster-upload");
   if(await rosterInput.inputValue()!=="")throw Error("Agency CSV file input must reset to permit same-name retry");
   await rosterInput.setInputFiles({name:"fictional-roster.csv",mimeType:"text/csv",buffer:Buffer.from("   ")});
+  // Browser File.text() and React state updates finish asynchronously. Await feedback.
+  await page.locator("#agency-roster-error").getByText(/CSV file is empty/).waitFor({state:"visible",timeout:8000});
   if(!await page.locator("#agency-roster-error").getByText(/CSV file is empty/).isVisible())
     throw Error("Agency empty CSV should show a readable, actionable warning");
   if((await page.locator("#agency-roster-preview").innerText())!==uploadSummary)
