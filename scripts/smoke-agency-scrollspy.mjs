@@ -193,6 +193,26 @@ try{
  if(pdf.getPageCount()!==1 || !pdf.getTitle()?.includes("SYNTHETIC SAMPLE") ||
     !pdf.getSubject()?.includes("FICTIONAL"))
    throw Error("Downloaded Agency contract PDF lacks explicit nonbinding synthetic content");
+ // Contracts must not steal the active section while its heading merely
+ // peeks into the viewport bottom and Reports & NCRs remains in view.
+ await page.evaluate(()=>{
+   const contracts=document.getElementById("contracts-commercials");
+   if(!contracts)throw new Error("Agency Contracts section missing");
+   const top=contracts.getBoundingClientRect().top+window.scrollY;
+   window.scrollTo({top:top-Math.min(window.innerHeight*0.75,650),behavior:"instant"});
+ });
+ await page.waitForTimeout(250);
+ const contractsGeometry=await page.evaluate(()=>{
+   const top=document.getElementById("contracts-commercials")?.getBoundingClientRect().top;
+   return {top,threshold:Math.min(220,Math.max(100,window.innerHeight*0.25)),
+     atBottom:window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4,
+     height:window.innerHeight};
+ });
+ assert(contractsGeometry.top>contractsGeometry.threshold+15 &&
+   contractsGeometry.top<contractsGeometry.height-20 && !contractsGeometry.atBottom,
+   "Agency Contracts reading-threshold test missed the peeking geometry: "+JSON.stringify(contractsGeometry));
+ assert(await nav.getByRole("link",{name:"Contracts & Commercials"}).getAttribute("aria-current")!=="page",
+   "Agency Contracts scrollspy prematurely highlighted the final section");
  await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
  await active(page,"contracts-commercials");
  await page.evaluate(()=>document.querySelector("#resource-pool")?.scrollIntoView({behavior:"instant",block:"start"}));

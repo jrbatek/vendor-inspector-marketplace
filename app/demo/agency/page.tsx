@@ -43,12 +43,9 @@ export default function AgencyDemoPage() {
       const threshold=Math.min(220,Math.max(100,window.innerHeight*0.25));
       let current=elements[0].id;
       for(const element of elements)if(element.getBoundingClientRect().top<=threshold)current=element.id;
-      // The final short section may be fully visible while its heading cannot reach
-      // the ordinary 220px threshold. Select it once it meaningfully enters view;
-      // this also keeps sidebar clicks and scrollspy consistent on short screens.
+      // Follow the normal reading threshold even when the final Contracts heading
+      // merely enters the bottom of the viewport. At true document end, select it.
       const lastSection=elements[elements.length-1];
-      if(lastSection.getBoundingClientRect().top<=Math.max(threshold,window.innerHeight-16))
-        current=lastSection.id;
       if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)
         current=lastSection.id;
       setActiveSection(current);
