@@ -15,6 +15,7 @@ const SECTIONS=[
 
 export default function ClientContinuousSidebar(){
  const [active,setActive]=useState<string>("request-inspectors");
+ const [mobileOpen,setMobileOpen]=useState(false);
  useEffect(()=>{
    const elements=SECTIONS.map(([id])=>document.getElementById(id)).filter((el):el is HTMLElement=>Boolean(el));
    if(!elements.length)return;
@@ -57,6 +58,7 @@ export default function ClientContinuousSidebar(){
    event.preventDefault();
    if(window.location.hash!=="#"+id)window.history.pushState(null,"","#"+id);
    setActive(id);
+   setMobileOpen(false);
    element.scrollIntoView({
      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
      block:"start",
@@ -64,7 +66,8 @@ export default function ClientContinuousSidebar(){
  };
  return <aside className="clientContinuousSide" aria-label="Client Workspace navigation">
    <div className="brand"><small>Client Workspace</small><strong>InspectSource</strong></div>
-   <nav aria-label="Client Workspace sections">
+   <button type="button" className="navToggle" aria-controls="clientContinuousSections" aria-expanded={mobileOpen} onClick={()=>setMobileOpen(open=>!open)}>{mobileOpen?"Hide sections":"Show sections"}</button>
+   <nav id="clientContinuousSections" aria-label="Client Workspace sections" className={mobileOpen?"":"mobileClosed"}>
     {SECTIONS.map(([id,label,child])=><a key={id} href={"#"+id} className={child?"subsection":""}
      aria-current={active===id?"location":undefined}
      onClick={event=>onNavigate(event,id)}>{label}</a>)}
@@ -74,6 +77,9 @@ export default function ClientContinuousSidebar(){
     .brand{padding:8px 8px 14px;border-bottom:1px solid #44638b;margin-bottom:10px;display:grid;gap:4px}
     .brand small{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#bfdbfe}
     .brand strong{font-size:1.14rem}
+    .navToggle{display:none;align-items:center;justify-content:center;min-height:44px;width:100%;padding:10px;border:1px solid #93c5fd;border-radius:8px;background:#1e40af;color:#fff;font:inherit;font-weight:850;cursor:pointer;margin-bottom:10px}
+    .navToggle:hover{background:#1d4ed8;color:#fff}
+    .navToggle:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
     nav{display:grid;gap:3px}
     nav a{border-left:3px solid transparent;border-radius:6px;padding:9px 8px;text-decoration:none;color:#e0efff;font-size:.87rem;font-weight:750}
     nav a.subsection{margin-left:12px;font-size:.8rem;font-weight:650;color:#bfdbfe}
@@ -81,7 +87,7 @@ export default function ClientContinuousSidebar(){
     nav a:focus-visible{outline:3px solid #93c5fd;outline-offset:2px;background:#1e40af;color:#fff}
     nav a[aria-current=location]{background:#1d4ed8;color:#fff;border-left-color:#93c5fd;font-weight:900}
     @media(max-width:980px){.clientContinuousSide{position:static;max-height:none}nav{grid-template-columns:repeat(2,minmax(0,1fr))}nav a.subsection{margin-left:0}}
-    @media(max-width:600px){nav{grid-template-columns:1fr}}
+    @media(max-width:600px){.navToggle{display:inline-flex}nav{grid-template-columns:1fr}nav.mobileClosed{display:none}}
    `}</style>
  </aside>;
 }
