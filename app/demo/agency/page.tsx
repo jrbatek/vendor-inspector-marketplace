@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import AgencyContractsPanel from "@/components/AgencyContractsPanel";
 import AgencyFeaturedOpportunities from "@/components/AgencyFeaturedOpportunities";
@@ -84,7 +84,10 @@ export default function AgencyDemoPage() {
   const [rosterPreview,setRosterPreview]=useState<AgencyRosterCsvPreview|null>(null);
   const [rosterError,setRosterError]=useState("");
   const [rosterCleared,setRosterCleared]=useState(false);
+  const latestRosterSelection=useRef(0);
   const previewRoster=async(file?:File)=>{
+    // Last selection wins even when an earlier browser file read finishes later.
+    const selection=++latestRosterSelection.current;
     setRosterCleared(false);
     setRosterError("");
     if(!file)return;
@@ -92,10 +95,11 @@ export default function AgencyDemoPage() {
     if(file.size>512_000){setRosterError("This demo previews CSV files up to 500 KB.");return;}
     try{
       const content=await file.text();
+      if(selection!==latestRosterSelection.current)return;
       if(!content.trim()){setRosterError("CSV file is empty. Choose a corrected fictional roster.");return;}
       setRosterPreview(previewAgencyRosterCsv(content));
     }
-    catch(error){setRosterError(error instanceof Error?error.message:"Could not preview CSV roster.");}
+    catch(error){if(selection===latestRosterSelection.current)setRosterError(error instanceof Error?error.message:"Could not preview CSV roster.");}
   };
   
   const [reportFocus,setReportFocus]=useState("All findings");
@@ -136,7 +140,7 @@ export default function AgencyDemoPage() {
         <div className="upload"><label htmlFor="agency-roster-upload"><strong>Preview CSV resource roster</strong><small>Validate records → preview affiliation claims. Export XLSX spreadsheets as CSV before previewing.</small></label><input id="agency-roster-upload" type="file" accept=".csv,text/csv" aria-describedby="agency-roster-privacy" onChange={event=>{const selected=event.currentTarget.files?.[0];event.currentTarget.value="";void previewRoster(selected)}}/><p id="agency-roster-privacy">Browser-local preview only; no data is uploaded, sent to an agency, or written to production. Use fictional samples only.</p></div>
         {rosterError&&<p role="alert" id="agency-roster-error" className="rosterPreviewError">{rosterError}</p>}
         {rosterPreview&&<p role="status" id="agency-roster-preview" className="rosterPreviewResult">Synthetic roster preview: {rosterPreview.totalRows} rows · {rosterPreview.validRows} complete unique records · {rosterPreview.reviewRows} need review · {rosterPreview.duplicateIds} duplicate IDs. No records submitted.</p>}
-        {rosterPreview&&<button type="button" className="rosterClear" onClick={()=>{setRosterPreview(null);setRosterError("");setRosterCleared(true);}}>Clear browser-local roster preview</button>}
+        {rosterPreview&&<button type="button" className="rosterClear" onClick={()=>{latestRosterSelection.current+=1;setRosterPreview(null);setRosterError("");setRosterCleared(true);}}>Clear browser-local roster preview</button>}
         {rosterCleared&&<p className="rosterCleared" role="status">Roster preview cleared from this browser session. No records were submitted.</p>}
         {rosterPreview&&rosterPreview.reviewRows>0&&<div className="rosterValidationBreakdown" role="group" aria-label="CSV columns requiring attention"><strong>Correct the fictional roster before connecting:</strong><ul>
           {Object.entries(rosterPreview.missingByColumn).filter(([,count])=>count>0).map(([column,count])=><li key={column}>{column}: missing in {count} {count===1?"row":"rows"}</li>)}
