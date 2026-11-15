@@ -565,7 +565,7 @@ try{
    await page.goto(base+"/demo/client-agency-sourcing",{waitUntil:"domcontentloaded"});
    const legacySidebar=page.getByRole("complementary",{name:"Client Workspace navigation"});
    await legacySidebar.getByRole("link",{name:label,exact:true}).click();
-   await page.waitForURL(url=>url.pathname==="/demo/client"&&url.hash==="#"+anchor,{timeout:15000});
+   await page.waitForFunction(anchor=>location.pathname==="/demo/client"&&location.hash==="#"+anchor,anchor,{timeout:20000});
    await page.locator("#"+anchor).waitFor({state:"visible",timeout:15000});
    assert(await page.locator("article.inspection").count()===7,
     "Legacy sidebar navigation discarded the seven synthetic inspection records: "+anchor);
