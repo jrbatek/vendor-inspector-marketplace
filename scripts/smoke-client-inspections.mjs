@@ -541,6 +541,21 @@ try{
   assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
     "Deep-linked synthetic inspection unexpectedly requires authentication");
 
+ // Filtering a previously shared detail should not leave a stale deep-link.
+ await page.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
+ assert(new URL(page.url()).hash==="",
+  "Filtering an open inspection left a stale inspection detail URL");
+ assert(await page.locator("article.inspection").count()===1,
+  "Filtering the demo inspection list did not reduce to the selected stage");
+ await page.goBack();
+ await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+ assert(await page.locator("article.inspection").count()===7,
+  "Browser Back to deep-linked inspection did not reset restrictive filters");
+ await page.goForward();
+ await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({state:"detached",timeout:12000});
+ assert(new URL(page.url()).hash==="",
+  "Browser Forward did not restore filtered-list navigation");
+
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
