@@ -248,8 +248,19 @@ try {
         }));
         if (expiredColor.background !== "rgb(255, 247, 237)" || expiredColor.color !== "rgb(154, 52, 18)")
           throw new Error("Expired inspector contract status is not visibly legible: " + JSON.stringify(expiredColor));
+        // Mobile Client Workspace sections deliberately start collapsed and close
+        // again after each navigation. Expand explicitly before both clicks.
+        const openContinuousSections = async () => {
+          if (width > 600) return;
+          const toggle = page.getByRole("button", { name: "Show sections" });
+          await toggle.click();
+          if (await page.getByRole("button", { name: "Hide sections" }).getAttribute("aria-expanded") !== "true")
+            throw new Error("Mobile Client Workspace sections failed to expand");
+        };
+        await openContinuousSections();
         await continuousNav.getByRole("link", { name: "Billing & Payment" }).click();
         await page.getByRole("region", { name: "Billing & Payment" }).waitFor();
+        await openContinuousSections();
         await continuousNav.getByRole("link", { name: "Profile", exact: true }).click();
         await page.getByRole("region", { name: "Client Profile" }).waitFor();
         await page.waitForFunction(() => document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim() === "Profile");
