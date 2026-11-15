@@ -55,6 +55,23 @@ try{
  assert(localPreview.includes("No AI matching, external submission, or production record was created")&&
    localPreview.includes("not personalized to this request"),"Natural-language preview must be useful and explicitly fictional");
  assert(page.url().includes("/demo/client"),"Natural-language preview navigated away from the public Client Demo");
+ // A rejected upload must not erase a valid, already-reviewed synthetic preview.
+ await natural.locator('input[type="file"]').setInputFiles({
+   name:"invalid-scope.pdf",mimeType:"application/pdf",buffer:Buffer.from("%PDF-fictional")
+ });
+ assert((await natural.locator("#demo-upload-status").innerText()).includes("accepts TXT"),
+   "Unsupported scope upload did not provide actionable validation feedback");
+ assert(await request.inputValue()==="Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.",
+   "Unsupported scope upload replaced a drafted requirement");
+ assert((await natural.locator(".naturalPreview").innerText())===localPreview,
+   "Unsupported scope upload erased a valid previously generated preview");
+ await natural.locator('input[type="file"]').setInputFiles({
+   name:"large-scope.txt",mimeType:"text/plain",buffer:Buffer.alloc(256*1024+1,66)
+ });
+ assert((await natural.locator("#demo-upload-status").innerText()).includes("over the 256 KB"),
+   "Oversize scope upload did not report its size limit");
+ assert((await natural.locator(".naturalPreview").innerText())===localPreview,
+   "Oversize scope upload erased a valid previously generated preview");
  await request.fill("short");
  assert(await natural.locator(".naturalPreview").count()===0,"Preview status stayed stale after editing the scope");
  await natural.getByRole("button",{name:"Preview request (demo)"}).click();
@@ -77,6 +94,7 @@ try{
  await scopeInput.setInputFiles({name:"scope-demo.txt",mimeType:"text/plain",buffer:Buffer.from(corrected)});
  await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,corrected);
  assert(await request.inputValue()===corrected,"Corrected same-name scope file was not loaded");
+ assert(await natural.locator(".naturalPreview").count()===0,"Successful scope replacement left a stale preview visible");
  await request.fill(originalText);
  // The embedded email and structured controls must actually work in Chromium.
  const emailCard=page.locator("#email-requirements");
