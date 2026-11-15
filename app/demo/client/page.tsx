@@ -35,7 +35,7 @@ export default function ClientDemo(){
  }
  async function loadScope(file?:File){
   if(!file)return;
-  setNaturalPreview("");setUploadMessage("");
+  setUploadMessage("");
   const extension=file.name.split(".").pop()?.toLowerCase();
   if(!["txt","md","csv","json"].includes(extension||"")){
     setUploadMessage("This demo accepts TXT, MD, CSV, or JSON scope text. For PDF or Word scopes, paste the relevant text into the request box.");
@@ -51,6 +51,7 @@ export default function ClientDemo(){
       setUploadMessage("This scope file is empty. Add inspection requirements or select a file with readable text; your existing request was preserved.");
       return;
     }
+    setNaturalPreview("");
     setRequestText(loaded);
     setUploadMessage(`Loaded ${file.name}${loaded.length===MAX_REQUEST_CHARS?` (limited to ${MAX_REQUEST_CHARS.toLocaleString()} characters)`:""}. Demo uploads stay in this browser and are not sent to production.`);
   }catch{
