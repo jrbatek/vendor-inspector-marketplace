@@ -519,6 +519,28 @@ try{
  assert(await page.locator("article.inspection").count()===7,
   "Multi-page sidebar audit lost the seven no-login in-progress demo inspections");
  await verifyClientSidebarLayout("Client Inspections after route audit",true);
+  // Public inspection-detail deep links must survive refresh and browser history.
+  await page.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+  const sharedDetails=page.getByRole("region",{name:"Inspection details DEMO-ACT-4"});
+  await sharedDetails.waitFor({timeout:12000});
+  assert((await sharedDetails.innerText()).includes("Atlantic LNG Terminal"),
+    "Direct inspection deep link opened the wrong synthetic inspection");
+  assert(await page.locator("article.inspection").count()===7,
+    "Deep-linking a single inspection discarded other fictional records");
+  await page.goBack();
+  await sharedDetails.waitFor({state:"detached",timeout:12000});
+  assert(await page.locator("article.inspection").count()===7,
+    "Browser Back from inspection detail lost synthetic list");
+  await page.goForward();
+  await sharedDetails.waitFor({state:"visible",timeout:12000});
+  const actionLink=page.locator(".actionRegister tbody tr").filter({hasText:"DEMO-ACT-5"}).getByRole("link",{name:"Open inspection"});
+  await actionLink.click();
+  assert(page.url().endsWith("#inspection-DEMO-ACT-5"),
+    "Outstanding action link did not establish shareable inspection URL");
+  await page.getByRole("region",{name:"Inspection details DEMO-ACT-5"}).waitFor();
+  assert(await page.getByText(/Log in to view the client workspace/i).count()===0,
+    "Deep-linked synthetic inspection unexpectedly requires authentication");
+
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
