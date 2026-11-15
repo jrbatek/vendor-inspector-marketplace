@@ -19,6 +19,10 @@ test("dark-blue legacy sidebar returns all demo sections to the continuous Clien
  ];
  for(const id of anchors)assert.ok(side.includes('/demo/client#'+id),id+" must link to embedded Client content");
  assert.doesNotMatch(side,/demo\?"\/demo\/client-operations\?tab=/);
+ // Legacy links are native anchors. A stale custom event must not mutate
+ // another Client demo pane before the continuous workspace loads.
+ assert.doesNotMatch(side,/inspectsource:client-operations-tab|selectDemoTab/);
+ assert.doesNotMatch(side,/onClick=\{\(\)=>demo&&/);
  assert.match(ops,/useSearchParams\(\)/);
  assert.match(ops,/Suspense fallback=/);
  assert.match(ops,/const tab:Tab=selectedTab==="contracts"\|\|selectedTab==="profile"\?selectedTab:"billing"/);
