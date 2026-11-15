@@ -34,3 +34,17 @@ test("empty scope files preserve drafts and same-name uploads can be retried",()
  assert.match(smoke,/Scope file input must reset to allow selecting an updated file with the same name/);
  assert.match(smoke,/Corrected same-name scope file was not loaded/);
 });
+
+test("invalid Client Demo uploads preserve a previously generated preview; successful scope replacements invalidate it",()=>{
+  const loader=source.slice(source.indexOf("async function loadScope"),source.indexOf("function previewNaturalRequest"));
+  assert.ok(loader.includes("setUploadMessage(\"\");"),"Upload validation starts with fresh feedback");
+  assert.doesNotMatch(loader.slice(0,loader.indexOf("if(!loaded.trim())")) ,/setNaturalPreview\(\"\"\)/,
+    "Rejected format, oversized, unreadable or empty files must not erase an existing preview");
+  assert.match(loader,/setNaturalPreview\(\"\"\);\s*setRequestText\(loaded\)/,
+    "A successfully loaded new request must invalidate the old preview");
+  for(const reason of ["Unsupported scope upload erased a valid previously generated preview",
+    "Oversize scope upload erased a valid previously generated preview",
+    "Successful scope replacement left a stale preview visible"]){
+    assert.ok(smoke.includes(reason),reason);
+  }
+});
