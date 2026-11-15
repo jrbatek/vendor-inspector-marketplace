@@ -206,6 +206,26 @@ try {
     if(await clientSidebar.getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")==="location")
       throw new Error("Client sidebar prematurely highlighted Profile when only visible at viewport bottom");
   }
+  // Real-mobile Client Workspace navigation must not occupy the whole screen.
+  await page.setViewportSize({width:390,height:780});
+  const mobileNavToggle=clientSidebar.getByRole("button",{name:"Show sections"});
+  assert(await mobileNavToggle.isVisible(),"Client mobile sidebar must offer a visible Show sections toggle");
+  assert(await mobileNavToggle.getAttribute("aria-expanded")==="false",
+    "Client mobile section links must be collapsed by default");
+  assert(!(await clientSidebar.getByRole("link",{name:"Inspections in Progress",exact:true}).isVisible()),
+    "Collapsed Client mobile sidebar must hide the section links");
+  await mobileNavToggle.click();
+  assert(await clientSidebar.getByRole("button",{name:"Hide sections"}).getAttribute("aria-expanded")==="true",
+    "Client mobile disclosure did not expand or announce its open state");
+  await clientSidebar.getByRole("link",{name:"Inspections in Progress",exact:true}).click();
+  assert(page.url().endsWith("#inspections-in-progress"),
+    "Client mobile sidebar navigated outside the synthetic inspections section");
+  assert(await clientSidebar.getByRole("button",{name:"Show sections"}).getAttribute("aria-expanded")==="false",
+    "Client mobile links must collapse after section navigation");
+  assert(await embeddedInspections.count()===7,
+    "Client mobile navigation must preserve seven fictional in-progress inspections");
+  assert(!(await page.getByText("Log in to view the client workspace").count()),
+    "Client mobile navigation displayed a live-workspace login shell");
   console.log("Embedded Client Analytics: first-click 15/45/60 source transitions, seven inspections and no recovery boundary passed.");
   console.log(`Client Analytics (${browserName}): fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.`);
 }catch(e){
