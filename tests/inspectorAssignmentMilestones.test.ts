@@ -19,3 +19,14 @@ test("three fictional assignment stages expose distinct milestone, document, sit
   assert.match(detail,/Outstanding items \/ next action/);
   assert.doesNotMatch(detail,/supabase|fetch\(|\.insert\(|\.update\(|\.delete\(/);
 });
+
+test("Open Assignment milestone status badges are legible and do not portray overdue as success",()=>{
+  for(const label of ["complete","overdue","scheduled","upcoming"]){
+    assert.ok(detail.includes('"' + label + '"'),"Missing milestone status "+label);
+  }
+  assert.match(detail,/milestoneStatus\.complete\{background:#dcfce7;color:#166534/);
+  assert.match(detail,/milestoneStatus\.overdue\{background:#fee2e2;color:#991b1b/);
+  assert.match(detail,/milestoneStatus\.scheduled\{background:#dbeafe;color:#1e40af/);
+  assert.match(detail,/milestoneStatus\{display:inline-flex[^}]*background:#fef3c7;color:#92400e/);
+  assert.ok(detail.includes('item.status === "Overdue" ? "overdue"'),"Overdue milestone must not appear as completed");
+});

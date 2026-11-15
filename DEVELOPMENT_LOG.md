@@ -1,3 +1,7 @@
+### 2026-11-14 — Inspector Active Assignment milestones have distinct status semantics
+- Corrected a misleading visual in Open Assignment: Overdue, Scheduled and Pending/Upcoming milestones previously shared a green success badge with Complete actions. Badges now use legible red for overdue, blue for scheduled, amber for pending/upcoming, and green only for completed, while preserving visible text for accessibility and all scenario evidence.
+- Adds a source regression covering all four milestone status groups, color contrast, and no live data changes. Synthetic Client/Inspector/Agency demo boundaries, permissions, documents and assignment due dates remain unchanged. Mandatory CI, synthetic/migration/typecheck/build, preview READY and production READY/smoke gates apply.
+
 ### 2026-11-14 — Client Demo request editing clears obsolete loaded-file notification
 - When a reviewer manually edits the Natural Language – AI inspection scope after uploading a valid fictional TXT/MD/CSV/JSON file, the old "Loaded filename" confirmation is now retired immediately. This prevents implying that manually revised requirements still exactly match the uploaded file.
 - Preserves the latest-selection async race protection and success/error behavior. Adds hosted Chromium verification of visible successful upload feedback followed by dismissal after editing, plus a source regression.
