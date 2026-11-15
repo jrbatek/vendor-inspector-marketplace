@@ -1,3 +1,7 @@
+### 2026-11-15 — Client Demo inspection filter/deep-link history recovery
+- On status/project/inspector/date/action/NCR/search/sort changes, clear the now-closed detail URL rather than leaving a stale shared inspection hash. On Back/Forward to a valid fictional inspection bookmark, reset conflicting list filters so that inspection and the other seven-record fixture are visible.
+- Added source and hosted Chromium Back/Forward/filter regression. Demo-only; no real authentication, matching, privacy/RLS, banking/payments, or production data changes. CI and Vercel release gates unchanged.
+
 ### 2026-11-15 — Deterministic Agency roster same-name retry browser validation
 - Fixed unrelated CI blocker revealed on PR #307: the real Chromium Agency scrollspy/roster smoke asserted a same-name corrected CSV preview before asynchronous File.text() and React state updates finished. Await the fictional 2-row and corrected 1-row previews plus preview clear, without weakening privacy or content assertions.
 - Smoke/regression synchronization only; no demo production logic, synthetic DB writes, authentication, banking, privacy/RLS or matching changes. Preserve mandatory CI, Preview READY, sequential merge and production smoke.
