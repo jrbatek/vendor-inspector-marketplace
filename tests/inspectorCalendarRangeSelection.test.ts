@@ -21,3 +21,13 @@ test("Built-app Chromium covers multi-day visibility and never writes on selecti
   assert.ok(smoke.includes("Highlighting a range must not silently declare dates Available"));
   assert.ok(smoke.includes("Reversed range must never indicate selected dates"));
 });
+
+test("Date input edits dismiss obsolete calendar action warnings without changing protected event logic",()=>{
+  for(const marker of [
+    'onChange={e => { setStart(e.target.value); setNotice(""); }}',
+    'onChange={e => { setEnd(e.target.value); setNotice(""); }}',
+  ]) assert.ok(source.includes(marker),"Missing date-edit notice invalidation: "+marker);
+  assert.ok(smoke.includes("Changing selected dates retained a stale personal-event conflict warning"));
+  assert.ok(smoke.includes("Previously dismissed private-calendar warning reappeared after valid date correction"));
+  assert.ok(source.includes('overlapsPrivateDemoEvent(events, dates)'),"Protected private appointments must remain non-overridable");
+});
