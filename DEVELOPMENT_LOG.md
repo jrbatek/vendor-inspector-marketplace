@@ -1,3 +1,10 @@
+
+### 2026-11-16 — P0 Client Inspection browser-history filter restoration (PR pending)
+- Found a synthetic-only state mismatch: Back from a filtered inspection list restored its deep-linked inspection, but Forward returned to the list without restoring filter selection because filters existed only in React state.
+- Store the fictional list filters/sort in a namespaced browser history entry and restore them on popstate/hashchange. Keep no-login demo isolation, seven fictional inspections and existing deep links/PDF/NCR behavior.
+- Isolate the hosted Chromium deep-link history scenario from previous cross-demo navigation; capture URL, history length, persisted stage, visible stage and expanded detail diagnostics on failure. Assert Forward restores the one-row Kickoff filter, not merely an empty URL hash.
+- Release guard: GitHub-hosted Validate application, Autonomous QA, synthetic-data validation, migrations, typecheck/build, Vercel Preview READY before merge; production READY and exact-commit smoke after merge. No live auth, banking, matching, payments, production seeding or real data changes.
+
 ### 2026-11-15 — Inspector Calendar handles repeated visits to the same fictional project
 - Updated read-only Previous/Next assignment grouping: consecutive assigned dates for a project are one visit, but a later non-consecutive return to the same project now counts as a distinct assignment. Previously a project-name-only Map silently discarded subsequent visits.
 - Added synthetic unit cases for out-of-order and duplicated event fixtures, a return visit in December, movement from both days of each visit, gaps, private Busy entries and no wraparound. All existing Calendar views and click-through behavior continue using the shared helper.

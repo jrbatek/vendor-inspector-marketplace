@@ -5,6 +5,16 @@ import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContex
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 import { ACTIVE_DEMO_INSPECTIONS, EMPTY_INSPECTION_FILTERS, filterActiveInspections, activeInspectionReportHref, exportActiveDemoInspectionsCsv, sortActiveInspections, filterActiveInspectionsByActionDue, searchActiveInspections, activeInspectionActionRegister, exportActiveDemoActionRegisterCsv, type ActiveInspectionSort, type InspectionFilters } from "@/lib/clientActiveInspections";
 
+type StoredInspectionList = {
+  filters: InspectionFilters;
+  sort: ActiveInspectionSort;
+  dueOnly: boolean;
+  ncrOnly: boolean;
+  actionOwner: string;
+  keyword: string;
+};
+const inspectionListHistoryKey = "__inspectSourceClientInspectionList";
+
 export default function ClientInspectionsDemo() {
   const embedded = useContext(ClientDemoEmbeddedContext);
   const [filters, setFilters] = useState<InspectionFilters>(EMPTY_INSPECTION_FILTERS);
@@ -25,6 +35,14 @@ export default function ClientInspectionsDemo() {
       if(found){
         setFilters(EMPTY_INSPECTION_FILTERS);setDueOnly(false);setNcrOnly(false);
         setActionOwner("");setKeyword("");setSort("due");
+      } else {
+        // Restore a list entry when browser Forward/Back returns from inspection details.
+        // Namespaced state contains fictional UI filters only, never client/live records.
+        const saved = window.history.state?.[inspectionListHistoryKey] as StoredInspectionList | undefined;
+        if(saved?.filters && typeof saved.filters.stage === "string" && ["due","start","stage"].includes(saved.sort)){
+          setFilters(saved.filters);setDueOnly(Boolean(saved.dueOnly));setNcrOnly(Boolean(saved.ncrOnly));
+          setActionOwner(saved.actionOwner ?? "");setKeyword(saved.keyword ?? "");setSort(saved.sort);
+        }
       }
       setExpanded(found?id:null);
       setExpandedNcr(null);
@@ -35,6 +53,15 @@ export default function ClientInspectionsDemo() {
     window.addEventListener("popstate",syncFromHash);
     return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
   },[]);
+  // Keep each no-hash history entry's synthetic list filters, so returning Forward
+  // restores the same filtered view rather than silently showing all seven records.
+  useEffect(() => {
+    if (/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)) return;
+    const current = window.history.state;
+    const existing = current && typeof current === "object" ? current : {};
+    const listState: StoredInspectionList = {filters, sort, dueOnly, ncrOnly, actionOwner, keyword};
+    window.history.replaceState({...existing, [inspectionListHistoryKey]:listState}, "", window.location.href);
+  }, [filters, sort, dueOnly, ncrOnly, actionOwner, keyword]);
   const openInspection=(id:string)=>{
     setExpanded(id);
     setExpandedNcr(null);
