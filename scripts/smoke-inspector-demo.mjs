@@ -253,8 +253,11 @@ try {
     "Editing Start date failed to synchronize the Week anchor");
   await tabs.getByRole("button",{name:"Month"}).click();
   await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
-  // Arbitrary month jumps synchronize Month, Week and availability inputs without writing events.
+  // Arbitrary month jumps must open the full Month grid even from List.
+  await tabs.getByRole("button",{name:"List"}).click();
   await cal.getByLabel("Jump to month").fill("2027-02");
+  assert(await tabs.getByRole("button",{name:"Month"}).getAttribute("aria-pressed")==="true",
+    "Jump to month from List did not open the full Month calendar");
   assert(await cal.getByRole("heading",{name:"February 2027"}).count()===1,"Month jump did not show February 2027");
   assert(await cal.getByLabel("Start date").inputValue()==="2027-02-01","Month jump did not set first day");
   assert(await cal.getByLabel("End date").inputValue()==="2027-02-01","Month jump did not set end day");
@@ -269,7 +272,14 @@ try {
     "Empty List recovery must return to Month view");
   await tabs.getByRole("button",{name:"Week"}).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2027-02-01","Month jump did not synchronize Week anchor");
-  await tabs.getByRole("button",{name:"Month"}).click();
+  // The Month arrows are month-level navigation even when Week is open.
+  await cal.getByRole("button",{name:"Next month"}).click();
+  assert(await tabs.getByRole("button",{name:"Month"}).getAttribute("aria-pressed")==="true" &&
+    await cal.getByRole("heading",{name:"March 2027"}).count()===1,
+    "Next month from Week left the inspector on a one-week view");
+  assert(await cal.getByLabel("Start date").inputValue()==="2027-03-01" &&
+    await cal.getByLabel("End date").inputValue()==="2027-03-01",
+    "Next month from Week must prefill one March day, not mutate availability");
   await cal.getByLabel("Jump to month").fill("2026-11");
   assert(await cal.getByRole("heading",{name:"November 2026"}).count()===1,"Returning from month jump failed");
   assert(await cal.getByText(/Doctor Appointment · 10:00/).count()>=1,"Month jump lost private appointment data");

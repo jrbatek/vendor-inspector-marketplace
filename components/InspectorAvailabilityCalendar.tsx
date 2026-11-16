@@ -69,6 +69,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     const next=new Date(Date.UTC(year,monthNumber-1+delta,1)).toISOString().slice(0,10);
     setMonth(next.slice(0,7));
     setWeekAnchor(next);
+    setView("Month");
     // Browsing a month should prefill one date, not silently select two dates.
     // Availability is still changed only by the explicit Block dates action.
     setStart(next);
@@ -83,6 +84,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     const firstDay=value+"-01";
     setMonth(value);
     setWeekAnchor(firstDay);
+    setView("Month");
     setStart(firstDay);
     setEnd(firstDay);
     selectionAnchor.current=firstDay;
