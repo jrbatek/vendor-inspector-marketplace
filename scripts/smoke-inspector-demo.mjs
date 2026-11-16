@@ -308,10 +308,10 @@ try {
   // Inspectors can browse backwards through real synthetic assignments, then
   // return forward without changing the assigned blocks or linked personal Busy events.
   await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
-  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-13" &&
-    await calendar.getByLabel("End date").inputValue()==="2026-11-13",
-    "Previous assignment must select the nearest earlier synthetic inspection date");
-  assert(await calendar.getByRole("button",{name:"Choose 2026-11-13 for availability"}).getAttribute("aria-pressed")==="true",
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-12" &&
+    await calendar.getByLabel("End date").inputValue()==="2026-11-12",
+    "Previous assignment must land on the earlier distinct project, not its final inspection day");
+  assert(await calendar.getByRole("button",{name:"Choose 2026-11-12 for availability"}).getAttribute("aria-pressed")==="true",
     "Previous assignment must visibly select the earlier assigned day");
   await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
   assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-26",
@@ -323,8 +323,14 @@ try {
   assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-09",
     "No-previous-assignment response must preserve the current selection");
   await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
-  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-10",
-    "Next assignment after demo today must advance to the earliest later assigned day");
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-12",
+    "Next assignment after demo today must skip the second day of Gulf Horizon and open the next distinct project");
+  await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-26",
+    "Next distinct assignment from LNG must start Orion, not advance to another LNG day");
+  await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-12",
+    "Previous distinct assignment from Orion must return to the first LNG assignment date");
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
