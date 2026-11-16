@@ -14,7 +14,7 @@ test("InspectorHub synthetic insights explain peers, never specific selection ou
 });
 
 test("InspectorHub retains demo-vs-live data boundary and existing authorizations", () => {
-  assert.match(hub, /if\(!a\.user\)\{setMode\("demo"\);setItems\(DEMO_WORK\)/);
+  assert.match(hub, /if\(!a\.user\)\{router\.replace\("\/login\?role=inspector"\);return;\}/);
   assert.match(hub, /from\("inspector_work_activities"\)/);
   assert.match(hub, /\.eq\("inspector_id",a\.user\.id\)/);
 });

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type InquiryRow = {
   id: string;
@@ -12,6 +13,7 @@ type InquiryRow = {
 };
 
 export default function InspectorInquiriesPage() {
+  const router=useRouter();
   const supabase = useMemo(() => supabaseBrowser(), []);
   const [items, setItems] = useState<InquiryRow[]>([]);
   const [message, setMessage] = useState("");
@@ -24,7 +26,7 @@ export default function InspectorInquiriesPage() {
     const { data: auth } = await supabase.auth.getUser();
 
     if (!auth.user) {
-      setMessage("Log in as an inspector to view requests.");
+      router.replace("/login?role=inspector");
       return;
     }
 

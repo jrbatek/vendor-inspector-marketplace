@@ -1,3 +1,9 @@
+### 2026-11-14 — REVIEW REQUIRED: additional unauthenticated inspector workspace redirects
+- Extended review-gated #288 to live `/inspectorhub/schedule` and `/inspector-inquiries`, which previously showed dead Login warning shells. Both now redirect anonymous users to role-aware `/login?role=inspector`, matching the main live InspectorHub. The public `/demo/inspector` remains unaffected. Added source isolation regression assertions; all production auth changes remain held for owner/security review despite green CI.
+
+### 2026-11-14 — REVIEW REQUIRED: live InspectorHub anonymous authentication boundary
+- Prepared a narrowly scoped auth-sensitive correction: unauthenticated /inspectorhub replaces the route with /login?role=inspector; the explicitly public /demo/inspector remains the no-login synthetic experience. Removed the live path from the synthetic demo banner allowlist and updated isolation regression tests.
+
 ### 2026-11-16 — Inspector Calendar Month navigation uses the full Month grid (demo-only PR)
 - Resolved a calendar-view inconsistency: Jump to month while viewing List, or Next/Previous month while viewing Week, previously changed the month anchor but left inspectors in List/Week instead of opening the requested Month grid. Both month-level controls now select Month view, synchronize date/Week anchors, and preserve read-only navigation semantics.
 - Added a focused source regression plus hosted Chromium scenarios for List-to-February Month jump and Week-to-March Next month, including single-day Start/End verification. Existing assignments, linked private appointments and manually blocked dates are untouched.
