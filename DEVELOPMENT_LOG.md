@@ -1,3 +1,8 @@
+### 2026-11-16 — Inspector Calendar Start date keeps the visible calendar in sync (PR pending)
+- Fixed a demo-only calendar navigation gap: editing the Block Dates Start date to another month previously left Month/Week on the old dates, hiding the new selection. Start date now moves Month and Week anchors to the selected date without changing the End date or writing any availability.
+- Added a focused source regression and hosted Chromium checks that edit Start date across months, verify the selected Not set day and synchronized Week anchor, then restore the fixed demo-today reference date.
+- Scope: synthetic inspector calendar UI only; no OAuth, imported private event exposure, production availability, auth/RLS, payments/banking, matching or database changes. Require full hosted Validate application / Autonomous QA, Vercel Preview READY, sequential merge, production READY and exact-commit smoke.
+
 ### 2026-11-16 — P0 Client filtered-inspection close/history state preservation (PR pending)
 - Corrected a separate, reproducible history state loss during synthetic inspection close and filter collapse. Creating a new no-hash history entry with null state depended on a later filters effect that may never fire when a value was unchanged. The close/replace operations now persist the current namespaced fictional list snapshot synchronously.
 - Added a source contract and real Chromium Back/Forward regression: filter to one Kickoff inspection, Open, Close, verify the saved filtered state on the new history entry, Back reopens the detail, Forward restores the one-row list. Keeps the original intermittent issue #321 open for independent observation until causal repro is established.

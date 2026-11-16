@@ -17,7 +17,9 @@ test("Shift selection retains original anchor, normalizes reverse ranges and cap
   for(const date of ["dateForDay(day)","date","event.date"]) {
     assert.ok(source.includes("if(e.shiftKey){extendSelection("+date+");return;}"),"Missing Shift-click for "+date);
   }
-  assert.match(source,/selectionAnchor\.current=e\.target\.value/);
+  assert.match(source,/const selectRangeStart=\(value:string\)=>\{/);
+  assert.match(source,/selectionAnchor\.current=value/);
+  assert.match(source,/onChange=\{e => selectRangeStart\(e\.target\.value\)\}/);
   assert.match(source,/selectionAnchor\.current=DEMO_TODAY/);
   assert.match(source,/Selection alone never blocks dates/);
 });
