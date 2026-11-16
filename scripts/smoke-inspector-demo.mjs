@@ -233,8 +233,10 @@ try {
   await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   await cal.getByLabel("End date").fill("2027-03-05");
   await cal.getByLabel("Start date").fill("2027-03-05");
-  assert(await cal.getByRole("heading",{name:"March 2027"}).count()===1,
-    "Editing Start date left the visible calendar on a stale month");
+  // React updates a controlled date input asynchronously after Playwright's
+  // fill event. Wait for the actual visible month rather than sampling before
+  // that state commit; still fail if the month never changes.
+  await cal.getByRole("heading",{name:"March 2027"}).waitFor({state:"visible",timeout:10000});
   assert(await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).getAttribute("aria-pressed")==="true",
     "Start date form change did not visibly select the edited date");
   assert((await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
