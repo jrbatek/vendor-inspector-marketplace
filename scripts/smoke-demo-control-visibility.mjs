@@ -108,6 +108,33 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/client") {
+        // P0-B: measure the real Client intake controls across all interaction states.
+        const scope = page.getByRole("textbox", { name: "Inspection requirement" });
+        const qualification = page.getByLabel("Required certification");
+        const appearance = async control => control.evaluate(node => {
+          const s = getComputedStyle(node);
+          return { color: s.color, background: s.backgroundColor, border: s.borderTopColor,
+            outlineWidth: s.outlineWidth, opacity: s.opacity };
+        });
+        for (const [control, label] of [[scope, "Natural Language textarea"], [qualification, "Structured qualification selector"]]) {
+          await control.hover();
+          let style = await appearance(control);
+          if (style.background !== "rgb(255, 255, 255)" || style.color !== "rgb(15, 23, 42)" ||
+              style.border !== "rgb(15, 118, 110)")
+            throw new Error(width + "px Client " + label + " hover is illegible: " + JSON.stringify(style));
+          await control.focus();
+          style = await appearance(control);
+          if (Number.parseFloat(style.outlineWidth) < 2 || style.color !== "rgb(15, 23, 42)")
+            throw new Error(width + "px Client " + label + " keyboard focus is illegible: " + JSON.stringify(style));
+          await control.evaluate(node => { node.disabled = true; });
+          style = await appearance(control);
+          if (style.background !== "rgb(241, 245, 249)" || style.color !== "rgb(51, 65, 85)" ||
+              style.border !== "rgb(148, 163, 184)" || Number(style.opacity) !== 1)
+            throw new Error(width + "px Client " + label + " disabled is illegible: " + JSON.stringify(style));
+          await control.evaluate(node => { node.disabled = false; });
+        }
+      }
       if (route === "/demo/agency-affiliations") {
         await page.getByRole("group", { name: "Affiliation status filters" })
           .getByRole("button", { name: "Expiring", exact: true }).click();

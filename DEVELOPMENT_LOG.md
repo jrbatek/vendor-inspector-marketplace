@@ -1,3 +1,7 @@
+### 2026-11-16 — P0-B Client intake interaction contrast coverage (PR pending)
+- Hosted Chromium now validates synthetic Natural Language scope textarea and Structured Selection qualification selector at desktop and mobile for hovered, keyboard-focused, and disabled presentation. Compare computed foreground/background/border and focus outline; restore controls after each check. Adds a focused regression contract.
+- No live credentials, auth, privacy, payment, banking, matching, data persistence or production seeding changes. Merge only with both mandatory hosted validations and Preview READY, followed by production READY and exact-commit smoke.
+
 
 ### 2026-11-16 — P0 Client Inspection browser-history filter restoration (PR pending)
 - Found a synthetic-only state mismatch: Back from a filtered inspection list restored its deep-linked inspection, but Forward returned to the list without restoring filter selection because filters existed only in React state.
