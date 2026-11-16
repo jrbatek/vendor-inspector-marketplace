@@ -27,9 +27,9 @@ export function adjacentDemoAssignmentDate(
   }
 
   const visits: AssignmentVisit[] = [];
-  for (const [project, dates] of assignedByProject) {
+  for (const [project, dates] of Array.from(assignedByProject.entries())) {
     let latest: AssignmentVisit | undefined;
-    for (const date of [...dates].sort()) {
+    for (const date of Array.from(dates).sort()) {
       if (latest && date === nextIsoDay(latest.end)) {
         latest.end = date;
       } else {
