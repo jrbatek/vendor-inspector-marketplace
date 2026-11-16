@@ -1,6 +1,7 @@
 ### 2026-11-16 — Inspector Calendar Start date keeps the visible calendar in sync (PR pending)
 - Fixed a demo-only calendar navigation gap: editing the Block Dates Start date to another month previously left Month/Week on the old dates, hiding the new selection. Start date now moves Month and Week anchors to the selected date without changing the End date or writing any availability.
 - Added a focused source regression and hosted Chromium checks that edit Start date across months, verify the selected Not set day and synchronized Week anchor, then restore the fixed demo-today reference date.
+- CI follow-up: both mandatory hosted workflows caught a real Chromium failure after the initial patch. The Start-date handler's ISO-date regular expression accidentally used double-escaped digit classes, so it never moved the visible month. Corrected to a single-escaped digit matcher, added an explicit regression contract, and required fresh successful workflows before merge. No failed build will be merged.
 - Scope: synthetic inspector calendar UI only; no OAuth, imported private event exposure, production availability, auth/RLS, payments/banking, matching or database changes. Require full hosted Validate application / Autonomous QA, Vercel Preview READY, sequential merge, production READY and exact-commit smoke.
 
 ### 2026-11-16 — P0 Client filtered-inspection close/history state preservation (PR pending)
