@@ -1,3 +1,8 @@
+### 2026-11-15 — P0-B Client inline request control visibility
+- Specified explicit dark-on-white resting colors for the Natural Language – AI scope textarea, which previously inherited its foreground/background from theme defaults. Added legible hover border, keyboard-focus outline and disabled contrast for this textarea and all five full-width Structured Selection controls.
+- Added source-contract and real Chromium checks for normal, hovered, focused and programmatically disabled Natural Language scope, Geography and Inspection Start controls. Existing global desktop/mobile demo contrast audit stays mandatory.
+- Synthetic UI and CSS only. No production authentication/RLS, private data, database writes, real matching, payments/banking, OAuth or external submission. Mandatory validation, typecheck, synthetic/migration checks, build, Preview READY and post-merge production READY/smoke are required.
+
 ### 2026-11-15 — Client Structured Selection now supports browser-local Reset criteria
 - Added a visible, keyboard-accessible Reset criteria action beside Preview selected criteria. It restores all five fictional default selections (geography, qualification, start date, experience, inspector source) and clears any outdated criteria preview without submitting or storing a request. Natural Language – AI and Email Requirements retain their independent state.
 - Added desktop/mobile-friendly contrast, hover, keyboard-focus and disabled CSS plus source and Chromium browser regression coverage for changing inputs, resetting, and regenerating the correct default summary.
