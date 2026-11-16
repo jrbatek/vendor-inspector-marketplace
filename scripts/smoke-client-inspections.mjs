@@ -5,7 +5,7 @@ const port=3103, base=process.env.CLIENT_DEMO_BASE_URL || "http://127.0.0.1:"+po
 const child=process.env.CLIENT_DEMO_BASE_URL ? null : spawn(process.execPath,["node_modules/next/dist/bin/next","start","-p",String(port)],{
  env:{...process.env,NEXT_PUBLIC_SUPABASE_URL:process.env.NEXT_PUBLIC_SUPABASE_URL||"https://ci-placeholder.supabase.co",NEXT_PUBLIC_SUPABASE_ANON_KEY:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||"ci-placeholder-anon-key"},stdio:["ignore","pipe","pipe"]
 });
-let serverOutput="",browser;const errors=[];
+let serverOutput="",browser;const errors=[],inspectionHistoryTrace=[];
 child?.stdout.on("data",x=>serverOutput+=x.toString());
 child?.stderr.on("data",x=>serverOutput+=x.toString());
 const assert=(value,message)=>{if(!value)throw new Error(message)};
@@ -17,7 +17,7 @@ let failed=false;
 try{
  if(child)await ready();
  browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
- const page=await browser.newPage();
+ let page=await browser.newPage();
  page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
   // Verify rendered Client content never reveals Inspector-only private appointment titles.
@@ -568,20 +568,41 @@ try{
  assert(await page.locator("article.inspection").count()===7,
   "Multi-page sidebar audit lost the seven no-login in-progress demo inspections");
  await verifyClientSidebarLayout("Client Inspections after route audit",true);
+  // Isolate history navigation from the preceding cross-demo route audit. Those
+  // routes deliberately leave many entries and can hide a real detail-state defect.
+  await page.close();
+  page=await browser.newPage();
+  page.on("pageerror",e=>errors.push(e.stack||String(e)));
+  await page.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+  await page.locator("article.inspection").first().waitFor();
+  const checkpoint=async label=>{
+    const state=await page.evaluate(()=>({
+      url:location.pathname+location.search+location.hash,
+      length:history.length,
+      storedStage:history.state?.__inspectSourceClientInspectionList?.filters?.stage,
+      currentStage:document.querySelector('select[aria-label="Status / stage"]')?.value,
+      expanded:[...document.querySelectorAll('button[aria-controls^="details-DEMO-ACT-"][aria-expanded="true"]')].map(x=>x.getAttribute("aria-controls"))
+    }));
+    inspectionHistoryTrace.push({label,...state});
+  };
+  await checkpoint("clean list");
   // Public inspection-detail deep links must survive refresh and browser history.
   await page.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
   const sharedDetails=page.getByRole("region",{name:"Inspection details DEMO-ACT-4"});
   await sharedDetails.waitFor({timeout:12000});
+  await checkpoint("deep link #4");
   assert((await sharedDetails.innerText()).includes("Atlantic LNG Terminal"),
     "Direct inspection deep link opened the wrong synthetic inspection");
   assert(await page.locator("article.inspection").count()===7,
     "Deep-linking a single inspection discarded other fictional records");
   await page.goBack();
   await sharedDetails.waitFor({state:"detached",timeout:12000});
+  await checkpoint("back to list");
   assert(await page.locator("article.inspection").count()===7,
     "Browser Back from inspection detail lost synthetic list");
   await page.goForward();
   await sharedDetails.waitFor({state:"visible",timeout:12000});
+  await checkpoint("forward to #4");
   const actionLink=page.locator(".actionRegister tbody tr").filter({hasText:"DEMO-ACT-5"}).getByRole("link",{name:"Open inspection"});
   await actionLink.click();
   assert(page.url().endsWith("#inspection-DEMO-ACT-5"),
@@ -592,16 +613,23 @@ try{
 
  // Filtering a previously shared detail should not leave a stale deep-link.
  await page.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
+ await page.waitForFunction(()=>history.state?.__inspectSourceClientInspectionList?.filters?.stage==="Kickoff");
+ await checkpoint("filtered list");
  assert(new URL(page.url()).hash==="",
   "Filtering an open inspection left a stale inspection detail URL");
  assert(await page.locator("article.inspection").count()===1,
   "Filtering the demo inspection list did not reduce to the selected stage");
  await page.goBack();
  await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+ await checkpoint("back restores #4");
  assert(await page.locator("article.inspection").count()===7,
   "Browser Back to deep-linked inspection did not reset restrictive filters");
  await page.goForward();
  await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({state:"detached",timeout:12000});
+ await page.waitForFunction(()=>document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff");
+ await checkpoint("forward restores filtered list");
+ assert(await page.locator("article.inspection").count()===1,
+  "Browser Forward lost the filtered-list selection");
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
 
@@ -627,6 +655,6 @@ try{
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
  assert(errors.length===0,"Browser page errors: "+errors.join("\n"));
  console.log("Client Demo browser OK: seven inspections, due/overdue action focus, details, PDF, filters, cross-demo navigation and live Login redirect.");
-}catch(e){failed=true;console.error(e instanceof Error?e.stack:String(e));console.error("Local server tail:",serverOutput.slice(-1800))}
+}catch(e){failed=true;console.error(e instanceof Error?e.stack:String(e));console.error("Inspection history trace:",JSON.stringify(inspectionHistoryTrace,null,2));console.error("Local server tail:",serverOutput.slice(-1800))}
 finally{if(browser)await browser.close();if(child){child.kill("SIGTERM");await new Promise(r=>setTimeout(r,250));if(!child.killed)child.kill("SIGKILL")}}
 if(failed)process.exitCode=1;
