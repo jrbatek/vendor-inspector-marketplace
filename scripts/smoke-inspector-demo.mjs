@@ -236,7 +236,14 @@ try {
   // React updates a controlled date input asynchronously after Playwright's
   // fill event. Wait for the actual visible month rather than sampling before
   // that state commit; still fail if the month never changes.
-  await cal.getByRole("heading",{name:"March 2027"}).waitFor({state:"visible",timeout:10000});
+  try {
+    await cal.getByRole("heading",{name:"March 2027"}).waitFor({state:"visible",timeout:10000});
+  } catch {
+    const actualHeading=await cal.locator(".calendarHeader h2").first().innerText();
+    const actualStart=await cal.getByLabel("Start date").inputValue();
+    const actualEnd=await cal.getByLabel("End date").inputValue();
+    throw new Error("Editing Start date left the visible calendar on a stale month: "+JSON.stringify({actualHeading,actualStart,actualEnd}));
+  }
   assert(await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).getAttribute("aria-pressed")==="true",
     "Start date form change did not visibly select the edited date");
   assert((await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
