@@ -1,3 +1,8 @@
+### 2026-11-15 — Client Structured Selection now supports browser-local Reset criteria
+- Added a visible, keyboard-accessible Reset criteria action beside Preview selected criteria. It restores all five fictional default selections (geography, qualification, start date, experience, inspector source) and clears any outdated criteria preview without submitting or storing a request. Natural Language – AI and Email Requirements retain their independent state.
+- Added desktop/mobile-friendly contrast, hover, keyboard-focus and disabled CSS plus source and Chromium browser regression coverage for changing inputs, resetting, and regenerating the correct default summary.
+- Demo UI only. No real matching, email submission, auth/RLS, payment, private data, or production records. Mandatory tests, migration and synthetic validation, typecheck, build, Preview READY and exact-commit production smoke remain required.
+
 ### 2026-11-15 — Inspector Calendar navigates between DISTINCT synthetic assignments
 - Corrected Previous/Next assignment buttons so consecutive dates of the same project are treated as one assignment. From Gulf Horizon (Nov 9–10), Next reaches LNG Compressor (Nov 12); from Orion (Nov 26–27), Previous returns to the LNG assignment start, not the last day of LNG. Navigation from unassigned dates and no-earlier/no-later states is also deterministic.
 - Added a pure synthetic-only helper, unit regression cases, and Chromium checks of forward/backward transitions. Existing Open assignment actions, private appointment titles, browser-local availability, and Calendar Month/Week/List continue unchanged; navigation does not alter events.

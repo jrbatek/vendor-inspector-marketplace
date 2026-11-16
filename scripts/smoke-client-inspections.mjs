@@ -163,6 +163,18 @@ try{
  await structured.getByRole("button",{name:"Preview selected criteria"}).click();
  assert((await structured.getByRole("status").innerText()).includes("API 510"),
    "Structured preview did not reflect updated certification");
+ await structured.getByRole("button",{name:"Reset criteria"}).click();
+ assert(await structured.getByLabel("Geography").inputValue()==="Gulf Coast" &&
+   await structured.getByLabel("Required certification").inputValue()==="API 570" &&
+   await structured.getByLabel("Inspection start").inputValue()==="2026-11-16" &&
+   await structured.getByLabel("Minimum experience (years)").inputValue()==="5" &&
+   await structured.getByLabel("Inspector source").inputValue()==="Both",
+   "Reset criteria must restore all five fictional Structured Selection defaults");
+ assert(await structured.getByRole("status").count()===0,
+   "Reset criteria must clear outdated synthetic previews");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert((await structured.getByRole("status").innerText()).includes("Gulf Coast · API 570 · 2026-11-16 · 5+ years · Both"),
+   "Preview after Reset criteria must reflect defaults rather than stale selections");
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
    "New inline request mechanism unexpectedly routed to authenticated workspace");
  // Nov 11 owner: the Client Workspace is one continuous public page, not a
