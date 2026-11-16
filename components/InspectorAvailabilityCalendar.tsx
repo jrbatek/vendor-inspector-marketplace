@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { clearInspectorAddedDemoAvailability, countProtectedDemoAvailabilityDays, overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
+import { adjacentDemoAssignmentDate } from "@/lib/demoAssignmentNavigation";
 
 type View = "Month" | "Week" | "List";
 type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavailable" | "Busy";
@@ -152,21 +153,19 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
   };
   // Navigating never writes availability or exposes private events.
   const jumpToNextAssignment=()=>{
-    const next=events.filter(event=>event.state==="Assigned" && event.project && event.date>start)
-      .sort((a,b)=>a.date.localeCompare(b.date))[0];
-    if(!next){setNotice("No later assigned demo inspections remain after the selected date.");return;}
-    selectWeek(next.date);
+    const nextDate=adjacentDemoAssignmentDate(events,start,"next");
+    if(!nextDate){setNotice("No later assigned demo inspections remain after the selected date.");return;}
+    selectWeek(nextDate);
     setView("Month");
-    setNotice(`Showing assigned inspection on ${next.date}. Select Open assignment on its calendar block to view details.`);
+    setNotice(`Showing next distinct demo assignment on ${nextDate}. Select Open assignment on its calendar block to view details.`);
   };
-  // Read-only navigation through earlier fictional inspection work.
+  // Navigate to an earlier *project*, not the previous day of the same assignment.
   const jumpToPreviousAssignment=()=>{
-    const previous=events.filter(event=>event.state==="Assigned" && event.project && event.date<start)
-      .sort((a,b)=>b.date.localeCompare(a.date))[0];
-    if(!previous){setNotice("No earlier assigned demo inspections remain before the selected date.");return;}
-    selectWeek(previous.date);
+    const previousDate=adjacentDemoAssignmentDate(events,start,"previous");
+    if(!previousDate){setNotice("No earlier assigned demo inspections remain before the selected date.");return;}
+    selectWeek(previousDate);
     setView("Month");
-    setNotice(`Showing assigned inspection on ${previous.date}. Select Open assignment on its calendar block to view details.`);
+    setNotice(`Showing previous distinct demo assignment on ${previousDate}. Select Open assignment on its calendar block to view details.`);
   };
   // Only clear dates added through this inspector demo session. Never erase imported private
   // appointments, assigned work, or the seeded fictional baseline calendar.
