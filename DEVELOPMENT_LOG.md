@@ -1,3 +1,8 @@
+### 2026-11-16 — Inspector Calendar Month navigation uses the full Month grid (demo-only PR)
+- Resolved a calendar-view inconsistency: Jump to month while viewing List, or Next/Previous month while viewing Week, previously changed the month anchor but left inspectors in List/Week instead of opening the requested Month grid. Both month-level controls now select Month view, synchronize date/Week anchors, and preserve read-only navigation semantics.
+- Added a focused source regression plus hosted Chromium scenarios for List-to-February Month jump and Week-to-March Next month, including single-day Start/End verification. Existing assignments, linked private appointments and manually blocked dates are untouched.
+- Low-risk synthetic UI only. No production availability, authentication/RLS, OAuth/credentials, banking/payment, matching, or synthetic database writes. Require both mandatory hosted workflow checks and exact-head Vercel Preview READY before merge, then exact-commit production READY and smoke.
+
 ### 2026-11-16 — Inspector Calendar Start date keeps the visible calendar in sync (PR pending)
 - Fixed a demo-only calendar navigation gap: editing the Block Dates Start date to another month previously left Month/Week on the old dates, hiding the new selection. Start date now moves Month and Week anchors to the selected date without changing the End date or writing any availability.
 - Added a focused source regression and hosted Chromium checks that edit Start date across months, verify the selected Not set day and synchronized Week anchor, then restore the fixed demo-today reference date.
