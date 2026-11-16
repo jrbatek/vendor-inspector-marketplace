@@ -228,6 +228,31 @@ try {
     "Jump to date must synchronize Week without writing availability");
   await tabs.getByRole("button",{name:"Month"}).click();
   await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  // Editing Start date through the date-range form must reveal its month/selected
+  // day, synchronize Week navigation and never write an availability event.
+  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await cal.getByLabel("End date").fill("2027-03-05");
+  await cal.getByLabel("Start date").fill("2027-03-05");
+  // React updates a controlled date input asynchronously after Playwright's
+  // fill event. Wait for the actual visible month rather than sampling before
+  // that state commit; still fail if the month never changes.
+  try {
+    await cal.getByRole("heading",{name:"March 2027"}).waitFor({state:"visible",timeout:10000});
+  } catch {
+    const actualHeading=await cal.locator(".calendarHeader h2").first().innerText();
+    const actualStart=await cal.getByLabel("Start date").inputValue();
+    const actualEnd=await cal.getByLabel("End date").inputValue();
+    throw new Error("Editing Start date left the visible calendar on a stale month: "+JSON.stringify({actualHeading,actualStart,actualEnd}));
+  }
+  assert(await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).getAttribute("aria-pressed")==="true",
+    "Start date form change did not visibly select the edited date");
+  assert((await cal.getByRole("button",{name:"Choose 2027-03-05 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
+    "Editing Start date must never write an availability event");
+  await tabs.getByRole("button",{name:"Week"}).click();
+  assert(await cal.getByLabel("Week containing").inputValue()==="2027-03-05",
+    "Editing Start date failed to synchronize the Week anchor");
+  await tabs.getByRole("button",{name:"Month"}).click();
+  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   // Arbitrary month jumps synchronize Month, Week and availability inputs without writing events.
   await cal.getByLabel("Jump to month").fill("2027-02");
   assert(await cal.getByRole("heading",{name:"February 2027"}).count()===1,"Month jump did not show February 2027");
