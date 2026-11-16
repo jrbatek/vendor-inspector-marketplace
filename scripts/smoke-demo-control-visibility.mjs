@@ -84,7 +84,7 @@ try {
         };
         const bad = [];
         let checked = 0;
-        for (const el of document.querySelectorAll("button, a[href], select, input:not([type=hidden]), [role=button]")) {
+        for (const el of document.querySelectorAll("button, a[href], select, textarea, input:not([type=hidden]), [role=button]")) {
           const s = getComputedStyle(el), rect = el.getBoundingClientRect();
           if (rect.width < 5 || rect.height < 5 || s.display === "none" || s.visibility === "hidden") continue;
           const name = (el.getAttribute("aria-label") || el.getAttribute("title") ||
