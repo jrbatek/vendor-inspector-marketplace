@@ -17,7 +17,7 @@ export function adjacentDemoAssignmentDate(
   const currentProject = events.find(event =>
     event.date === selectedDate && event.state === "Assigned" && event.project
   )?.project;
-  const dates = [...starts].filter(([project, date]) =>
+  const dates = Array.from(starts.entries()).filter(([project, date]) =>
     project !== currentProject && (direction === "next" ? date > selectedDate : date < selectedDate)
   ).map(([, date]) => date).sort();
   return direction === "next" ? dates[0] : dates[dates.length - 1];
