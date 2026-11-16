@@ -1,3 +1,8 @@
+### 2026-11-15 — Inspector Calendar handles repeated visits to the same fictional project
+- Updated read-only Previous/Next assignment grouping: consecutive assigned dates for a project are one visit, but a later non-consecutive return to the same project now counts as a distinct assignment. Previously a project-name-only Map silently discarded subsequent visits.
+- Added synthetic unit cases for out-of-order and duplicated event fixtures, a return visit in December, movement from both days of each visit, gaps, private Busy entries and no wraparound. All existing Calendar views and click-through behavior continue using the shared helper.
+- No external calendar OAuth, production availability write, authentication/RLS, private-event disclosure, payment/bank, database mutation, or matching change. Mandatory hosted unit, synthetic, migration, typecheck, build and browser checks plus exact-head Vercel Preview READY and post-merge production READY/smoke are required.
+
 ### 2026-11-15 — P0-B global visibility audit now includes multiline inputs
 - Expanded the existing desktop/mobile Chromium demo control visibility audit to scan all rendered native `textarea` controls, in addition to links, buttons, selects and inputs. This closes a coverage gap across Client, Inspector and Agency synthetic routes; multiline inspection scopes can no longer escape the audit.
 - Added a focused regression contract covering textarea enumeration, computed foreground/background contrast checks, the disabled state, and both viewport sizes. This change does not relax current thresholds or skip hidden/visible controls.
