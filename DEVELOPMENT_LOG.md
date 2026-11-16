@@ -1,3 +1,8 @@
+### 2026-11-15 — P0-B global visibility audit now includes multiline inputs
+- Expanded the existing desktop/mobile Chromium demo control visibility audit to scan all rendered native `textarea` controls, in addition to links, buttons, selects and inputs. This closes a coverage gap across Client, Inspector and Agency synthetic routes; multiline inspection scopes can no longer escape the audit.
+- Added a focused regression contract covering textarea enumeration, computed foreground/background contrast checks, the disabled state, and both viewport sizes. This change does not relax current thresholds or skip hidden/visible controls.
+- This is testing-only and changes no application UI, production auth/RLS, stored data, private information, banking/payment, OAuth or matching rules. Release gates remain full hosted unit tests, migration/synthetic validation, typecheck, build, browser smoke, exact-head Vercel Preview READY, and post-merge production READY with smoke.
+
 ### 2026-11-15 — P0-B Client inline request control visibility
 - Specified explicit dark-on-white resting colors for the Natural Language – AI scope textarea, which previously inherited its foreground/background from theme defaults. Added legible hover border, keyboard-focus outline and disabled contrast for this textarea and all five full-width Structured Selection controls.
 - Added source-contract and real Chromium checks for normal, hovered, focused and programmatically disabled Natural Language scope, Geography and Inspection Start controls. Existing global desktop/mobile demo contrast audit stays mandatory.
