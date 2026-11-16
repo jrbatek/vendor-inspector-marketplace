@@ -633,6 +633,27 @@ try{
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
 
+ // Closing an inspection adds a new no-hash history entry; that entry must
+ // capture the current filtered state synchronously, not rely on a filter effect
+ // that may not run when no filter value actually changed.
+ const filteredCard=page.locator("article.inspection").first();
+ const filteredId=(await filteredCard.locator("small").first().innerText()).match(/DEMO-ACT-[1-7]/)?.[0];
+ assert(filteredId,"Expected a fictional Kickoff inspection for close-history regression");
+ await filteredCard.getByRole("button",{name:/Open Inspection/}).click();
+ await page.waitForFunction(id=>location.hash==="#inspection-"+id,filteredId);
+ await page.getByRole("region",{name:"Inspection details "+filteredId}).waitFor();
+ await filteredCard.getByRole("button",{name:/Close Inspection/}).click();
+ await page.waitForFunction(()=>location.hash==="");
+ assert(await page.evaluate(()=>history.state?.__inspectSourceClientInspectionList?.filters?.stage)==="Kickoff",
+  "Closing a filtered inspection failed to persist the list state in its new history entry");
+ await page.goBack();
+ await page.getByRole("region",{name:"Inspection details "+filteredId}).waitFor();
+ await page.goForward();
+ await page.getByRole("region",{name:"Inspection details "+filteredId}).waitFor({state:"detached"});
+ assert(await page.getByRole("combobox",{name:"Status / stage"}).inputValue()==="Kickoff",
+  "Forward after closing an inspection did not restore its filtered list");
+ assert(await page.locator("article.inspection").count()===1,
+  "Forward after closing an inspection lost the one-row synthetic list");
  // P0: auxiliary synthetic Client pages must return to the single continuous
  // workspace, not strands of standalone dashboards or an authenticated shell.
  for(const [label,anchor] of [["Email requirements","email-requirements"],
