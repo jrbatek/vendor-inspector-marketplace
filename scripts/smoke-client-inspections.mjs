@@ -142,6 +142,34 @@ try{
  assert(/Sample request copied|Clipboard unavailable/.test(await emailCard.getByRole("status").innerText()),
    "On-page Email Requirements copy action did not return accessible feedback");
  const structured=page.locator("#structured-selection");
+ // P0-B: inline intake controls must have readable normal, hovered, focused
+ // and disabled styles, including on mobile where theme defaults may differ.
+ for (const [field,label] of [
+   [natural.getByRole("textbox",{name:"Inspection requirement"}),"Natural Language scope"],
+   [structured.getByLabel("Geography"),"Structured geography"],
+   [structured.getByLabel("Inspection start"),"Structured date"]
+ ]) {
+   const colors=await field.evaluate(node=>({
+     foreground:getComputedStyle(node).color,background:getComputedStyle(node).backgroundColor
+   }));
+   assert(colors.foreground==="rgb(15, 23, 42)"&&colors.background==="rgb(255, 255, 255)",
+     label+" must have explicit dark text on white background");
+   await field.hover();
+   assert(await field.evaluate(node=>getComputedStyle(node).borderTopColor)==="rgb(15, 118, 110)",
+     label+" hover border must remain visible");
+   await field.focus();
+   assert(parseFloat(await field.evaluate(node=>getComputedStyle(node).outlineWidth))>=3,
+     label+" focus outline must remain visible");
+   await field.evaluate(node=>node.setAttribute("disabled",""));
+   const disabled=await field.evaluate(node=>({
+     foreground:getComputedStyle(node).color,background:getComputedStyle(node).backgroundColor,
+     opacity:getComputedStyle(node).opacity
+   }));
+   assert(disabled.foreground==="rgb(51, 65, 85)"&&disabled.background==="rgb(241, 245, 249)"&&Number(disabled.opacity)===1,
+     label+" disabled state cannot become invisible");
+   await field.evaluate(node=>node.removeAttribute("disabled"));
+ }
+
  await structured.getByLabel("Geography").selectOption("Europe");
  await structured.getByLabel("Required certification").selectOption("AWS CWI");
  await structured.getByLabel("Minimum experience (years)").fill("7");
