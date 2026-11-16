@@ -53,6 +53,12 @@ export default function ClientInspectionsDemo() {
     window.addEventListener("popstate",syncFromHash);
     return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
   },[]);
+  // Capture the exact browser-local list state before creating a new history entry.
+  // A detail close or an unchanged filter action may not rerun the filter effect.
+  const captureListHistory=()=>({
+    ...(window.history.state && typeof window.history.state==="object" ? window.history.state : {}),
+    [inspectionListHistoryKey]: {filters,sort,dueOnly,ncrOnly,actionOwner,keyword} as StoredInspectionList,
+  });
   // Keep each no-hash history entry's synthetic list filters, so returning Forward
   // restores the same filtered view rather than silently showing all seven records.
   useEffect(() => {
@@ -72,14 +78,14 @@ export default function ClientInspectionsDemo() {
     if(!alreadyOpen){openInspection(id);return;}
     setExpanded(null);
     setExpandedNcr(null);
-    window.history.pushState(null,"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
+    window.history.pushState(captureListHistory(),"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
   };
 
   // Filters and sorting close details and must never leave stale shareable URLs.
   const collapseInspectionForFilter=()=>{
     setExpanded(null);setExpandedNcr(null);
     if(/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)){
-      window.history.replaceState(null,"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
+      window.history.replaceState(captureListHistory(),"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
     }
   };
   const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;

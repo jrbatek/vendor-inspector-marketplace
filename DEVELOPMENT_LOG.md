@@ -1,3 +1,8 @@
+### 2026-11-16 — P0 Client filtered-inspection close/history state preservation (PR pending)
+- Corrected a separate, reproducible history state loss during synthetic inspection close and filter collapse. Creating a new no-hash history entry with null state depended on a later filters effect that may never fire when a value was unchanged. The close/replace operations now persist the current namespaced fictional list snapshot synchronously.
+- Added a source contract and real Chromium Back/Forward regression: filter to one Kickoff inspection, Open, Close, verify the saved filtered state on the new history entry, Back reopens the detail, Forward restores the one-row list. Keeps the original intermittent issue #321 open for independent observation until causal repro is established.
+- No authenticated workspace, production records, RLS, real PII, payment/bank, calendar OAuth, matching or seeding changes; ship only after both mandatory hosted workflows pass, exact-head Preview READY, production READY and exact-commit smoke.
+
 ### 2026-11-16 — P0-B Client intake interaction contrast coverage (PR pending)
 - Hosted Chromium now validates synthetic Natural Language scope textarea and Structured Selection qualification selector at desktop and mobile for hovered, keyboard-focused, and disabled presentation. Compare computed foreground/background/border and focus outline; restore controls after each check. Adds a focused regression contract.
 - No live credentials, auth, privacy, payment, banking, matching, data persistence or production seeding changes. Merge only with both mandatory hosted validations and Preview READY, followed by production READY and exact-commit smoke.

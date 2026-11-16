@@ -5,7 +5,7 @@ const source=readFileSync("app/demo/client-inspections/page.tsx","utf8");
 const smoke=readFileSync("scripts/smoke-client-inspections.mjs","utf8");
 test("Filter changes cannot leave stale inspection links and browser Back restores the seven-record demo",()=>{
  assert.ok(source.includes("const collapseInspectionForFilter="));
- assert.ok(source.includes('window.history.replaceState(null,"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search)'));
+ assert.ok(source.includes('window.history.replaceState(captureListHistory(),"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search)'),"Filter-collapse history must preserve the fictional list snapshot");
  assert.ok(source.includes("setFilters(EMPTY_INSPECTION_FILTERS)"));
  assert.ok(source.includes("if(found){"));
  assert.ok(source.includes('if(/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash))'));
