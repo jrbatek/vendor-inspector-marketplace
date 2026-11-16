@@ -12,6 +12,6 @@ test("Previous assignment navigates to nearest earlier fictional inspection with
  assert.match(prior,/No earlier assigned demo inspections/);
  assert.doesNotMatch(prior,/setEvents\(|supabase|fetch\(|oauth|\.insert\(/i);
  assert.ok(source.includes('aria-label="Previous assigned inspection"'));
- assert.ok(smoke.includes("Previous assignment must select the nearest earlier synthetic inspection date"));
+ assert.ok(smoke.includes("Previous assignment must land on the earlier distinct project, not its final inspection day"));
  assert.ok(smoke.includes("No-previous-assignment response must preserve the current selection"));
 });
