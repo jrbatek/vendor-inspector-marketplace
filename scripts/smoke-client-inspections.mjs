@@ -613,7 +613,9 @@ try{
 
  // Filtering a previously shared detail should not leave a stale deep-link.
  await page.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
- await page.waitForFunction(()=>history.state?.__inspectSourceClientInspectionList?.filters?.stage==="Kickoff");
+  // The selected stage must be saved before effects, not eventually after a polling wait.
+  assert(await page.evaluate(()=>history.state?.__inspectSourceClientInspectionList?.filters?.stage)==="Kickoff",
+   "Changing Client inspection stage did not synchronously capture the next history state");
  await checkpoint("filtered list");
  assert(new URL(page.url()).hash==="",
   "Filtering an open inspection left a stale inspection detail URL");
