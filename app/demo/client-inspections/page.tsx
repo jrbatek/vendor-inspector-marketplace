@@ -74,6 +74,10 @@ export default function ClientInspectionsDemo() {
     window.history.replaceState({...existing, [inspectionListHistoryKey]:listState}, "", window.location.href);
   }, [historyReady, filters, sort, dueOnly, ncrOnly, actionOwner, keyword]);
   const openInspection=(id:string)=>{
+    // Snapshot the list entry before pushState: a quick detail click can beat the filter effect.
+    if(window.location.hash!=="#inspection-"+id && !/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)){
+      window.history.replaceState(captureListHistory(),"",window.location.href);
+    }
     setExpanded(id);
     setExpandedNcr(null);
     if(window.location.hash!=="#inspection-"+id)window.history.pushState(null,"","#inspection-"+id);
@@ -87,32 +91,37 @@ export default function ClientInspectionsDemo() {
   };
 
   // Filters and sorting close details and must never leave stale shareable URLs.
-  const collapseInspectionForFilter=()=>{
+  const collapseInspectionForFilter=(pending?:Partial<StoredInspectionList>)=>{
     setExpanded(null);setExpandedNcr(null);
     if(/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)){
       window.history.replaceState(captureListHistory(),"",embedded?"#inspections-in-progress":window.location.pathname+window.location.search);
+    }
+    // Preserve the next input value synchronously. Browser Back may arrive before React's effect.
+    if(pending){
+      const snapshot=captureListHistory();
+      window.history.replaceState({...snapshot,[inspectionListHistoryKey]:{...snapshot[inspectionListHistoryKey],...pending}},"",window.location.href);
     }
   };
   const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;
   const openNcrCount = ACTIVE_DEMO_INSPECTIONS.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open"))).length;
   const actionOwners = Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.flatMap(row => row.actions.map(action => action.owner)))).sort();
   const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row => (!ncrOnly || row.ncrs.some(ncr => ncr.status.startsWith("Open"))) && (!actionOwner || row.actions.some(action => action.owner === actionOwner))), dueOnly), keyword), sort);
-  const update = (key: keyof InspectionFilters, value: string) => { setFilters(current => ({ ...current, [key]: value })); collapseInspectionForFilter(); };
-  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setActionOwner(""); setKeyword(""); collapseInspectionForFilter(); };
+  const update = (key: keyof InspectionFilters, value: string) => { const nextFilters={...filters,[key]:value};setFilters(nextFilters);collapseInspectionForFilter({filters:nextFilters}); };
+  const reset = () => { setFilters(EMPTY_INSPECTION_FILTERS); setSort("due"); setDueOnly(false); setNcrOnly(false); setActionOwner(""); setKeyword(""); collapseInspectionForFilter({filters:EMPTY_INSPECTION_FILTERS,sort:"due",dueOnly:false,ncrOnly:false,actionOwner:"",keyword:""}); };
   const invalidDates = !!(filters.from && filters.to && filters.from > filters.to);
-  const clearInvalidDates = () => { setFilters(current => ({ ...current, from: "", to: "" })); collapseInspectionForFilter(); };
+  const clearInvalidDates = () => { const nextFilters={...filters,from:"",to:""};setFilters(nextFilters);collapseInspectionForFilter({filters:nextFilters}); };
   const actionRegister = activeInspectionActionRegister(rows);
   // Each chip removes one demo-only filter without clearing unrelated criteria.
   const activeFilterChips: { label: string; clear: () => void }[] = [];
   if (filters.stage) activeFilterChips.push({ label: `Stage: ${filters.stage}`, clear: () => update("stage", "") });
   if (filters.project) activeFilterChips.push({ label: `Project: ${filters.project}`, clear: () => update("project", "") });
   if (filters.inspector) activeFilterChips.push({ label: `Inspector: ${filters.inspector}`, clear: () => update("inspector", "") });
-  if (actionOwner) activeFilterChips.push({ label: `Action owner: ${actionOwner}`, clear: () => { setActionOwner(""); collapseInspectionForFilter(); } });
+  if (actionOwner) activeFilterChips.push({ label: `Action owner: ${actionOwner}`, clear: () => { setActionOwner(""); collapseInspectionForFilter({actionOwner:""}); } });
   if (filters.from) activeFilterChips.push({ label: `From: ${filters.from}`, clear: () => update("from", "") });
   if (filters.to) activeFilterChips.push({ label: `Through: ${filters.to}`, clear: () => update("to", "") });
-  if (keyword.trim()) activeFilterChips.push({ label: `Search: ${keyword.trim()}`, clear: () => { setKeyword(""); collapseInspectionForFilter(); } });
-  if (dueOnly) activeFilterChips.push({ label: "Due or overdue", clear: () => { setDueOnly(false); collapseInspectionForFilter(); } });
-  if (ncrOnly) activeFilterChips.push({ label: "With open NCR", clear: () => { setNcrOnly(false); collapseInspectionForFilter(); } });
+  if (keyword.trim()) activeFilterChips.push({ label: `Search: ${keyword.trim()}`, clear: () => { setKeyword(""); collapseInspectionForFilter({keyword:""}); } });
+  if (dueOnly) activeFilterChips.push({ label: "Due or overdue", clear: () => { setDueOnly(false); collapseInspectionForFilter({dueOnly:false}); } });
+  if (ncrOnly) activeFilterChips.push({ label: "With open NCR", clear: () => { setNcrOnly(false); collapseInspectionForFilter({ncrOnly:false}); } });
 
   return <div className={embedded?"inspectionShell embedded":"inspectionShell"}>{!embedded&&<ClientWorkspaceSidebar demo />}<section className="inspectionWorkspace">
     <header className="workspaceHeader"><div><p className="eyebrow">Client Demo · Synthetic data</p><h1>Inspections in Progress</h1></div><span className="demoBadge">Demo mode · No login required</span></header>
@@ -122,10 +131,10 @@ export default function ClientInspectionsDemo() {
       <label>Status / stage<select aria-label="Status / stage" value={filters.stage} onChange={e => update("stage", e.target.value)}><option value="">All stages</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.stage))).map(stage => <option key={stage}>{stage}</option>)}</select></label>
       <label>Project<select aria-label="Project" value={filters.project} onChange={e => update("project", e.target.value)}><option value="">All projects</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.project))).map(project => <option key={project}>{project}</option>)}</select></label>
       <label>Inspector<select aria-label="Inspector" value={filters.inspector} onChange={e => update("inspector", e.target.value)}><option value="">All inspectors</option>{Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.map(row => row.inspector))).map(inspector => <option key={inspector}>{inspector}</option>)}</select></label>
-      <label>Action owner<select aria-label="Action owner" value={actionOwner} onChange={e => { setActionOwner(e.target.value); collapseInspectionForFilter(); }}><option value="">All action owners</option>{actionOwners.map(owner => <option key={owner}>{owner}</option>)}</select></label>
+      <label>Action owner<select aria-label="Action owner" value={actionOwner} onChange={e => { setActionOwner(e.target.value); collapseInspectionForFilter({actionOwner:e.target.value}); }}><option value="">All action owners</option>{actionOwners.map(owner => <option key={owner}>{owner}</option>)}</select></label>
       <label>Scheduled from<input type="date" value={filters.from} onChange={e => update("from", e.target.value)} aria-invalid={invalidDates} aria-describedby="date-help" /></label>
       <label>Scheduled through<input type="date" value={filters.to} onChange={e => update("to", e.target.value)} aria-invalid={invalidDates} aria-describedby="date-help" /></label>
-      <label className="keywordSearch">Search inspections<input type="search" aria-label="Search inspections" placeholder="Project, vendor, site, report or NCR" value={keyword} onChange={e => { setKeyword(e.target.value); collapseInspectionForFilter(); }} /></label>
+      <label className="keywordSearch">Search inspections<input type="search" aria-label="Search inspections" placeholder="Project, vendor, site, report or NCR" value={keyword} onChange={e => { setKeyword(e.target.value); collapseInspectionForFilter({keyword:e.target.value}); }} /></label>
       <button className="reset" type="button" onClick={reset}>Reset filters</button>
       <p id="date-help">Dates include any inspection overlapping the selected range.</p>
     </section>
@@ -137,14 +146,14 @@ export default function ClientInspectionsDemo() {
     </section>}
     <section className="dueFilter" role="group" aria-label="Outstanding-action urgency">
       <strong>Action focus · synthetic as of November 8, 2026</strong>
-      <button type="button" aria-pressed={!dueOnly} onClick={() => { setDueOnly(false); collapseInspectionForFilter(); }}>All active</button>
-      <button type="button" aria-pressed={dueOnly} onClick={() => { setDueOnly(true); collapseInspectionForFilter(); }}>Due or overdue ({dueCount})</button>
+      <button type="button" aria-pressed={!dueOnly} onClick={() => { setDueOnly(false); collapseInspectionForFilter({dueOnly:false}); }}>All active</button>
+      <button type="button" aria-pressed={dueOnly} onClick={() => { setDueOnly(true); collapseInspectionForFilter({dueOnly:true}); }}>Due or overdue ({dueCount})</button>
       <span>Dates are fictional. Due or overdue includes actions due on the demo reference date.</span>
     </section>
     <section className="dueFilter" role="group" aria-label="Non-conformance focus">
       <strong>NCR focus · fictional records</strong>
-      <button type="button" aria-pressed={!ncrOnly} onClick={() => { setNcrOnly(false); collapseInspectionForFilter(); }}>All NCR statuses</button>
-      <button type="button" aria-pressed={ncrOnly} onClick={() => { setNcrOnly(true); collapseInspectionForFilter(); }}>With open NCR ({openNcrCount})</button>
+      <button type="button" aria-pressed={!ncrOnly} onClick={() => { setNcrOnly(false); collapseInspectionForFilter({ncrOnly:false}); }}>All NCR statuses</button>
+      <button type="button" aria-pressed={ncrOnly} onClick={() => { setNcrOnly(true); collapseInspectionForFilter({ncrOnly:true}); }}>With open NCR ({openNcrCount})</button>
       <span>Combines with status, project, inspector, dates, search and urgency. No real quality records are changed.</span>
     </section>
     <div className="resultActions">
@@ -166,9 +175,9 @@ export default function ClientInspectionsDemo() {
     </section>
     <div className="sortBar" role="group" aria-label="Sort synthetic inspections">
       <strong>Prioritize:</strong>
-      <button type="button" aria-pressed={sort === "due"} onClick={() => { setSort("due"); collapseInspectionForFilter(); }}>Next action due</button>
-      <button type="button" aria-pressed={sort === "start"} onClick={() => { setSort("start"); collapseInspectionForFilter(); }}>Scheduled start</button>
-      <button type="button" aria-pressed={sort === "stage"} onClick={() => { setSort("stage"); collapseInspectionForFilter(); }}>Delivery stage</button>
+      <button type="button" aria-pressed={sort === "due"} onClick={() => { setSort("due"); collapseInspectionForFilter({sort:"due"}); }}>Next action due</button>
+      <button type="button" aria-pressed={sort === "start"} onClick={() => { setSort("start"); collapseInspectionForFilter({sort:"start"}); }}>Scheduled start</button>
+      <button type="button" aria-pressed={sort === "stage"} onClick={() => { setSort("stage"); collapseInspectionForFilter({sort:"stage"}); }}>Delivery stage</button>
     </div>
     <section className="progressGroup"><div className="groupHead"><h3>Active Inspections</h3><span aria-label={`${rows.length} ${rows.length === 1 ? "inspection" : "inspections"}`}>{rows.length}</span></div><div className="groupBody"><div className="inspectionList">{rows.map(row => {
       const open = expanded === row.id;
