@@ -408,6 +408,38 @@ try {
   assert(await calendar.getByLabel("Week containing").inputValue()==="2026-11-16",
     "Week arrow-down did not advance the visible seven-day week");
   await tabs.getByRole("button",{name:"Month"}).click();
+  // Home/End jump to actual Sunday/Saturday. PageUp/Down preserve the day
+  // number across months, and Shift+Home selects the inclusive earlier range.
+  const thu19 = calendar.getByRole("button",{name:"Choose 2026-11-19 for availability"});
+  await thu19.focus();
+  await thu19.press("Home");
+  const sun15=calendar.getByRole("button",{name:"Choose 2026-11-15 for availability"});
+  assert(await sun15.evaluate(el=>document.activeElement===el) &&
+    await calendar.getByLabel("Start date").inputValue()==="2026-11-15",
+    "Home key did not select and focus the Sunday of the current week");
+  await sun15.press("End");
+  const sat21=calendar.getByRole("button",{name:"Choose 2026-11-21 for availability"});
+  assert(await sat21.evaluate(el=>document.activeElement===el) &&
+    await calendar.getByLabel("Start date").inputValue()==="2026-11-21",
+    "End key did not select and focus the Saturday of the current week");
+  await sat21.press("PageDown");
+  const dec21=calendar.getByRole("button",{name:"Choose 2026-12-21 for availability"});
+  await dec21.waitFor();
+  assert(await dec21.evaluate(el=>document.activeElement===el) &&
+    await calendar.locator(".calendarHeader h2").first().innerText()==="December 2026",
+    "PageDown did not move the calendar and keyboard focus to the next month");
+  await dec21.press("PageUp");
+  assert(await sat21.evaluate(el=>document.activeElement===el) &&
+    await calendar.getByLabel("Start date").inputValue()==="2026-11-21",
+    "PageUp did not restore the previous month and selected date");
+  await thu19.focus();
+  await thu19.press("Enter");
+  await thu19.press("Shift+Home");
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-15" &&
+    await calendar.getByLabel("End date").inputValue()==="2026-11-19",
+    "Shift+Home did not select the inclusive calendar week range");
+  assert((await sun15.locator("xpath=..").innerText()).includes("Not set"),
+    "Keyboard range navigation must not create any availability records");
   await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();

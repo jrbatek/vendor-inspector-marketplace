@@ -40,6 +40,14 @@ const shiftIsoDate = (date: string, offset: number) => {
   next.setUTCDate(next.getUTCDate()+offset);
   return next.toISOString().slice(0,10);
 };
+// Calendar keyboard PageUp/PageDown keep the day when possible and clamp at month end.
+const shiftCalendarMonth = (iso: string, offset: number) => {
+  const [year,month,day]=iso.split("-").map(Number);
+  const first=new Date(Date.UTC(year,month-1+offset,1));
+  const lastDay=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();
+  first.setUTCDate(Math.min(day,lastDay));
+  return first.toISOString().slice(0,10);
+};
 const weekDates = (anchor: string) => {
   const date = new Date(anchor+"T00:00:00Z");
   return Array.from({length:7},(_,index)=>shiftIsoDate(anchor,index-date.getUTCDay()));
@@ -157,14 +165,20 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     setEnd(last);
     setNotice("");
   };
-  // Month and Week keyboard arrows move the date without changing availability.
-  // Shift+Arrow extends the range using the same anchor as Shift+click.
+  // Calendar keyboard controls follow familiar date-grid behavior: arrows move by a
+  // day/week, Home/End jump to Sunday/Saturday, and PageUp/Down jump a month.
+  // Shift extends the same range anchor; none of these keys writes availability.
   const onDateArrow=(event:KeyboardEvent<HTMLButtonElement>,date:string)=>{
     const delta:Record<string,number>={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7};
     const offset=delta[event.key];
-    if(offset===undefined)return;
+    if(offset===undefined && !["Home","End","PageUp","PageDown"].includes(event.key))return;
+    if(event.altKey||event.ctrlKey||event.metaKey)return;
     event.preventDefault();
-    const next=shiftIsoDate(date,offset);
+    const weekday=new Date(date+"T00:00:00Z").getUTCDay();
+    const next=offset!==undefined?shiftIsoDate(date,offset):
+      event.key==="Home"?shiftIsoDate(date,-weekday):
+      event.key==="End"?shiftIsoDate(date,6-weekday):
+      shiftCalendarMonth(date,event.key==="PageUp"?-1:1);
     if(event.shiftKey)extendSelection(next);
     else {selectionAnchor.current=next;setStart(next);setEnd(next);setNotice("");}
     pendingKeyboardFocus.current=next;
@@ -252,7 +266,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       <p className="connectionStatus" role="status">Linked in this demo: {Object.entries(calendarConnections).filter(([,linked]) => linked).map(([provider]) => provider).join(", ") || "None"}. Session-only preview; no OAuth or calendar sync.</p>
     </section>
     {notice && <p role={noticeIsWarning ? "alert" : "status"} className={noticeIsWarning ? "notice warning" : "notice"}>{notice}</p>}
-    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates. Use arrow keys to move between dates in Month or Week; hold Shift with an arrow to extend the selection.</p>
+    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates. Use arrow keys to move by day or week, Home/End for Sunday/Saturday, and PageUp/PageDown for the adjacent month. Hold Shift with a navigation key to extend the selection.</p>
     <div className="viewTabs" role="group" aria-label="Calendar view">
       {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => switchView(item)}>{item}</button>)}
     </div>
