@@ -9,9 +9,12 @@ const DETAILS: Record<string, { status: string; client: string; vendor: string; 
 /** One fictional due-date source for the card and Open Assignment detail. */
 export const getInspectorDemoAssignmentDue = (project: string): string => DETAILS[project]?.due ?? "Due date to be confirmed";
 
+type AssignmentFinding = { id: string; kind: "NCR" | "Punch item"; status: string;
+  observation: string; owner: string; responseDue: string; nextVerification: string };
 type AssignmentWorkflow = { siteContact: string; equipment: string;
   milestones: { name: string; date: string; status: string }[];
   documents: { name: string; status: string }[];
+  findings: AssignmentFinding[];
 };
 /** Scenario-specific synthetic operational evidence. Never connected to an actual inspector or client. */
 const WORKFLOWS: Record<string, AssignmentWorkflow> = {
@@ -29,6 +32,12 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Inspection and test plan, revision C", status: "Reviewed" },
       { name: "Mechanical FAT procedure and calibration evidence", status: "Evidence requested" },
     ],
+    findings: [{
+      id: "DEMO-PUNCH-4102", kind: "Punch item", status: "Open · Not a formal NCR",
+      observation: "The test-bay calibration certificate is outstanding in the fictional FAT document register.",
+      owner: "Bayport Rotating Equipment quality coordinator", responseDue: "November 13, 2026",
+      nextVerification: "Inspector confirms certificate serials and validity before final FAT report release.",
+    }],
   },
   "Gulf Horizon Refinery Upgrade": {
     siteContact: "Jordan Ellis · vendor QA lead · jordan.ellis@example.invalid",
@@ -44,6 +53,12 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Inspection and test plan, revision D", status: "Awaiting update" },
       { name: "WPS/PQR and material traceability register", status: "Under review" },
     ],
+    findings: [{
+      id: "DEMO-NCR-4118", kind: "NCR", status: "Open · Minor (fictional)",
+      observation: "Spool S-18 heat-number reference does not match the vendor material traceability index.",
+      owner: "Coastal Piping Works vendor QA lead", responseDue: "November 10, 2026",
+      nextVerification: "Check corrected heat-number index against the physical spool stamping and mill certificates before ITP hold-point release.",
+    }],
   },
   "Orion Deepwater Platform": {
     siteContact: "Samira Park · package quality engineer · samira.park@example.invalid",
@@ -59,6 +74,7 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Vendor ITP and drawing register", status: "Reviewed" },
       { name: "FAT procedure and site access instructions", status: "Awaiting vendor" },
     ],
+    findings: [], // FAT not yet witnessed: never manufacture a finding as if inspection occurred.
   },
 };
 
@@ -78,7 +94,14 @@ export default function InspectorDemoAssignment({ project, inspector, onClose }:
     <a className="reportLink" href={`/api/demo/report?${new URLSearchParams({ project, supplier: detail.vendor, location: detail.location, id: detail.po, date: detail.dates, inspector })}`} target="_blank" rel="noreferrer">Open synthetic report PDF</a>
     <h3>Action timeline · Completed actions</h3><ol>{detail.completed.map(action => <li key={action}>{action}</li>)}</ol>
     <h3>Outstanding items / next action</h3><p>{detail.next}</p><p><strong>Due:</strong> {detail.due}</p><p><strong>Owner:</strong> Inspector, with vendor quality coordinator providing evidence.</p>
-    <h3>Findings & NCRs</h3><p>{project === "LNG Compressor Package" ? "One open documentation punch item: calibration certificate evidence. No formal NCR issued in this synthetic example." : "No NCR issued. Confirm acceptance criteria before recording inspection findings."}</p>
-    <style jsx>{`.panel{padding:20px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#0f172a}dt{font-weight:800;margin-top:12px}dd{margin:4px 0;line-height:1.5}li{margin:8px 0}.eyebrow{color:#115e59;font-weight:800;margin-top:18px}.stageBadge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:800}.milestoneStatus{display:inline-flex;margin-left:6px;padding:3px 8px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:999px;font-weight:800}.milestoneStatus.complete{background:#dcfce7;color:#166534;border-color:#86efac}.milestoneStatus.overdue{background:#fee2e2;color:#991b1b;border-color:#fca5a5}.milestoneStatus.scheduled{background:#dbeafe;color:#1e40af;border-color:#93c5fd}.milestones,.documents{padding-left:24px}.milestones li,.documents li{line-height:1.6}.backButton,.reportLink{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;border-radius:9px;padding:10px 12px;font-weight:800;text-decoration:none;border:1px solid #0f766e;cursor:pointer}.backButton{background:#0f766e;color:#fff}.reportLink{background:#f0fdfa;color:#115e59}.backButton:hover{background:#115e59;color:#fff}.reportLink:hover{background:#ccfbf1;color:#064e3b}.backButton:focus-visible,.reportLink:focus-visible{outline:3px solid #0d9488;outline-offset:2px}`}</style>
+    <h3>Findings & NCRs</h3>
+    <p>Fictional inspection-quality tracking only. Viewing this register does not create or resolve a live NCR.</p>
+    {workflow.findings.length ? <ul className="findings">{workflow.findings.map(item=>
+      <li key={item.id}><strong>{item.kind} · {item.id}</strong><span className="findingStatus">{item.status}</span>
+        <dl><dt>Observation</dt><dd>{item.observation}</dd><dt>Action owner</dt><dd>{item.owner}</dd>
+          <dt>Response due</dt><dd>{item.responseDue}</dd><dt>Verification / next action</dt><dd>{item.nextVerification}</dd></dl>
+      </li>)}</ul> :
+      <p>No NCR issued. This fictional assignment has not yet reached its scheduled FAT witness; confirm acceptance criteria before documenting findings.</p>}
+    <style jsx>{`.panel{padding:20px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#0f172a}dt{font-weight:800;margin-top:12px}dd{margin:4px 0;line-height:1.5}li{margin:8px 0}.eyebrow{color:#115e59;font-weight:800;margin-top:18px}.stageBadge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:800}.milestoneStatus{display:inline-flex;margin-left:6px;padding:3px 8px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:999px;font-weight:800}.milestoneStatus.complete{background:#dcfce7;color:#166534;border-color:#86efac}.milestoneStatus.overdue{background:#fee2e2;color:#991b1b;border-color:#fca5a5}.milestoneStatus.scheduled{background:#dbeafe;color:#1e40af;border-color:#93c5fd}.milestones,.documents,.findings{padding-left:24px}.milestones li,.documents li,.findings li{line-height:1.6}.findings li{padding:12px;border:1px solid #cbd5e1;border-radius:9px;margin-top:10px}.findingStatus{display:inline-flex;margin-left:8px;padding:3px 8px;border-radius:7px;background:#fef3c7;color:#92400e;font-size:.82rem;font-weight:800}.backButton,.reportLink{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;border-radius:9px;padding:10px 12px;font-weight:800;text-decoration:none;border:1px solid #0f766e;cursor:pointer}.backButton{background:#0f766e;color:#fff}.reportLink{background:#f0fdfa;color:#115e59}.backButton:hover{background:#115e59;color:#fff}.reportLink:hover{background:#ccfbf1;color:#064e3b}.backButton:focus-visible,.reportLink:focus-visible{outline:3px solid #0d9488;outline-offset:2px}`}</style>
   </section>;
 }
