@@ -82,9 +82,12 @@ try {
           }
           return [255, 255, 255, 1];
         };
+        // Native details/summary toggles are interactive controls too: audit visible
+        // disclosure labels alongside buttons/links so collapsed reports and
+        // diagnostics cannot silently become white-on-white or unnamed.
         const bad = [];
         let checked = 0;
-        for (const el of document.querySelectorAll("button, a[href], select, textarea, input:not([type=hidden]), [role=button]")) {
+        for (const el of document.querySelectorAll("button, a[href], select, textarea, input:not([type=hidden]), summary, [role=button]")) {
           const s = getComputedStyle(el), rect = el.getBoundingClientRect();
           if (rect.width < 5 || rect.height < 5 || s.display === "none" || s.visibility === "hidden") continue;
           const name = (el.getAttribute("aria-label") || el.getAttribute("title") ||
