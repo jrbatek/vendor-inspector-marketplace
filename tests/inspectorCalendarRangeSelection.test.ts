@@ -28,7 +28,8 @@ test("Date input edits dismiss obsolete calendar action warnings without changin
     'const selectRangeStart=(value:string)=>{',
     'selectionAnchor.current=value;',
     'setNotice("");',
-    'onChange={e => { setEnd(e.target.value); setNotice(""); }}',
+    'onChange={e => selectRangeEnd(e.target.value)}',
+    'const selectRangeEnd=(value:string)=>{',
   ]) assert.ok(source.includes(marker),"Missing date-edit notice invalidation: "+marker);
   assert.ok(smoke.includes("Changing selected dates retained a stale personal-event conflict warning"));
   assert.ok(smoke.includes("Previously dismissed private-calendar warning reappeared after valid date correction"));

@@ -252,6 +252,19 @@ try {
   assert(await cal.getByLabel("Week containing").inputValue()==="2027-03-05",
     "Editing Start date failed to synchronize the Week anchor");
   await tabs.getByRole("button",{name:"Month"}).click();
+  // Editing End date must reveal its calendar month while preserving Start.
+  // This is a view/selection change, not an inspector availability write.
+  await cal.getByLabel("End date").fill("2027-04-02");
+  await cal.getByRole("heading",{name:"April 2027"}).waitFor({state:"visible",timeout:10000});
+  assert(await cal.getByLabel("Start date").inputValue()==="2027-03-05" &&
+    await cal.getByLabel("End date").inputValue()==="2027-04-02",
+    "Editing End date must preserve the inspector's selected Start date");
+  assert(await cal.getByRole("button",{name:"Choose 2027-04-02 for availability"}).getAttribute("aria-pressed")==="true",
+    "Editing End date must reveal the selected end day in Month view");
+  assert((await cal.getByRole("button",{name:"Choose 2027-04-02 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
+    "Editing End date must not silently create available or busy records");
+  assert(await cal.getByLabel("Jump to date").inputValue()==="2027-03-05",
+    "Editing End date should not overwrite the Start/Jump to date field");
   await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   // Arbitrary month jumps must open the full Month grid even from List.
   await tabs.getByRole("button",{name:"List"}).click();
