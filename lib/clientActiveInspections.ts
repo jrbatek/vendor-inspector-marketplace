@@ -93,7 +93,17 @@ export function exportActiveDemoActionRegisterCsv(actions: ReturnType<typeof act
 
 export type ActiveInspectionSort = "due" | "start" | "stage";
 export function sortActiveInspections(rows: ActiveInspection[], sort: ActiveInspectionSort): ActiveInspection[] {
-  if (sort === "stage") return [...rows];
+  if (sort === "stage") {
+    // Sort by inspection lifecycle rather than retaining the incidental fixture/API order.
+    // Unknown future stages follow known stages in a stable, deterministic order.
+    const lifecycle = ["Kickoff", "Document review", "Fabrication", "Witness testing", "NCR follow-up", "Report review", "Release preparation"];
+    const rank = (stage: string) => {
+      const index = lifecycle.indexOf(stage);
+      return index < 0 ? lifecycle.length : index;
+    };
+    return [...rows].sort((a, b) => rank(a.stage) - rank(b.stage)
+      || a.stage.localeCompare(b.stage) || a.start.localeCompare(b.start) || a.id.localeCompare(b.id));
+  }
   const nextDue = (row: ActiveInspection) =>
     row.actions.map(action => action.due).sort()[0] ?? "9999-12-31";
   return [...rows].sort((a, b) =>
