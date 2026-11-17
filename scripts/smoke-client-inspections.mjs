@@ -633,6 +633,16 @@ try{
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
 
+ // A full refresh must restore a fictional filtered list before persisting history.
+ await page.reload({waitUntil:"domcontentloaded"});
+ await page.waitForFunction(() =>
+   document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff" &&
+   document.querySelectorAll("article.inspection").length===1,
+   null,{timeout:15000});
+ assert(await page.evaluate(()=>history.state?.__inspectSourceClientInspectionList?.filters?.stage)==="Kickoff",
+   "Refreshing a filtered Client inspection list overwrote its saved browser history snapshot");
+ assert(!await page.getByText("Log in to view the client workspace").count(),
+   "Refreshing a filtered Client Demo list opened a live login-required shell");
  // Closing an inspection adds a new no-hash history entry; that entry must
  // capture the current filtered state synchronously, not rely on a filter effect
  // that may not run when no filter value actually changed.
