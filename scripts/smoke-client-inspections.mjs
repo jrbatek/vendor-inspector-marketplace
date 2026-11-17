@@ -20,6 +20,14 @@ try{
  let page=await browser.newPage();
  page.on("pageerror",e=>errors.push(e.stack||String(e)));
  await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+  // All seven cards show distinct clearly fictional client organizations, not numbered
+  // placeholders. Reviewers can distinguish the client before opening details.
+  const clientCompanies=page.locator("#inspections-in-progress article.inspection .clientName");
+  await clientCompanies.first().waitFor();
+  const clientLabels=await clientCompanies.allTextContents();
+  assert(clientLabels.length===7 && new Set(clientLabels).size===7 &&
+    clientLabels.every(label=>label.trim().startsWith("Client · Fictional · ")),
+    "Client Demo inspection cards must display seven distinct, clearly fictional client company names");
   // Verify rendered Client content never reveals Inspector-only private appointment titles.
   const clientVisibleText=await page.locator("body").innerText();
   for(const privateTitle of ["Doctor Appointment","Our Anniversary"]){

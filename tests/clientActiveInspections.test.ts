@@ -19,6 +19,12 @@ test("active demo has seven distinct, populated synthetic inspection workspaces"
     assert.ok(row.actions.every(action => action.task && action.owner && action.due));
     assert.ok(row.id.startsWith("DEMO-"));
   }
+  const clientCompanies = rows.map(row => row.client);
+  assert.equal(new Set(clientCompanies).size,7,"Every fictional inspection uses a distinct client company");
+  assert.ok(clientCompanies.every(name => name.startsWith("Fictional · ") && name.length > 20),
+    "Client names must be descriptive, unmistakably fictional companies rather than numbered placeholders");
+  assert.ok(clientCompanies.every(name => !name.startsWith("Synthetic Client ")),
+    "Numbered synthetic client placeholders should not appear in reviewer-facing inspection details");
   assert.ok(rows.some(row => row.ncrs.length));
   assert.ok(rows.some(row => !row.ncrs.length));
 });
