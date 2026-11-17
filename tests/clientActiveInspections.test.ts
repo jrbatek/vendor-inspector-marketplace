@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { ACTIVE_DEMO_INSPECTIONS as rows, EMPTY_INSPECTION_FILTERS as empty, filterActiveInspections, searchActiveInspections, activeInspectionReportHref } from "../lib/clientActiveInspections";
+import { ACTIVE_DEMO_INSPECTIONS as rows, EMPTY_INSPECTION_FILTERS as empty, filterActiveInspections, searchActiveInspections, activeInspectionReportHref, sortActiveInspections } from "../lib/clientActiveInspections";
 import { demoNavigationHref } from "../lib/demoExperience";
 
 const read = (file: string) => fs.readFileSync(file, "utf8");
@@ -31,6 +31,18 @@ test("filters work independently, combine, and reset without mutating the datase
   assert.deepEqual(filterActiveInspections(rows, { ...empty, stage: first.stage, project: first.project, inspector: first.inspector }), [first]);
   assert.deepEqual(filterActiveInspections(rows, { ...empty, stage: first.stage, project: rows[1].project }), []);
   assert.equal(filterActiveInspections(rows, empty).length, 7);
+});
+
+test("Delivery stage sorting follows the inspection lifecycle, not fixture order", () => {
+  const shuffled = [...rows].reverse();
+  const originalIds = shuffled.map(row => row.id);
+  assert.deepEqual(sortActiveInspections(shuffled, "stage").map(row => row.id), rows.map(row => row.id));
+  const extra = { ...rows[0], id: "DEMO-FUTURE", stage: "Supplier hold" };
+  const sorted = sortActiveInspections([extra, ...shuffled], "stage");
+  assert.equal(sorted.at(-1)?.id, "DEMO-FUTURE", "Unrecognized stages remain visible after known workflow stages");
+  assert.deepEqual(shuffled.map(row => row.id), originalIds, "Sorting must not mutate the source cohort");
+  assert.equal(sortActiveInspections(shuffled, "start").length, 7);
+  assert.equal(sortActiveInspections(shuffled, "due").length, 7);
 });
 
 test("date filter uses inclusive schedule overlap and handles empty and reversed ranges", () => {
