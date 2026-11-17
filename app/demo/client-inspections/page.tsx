@@ -19,6 +19,8 @@ export default function ClientInspectionsDemo() {
   const embedded = useContext(ClientDemoEmbeddedContext);
   const [filters, setFilters] = useState<InspectionFilters>(EMPTY_INSPECTION_FILTERS);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Do not overwrite a saved filtered-list entry before the initial mount restore.
+  const [historyReady, setHistoryReady] = useState(false);
   const [sort, setSort] = useState<ActiveInspectionSort>("due");
   const [dueOnly, setDueOnly] = useState(false);
   const [ncrOnly, setNcrOnly] = useState(false);
@@ -49,6 +51,7 @@ export default function ClientInspectionsDemo() {
       if(found) requestAnimationFrame(()=>document.getElementById("inspection-"+id)?.scrollIntoView({block:"start"}));
     };
     syncFromHash();
+    setHistoryReady(true);
     window.addEventListener("hashchange",syncFromHash);
     window.addEventListener("popstate",syncFromHash);
     return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
@@ -62,12 +65,14 @@ export default function ClientInspectionsDemo() {
   // Keep each no-hash history entry's synthetic list filters, so returning Forward
   // restores the same filtered view rather than silently showing all seven records.
   useEffect(() => {
-    if (/^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)) return;
+    // On reload, restore saved filters first. Writing the default list before
+    // syncFromHash restores it would destroy the fictional history snapshot.
+    if (!historyReady || /^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)) return;
     const current = window.history.state;
     const existing = current && typeof current === "object" ? current : {};
     const listState: StoredInspectionList = {filters, sort, dueOnly, ncrOnly, actionOwner, keyword};
     window.history.replaceState({...existing, [inspectionListHistoryKey]:listState}, "", window.location.href);
-  }, [filters, sort, dueOnly, ncrOnly, actionOwner, keyword]);
+  }, [historyReady, filters, sort, dueOnly, ncrOnly, actionOwner, keyword]);
   const openInspection=(id:string)=>{
     setExpanded(id);
     setExpandedNcr(null);

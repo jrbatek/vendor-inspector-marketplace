@@ -15,3 +15,11 @@ test("closing and collapsing synthetic inspection details preserves the list in 
  assert.match(smoke,/Closing a filtered inspection failed to persist the list state in its new history entry/);
  assert.match(smoke,/Forward after closing an inspection did not restore its filtered list/);
 });
+
+test("filtered Client inspection history restores before initial browser-state persistence",()=>{
+ assert.ok(page.includes('const [historyReady, setHistoryReady] = useState(false)'));
+ assert.ok(page.includes('syncFromHash();\n    setHistoryReady(true);'));
+ assert.ok(page.includes('if (!historyReady || /^#inspection-DEMO-ACT-[1-7]$/.test(window.location.hash)) return;'));
+ assert.ok(page.includes('[historyReady, filters, sort, dueOnly, ncrOnly, actionOwner, keyword]'));
+ assert.match(smoke,/Refreshing a filtered Client inspection list overwrote its saved browser history snapshot/);
+});

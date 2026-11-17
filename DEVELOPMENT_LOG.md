@@ -1,3 +1,8 @@
+### 2026-11-16 — P0 Client inspection history survives a filtered-list page reload (PR pending)
+- Corrected a browser-history initialization race: a no-hash persistence effect initially wrote default filters before the mount restore could apply a saved filtered-list snapshot. Refreshing a synthetic filtered list could discard the stored status and show all seven inspections unexpectedly.
+- Added a hydration-ready gate that writes the browser-local fictional snapshot only after initial restoration. Hosted Chromium now reloads the one-row Kickoff filter and asserts the saved history state remains intact without login; a source regression protects the behavior.
+- No production authentication/RLS, user/inspector data, payments/banking, matching, OAuth or database records changed. Require full GitHub-hosted tests, synthetic/migration/typecheck/build and browser checks plus exact-head Vercel Preview READY before merge; then production READY and exact-commit smoke. Keep #321 open for independent repeated observation.
+
 ### 2026-11-16 — Inspector Calendar Month navigation uses the full Month grid (demo-only PR)
 - Resolved a calendar-view inconsistency: Jump to month while viewing List, or Next/Previous month while viewing Week, previously changed the month anchor but left inspectors in List/Week instead of opening the requested Month grid. Both month-level controls now select Month view, synchronize date/Week anchors, and preserve read-only navigation semantics.
 - Added a focused source regression plus hosted Chromium scenarios for List-to-February Month jump and Week-to-March Next month, including single-day Start/End verification. Existing assignments, linked private appointments and manually blocked dates are untouched.
