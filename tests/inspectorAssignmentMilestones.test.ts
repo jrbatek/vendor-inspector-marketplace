@@ -30,3 +30,17 @@ test("Open Assignment milestone status badges are legible and do not portray ove
   assert.match(detail,/milestoneStatus\{display:inline-flex[^}]*background:#fef3c7;color:#92400e/);
   assert.ok(detail.includes('item.status === "Overdue" ? "overdue"'),"Overdue milestone must not appear as completed");
 });
+
+test("assignment findings distinguish a formal synthetic NCR, documentation punch, and no finding",()=>{
+  assert.match(detail,/type AssignmentFinding =/);
+  assert.match(detail,/DEMO-NCR-4118/);
+  assert.match(detail,/Spool S-18 heat-number reference/);
+  assert.match(detail,/DEMO-PUNCH-4102/);
+  assert.match(detail,/Not a formal NCR/);
+  assert.match(detail,/findings: \[\], \/\/ FAT not yet witnessed/);
+  assert.match(detail,/workflow\.findings\.length/);
+  for(const label of ["Observation","Action owner","Response due","Verification / next action"])
+    assert.ok(detail.includes(label),label);
+  assert.match(detail,/Fictional inspection-quality tracking only/);
+  assert.doesNotMatch(detail,/supabase|fetch\(|\.insert\(|\.delete\(/);
+});
