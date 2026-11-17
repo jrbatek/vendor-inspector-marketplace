@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { clearInspectorAddedDemoAvailability, countProtectedDemoAvailabilityDays, overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
 import { adjacentDemoAssignmentDate } from "@/lib/demoAssignmentNavigation";
 
@@ -116,6 +116,14 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
   const [end, setEnd] = useState("2026-11-23");
   // Range extension starts from the most recently clicked day, not a prior range edge.
   const selectionAnchor = useRef(start);
+  // Move focus to the corresponding date after the visible month or week changes.
+  const pendingKeyboardFocus=useRef<string|null>(null);
+  useEffect(()=>{
+    const next=pendingKeyboardFocus.current;
+    if(!next)return;
+    const target=document.querySelector<HTMLButtonElement>(`.calendarShell button[data-calendar-date="${next}"]`);
+    if(target){target.focus();pendingKeyboardFocus.current=null;}
+  },[month,weekAnchor,start,end,view]);
   // Editing the Start date should reveal that date in the visible calendar,
   // not leave the inspector looking at an unrelated month or week.
   // This synchronizes only navigation/selection; availability remains untouched.
@@ -148,6 +156,20 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     setStart(first);
     setEnd(last);
     setNotice("");
+  };
+  // Month and Week keyboard arrows move the date without changing availability.
+  // Shift+Arrow extends the range using the same anchor as Shift+click.
+  const onDateArrow=(event:KeyboardEvent<HTMLButtonElement>,date:string)=>{
+    const delta:Record<string,number>={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7};
+    const offset=delta[event.key];
+    if(offset===undefined)return;
+    event.preventDefault();
+    const next=shiftIsoDate(date,offset);
+    if(event.shiftKey)extendSelection(next);
+    else {selectionAnchor.current=next;setStart(next);setEnd(next);setNotice("");}
+    pendingKeyboardFocus.current=next;
+    setMonth(next.slice(0,7));
+    setWeekAnchor(next);
   };
   const rangeDates = dateRange(start,end);
   const invalidRange = !start || !end || rangeDates.length === 0;
@@ -230,7 +252,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       <p className="connectionStatus" role="status">Linked in this demo: {Object.entries(calendarConnections).filter(([,linked]) => linked).map(([provider]) => provider).join(", ") || "None"}. Session-only preview; no OAuth or calendar sync.</p>
     </section>
     {notice && <p role={noticeIsWarning ? "alert" : "status"} className={noticeIsWarning ? "notice warning" : "notice"}>{notice}</p>}
-    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates.</p>
+    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates. Use arrow keys to move between dates in Month or Week; hold Shift with an arrow to extend the selection.</p>
     <div className="viewTabs" role="group" aria-label="Calendar view">
       {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => switchView(item)}>{item}</button>)}
     </div>
@@ -238,11 +260,11 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     {view === "Month" && <div className="month" aria-label={monthLabel+" month view"}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => <strong className="weekday" key={d}>{d}</strong>)}
       {Array.from({ length: monthOffset }, (_, i) => <span key={`blank-${i}`} aria-hidden="true" />)}
-      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><button type="button" className="dayPicker" aria-label={`Choose ${dateForDay(day)} for availability`} aria-current={dateForDay(day)===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(dateForDay(day))} onClick={e=>{if(e.shiftKey){extendSelection(dateForDay(day));return;}selectionAnchor.current=dateForDay(day);setStart(dateForDay(day));setEnd(dateForDay(day));setNotice("");}}>{day}</button>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}{dayEvents.length === 0 && <span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>; })}
+      {days.map((day) => { const dayEvents = eventFor(day); return <article key={day} className="day"><button type="button" className="dayPicker" data-calendar-date={dateForDay(day)} onKeyDown={e=>onDateArrow(e,dateForDay(day))} aria-label={`Choose ${dateForDay(day)} for availability`} aria-current={dateForDay(day)===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(dateForDay(day))} onClick={e=>{if(e.shiftKey){extendSelection(dateForDay(day));return;}selectionAnchor.current=dateForDay(day);setStart(dateForDay(day));setEnd(dateForDay(day));setNotice("");}}>{day}</button>{dayEvents.map((event, i) => <span key={i} className={stateClass(event.state)} title={event.external ? "Inspector only; client view: Busy · private details hidden" : event.label}>{event.label}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>)}{dayEvents.length === 0 && <span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>; })}
     </div>}
     {view === "Week" && <><div className="weekControls"><button type="button" onClick={()=>stepWeek(-1)}>Previous week</button><label>Week containing<input type="date" value={weekAnchor} onChange={e=>selectWeek(e.target.value)}/></label><button type="button" onClick={()=>stepWeek(1)}>Next week</button></div><div className="week" aria-label="Week view">{weekDates(weekAnchor).map(date=>{
       const dayEvents=events.filter(event=>event.date===date);
-      return <article key={date}><button type="button" className="weekPicker" aria-label={`Choose ${date} for availability`} aria-current={date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(date)} onClick={e=>{if(e.shiftKey){extendSelection(date);return;}selectionAnchor.current=date;setStart(date);setEnd(date);setNotice("");}}>{date}</button>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>;
+      return <article key={date}><button type="button" className="weekPicker" data-calendar-date={date} onKeyDown={e=>onDateArrow(e,date)} aria-label={`Choose ${date} for availability`} aria-current={date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(date)} onClick={e=>{if(e.shiftKey){extendSelection(date);return;}selectionAnchor.current=date;setStart(date);setEnd(date);setNotice("");}}>{date}</button>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>;
     })}</div></>}
     {view === "List" && <div className="list" aria-label="List view">{listEvents.length===0 ? <section className="emptyList" role="status"><strong>No scheduled demo events in {monthLabel}</strong><p>This fictional month has no scheduled inspections, holds or personal Busy blocks. Unmarked days are Not set, not confirmed available. Use Month view to select dates or Block dates to simulate availability.</p><button type="button" onClick={()=>setView("Month")}>Open Month calendar</button></section> : listEvents.map((event, i) => <article key={`${event.date}-${i}`}><button type="button" className="listPicker" aria-label={`Choose ${event.date} from list for availability`} aria-current={event.date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(event.date)} onClick={e=>{if(e.shiftKey){extendSelection(event.date);return;}selectionAnchor.current=event.date;setStart(event.date);setEnd(event.date);setNotice("");}}>{event.date}</button><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span></article>)}</div>}
     <form onSubmit={e => {

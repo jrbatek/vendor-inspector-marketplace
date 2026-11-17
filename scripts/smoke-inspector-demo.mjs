@@ -379,6 +379,36 @@ try {
   await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
   assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-12",
     "Previous distinct assignment from Orion must return to the first LNG assignment date");
+  // Month/Week keyboard navigation must preserve date focus across visible boundaries.
+  const nov30=calendar.getByRole("button",{name:"Choose 2026-11-30 for availability"});
+  await nov30.focus();
+  await nov30.press("ArrowRight");
+  const dec1=calendar.getByRole("button",{name:"Choose 2026-12-01 for availability"});
+  await dec1.waitFor();
+  assert(await calendar.locator(".calendarHeader h2").first().innerText()==="December 2026",
+    "Calendar right-arrow navigation did not cross into December");
+  assert(await dec1.evaluate(el=>document.activeElement===el),
+    "Calendar keyboard focus did not follow the arrow-selected date");
+  assert(await dec1.getAttribute("aria-pressed")==="true"&&await calendar.getByLabel("Start date").inputValue()==="2026-12-01",
+    "Arrow-selected calendar date did not synchronize visible selection");
+  await dec1.press("Shift+ArrowLeft");
+  assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-30"&&await calendar.getByLabel("End date").inputValue()==="2026-12-01",
+    "Shift-arrow calendar range did not include dates across month boundary");
+  assert(await calendar.getByRole("button",{name:"Choose 2026-11-30 for availability"}).evaluate(el=>document.activeElement===el),
+    "Shift-arrow keyboard focus did not follow date across month boundary");
+  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await tabs.getByRole("button",{name:"Week"}).click();
+  const nov9=calendar.getByRole("button",{name:"Choose 2026-11-09 for availability"});
+  await nov9.focus();
+  await nov9.press("ArrowDown");
+  const nov16=calendar.getByRole("button",{name:"Choose 2026-11-16 for availability"});
+  await nov16.waitFor();
+  assert(await nov16.evaluate(el=>document.activeElement===el),
+    "Week arrow-down did not retain keyboard focus after advancing a week");
+  assert(await calendar.getByLabel("Week containing").inputValue()==="2026-11-16",
+    "Week arrow-down did not advance the visible seven-day week");
+  await tabs.getByRole("button",{name:"Month"}).click();
+  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
