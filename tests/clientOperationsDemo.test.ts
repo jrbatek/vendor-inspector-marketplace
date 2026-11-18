@@ -84,7 +84,7 @@ test("client operations demo keeps sensitive operations synthetic and non-execut
 });
 
 test("client navigation exposes the operations demo", () => {
-  assert.match(nav, /\["Client Operations Demo", "\/demo\/client-operations"\]/);
+  assert.match(nav, /\["Client Operations Demo", "\/demo\/client#billing-payment"\]/);
 });
 
 test("expired synthetic individual inspector contract must not be labeled Active", () => {
