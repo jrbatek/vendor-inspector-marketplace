@@ -584,7 +584,21 @@ try{
       await probe.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
       await probe.locator("article.inspection").first().waitFor();
       await probe.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
-      await probe.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+      try {
+        await probe.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+      } catch (error) {
+        const diagnostic = await probe.evaluate(() => ({
+          url:location.href,
+          readyState:document.readyState,
+          historyState:history.state,
+          reactRoot:!!document.querySelector("next-route-announcer"),
+          inspections:document.querySelectorAll("article.inspection").length,
+          expanded:[...document.querySelectorAll('button[aria-controls^="details-DEMO-ACT-"][aria-expanded="true"]')].map(el=>el.getAttribute("aria-controls")),
+          detail4:!!document.getElementById("details-DEMO-ACT-4"),
+          pageText:document.body.innerText.slice(-500),
+        })).catch(e=>({diagnosticError:String(e)}));
+        throw new Error("Rapid no-login inspection deep-link failure, attempt "+attempt+": "+JSON.stringify(diagnostic),{cause:error});
+      }
       assert(await probe.locator("article.inspection").count()===7,
         "Rapid deep-link hydration probe lost the seven synthetic inspections, attempt "+attempt);
       assert(await probe.getByText(/Log in to view the client workspace/i).count()===0,
