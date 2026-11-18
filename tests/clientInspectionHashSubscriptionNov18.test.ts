@@ -29,11 +29,12 @@ test("real Chromium captures live hash/list state before waiting for the deep li
 
 test("capture a fictional inspection hash before Next hydration overwrites the URL",()=>{
  const layout=fs.readFileSync("app/demo/client-inspections/layout.tsx","utf8");
- assert.match(layout,/inspectsource-early-inspection-hash/);
- assert.match(layout,/event\\.newURL/);
- assert.match(layout,/inspection-DEMO-ACT-\\[1-7\\]/);
- assert.match(page,/__inspectSourceEarlyInspectionHash/);
- assert.match(page,/Date\\.now\\(\\)-early\\.at < 30000/);
- assert.match(page,/addEventListener\\("inspectsource:early-inspection-hash",syncFromHash\\)/);
- assert.match(page,/removeEventListener\\("inspectsource:early-inspection-hash",syncFromHash\\)/);
+ for(const snippet of ["inspectsource-early-inspection-hash","event.newURL","inspection-DEMO-ACT-[1-7]"]) {
+   assert.ok(layout.includes(snippet),"Missing early capture contract: "+snippet);
+ }
+ for(const snippet of ["__inspectSourceEarlyInspectionHash","Date.now()-early.at < 30000",
+   'addEventListener("inspectsource:early-inspection-hash",syncFromHash)',
+   'removeEventListener("inspectsource:early-inspection-hash",syncFromHash)']) {
+   assert.ok(page.includes(snippet),"Missing hash restore contract: "+snippet);
+ }
 });
