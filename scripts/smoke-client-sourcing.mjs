@@ -164,6 +164,37 @@ try {
   assert((await narrow.locator(".results > article").count()) === 4, "Mobile reset did not restore all fictional inspectors");
   assert(await narrowBoth.getAttribute("aria-pressed") === "true", "Mobile both-sources selection state incorrect");
   assert(narrowErrors.length === 0, "Mobile Client sourcing browser exceptions: " + narrowErrors.join("\n"));
+  // 320px screens are narrower than the standard mobile smoke viewport.
+  // Source/channel controls must remain tappable and readable without horizontal clipping.
+  await narrow.setViewportSize({ width: 320, height: 700 });
+  for (const option of [narrowAgencies, narrowIndependent, narrowBoth]) {
+    const bounds = await option.boundingBox();
+    assert(bounds && bounds.width >= 44 && bounds.height >= 44 &&
+      bounds.x >= -1 && bounds.x + bounds.width <= 321,
+      "320px Source of Inspectors option clipped or too small");
+    await legible(option, "320px unselected/selected source option");
+    await option.hover();
+    await legible(option, "320px hovered source option");
+  }
+  await narrowAgencies.click();
+  assert((await narrow.locator(".results > article").count()) === 2,
+    "320px agency source selection lost its synthetic cohort");
+  const compactChannel = narrow.locator(".channels button").first();
+  const compactBounds = await compactChannel.boundingBox();
+  assert(compactBounds && compactBounds.width >= 44 && compactBounds.height >= 44 &&
+    compactBounds.x >= -1 && compactBounds.x + compactBounds.width <= 321,
+    "320px agency channel option clipped or too small");
+  await compactChannel.click();
+  await legible(compactChannel, "320px selected agency channel");
+  await narrowIndependent.click();
+  assert((await narrow.locator(".selectionNotice").count()) === 0 &&
+    (await narrow.locator(".results > article").count()) === 2,
+    "320px agency selection leaked into independent inspectors");
+  await narrowBoth.click();
+  assert((await narrow.locator(".results > article").count()) === 4 &&
+    await narrowBoth.getAttribute("aria-pressed") === "true",
+    "320px Both reset failed to restore four fictional inspectors");
+  assert(narrowErrors.length === 0, "320px source control browser exceptions: " + narrowErrors.join("\\n"));
   await narrow.close();
   assert(exceptions.length === 0, "Client sourcing browser exceptions: " + exceptions.join("\n"));
   console.log("Client Sourcing Chromium OK: desktop source counts 4/2/2/4, keyboard and contrast; mobile viewport selector, focus, hover and chosen channel states, isolation, anonymous routing.");
