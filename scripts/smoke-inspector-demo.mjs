@@ -124,6 +124,25 @@ try {
       assert(await action.locator(".actionStatus").count()===1,
         "Fictional action has no legible status badge for "+name);
     }
+    // Browser-verify that triage counts reflect deadlines, including genuinely empty
+    // cohorts, and that selecting a filter never changes synthetic assignment data.
+    const filters=assignment.getByRole("group",{name:"Filter synthetic outstanding actions"});
+    const expectedOverdue=name==="Orion Deepwater Platform"?0:2;
+    const expectedUpcoming=2-expectedOverdue;
+    const overdueButton=filters.getByRole("button",{name:"Overdue ("+expectedOverdue+")"});
+    const upcomingButton=filters.getByRole("button",{name:"Upcoming ("+expectedUpcoming+")"});
+    await overdueButton.click();
+    assert(await overdueButton.getAttribute("aria-pressed")==="true" && await actionRows.count()===expectedOverdue,
+      name+" filtered overdue action count disagrees with fictional snapshot");
+    if(expectedOverdue===0) assert((await assignment.getByRole("status").last().innerText()).includes("No overdue actions"),
+      "Upcoming Orion FAT must not falsely show overdue tasks");
+    await upcomingButton.click();
+    assert(await upcomingButton.getAttribute("aria-pressed")==="true" && await actionRows.count()===expectedUpcoming,
+      name+" filtered upcoming action count disagrees with fictional snapshot");
+    if(expectedUpcoming===0) assert((await assignment.getByRole("status").last().innerText()).includes("No upcoming actions"),
+      "Historical assignment must not fabricate upcoming action tasks");
+    await filters.getByRole("button",{name:"All actions (2)"}).click();
+    assert(await actionRows.count()===2,"Reset must restore both fictional action rows for "+name);
     assert((await assignment.innerText()).includes("status snapshot as of November 17, 2026"),
       "Fictional action snapshot must be clearly dated for "+name);
     const findings=assignment.locator(".findings li");

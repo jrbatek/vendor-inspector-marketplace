@@ -1,0 +1,5 @@
+# InspectSource development log — November 17, 2026 (Inspector outstanding-action triage)
+
+Added accessible **All / Overdue / Upcoming** filtering to the existing fictional Open Assignment action registers. Counts are derived from the fixed November 17, 2026 snapshot and actual due-date fields, not from status labels. Empty cohorts show an explanatory status, while All restores both tasks. No live data calls or mutations. The client/inspector/agency navigation, seven no-login Client in-progress inspections, NCR-vs-punch behavior, report links and assignment detail remain unchanged.
+
+Added source safety assertions and real-Chromium regression steps for overdue, upcoming, empty states and reset in each of the three synthetic Open Assignment scenarios. Required release gate: Validate application, Autonomous QA, synthetic-data validation, migration checks, TypeScript typecheck, production build, Playwright smoke; exact-head Vercel Preview READY before merge, production READY and exact-commit production smoke afterward. Original large DEVELOPMENT_LOG.md is preserved; this linked addendum avoids replacing the 1.68 MB file through the GitHub contents API.
