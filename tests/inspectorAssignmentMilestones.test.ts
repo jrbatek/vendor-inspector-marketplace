@@ -9,7 +9,7 @@ test("three fictional assignment stages expose distinct milestone, document, sit
   assert.match(detail,/const WORKFLOWS: Record<string, AssignmentWorkflow>/);
   assert.equal((detail.match(/siteContact:/g)||[]).length,4);
   assert.equal((detail.match(/equipment:/g)||[]).length,4);
-  assert.equal((detail.match(/status: "Complete"/g)||[]).length,5);
+  assert.equal((detail.match(/status: "Complete"/g)||[]).length,7);
   assert.match(detail,/Overdue/);
   assert.match(detail,/Awaiting update/);
   assert.match(detail,/Evidence requested/);

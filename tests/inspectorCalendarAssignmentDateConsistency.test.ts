@@ -25,9 +25,9 @@ test("Inspector Demo calendar assigned date blocks agree with synthetic assignme
 });
 
 test("open assignments are at consistent November stages without stale due dates",()=>{
- assert.match(hub,/\["LNG Compressor Package","FAT scheduled","Confirm November FAT witness schedule"\]/);
- assert.match(details,/due: "November 6, 2026 · 12:00 CST"/);
- assert.match(details,/due: "November 16, 2026 · 17:00 CST"/);
+ assert.match(hub,/\["LNG Compressor Package","FAT evidence review","Verify outstanding calibration evidence and FAT report"\]/);
+ assert.match(details,/due: "November 10, 2026 · 12:00 CST"/);
+ assert.match(details,/due: "November 13, 2026 · 17:00 CST"/);
  assert.match(details,/due: "November 18, 2026 · 09:00 KST"/);
  assert.doesNotMatch(details,/due: "October/);
  assert.match(calendar,/Our Anniversary · All day/);
