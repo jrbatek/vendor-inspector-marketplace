@@ -34,7 +34,7 @@ test("Client Demo shows accessible action triage controls and visible next-actio
   const source = fs.readFileSync("app/demo/client-inspections/page.tsx", "utf8");
   assert.match(source, /role="group" aria-label="Sort synthetic inspections"/);
   assert.match(source, /aria-pressed=\{sort === "due"\}/);
-  assert.match(source, /Next action: \{row.actions\[0\]\?\.task\} · Due/);
+  assert.match(source, /Next action: \{nextAction \? .*nextAction\.due/);
   assert.match(source, /setSort\("due"\)/);
   assert.match(source, /sortBar button:focus-visible/);
 });
