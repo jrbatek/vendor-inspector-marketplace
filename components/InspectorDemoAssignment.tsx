@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 const DETAILS: Record<string, { status: string; client: string; vendor: string; location: string; dates: string; scope: string; po: string; completed: string[]; next: string; due: string }> = {
-  "LNG Compressor Package": { status: "FAT scheduled", client: "Seabright LNG (synthetic)", vendor: "Bayport Rotating Equipment", location: "Houston, Texas · Test bay 3", dates: "November 12–13, 2026", scope: "Witness mechanical run test and verify compressor release dossier against ITP rev C.", po: "DEMO-PO-4102", completed: ["November 3 · Assignment accepted", "November 4 · FAT procedure and ITP rev C reviewed", "November 5 · Test bay and inspector travel readiness confirmed"], next: "Witness the mechanical run test and collect calibration evidence; submit FAT report after the November 12–13 witness.", due: "November 16, 2026 · 17:00 CST" },
-  "Gulf Horizon Refinery Upgrade": { status: "Scheduled", client: "Gulf Horizon Energy (synthetic)", vendor: "Coastal Piping Works", location: "Baytown, Texas · Fabrication shop A", dates: "November 9–10, 2026", scope: "Piping weld surveillance, material traceability and hydrotest witness for process spools.", po: "DEMO-PO-4118", completed: ["November 2 · Assignment accepted", "November 3 · Purchase order and scope reviewed"], next: "Review ITP revision D and confirm hydrotest witness point with site coordinator.", due: "November 6, 2026 · 12:00 CST" },
+  "LNG Compressor Package": { status: "FAT evidence review", client: "Seabright LNG (synthetic)", vendor: "Bayport Rotating Equipment", location: "Houston, Texas · Test bay 3", dates: "November 12–13, 2026", scope: "Witness mechanical run test and verify compressor release dossier against ITP rev C.", po: "DEMO-PO-4102", completed: ["November 3 · Assignment accepted", "November 4 · FAT procedure and ITP rev C reviewed", "November 5 · Test bay and inspector travel readiness confirmed", "November 13 · Mechanical FAT witnessed; calibration documentation punch item recorded"], next: "Verify missing test-bay calibration certificates and submit the November 12–13 FAT witness report.", due: "November 13, 2026 · 17:00 CST" },
+  "Gulf Horizon Refinery Upgrade": { status: "NCR follow-up", client: "Gulf Horizon Energy (synthetic)", vendor: "Coastal Piping Works", location: "Baytown, Texas · Fabrication shop A", dates: "November 9–10, 2026", scope: "Piping weld surveillance, material traceability and hydrotest witness for process spools.", po: "DEMO-PO-4118", completed: ["November 2 · Assignment accepted", "November 3 · Purchase order and scope reviewed", "November 10 · Piping surveillance completed; heat-number traceability NCR recorded"], next: "Verify corrected material-traceability evidence and hydrotest witness records; finalize the piping inspection report.", due: "November 10, 2026 · 12:00 CST" },
   "Orion Deepwater Platform": { status: "Travel pending", client: "Orion Offshore (synthetic)", vendor: "Hanul Package Systems", location: "Busan, South Korea · Compressor assembly hall", dates: "November 26–27, 2026", scope: "Witness compressor package FAT, review instrumentation calibration and record open punch items.", po: "DEMO-PO-4133", completed: ["November 2 · Assignment accepted", "November 3 · ITP and vendor drawings reviewed", "November 4 · Travel request submitted"], next: "Confirm itinerary and site access; vendor to supply final FAT procedure.", due: "November 18, 2026 · 09:00 KST" },
 };
 
@@ -30,7 +30,7 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
     milestones: [
       { name: "Assignment and scope confirmed", date: "November 3", status: "Complete" },
       { name: "ITP revision C reviewed", date: "November 4", status: "Complete" },
-      { name: "Witness mechanical FAT", date: "November 12–13", status: "Scheduled" },
+      { name: "Mechanical FAT witnessed; calibration evidence incomplete", date: "November 12–13", status: "Complete" },
       { name: "Submit FAT report and release evidence", date: "November 16", status: "Overdue" },
     ],
     documents: [
@@ -55,7 +55,7 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
     milestones: [
       { name: "Assignment accepted", date: "November 2", status: "Complete" },
       { name: "Confirm ITP revision D and witness hold point", date: "November 6", status: "Overdue" },
-      { name: "Weld surveillance and hydrotest witness", date: "November 9–10", status: "Scheduled" },
+      { name: "Weld surveillance and hydrotest evidence collected", date: "November 9–10", status: "Complete" },
       { name: "Submit piping inspection report", date: "November 11", status: "Overdue" },
     ],
     documents: [

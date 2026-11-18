@@ -7,8 +7,8 @@ const page=readFileSync("app/demo/inspector/page.tsx","utf8");
 const browser=readFileSync("scripts/smoke-inspector-demo.mjs","utf8");
 
 test("all three fictional assignment summaries show their exact detail due date from one source",()=>{
-  assert.equal(getInspectorDemoAssignmentDue("LNG Compressor Package"),"November 16, 2026 · 17:00 CST");
-  assert.equal(getInspectorDemoAssignmentDue("Gulf Horizon Refinery Upgrade"),"November 6, 2026 · 12:00 CST");
+  assert.equal(getInspectorDemoAssignmentDue("LNG Compressor Package"),"November 13, 2026 · 17:00 CST");
+  assert.equal(getInspectorDemoAssignmentDue("Gulf Horizon Refinery Upgrade"),"November 10, 2026 · 12:00 CST");
   assert.equal(getInspectorDemoAssignmentDue("Orion Deepwater Platform"),"November 18, 2026 · 09:00 KST");
   assert.equal(getInspectorDemoAssignmentDue("No such assignment"),"Due date to be confirmed");
   assert.match(page,/getInspectorDemoAssignmentDue\(a\[0\]\)/);

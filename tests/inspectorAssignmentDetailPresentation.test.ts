@@ -6,7 +6,7 @@ const detail=fs.readFileSync("components/InspectorDemoAssignment.tsx","utf8");
 const hub=fs.readFileSync("app/demo/inspector/page.tsx","utf8");
 
 test("opened assignments show stage and the current fictional inspector identity",()=>{
- for (const [name,status] of [["LNG Compressor Package","FAT scheduled"],["Gulf Horizon Refinery Upgrade","Scheduled"],["Orion Deepwater Platform","Travel pending"]]){
+ for (const [name,status] of [["LNG Compressor Package","FAT evidence review"],["Gulf Horizon Refinery Upgrade","NCR follow-up"],["Orion Deepwater Platform","Travel pending"]]){
    assert.ok(detail.includes('"'+name+'": { status: "'+status+'"'),name);
  }
  assert.match(hub,/inspector=\{p\.name\}/);
