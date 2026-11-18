@@ -111,6 +111,68 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/client-analytics") {
+        // P0-B: exercise selected, unselected, hover, keyboard-focus and disabled
+        // source controls in real desktop/mobile Chromium, not just static colors.
+        // This also protects the Independent-source route implicated in issue #154.
+        const quick = page.getByRole("group", { name: "Quick source type filters" });
+        const all = quick.getByRole("button", { name: "All sources", exact: true });
+        const agency = quick.getByRole("button", { name: "Agency", exact: true });
+        const independent = quick.getByRole("button", { name: "Independent", exact: true });
+        await page.waitForFunction(() => {
+          const buttons = document.querySelectorAll(".quickSources button");
+          return buttons.length === 3 && [...buttons].every(button => !button.disabled);
+        }, null, { timeout: 15000 });
+        const appearance = async control => control.evaluate(node => {
+          const style = getComputedStyle(node);
+          const rgb = color => (color.match(/[\d.]+/g) || []).slice(0,3).map(Number);
+          const luminance = color => rgb(color).map(value => {
+            const x = value / 255;
+            return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, index) => sum + value * [0.2126,0.7152,0.0722][index], 0);
+          const foreground = luminance(style.color);
+          const background = luminance(style.backgroundColor);
+          return { color: style.color, background: style.backgroundColor,
+            opacity: Number(style.opacity), outline: parseFloat(style.outlineWidth),
+            contrast: (Math.max(foreground, background) + 0.05) /
+              (Math.min(foreground, background) + 0.05) };
+        });
+        const check = (style, label, background, foreground) => {
+          if (style.background !== background || style.color !== foreground ||
+              style.contrast < 4.5 || style.opacity !== 1)
+            throw new Error(width + "px Analytics " + label +
+              " unreadable: " + JSON.stringify(style));
+        };
+        if (await all.getAttribute("aria-pressed") !== "true")
+          throw new Error("Analytics All sources must start selected");
+        check(await appearance(all), "selected All", "rgb(15, 118, 110)", "rgb(255, 255, 255)");
+        check(await appearance(agency), "unselected Agency", "rgb(255, 255, 255)", "rgb(17, 94, 89)");
+        await independent.hover();
+        check(await appearance(independent), "hovered Independent", "rgb(204, 251, 241)", "rgb(17, 94, 89)");
+        await independent.click();
+        await page.waitForFunction(() => document.querySelector(".quickSources button[aria-pressed=true]")?.textContent?.trim() === "Independent");
+        check(await appearance(independent), "selected Independent", "rgb(15, 118, 110)", "rgb(255, 255, 255)");
+        // A real keyboard event before focusing ensures :focus-visible is evaluated
+        // under keyboard modality (rather than programmatic pointer focus).
+        await page.keyboard.press("Tab");
+        await agency.focus();
+        const focused = await appearance(agency);
+        if (focused.outline < 2 || focused.contrast < 4.5)
+          throw new Error(width + "px Analytics keyboard-focus unreadable: " + JSON.stringify(focused));
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(() => document.querySelector(".quickSources button[aria-pressed=true]")?.textContent?.trim() === "Agency");
+        check(await appearance(agency), "keyboard-selected Agency", "rgb(15, 118, 110)", "rgb(255, 255, 255)");
+        await agency.evaluate(node => { node.disabled = true; });
+        const disabled = await appearance(agency);
+        if (disabled.background !== "rgb(248, 250, 252)" ||
+            disabled.color !== "rgb(51, 65, 85)" ||
+            disabled.contrast < 4.5 || disabled.opacity !== 1)
+          throw new Error(width + "px Analytics disabled source control unreadable: " + JSON.stringify(disabled));
+        await agency.evaluate(node => { node.disabled = false; });
+        await all.click();
+        if (await all.getAttribute("aria-pressed") !== "true" || errors.length)
+          throw new Error("Analytics source state controls failed to restore All or raised an exception");
+      }
       if (route === "/demo/client") {
         // P0-B: measure the real Client intake controls across all interaction states.
         const scope = page.getByRole("textbox", { name: "Inspection requirement" });

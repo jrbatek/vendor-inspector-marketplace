@@ -1,0 +1,5 @@
+# InspectSource development log — 2026-11-18 (P0-B source-type control states)
+
+After safely releasing PR #347 for continuous Client Demo inspection deep links, advanced an independent P0-B accessibility workstream from the latest validated main. Expanded the existing real-Chromium demo-control smoke at desktop (1440px) and mobile (390px) to exercise Client Analytics quick Source Type controls in selected, unselected, hovered, keyboard-focused, and disabled conditions. Assertions measure computed foreground/background contrast, opacity, visible focus outline, pressed semantics and restore-to-All behavior, and reject browser errors. No live authentication, production records, privacy, payment, banking, OAuth or matching logic changed.
+
+CI requirements for this test-only batch: synthetic validation, migration checks, unit tests, typecheck, Next production build, desktop/mobile Chromium, QA and Vercel preview READY. Do not merge if tests fail. After merge, require production READY and exact-head production smoke. This independently extends coverage of the source interaction implicated in issue #154 without claiming that browser-specific analytics crash fixed.
