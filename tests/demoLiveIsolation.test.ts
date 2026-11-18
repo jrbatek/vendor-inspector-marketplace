@@ -18,7 +18,6 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
     "/demo/client-data",
     "/demo/inspector",
     "/demo-showcase",
-    "/inspectorhub",
   ]) assert.equal(isDemoExperiencePath(route), true, route);
 
   assert.equal(isDemoExperiencePath("/email-requirements", "1"), true, "demo email requirements");
@@ -28,6 +27,8 @@ test("only explicit synthetic experiences qualify for the global demo banner", (
     "/login",
     "/register",
     "/client-dashboard",
+    "/inspectorhub",
+    "/inspectorhub/schedule",
     "/email-requirements",
     "/what-we-do",
     "/inspection-intelligence",

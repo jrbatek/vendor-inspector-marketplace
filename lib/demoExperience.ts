@@ -1,6 +1,8 @@
+// Only synthetic-only routes belong here. /inspectorhub is an authenticated
+// live workspace for signed-in inspectors, even though its anonymous preview
+// uses non-persistent sample activities. Never badge live account data as demo.
 const DEMO_EXACT_PATHS = new Set([
   "/demo-showcase",
-  "/inspectorhub",
 ]);
 
 export function isDemoExperiencePath(pathname: string, demoParam?: string | null) {
