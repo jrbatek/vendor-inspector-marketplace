@@ -91,6 +91,12 @@ export function exportActiveDemoActionRegisterCsv(actions: ReturnType<typeof act
   return "\uFEFF" + buildDemoCsv(headers,values) + "\r\n";
 }
 
+/** Select the earliest outstanding action deterministically without mutating the fictional record. */
+export function nextActiveInspectionAction(row: ActiveInspection): ActiveInspection["actions"][number] | undefined {
+  return [...row.actions].sort((a, b) => a.due.localeCompare(b.due)
+    || a.task.localeCompare(b.task) || a.owner.localeCompare(b.owner))[0];
+}
+
 export type ActiveInspectionSort = "due" | "start" | "stage";
 export function sortActiveInspections(rows: ActiveInspection[], sort: ActiveInspectionSort): ActiveInspection[] {
   if (sort === "stage") {
@@ -105,7 +111,7 @@ export function sortActiveInspections(rows: ActiveInspection[], sort: ActiveInsp
       || a.stage.localeCompare(b.stage) || a.start.localeCompare(b.start) || a.id.localeCompare(b.id));
   }
   const nextDue = (row: ActiveInspection) =>
-    row.actions.map(action => action.due).sort()[0] ?? "9999-12-31";
+    nextActiveInspectionAction(row)?.due ?? "9999-12-31";
   return [...rows].sort((a, b) =>
     (sort === "due" ? nextDue(a).localeCompare(nextDue(b)) : a.start.localeCompare(b.start))
     || a.start.localeCompare(b.start)
@@ -136,8 +142,8 @@ export function exportActiveDemoInspectionsCsv(rows: ActiveInspection[]): string
   const records = rows.map(row => [
     "SYNTHETIC - NOT VERIFIED", row.id, row.client, row.project, row.vendor, row.site, row.inspector,
     row.stage, row.start, row.end, row.po, row.scope, row.equipment, row.milestones.length,
-    row.reports.length, row.ncrs.length, row.actions.length, row.actions[0]?.task ?? "",
-    row.actions[0]?.owner ?? "", row.actions[0]?.due ?? "",
+    row.reports.length, row.ncrs.length, row.actions.length, nextActiveInspectionAction(row)?.task ?? "",
+    nextActiveInspectionAction(row)?.owner ?? "", nextActiveInspectionAction(row)?.due ?? "",
   ]);
   return "\uFEFF" + [columns, ...records].map(line => line.map(cell).join(",")).join("\r\n") + "\r\n";
 }
