@@ -11,7 +11,7 @@ test("all three active demo assignments open details instead of a notice", () =>
   assert.match(demo, /setAssignment\(project\);setSection\("assignments"\)/);
 });
 test("synthetic assignment workspace includes evidence and next actions", () => {
-  for (const label of ["Site contact", "Scope / purchase order", "Documents", "Completed actions", "Outstanding items / next action", "Due:", "Owner:", "Findings & NCRs", "example.invalid"]) assert.ok(detail.includes(label), label);
+  for (const label of ["Site contact", "Scope / purchase order", "Documents", "Completed actions", "Outstanding items / next action", "Next overall due:", "Action owner", "Due date", "Findings & NCRs", "example.invalid"]) assert.ok(detail.includes(label), label);
   assert.match(detail, /\/api\/demo\/report\?/);
   assert.match(detail, /new URLSearchParams\(\{ project, supplier: detail.vendor/);
 });

@@ -11,10 +11,13 @@ export const getInspectorDemoAssignmentDue = (project: string): string => DETAIL
 
 type AssignmentFinding = { id: string; kind: "NCR" | "Punch item"; status: string;
   observation: string; owner: string; responseDue: string; nextVerification: string };
+type AssignmentNextAction = { id: string; action: string; owner: string; due: string;
+  status: "Overdue" | "Awaiting evidence" | "Upcoming" };
 type AssignmentWorkflow = { siteContact: string; equipment: string;
   milestones: { name: string; date: string; status: string }[];
   documents: { name: string; status: string }[];
   findings: AssignmentFinding[];
+  nextActions: AssignmentNextAction[];
 };
 /** Scenario-specific synthetic operational evidence. Never connected to an actual inspector or client. */
 const WORKFLOWS: Record<string, AssignmentWorkflow> = {
@@ -31,6 +34,10 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Purchase order DEMO-PO-4102", status: "Received" },
       { name: "Inspection and test plan, revision C", status: "Reviewed" },
       { name: "Mechanical FAT procedure and calibration evidence", status: "Evidence requested" },
+    ],
+    nextActions: [
+      { id: "LNG-A1", action: "Provide serial-matched test-bay calibration certificates", owner: "Bayport Rotating Equipment quality coordinator", due: "Nov 13, 2026", status: "Awaiting evidence" },
+      { id: "LNG-A2", action: "Verify calibration evidence and submit FAT release report", owner: "Assigned inspector", due: "Nov 16, 2026", status: "Overdue" },
     ],
     findings: [{
       id: "DEMO-PUNCH-4102", kind: "Punch item", status: "Open · Not a formal NCR",
@@ -53,6 +60,10 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Inspection and test plan, revision D", status: "Awaiting update" },
       { name: "WPS/PQR and material traceability register", status: "Under review" },
     ],
+    nextActions: [
+      { id: "GULF-A1", action: "Submit corrected spool S-18 heat-number traceability index", owner: "Coastal Piping Works vendor QA lead", due: "Nov 10, 2026", status: "Overdue" },
+      { id: "GULF-A2", action: "Verify updated ITP revision D and hydrotest witness evidence", owner: "Assigned inspector", due: "Nov 11, 2026", status: "Overdue" },
+    ],
     findings: [{
       id: "DEMO-NCR-4118", kind: "NCR", status: "Open · Minor (fictional)",
       observation: "Spool S-18 heat-number reference does not match the vendor material traceability index.",
@@ -74,6 +85,10 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Vendor ITP and drawing register", status: "Reviewed" },
       { name: "FAT procedure and site access instructions", status: "Awaiting vendor" },
     ],
+    nextActions: [
+      { id: "ORION-A1", action: "Confirm Busan travel itinerary and fabrication-site access", owner: "Assigned inspector", due: "Nov 18, 2026", status: "Upcoming" },
+      { id: "ORION-A2", action: "Upload final FAT procedure and instrument calibration list", owner: "Hanul Package Systems quality engineer", due: "Nov 20, 2026", status: "Upcoming" },
+    ],
     findings: [], // FAT not yet witnessed: never manufacture a finding as if inspection occurred.
   },
 };
@@ -93,7 +108,15 @@ export default function InspectorDemoAssignment({ project, inspector, onClose }:
     <p>Synthetic scope, ITP and report example. Demonstration documents carry no contractual authority.</p>
     <a className="reportLink" href={`/api/demo/report?${new URLSearchParams({ project, supplier: detail.vendor, location: detail.location, id: detail.po, date: detail.dates, inspector })}`} target="_blank" rel="noreferrer">Open synthetic report PDF</a>
     <h3>Action timeline · Completed actions</h3><ol>{detail.completed.map(action => <li key={action}>{action}</li>)}</ol>
-    <h3>Outstanding items / next action</h3><p>{detail.next}</p><p><strong>Due:</strong> {detail.due}</p><p><strong>Owner:</strong> Inspector, with vendor quality coordinator providing evidence.</p>
+    <h3>Outstanding items / next action</h3>
+    <p>{detail.next}</p><p><strong>Next overall due:</strong> {detail.due}</p>
+    <p className="demoAsOf">Fictional action register · status snapshot as of November 17, 2026. Nothing is saved or sent.</p>
+    <ul className="nextActions" aria-label="Synthetic assignment outstanding action register">
+      {workflow.nextActions.map(item => <li key={item.id}>
+        <strong>{item.action}</strong><span className={`actionStatus ${item.status === "Overdue" ? "overdue" : item.status === "Upcoming" ? "upcoming" : "awaiting"}`}>{item.status}</span>
+        <dl><dt>Action owner</dt><dd>{item.owner}</dd><dt>Due date</dt><dd>{item.due}</dd><dt>Reference</dt><dd>{item.id}</dd></dl>
+      </li>)}
+    </ul>
     <h3>Findings & NCRs</h3>
     <p>Fictional inspection-quality tracking only. Viewing this register does not create or resolve a live NCR.</p>
     {workflow.findings.length ? <ul className="findings">{workflow.findings.map(item=>
@@ -102,6 +125,6 @@ export default function InspectorDemoAssignment({ project, inspector, onClose }:
           <dt>Response due</dt><dd>{item.responseDue}</dd><dt>Verification / next action</dt><dd>{item.nextVerification}</dd></dl>
       </li>)}</ul> :
       <p>No NCR issued. This fictional assignment has not yet reached its scheduled FAT witness; confirm acceptance criteria before documenting findings.</p>}
-    <style jsx>{`.panel{padding:20px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#0f172a}dt{font-weight:800;margin-top:12px}dd{margin:4px 0;line-height:1.5}li{margin:8px 0}.eyebrow{color:#115e59;font-weight:800;margin-top:18px}.stageBadge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:800}.milestoneStatus{display:inline-flex;margin-left:6px;padding:3px 8px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:999px;font-weight:800}.milestoneStatus.complete{background:#dcfce7;color:#166534;border-color:#86efac}.milestoneStatus.overdue{background:#fee2e2;color:#991b1b;border-color:#fca5a5}.milestoneStatus.scheduled{background:#dbeafe;color:#1e40af;border-color:#93c5fd}.milestones,.documents,.findings{padding-left:24px}.milestones li,.documents li,.findings li{line-height:1.6}.findings li{padding:12px;border:1px solid #cbd5e1;border-radius:9px;margin-top:10px}.findingStatus{display:inline-flex;margin-left:8px;padding:3px 8px;border-radius:7px;background:#fef3c7;color:#92400e;font-size:.82rem;font-weight:800}.backButton,.reportLink{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;border-radius:9px;padding:10px 12px;font-weight:800;text-decoration:none;border:1px solid #0f766e;cursor:pointer}.backButton{background:#0f766e;color:#fff}.reportLink{background:#f0fdfa;color:#115e59}.backButton:hover{background:#115e59;color:#fff}.reportLink:hover{background:#ccfbf1;color:#064e3b}.backButton:focus-visible,.reportLink:focus-visible{outline:3px solid #0d9488;outline-offset:2px}`}</style>
+    <style jsx>{`.panel{padding:20px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#0f172a}dt{font-weight:800;margin-top:12px}dd{margin:4px 0;line-height:1.5}li{margin:8px 0}.eyebrow{color:#115e59;font-weight:800;margin-top:18px}.stageBadge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:800}.milestoneStatus{display:inline-flex;margin-left:6px;padding:3px 8px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:999px;font-weight:800}.milestoneStatus.complete{background:#dcfce7;color:#166534;border-color:#86efac}.milestoneStatus.overdue{background:#fee2e2;color:#991b1b;border-color:#fca5a5}.milestoneStatus.scheduled{background:#dbeafe;color:#1e40af;border-color:#93c5fd}.milestones,.documents,.findings,.nextActions{padding-left:24px}.milestones li,.documents li,.findings li,.nextActions li{line-height:1.6}.nextActions li{padding:12px;border:1px solid #cbd5e1;border-radius:9px;margin-top:10px}.demoAsOf{color:#334155;font-size:.85rem}.actionStatus{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:7px;font-size:.82rem;font-weight:800}.actionStatus.overdue{background:#fee2e2;color:#991b1b}.actionStatus.awaiting{background:#fef3c7;color:#92400e}.actionStatus.upcoming{background:#dbeafe;color:#1e40af}.findings li{padding:12px;border:1px solid #cbd5e1;border-radius:9px;margin-top:10px}.findingStatus{display:inline-flex;margin-left:8px;padding:3px 8px;border-radius:7px;background:#fef3c7;color:#92400e;font-size:.82rem;font-weight:800}.backButton,.reportLink{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;border-radius:9px;padding:10px 12px;font-weight:800;text-decoration:none;border:1px solid #0f766e;cursor:pointer}.backButton{background:#0f766e;color:#fff}.reportLink{background:#f0fdfa;color:#115e59}.backButton:hover{background:#115e59;color:#fff}.reportLink:hover{background:#ccfbf1;color:#064e3b}.backButton:focus-visible,.reportLink:focus-visible{outline:3px solid #0d9488;outline-offset:2px}`}</style>
   </section>;
 }
