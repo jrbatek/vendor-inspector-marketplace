@@ -52,7 +52,8 @@ test("synthetic Open Assignment action register assigns distinct tasks and deadl
     assert.ok(detail.includes(ref),"Missing action "+ref);
   for(const phrase of ["Submit corrected spool S-18 heat-number","Confirm Busan travel itinerary","Provide serial-matched test-bay calibration"])
     assert.ok(detail.includes(phrase),phrase);
-  assert.match(detail,/workflow\.nextActions\.map/);
+  assert.match(detail,/filteredActions\.map/);
+  assert.match(detail,/workflow\.nextActions\.filter/);
   assert.match(detail,/Fictional action register/);
   assert.match(detail,/Synthetic assignment outstanding action register/);
   assert.match(detail,/actionStatus\.overdue\{background:#fee2e2;color:#991b1b/);
