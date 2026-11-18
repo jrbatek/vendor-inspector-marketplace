@@ -304,6 +304,41 @@ try {
         if (await page.getByRole("heading", { name: "Work History" }).count() !== 1)
           throw new Error("InspectorHub sidebar click failed to show embedded Work History");
       }
+      if (route === "/demo/inspector") {
+        // P0-B: the Month date selectors must stay readable in all real
+        // interactive states, including synthetic disabled/loading presentation.
+        // Week and List share the explicit disabled-state CSS contract.
+        const monthGrid = page.locator(".calendarShell .month");
+        await monthGrid.waitFor({state:"visible",timeout:15000});
+        const unselectedDate = monthGrid.locator('[data-calendar-date="2026-11-01"]');
+        const selectedDate = monthGrid.locator('[data-calendar-date="2026-11-22"]');
+        const styleOf = async control => control.evaluate(element => {
+          const s = getComputedStyle(element);
+          return {color:s.color,background:s.backgroundColor,border:s.borderTopColor,
+            opacity:Number(s.opacity),outline:Number.parseFloat(s.outlineWidth)};
+        });
+        if (await unselectedDate.getAttribute("aria-pressed") !== "false" ||
+            await selectedDate.getAttribute("aria-pressed") !== "true")
+          throw new Error(width+"px Calendar dates lost initial unselected/selected state");
+        const plain = await styleOf(unselectedDate), selected = await styleOf(selectedDate);
+        if(plain.background!=="rgb(255, 255, 255)" || plain.color!=="rgb(17, 94, 89)" ||
+           selected.background!=="rgb(15, 118, 110)" || selected.color!=="rgb(255, 255, 255)")
+          throw new Error(width+"px Calendar selected/unselected date unreadable: "+JSON.stringify({plain,selected}));
+        await unselectedDate.hover();
+        const hovered=await styleOf(unselectedDate);
+        if(hovered.background!=="rgb(204, 251, 241)" || hovered.color!=="rgb(17, 94, 89)")
+          throw new Error(width+"px Calendar hovered date unreadable: "+JSON.stringify(hovered));
+        await page.keyboard.press("Tab");
+        await unselectedDate.focus();
+        const focused=await styleOf(unselectedDate);
+        if(focused.outline<2)throw new Error(width+"px Calendar keyboard date has no visible focus outline");
+        await unselectedDate.evaluate(element => {element.disabled=true;});
+        const disabled=await styleOf(unselectedDate);
+        if(disabled.background!=="rgb(241, 245, 249)" || disabled.color!=="rgb(51, 65, 85)" ||
+           disabled.border!=="rgb(148, 163, 184)" || disabled.opacity!==1)
+          throw new Error(width+"px Calendar disabled date unreadable: "+JSON.stringify(disabled));
+        await unselectedDate.evaluate(element => {element.disabled=false;});
+      }
       if (route === "/demo/client-operations") {
         const invoiceFilter = page.getByLabel("Invoice status");
         await invoiceFilter.selectOption("Paid");
