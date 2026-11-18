@@ -11,7 +11,8 @@ export const getInspectorDemoAssignmentDue = (project: string): string => DETAIL
 
 type AssignmentFinding = { id: string; kind: "NCR" | "Punch item"; status: string;
   observation: string; owner: string; responseDue: string; nextVerification: string };
-type AssignmentNextAction = { id: string; action: string; owner: string; due: string;
+const ACTION_SNAPSHOT_DATE = "2026-11-17"; // Fictional immutable demo snapshot, never live task status.
+type AssignmentNextAction = { id: string; action: string; owner: string; due: string; dueIso: string;
   status: "Overdue" | "Awaiting evidence" | "Upcoming" };
 type AssignmentWorkflow = { siteContact: string; equipment: string;
   milestones: { name: string; date: string; status: string }[];
@@ -28,7 +29,7 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Assignment and scope confirmed", date: "November 3", status: "Complete" },
       { name: "ITP revision C reviewed", date: "November 4", status: "Complete" },
       { name: "Witness mechanical FAT", date: "November 12–13", status: "Scheduled" },
-      { name: "Submit FAT report and release evidence", date: "November 16", status: "Upcoming" },
+      { name: "Submit FAT report and release evidence", date: "November 16", status: "Overdue" },
     ],
     documents: [
       { name: "Purchase order DEMO-PO-4102", status: "Received" },
@@ -36,8 +37,8 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Mechanical FAT procedure and calibration evidence", status: "Evidence requested" },
     ],
     nextActions: [
-      { id: "LNG-A1", action: "Provide serial-matched test-bay calibration certificates", owner: "Bayport Rotating Equipment quality coordinator", due: "Nov 13, 2026", status: "Awaiting evidence" },
-      { id: "LNG-A2", action: "Verify calibration evidence and submit FAT release report", owner: "Assigned inspector", due: "Nov 16, 2026", status: "Overdue" },
+      { id: "LNG-A1", action: "Provide serial-matched test-bay calibration certificates", owner: "Bayport Rotating Equipment quality coordinator", due: "Nov 13, 2026", dueIso: "2026-11-13", status: "Awaiting evidence" },
+      { id: "LNG-A2", action: "Verify calibration evidence and submit FAT release report", owner: "Assigned inspector", due: "Nov 16, 2026", dueIso: "2026-11-16", status: "Overdue" },
     ],
     findings: [{
       id: "DEMO-PUNCH-4102", kind: "Punch item", status: "Open · Not a formal NCR",
@@ -53,7 +54,7 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "Assignment accepted", date: "November 2", status: "Complete" },
       { name: "Confirm ITP revision D and witness hold point", date: "November 6", status: "Overdue" },
       { name: "Weld surveillance and hydrotest witness", date: "November 9–10", status: "Scheduled" },
-      { name: "Submit piping inspection report", date: "November 11", status: "Upcoming" },
+      { name: "Submit piping inspection report", date: "November 11", status: "Overdue" },
     ],
     documents: [
       { name: "Purchase order DEMO-PO-4118", status: "Received" },
@@ -61,8 +62,8 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "WPS/PQR and material traceability register", status: "Under review" },
     ],
     nextActions: [
-      { id: "GULF-A1", action: "Submit corrected spool S-18 heat-number traceability index", owner: "Coastal Piping Works vendor QA lead", due: "Nov 10, 2026", status: "Overdue" },
-      { id: "GULF-A2", action: "Verify updated ITP revision D and hydrotest witness evidence", owner: "Assigned inspector", due: "Nov 11, 2026", status: "Overdue" },
+      { id: "GULF-A1", action: "Submit corrected spool S-18 heat-number traceability index", owner: "Coastal Piping Works vendor QA lead", due: "Nov 10, 2026", dueIso: "2026-11-10", status: "Overdue" },
+      { id: "GULF-A2", action: "Verify updated ITP revision D and hydrotest witness evidence", owner: "Assigned inspector", due: "Nov 11, 2026", dueIso: "2026-11-11", status: "Overdue" },
     ],
     findings: [{
       id: "DEMO-NCR-4118", kind: "NCR", status: "Open · Minor (fictional)",
@@ -86,8 +87,8 @@ const WORKFLOWS: Record<string, AssignmentWorkflow> = {
       { name: "FAT procedure and site access instructions", status: "Awaiting vendor" },
     ],
     nextActions: [
-      { id: "ORION-A1", action: "Confirm Busan travel itinerary and fabrication-site access", owner: "Assigned inspector", due: "Nov 18, 2026", status: "Upcoming" },
-      { id: "ORION-A2", action: "Upload final FAT procedure and instrument calibration list", owner: "Hanul Package Systems quality engineer", due: "Nov 20, 2026", status: "Upcoming" },
+      { id: "ORION-A1", action: "Confirm Busan travel itinerary and fabrication-site access", owner: "Assigned inspector", due: "Nov 18, 2026", dueIso: "2026-11-18", status: "Upcoming" },
+      { id: "ORION-A2", action: "Upload final FAT procedure and instrument calibration list", owner: "Hanul Package Systems quality engineer", due: "Nov 20, 2026", dueIso: "2026-11-20", status: "Upcoming" },
     ],
     findings: [], // FAT not yet witnessed: never manufacture a finding as if inspection occurred.
   },
@@ -112,10 +113,15 @@ export default function InspectorDemoAssignment({ project, inspector, onClose }:
     <p>{detail.next}</p><p><strong>Next overall due:</strong> {detail.due}</p>
     <p className="demoAsOf">Fictional action register · status snapshot as of November 17, 2026. Nothing is saved or sent.</p>
     <ul className="nextActions" aria-label="Synthetic assignment outstanding action register">
-      {workflow.nextActions.map(item => <li key={item.id}>
-        <strong>{item.action}</strong><span className={`actionStatus ${item.status === "Overdue" ? "overdue" : item.status === "Upcoming" ? "upcoming" : "awaiting"}`}>{item.status}</span>
+      {workflow.nextActions.map(item => {
+        // Keep disposition and lateness distinct: awaiting evidence after its due date is overdue.
+        const late = item.dueIso < ACTION_SNAPSHOT_DATE;
+        const urgency = late ? "overdue" : item.status === "Upcoming" ? "upcoming" : "awaiting";
+        const visibleStatus = late && item.status === "Awaiting evidence" ? "Overdue · awaiting evidence" : late ? "Overdue" : item.status;
+        return <li key={item.id}>
+        <strong>{item.action}</strong><span className={`actionStatus ${urgency}`}>{visibleStatus}</span>
         <dl><dt>Action owner</dt><dd>{item.owner}</dd><dt>Due date</dt><dd>{item.due}</dd><dt>Reference</dt><dd>{item.id}</dd></dl>
-      </li>)}
+      </li>;})}
     </ul>
     <h3>Findings & NCRs</h3>
     <p>Fictional inspection-quality tracking only. Viewing this register does not create or resolve a live NCR.</p>
