@@ -29,7 +29,17 @@ export default function ClientInspectionsDemo() {
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null);
   // Shareable inspection links reference fictional demo IDs only, never live records.
   useEffect(() => {
+    type EarlyHash = Window & {__inspectSourceEarlyInspectionHash?: {value:string;at:number}|null};
     const syncFromHash=()=>{
+      const earlyWindow=window as EarlyHash;
+      const early=earlyWindow.__inspectSourceEarlyInspectionHash;
+      // A rapid hash-only navigation can be canonicalized away by Next.js while
+      // the page is hydrating. Restore only a freshly captured fictional hash.
+      if(!window.location.hash && window.location.pathname==="/demo/client-inspections" &&
+         early && /^#inspection-DEMO-ACT-[1-7]$/.test(early.value) && Date.now()-early.at < 30000){
+        window.history.replaceState(window.history.state,"",window.location.pathname+window.location.search+early.value);
+      }
+      earlyWindow.__inspectSourceEarlyInspectionHash=null;
       const matched=window.location.hash.match(/^#inspection-(DEMO-ACT-[1-7])$/);
       const id=matched?.[1]??null;
       const found=id&&ACTIVE_DEMO_INSPECTIONS.some(row=>row.id===id);
@@ -54,9 +64,10 @@ export default function ClientInspectionsDemo() {
     // during hydration must never fall between initial sync and listener setup.
     window.addEventListener("hashchange",syncFromHash);
     window.addEventListener("popstate",syncFromHash);
+    window.addEventListener("inspectsource:early-inspection-hash",syncFromHash);
     syncFromHash();
     setHistoryReady(true);
-    return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
+    return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);window.removeEventListener("inspectsource:early-inspection-hash",syncFromHash);};
   },[]);
   // Capture the exact browser-local list state before creating a new history entry.
   // A detail close or an unchanged filter action may not rerun the filter effect.
