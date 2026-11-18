@@ -50,10 +50,12 @@ export default function ClientInspectionsDemo() {
       setExpandedNcr(null);
       if(found) requestAnimationFrame(()=>document.getElementById("inspection-"+id)?.scrollIntoView({block:"start"}));
     };
-    syncFromHash();
-    setHistoryReady(true);
+    // Subscribe before reading the current URL: a same-document hash navigation
+    // during hydration must never fall between initial sync and listener setup.
     window.addEventListener("hashchange",syncFromHash);
     window.addEventListener("popstate",syncFromHash);
+    syncFromHash();
+    setHistoryReady(true);
     return ()=>{window.removeEventListener("hashchange",syncFromHash);window.removeEventListener("popstate",syncFromHash);};
   },[]);
   // Capture the exact browser-local list state before creating a new history entry.

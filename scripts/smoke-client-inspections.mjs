@@ -596,6 +596,9 @@ try{
   await checkpoint("clean list");
   // Public inspection-detail deep links must survive refresh and browser history.
   await page.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+  // Capture the browser's real URL and list state before asserting hydration.
+  // This diagnostic makes an intermittent direct-hash failure actionable.
+  await checkpoint("navigated to deep link #4");
   const sharedDetails=page.getByRole("region",{name:"Inspection details DEMO-ACT-4"});
   await sharedDetails.waitFor({timeout:12000});
   await checkpoint("deep link #4");
