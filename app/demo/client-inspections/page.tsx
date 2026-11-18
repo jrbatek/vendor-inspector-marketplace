@@ -35,7 +35,7 @@ export default function ClientInspectionsDemo() {
       const early=earlyWindow.__inspectSourceEarlyInspectionHash;
       // A rapid hash-only navigation can be canonicalized away by Next.js while
       // the page is hydrating. Restore only a freshly captured fictional hash.
-      if(!window.location.hash && window.location.pathname==="/demo/client-inspections" &&
+      if(!window.location.hash && (window.location.pathname==="/demo/client-inspections" || window.location.pathname==="/demo/client") &&
          early && /^#inspection-DEMO-ACT-[1-7]$/.test(early.value) && Date.now()-early.at < 30000){
         window.history.replaceState(window.history.state,"",window.location.pathname+window.location.search+early.value);
       }
