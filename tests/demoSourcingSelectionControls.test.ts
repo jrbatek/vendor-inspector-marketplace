@@ -57,4 +57,9 @@ test("real Chromium sourcing smoke covers mobile Source of Inspectors and channe
  assert.match(smoke,/mobile selected independent channel/);
  assert.match(smoke,/Mobile agency channel selection leaked across sources/);
  assert.match(smoke,/Mobile reset did not restore all fictional inspectors/);
+ assert.match(smoke,/for \(const width of \[1024, 768\]\)/);
+ assert.match(smoke,/Source of Inspectors selector is clipped or too small/);
+ assert.match(smoke,/Source of Inspectors focus indicator disappeared/);
+ assert.match(smoke,/selected Agencies/);
+ assert.match(smoke,/selected Both/);
 });
