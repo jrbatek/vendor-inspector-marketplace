@@ -66,6 +66,25 @@ try {
         if (await page.getByText(/Log in to view the client workspace|Log in to view the inspector workspace/i).count())
           throw new Error(route + " rendered an authenticated workspace placeholder instead of synthetic demo content");
       }
+      // P0-A: real rendered *global* menu routes must remain inside synthetic
+      // workspaces for each audience when entered from a public demo. The
+      // persistent site-header Login control is intentionally outside these menus.
+      if (["/demo/client", "/demo/inspector", "/demo/agency"].includes(route)) {
+        const primaryNav = page.locator('header nav[aria-label="Main navigation"]');
+        for (const audience of ["Clients", "Inspectors", "Agencies"]) {
+          await primaryNav.getByRole("button", { name: new RegExp("^" + audience) }).click();
+          const menu = page.locator("#nav-" + audience.toLowerCase() + "-menu");
+          await menu.waitFor({ state: "visible", timeout: 5000 });
+          const destinations = await menu.locator("a[href]").evaluateAll(nodes =>
+            nodes.map(node => ({ label: (node.textContent || "").trim(), path: new URL(node.href).pathname })));
+          if (destinations.length < 2 || destinations.some(item => !item.path.startsWith("/demo/"))) {
+            throw new Error(width + "px " + route + " " + audience +
+              " menu escaped the synthetic experience: " + JSON.stringify(destinations));
+          }
+          await page.keyboard.press("Escape");
+          await menu.waitFor({ state: "hidden", timeout: 5000 });
+        }
+      }
       const result = await page.evaluate(() => {
         const rgb = s => {
           const m = s.match(/[\d.]+/g);
