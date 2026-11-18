@@ -44,3 +44,18 @@ test("assignment findings distinguish a formal synthetic NCR, documentation punc
   assert.match(detail,/Fictional inspection-quality tracking only/);
   assert.doesNotMatch(detail,/supabase|fetch\(|\.insert\(|\.delete\(/);
 });
+
+test("synthetic Open Assignment action register assigns distinct tasks and deadlines to all three projects",()=>{
+  assert.match(detail,/type AssignmentNextAction =/);
+  assert.equal((detail.match(/nextActions: \[/g)||[]).length,3);
+  for (const ref of ["LNG-A1","LNG-A2","GULF-A1","GULF-A2","ORION-A1","ORION-A2"])
+    assert.ok(detail.includes(ref),"Missing action "+ref);
+  for(const phrase of ["Submit corrected spool S-18 heat-number","Confirm Busan travel itinerary","Provide serial-matched test-bay calibration"])
+    assert.ok(detail.includes(phrase),phrase);
+  assert.match(detail,/workflow\.nextActions\.map/);
+  assert.match(detail,/Fictional action register/);
+  assert.match(detail,/Synthetic assignment outstanding action register/);
+  assert.match(detail,/actionStatus\.overdue\{background:#fee2e2;color:#991b1b/);
+  assert.match(detail,/actionStatus\.upcoming\{background:#dbeafe;color:#1e40af/);
+  assert.doesNotMatch(detail,/supabase|fetch\(|\.insert\(|\.update\(|\.delete\(/);
+});
