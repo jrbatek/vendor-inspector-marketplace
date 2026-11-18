@@ -15,7 +15,7 @@ test("global demo links honor the single-page Client and Inspector architectures
   ["Client Operations Demo","/demo/client#billing-payment"],
   ["Work History Demo","/demo/inspector#work"],
  ]) {
-   assert.ok(nav.includes(JSON.stringify([label,href]).replace(", ",", ")),label+" missing continuous demo anchor");
+   assert.ok(nav.includes(`["${label}", "${href}"]`),label+" missing continuous demo anchor");
  }
  for(const id of ["inspections-in-progress","analytics"])assert.ok(client.includes('id="'+id+'"'),id+" missing Client section");
  assert.ok(clientSidebar.includes('"billing-payment"'),"Billing anchor not present in Client sidebar");
