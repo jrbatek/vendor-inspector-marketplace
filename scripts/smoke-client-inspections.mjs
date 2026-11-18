@@ -677,17 +677,24 @@ try{
   "Filtering an open inspection left a stale inspection detail URL");
  assert(await page.locator("article.inspection").count()===1,
   "Filtering the demo inspection list did not reduce to the selected stage");
+ const filteredKpis=await page.locator(".stats .stat strong").allTextContents();
+ assert(filteredKpis.length===4 && filteredKpis[0].trim()==="1" && filteredKpis[1].trim()==="1",
+   "Client inspection summary did not follow the one-row Kickoff filter");
  await page.goBack();
  await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
  await checkpoint("back restores #4");
  assert(await page.locator("article.inspection").count()===7,
   "Browser Back to deep-linked inspection did not reset restrictive filters");
+ assert((await page.locator(".stats .stat strong").first().innerText()).trim()==="7",
+   "Browser Back restored inspection detail but left stale filtered summary counts");
  await page.goForward();
  await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({state:"detached",timeout:12000});
  await page.waitForFunction(()=>document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff");
  await checkpoint("forward restores filtered list");
  assert(await page.locator("article.inspection").count()===1,
   "Browser Forward lost the filtered-list selection");
+ assert((await page.locator(".stats .stat strong").first().innerText()).trim()==="1",
+   "Browser Forward restored filter but left an inconsistent inspection summary");
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
 
