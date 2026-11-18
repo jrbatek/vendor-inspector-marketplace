@@ -1,0 +1,7 @@
+# InspectSource development log — November 17, 2026 (P0 Source of Inspectors responsive accessibility)
+
+Expanded the existing real Chromium Source of Inspectors synthetic sourcing smoke beyond desktop (1440 px) and mobile (390 px) to explicitly test intermediate **1024 px and 768 px** tablet widths, covering the component's 1180 px responsive wrap breakpoint. Verifies all three source selectors remain fully on screen with 44 px targets and readable default, hover, focus, pressed and unpressed states; changing to Agency-only and back to Both updates selected aria-pressed and fictional counts. Existing independent/channel/mobile checks remain intact. Added source contract assertions. No production code, data, OAuth or auth changes.
+
+Release requires hosted Validate application + Autonomous QA with typecheck, unit tests, migrations, synthetic data, production build and Chromium, Vercel Preview READY before merge, production READY and exact-commit smoke. Original large DEVELOPMENT_LOG.md remains preserved.
+
+**Validation correction:** First hosted Chromium run showed a false negative at 1024px: calling programmatic focus immediately after a mouse hover did not trigger CSS :focus-visible. The smoke now sends a real Tab keyboard input before focusing the target control, so this checks actual keyboard modality rather than pointer focus. No UI styling or production behavior was changed. Re-run all mandatory checks on the new exact head.

@@ -78,6 +78,38 @@ try {
   await legible(independent, "selected Independent");
   await both.click();
   await count(both, 4);
+  // P0-B: intermediate/tablet viewports exercise the 1180px wrap breakpoint,
+  // where the Owner previously observed blank or clipped source controls.
+  for (const width of [1024, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [option, label] of [
+      [agencies, "Contracted agencies only"],
+      [independent, "Independent inspectors only"],
+      [both, "Contracted agencies + independent inspectors"]
+    ]) {
+      const bounds = await option.boundingBox();
+      assert(bounds && bounds.width >= 44 && bounds.height >= 44 &&
+        bounds.x >= -1 && bounds.x + bounds.width <= width + 1,
+        width + "px Source of Inspectors selector is clipped or too small: " + label);
+      await legible(option, width + "px resting " + label);
+      await option.hover();
+      await legible(option, width + "px hovered " + label);
+      // Transition to real keyboard input before testing :focus-visible;
+      // programmatic focus directly after pointer hover is not a keyboard focus.
+      await page.keyboard.press("Tab");
+      await option.focus();
+      assert(parseFloat(await option.evaluate(node => getComputedStyle(node).outlineWidth)) >= 2,
+        width + "px Source of Inspectors focus indicator disappeared: " + label);
+    }
+    await agencies.click();
+    await count(agencies, 2);
+    await legible(agencies, width + "px selected Agencies");
+    await both.click();
+    await count(both, 4);
+    await legible(both, width + "px selected Both");
+    assert(exceptions.length === 0, width + "px sourcing browser exceptions: " + exceptions.join("\\n"));
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
   // P0-B: inspect a separate narrow-screen demo session, including interactive
   // source toggles and channel selection rather than just the initial render.
   const narrow = await browser.newPage({ viewport: { width: 390, height: 844 } });
