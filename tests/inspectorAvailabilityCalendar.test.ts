@@ -42,7 +42,7 @@ test("calendar integrations are explicitly synthetic and do not claim live sync"
 test("availability controls have visible interaction states", () => {
   assert.match(calendar, /\.calendarShell button\{[^}]*background:#0f766e[^}]*color:#fff/);
   assert.match(calendar, /button:hover\{background:#115e59/);
-  assert.match(calendar, /button:focus-visible\{outline:3px solid #5eead4/);
+  assert.match(calendar, /\.calendarShell button:focus-visible\{outline:3px solid #115e59;outline-offset:3px;box-shadow:0 0 0 1px #fff/);
   assert.match(calendar, /\.viewTabs button\.selected\{background:#0f766e;color:#fff/);
 });
 
