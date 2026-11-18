@@ -111,6 +111,32 @@ try {
     assert(await assignment.locator(".documents li").count() === 3, "Expected three document statuses for " + name);
     assert((await assignment.innerText()).includes("example.invalid"), "Site contact must be clearly fictional for " + name);
     assert((await assignment.innerText()).includes("Outstanding items / next action"), "Outstanding action missing for " + name);
+    // Synthetic action-register details must render in the actual InspectorHub UI,
+    // not only pass source-level fixture tests. Verify owner, due date and identifiers.
+    const actionRegister=assignment.getByRole("list",{name:"Synthetic assignment outstanding action register"});
+    const actionRows=actionRegister.getByRole("listitem");
+    assert(await actionRows.count()===2,"Expected two owned, due-dated fictional next actions for "+name);
+    for(const action of await actionRows.all()){
+      const content=await action.innerText();
+      for(const label of ["Action owner","Due date","Reference"])
+        assert(content.includes(label),name+" action missing "+label);
+      assert(content.includes("2026"),"Fictional action has no date year for "+name);
+      assert(await action.locator(".actionStatus").count()===1,
+        "Fictional action has no legible status badge for "+name);
+    }
+    assert((await assignment.innerText()).includes("status snapshot as of November 17, 2026"),
+      "Fictional action snapshot must be clearly dated for "+name);
+    const findings=assignment.locator(".findings li");
+    if(name==="Orion Deepwater Platform"){
+      assert(await findings.count()===0 && (await assignment.innerText()).includes("No NCR issued"),
+        "Future Orion FAT must not fabricate an already-reported finding");
+    }else{
+      assert(await findings.count()===1,
+        "Gulf NCR or LNG documentation punch item disappeared for "+name);
+      const findingText=await findings.first().innerText();
+      assert(findingText.includes(name==="Gulf Horizon Refinery Upgrade"?"NCR":"Punch item"),
+        "Fictional quality finding was misclassified for "+name);
+    }
     assert((await assignment.innerText()).includes(dueSummary.slice("Due: ".length)),
       "Active Assignment card due date differs from Open Assignment details for " + name);
     const pdfLink=assignment.getByRole("link", { name: "Open synthetic report PDF" });
