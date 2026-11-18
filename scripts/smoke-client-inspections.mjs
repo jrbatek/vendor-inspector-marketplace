@@ -576,6 +576,37 @@ try{
  assert(await page.locator("article.inspection").count()===7,
   "Multi-page sidebar audit lost the seven no-login in-progress demo inspections");
  await verifyClientSidebarLayout("Client Inspections after route audit",true);
+  // Reproduce the exact intermittent initial-hydration same-document navigation
+  // with fresh anonymous pages. A single successful first-click is insufficient.
+  for (let attempt=1;attempt<=3;attempt++) {
+    const probe=await browser.newPage();
+    try {
+      await probe.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+      await probe.locator("article.inspection").first().waitFor();
+      await probe.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+      try {
+        await probe.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+      } catch (error) {
+        const diagnostic = await probe.evaluate(() => ({
+          url:location.href,
+          readyState:document.readyState,
+          historyState:history.state,
+          reactRoot:!!document.querySelector("next-route-announcer"),
+          inspections:document.querySelectorAll("article.inspection").length,
+          expanded:[...document.querySelectorAll('button[aria-controls^="details-DEMO-ACT-"][aria-expanded="true"]')].map(el=>el.getAttribute("aria-controls")),
+          detail4:!!document.getElementById("details-DEMO-ACT-4"),
+          pageText:document.body.innerText.slice(-500),
+        })).catch(e=>({diagnosticError:String(e)}));
+        throw new Error("Rapid no-login inspection deep-link failure, attempt "+attempt+": "+JSON.stringify(diagnostic),{cause:error});
+      }
+      assert(await probe.locator("article.inspection").count()===7,
+        "Rapid deep-link hydration probe lost the seven synthetic inspections, attempt "+attempt);
+      assert(await probe.getByText(/Log in to view the client workspace/i).count()===0,
+        "Rapid deep-link hydration probe entered the live workspace, attempt "+attempt);
+    } finally {
+      await probe.close();
+    }
+  }
   // Isolate history navigation from the preceding cross-demo route audit. Those
   // routes deliberately leave many entries and can hide a real detail-state defect.
   await page.close();
@@ -596,6 +627,9 @@ try{
   await checkpoint("clean list");
   // Public inspection-detail deep links must survive refresh and browser history.
   await page.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+  // Capture the browser's real URL and list state before asserting hydration.
+  // This diagnostic makes an intermittent direct-hash failure actionable.
+  await checkpoint("navigated to deep link #4");
   const sharedDetails=page.getByRole("region",{name:"Inspection details DEMO-ACT-4"});
   await sharedDetails.waitFor({timeout:12000});
   await checkpoint("deep link #4");
