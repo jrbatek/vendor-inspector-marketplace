@@ -576,6 +576,23 @@ try{
  assert(await page.locator("article.inspection").count()===7,
   "Multi-page sidebar audit lost the seven no-login in-progress demo inspections");
  await verifyClientSidebarLayout("Client Inspections after route audit",true);
+  // Reproduce the exact intermittent initial-hydration same-document navigation
+  // with fresh anonymous pages. A single successful first-click is insufficient.
+  for (let attempt=1;attempt<=3;attempt++) {
+    const probe=await browser.newPage();
+    try {
+      await probe.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+      await probe.locator("article.inspection").first().waitFor();
+      await probe.goto(base+"/demo/client-inspections#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+      await probe.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+      assert(await probe.locator("article.inspection").count()===7,
+        "Rapid deep-link hydration probe lost the seven synthetic inspections, attempt "+attempt);
+      assert(await probe.getByText(/Log in to view the client workspace/i).count()===0,
+        "Rapid deep-link hydration probe entered the live workspace, attempt "+attempt);
+    } finally {
+      await probe.close();
+    }
+  }
   // Isolate history navigation from the preceding cross-demo route audit. Those
   // routes deliberately leave many entries and can hide a real detail-state defect.
   await page.close();

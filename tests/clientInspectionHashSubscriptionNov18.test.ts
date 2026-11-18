@@ -20,6 +20,8 @@ test("register URL listeners before first Client inspection hash synchronization
 
 test("real Chromium captures live hash/list state before waiting for the deep link",()=>{
  assert.match(smoke,/checkpoint\("navigated to deep link #4"\)/);
+ assert.match(smoke,/for \(let attempt=1;attempt<=3;attempt\+\+\)/);
+ assert.match(smoke,/Rapid deep-link hydration probe lost the seven synthetic inspections/);
  assert.ok(smoke.indexOf('checkpoint("navigated to deep link #4")')<
            smoke.indexOf('sharedDetails.waitFor({timeout:12000})'));
  assert.match(smoke,/Deep-linked synthetic inspection unexpectedly requires authentication/);
