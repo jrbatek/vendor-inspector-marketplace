@@ -44,7 +44,10 @@ try {
   const activeFilters=page.getByRole("region", { name: "Active Work History filters" });
   assert(await activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" }).count()===1,
     "Selected client must offer a single accessible remove-filter chip");
-  await activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" }).click();
+  const clientChip=activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" });
+  assert((await clientChip.innerText()).trim().startsWith("Client: Bluewater LNG"),
+    "Inspector Work History filter chip displays stray dollar signs or mismatched visible label");
+  await clientChip.click();
   assert(JSON.stringify(await counts()) === JSON.stringify([10, 10, 6, 3]), "Clearing one client filter must restore unfiltered counters");
   assert(await activeFilters.count()===0, "Active filter chips must disappear once all selections are cleared");
   await page.getByRole("combobox", { name: "Client" }).selectOption("Bluewater LNG");
