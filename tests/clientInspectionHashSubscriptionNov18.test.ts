@@ -38,3 +38,14 @@ test("capture a fictional inspection hash before Next hydration overwrites the U
    assert.ok(page.includes(snippet),"Missing hash restore contract: "+snippet);
  }
 });
+
+test("continuous Client Demo preserves rapid inspection deep links during hydration",()=>{
+ const embeddedLayout=fs.readFileSync("app/demo/client/layout.tsx","utf8");
+ for(const snippet of ["inspectsource-early-inspection-hash","/demo/client","event.newURL","inspection-DEMO-ACT-[1-7]"]){
+   assert.ok(embeddedLayout.includes(snippet),"Missing embedded pre-hydration capture: "+snippet);
+ }
+ assert.ok(page.includes('window.location.pathname==="/demo/client"'),
+   "Embedded Client Demo must consume validated early hash");
+ assert.ok(smoke.includes('Continuous Client Workspace deep link lost seven fictional inspections'));
+ assert.ok(smoke.includes('embeddedProbe.getByRole("region",{name:"Inspection details DEMO-ACT-4"})'));
+});

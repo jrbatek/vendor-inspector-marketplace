@@ -607,6 +607,20 @@ try{
       await probe.close();
     }
   }
+  // Protect the continuous Client Workspace against the same early hydration URL reset.
+  for(let attempt=1;attempt<=2;attempt++){
+    const embeddedProbe=await browser.newPage();
+    try{
+      await embeddedProbe.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+      await embeddedProbe.locator("#inspections-in-progress article.inspection").first().waitFor();
+      await embeddedProbe.goto(base+"/demo/client#inspection-DEMO-ACT-4",{waitUntil:"domcontentloaded"});
+      await embeddedProbe.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+      assert(await embeddedProbe.locator("#inspections-in-progress article.inspection").count()===7,
+        "Continuous Client Workspace deep link lost seven fictional inspections, attempt "+attempt);
+      assert(await embeddedProbe.getByText(/Log in to view the client workspace/i).count()===0,
+        "Continuous Client Workspace deep link entered a live authentication shell, attempt "+attempt);
+    } finally {await embeddedProbe.close();}
+  }
   // Isolate history navigation from the preceding cross-demo route audit. Those
   // routes deliberately leave many entries and can hide a real detail-state defect.
   await page.close();
