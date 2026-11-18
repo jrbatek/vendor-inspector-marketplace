@@ -78,7 +78,7 @@ export default function InspectorWorkHistoryDemo() {
       <strong>Active filters ({activeFilters.length})</strong>
       {activeFilters.map(item => <button type="button" key={item.key}
         aria-label={`Clear ${item.label} filter: ${item.value}`}
-        onClick={() => choose(item.key, "")}>${item.label}: ${item.value} <span aria-hidden="true">×</span></button>)}
+        onClick={() => choose(item.key, "")}>{item.label}: {item.value} <span aria-hidden="true">×</span></button>)}
       <span role="status">Showing {shown.length} of {rows.length} fictional assignments with current filters.</span>
     </section>}
     <div className="tabs" role="group" aria-label="Work History views">
