@@ -7,7 +7,7 @@ const demo = fs.readFileSync("app/demo/inspector/page.tsx", "utf8");
 test("all three active demo assignments open details instead of a notice", () => {
   for (const project of ["LNG Compressor Package", "Gulf Horizon Refinery Upgrade", "Orion Deepwater Platform"]) assert.ok(detail.includes(`"${project}":`));
   assert.match(demo, /onClick=\{\(\)=>setAssignment\(a\[0\]\)\}/);
-  assert.match(demo, /<InspectorDemoAssignment project=\{assignment\}/);
+  assert.match(demo, /<InspectorDemoAssignment key=\{assignment\} project=\{assignment\}/);
   assert.match(demo, /setAssignment\(project\);setSection\("assignments"\)/);
 });
 test("synthetic assignment workspace includes evidence and next actions", () => {

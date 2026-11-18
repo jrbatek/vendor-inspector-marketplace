@@ -163,6 +163,26 @@ try {
     assert(pdf.ok() && (pdf.headers()["content-type"]||"").includes("application/pdf"),"Synthetic assignment PDF not working for "+name);
     await assignment.getByRole("button", { name: /Back to active assignments/ }).click();
   }
+  // A new assignment opened from the persistent Calendar must reset the prior
+  // assignment's action filter, rather than inheriting Overdue/Upcoming UI state.
+  // Both sections stay mounted in the single-page InspectorHub.
+  await page.locator("#assignments article").filter({hasText:"LNG Compressor Package"})
+    .getByRole("button",{name:"Open assignment"}).click();
+  const firstDetail=page.getByRole("region",{name:"Open assignment details"});
+  await firstDetail.getByRole("group",{name:"Filter synthetic outstanding actions"})
+    .getByRole("button",{name:"Overdue (2)"}).click();
+  assert(await firstDetail.getByRole("button",{name:"Overdue (2)"}).getAttribute("aria-pressed")==="true",
+    "Assignment filter setup failed before cross-project Calendar navigation");
+  await page.locator("#calendar .day").filter({hasText:"Orion Deepwater Platform"}).first()
+    .getByRole("button",{name:"Open assignment"}).click();
+  const nextDetail=page.getByRole("region",{name:"Open assignment details"});
+  assert(await nextDetail.getByRole("heading",{name:"Orion Deepwater Platform"}).count()===1,
+    "Calendar must open the newly selected fictional assignment");
+  assert(await nextDetail.getByRole("button",{name:"All actions (2)"}).getAttribute("aria-pressed")==="true"
+    && await nextDetail.getByRole("list",{name:"Synthetic assignment outstanding action register"}).getByRole("listitem").count()===2,
+    "Switching assignment via Calendar retained the previous project's filtered action state");
+  await navigation.getByRole("button",{name:"Active Assignments"}).click();
+
   // Sidebar navigation always returns to the list, not a previously opened detail.
   await page.locator("#assignments article").filter({ hasText: "LNG Compressor Package" })
     .getByRole("button", { name: "Open assignment" }).click();
