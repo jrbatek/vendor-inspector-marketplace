@@ -1,0 +1,5 @@
+# InspectSource development log — November 19, 2026 (Client focus badge filtering)
+- Fixed P0 Client Demo focus counts: Due or overdue and With open NCR badges previously showed global seven-record totals while other project, stage, inspector, action-owner, date or keyword filters narrowed the displayed cohort.
+- New faceted counts use the same synthetic filtering predicates as the cards and respect the **other** focus toggle without hiding their own option. Adjusted clear fictional descriptions and hosted Chromium checks (North Sea Wind 0/0; Pacific Hydrogen 1/1) plus unit regression.
+- The seven synthetic inspections, PDFs, NCRs, direct links, filter restoration and production auth/data boundaries remain unchanged. No production data seeded.
+- Validate application, Autonomous QA and exact-head Vercel Preview READY are mandatory before merge; production exact-commit READY and smoke afterward. Review-gated #360 (legacy /inspectors?demo=1), #288 (live auth), #56 (persistence), and open issues #154/#321 stay independent.

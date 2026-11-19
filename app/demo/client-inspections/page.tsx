@@ -115,8 +115,14 @@ export default function ClientInspectionsDemo() {
       window.history.replaceState({...snapshot,[inspectionListHistoryKey]:{...snapshot[inspectionListHistoryKey],...pending}},"",window.location.href);
     }
   };
-  const dueCount = filterActiveInspectionsByActionDue(ACTIVE_DEMO_INSPECTIONS, true).length;
-  const openNcrCount = ACTIVE_DEMO_INSPECTIONS.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open"))).length;
+  // Every focus badge respects the other active filters, excluding only its own toggle.
+  // The source cohort is exclusively fictional and never reads or writes production.
+  const focusCohort = searchActiveInspections(
+    filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row =>
+      !actionOwner || row.actions.some(action => action.owner === actionOwner)), keyword);
+  const focusOpenNcr = focusCohort.filter(row => row.ncrs.some(ncr => ncr.status.startsWith("Open")));
+  const dueCount = filterActiveInspectionsByActionDue(ncrOnly ? focusOpenNcr : focusCohort, true).length;
+  const openNcrCount = filterActiveInspectionsByActionDue(focusOpenNcr, dueOnly).length;
   const actionOwners = Array.from(new Set(ACTIVE_DEMO_INSPECTIONS.flatMap(row => row.actions.map(action => action.owner)))).sort();
   const rows = sortActiveInspections(searchActiveInspections(filterActiveInspectionsByActionDue(filterActiveInspections(ACTIVE_DEMO_INSPECTIONS, filters).filter(row => (!ncrOnly || row.ncrs.some(ncr => ncr.status.startsWith("Open"))) && (!actionOwner || row.actions.some(action => action.owner === actionOwner))), dueOnly), keyword), sort);
   const update = (key: keyof InspectionFilters, value: string) => { const nextFilters={...filters,[key]:value};setFilters(nextFilters);collapseInspectionForFilter({filters:nextFilters}); };
@@ -161,13 +167,13 @@ export default function ClientInspectionsDemo() {
       <strong>Action focus · synthetic as of November 8, 2026</strong>
       <button type="button" aria-pressed={!dueOnly} onClick={() => { setDueOnly(false); collapseInspectionForFilter({dueOnly:false}); }}>All active</button>
       <button type="button" aria-pressed={dueOnly} onClick={() => { setDueOnly(true); collapseInspectionForFilter({dueOnly:true}); }}>Due or overdue ({dueCount})</button>
-      <span>Dates are fictional. Due or overdue includes actions due on the demo reference date.</span>
+      <span>Dates are fictional. Counts follow other filters and include actions due on the demo reference date.</span>
     </section>
     <section className="dueFilter" role="group" aria-label="Non-conformance focus">
       <strong>NCR focus · fictional records</strong>
       <button type="button" aria-pressed={!ncrOnly} onClick={() => { setNcrOnly(false); collapseInspectionForFilter({ncrOnly:false}); }}>All NCR statuses</button>
       <button type="button" aria-pressed={ncrOnly} onClick={() => { setNcrOnly(true); collapseInspectionForFilter({ncrOnly:true}); }}>With open NCR ({openNcrCount})</button>
-      <span>Combines with status, project, inspector, dates, search and urgency. No real quality records are changed.</span>
+      <span>Counts follow other active filters; no actual quality records are changed.</span>
     </section>
     <div className="resultActions">
       <p role="status" className="resultCount">{rows.length} of {ACTIVE_DEMO_INSPECTIONS.length} synthetic in-progress inspections</p>
