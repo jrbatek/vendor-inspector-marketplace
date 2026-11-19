@@ -774,6 +774,19 @@ try{
  await page.waitForFunction(() => location.hash==="#inspections-in-progress");
  assert(await page.locator("#inspections-in-progress article.inspection").count()===1,
    "Client sidebar browser Forward lost the filtered inspection list");
+ // Legacy query-string demo entry must never show a synthetic badge over
+ // production-backed Supabase inspector searches. The real /inspectors route
+ // remains live, while ?demo=1 resolves into fully fictional Client Demo.
+ await page.goto(base+"/inspectors?demo=1",{waitUntil:"domcontentloaded"});
+ await page.waitForURL(url=>url.pathname==="/demo/client"&&url.hash==="#structured-selection",{timeout:15000});
+ assert(await page.locator("#structured-selection").count()===1,
+   "Legacy ?demo=1 query did not redirect to fictional Structured Selection");
+ await page.locator("#inspections-in-progress article.inspection").first().waitFor();
+ assert(await page.locator("#inspections-in-progress article.inspection").count()===7,
+   "Legacy structured demo query did not render seven fictional inspections");
+ const liveStructured=await page.request.get(base+"/inspectors",{maxRedirects:0});
+ assert(liveStructured.status()===200 && !(liveStructured.headers()["location"]||"").includes("/demo/"),
+   "Regular inspector search route was diverted to fictional demo");
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
