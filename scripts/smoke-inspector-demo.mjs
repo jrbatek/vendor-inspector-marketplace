@@ -226,6 +226,23 @@ try {
   assert(await cal.locator(".legend .busy").innerText() === "Personal Busy", "Calendar legend must clearly name Personal Busy");
   const busyOption = cal.locator(".availabilityActions select option[value=\"Busy\"]");
   assert(await busyOption.innerText() === "Personal Busy", "Block Dates should label Personal Busy without altering its underlying status");
+  // The embedded Inspector Calendar's actions must be large enough to operate
+  // on narrow mobile Month grids and must remain identifiable without changing
+  // the existing Open assignment button name relied on by keyboard reviewers.
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({width, height:960});
+    const monthAction = cal.locator(".month .assignmentAction").first();
+    const hit = await monthAction.evaluate(el => ({
+      height:el.getBoundingClientRect().height,
+      width:el.getBoundingClientRect().width,
+      parentWidth:el.parentElement?.getBoundingClientRect().width || 0
+    }));
+    assert(hit.height >= 44 && hit.width <= hit.parentWidth + 2,
+      "Calendar Open assignment touch target too small or overflowing at "+width+"px: "+JSON.stringify(hit));
+    assert((await monthAction.getAttribute("title"))?.includes("assignment details"),
+      "Calendar Open assignment lacks a project-specific description");
+  }
+  await page.setViewportSize({width:1440, height:960});
   const tabs = cal.getByRole("group", { name: "Calendar view" });
   assert(await tabs.getByRole("button", { name: "Month" }).getAttribute("aria-pressed") === "true", "Month not the default calendar view");
   assert(await cal.getByText(/Our Anniversary · All day/).count() >= 1, "Private synthetic anniversary missing");
@@ -388,6 +405,8 @@ try {
   assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
 
   assert(await tabs.getByRole("button", { name: "Week" }).getAttribute("aria-pressed") === "true", "Week view cannot be selected");
+  assert(await cal.locator(".week .assignmentAction").first().evaluate(el => el.getBoundingClientRect().height >= 44),
+    "Week Open assignment target must be at least 44px tall");
   const weekDatePicker = cal.getByRole("button", { name: "Choose 2026-11-11 for availability" });
   await weekDatePicker.click();
   assert(await weekDatePicker.getAttribute("aria-pressed") === "true", "Selected Week day has no visible state");
@@ -404,6 +423,8 @@ try {
     "Switching Month to Week lost the selected day");
   await tabs.getByRole("button", { name: "List" }).click();
   assert(await tabs.getByRole("button", { name: "List" }).getAttribute("aria-pressed") === "true", "List view cannot be selected");
+  assert(await cal.locator(".list .assignmentAction").first().evaluate(el => el.getBoundingClientRect().height >= 44),
+    "List Open assignment target must be at least 44px tall");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "List view lacks privacy label for external events");
   assert((await cal.locator(".list .busy").allInnerTexts()).some(label=>label.includes("Personal Busy · Our Anniversary")),
     "List view must identify inspector-only anniversary as Personal Busy, consistent with legend");
