@@ -1,0 +1,5 @@
+# InspectSource development log — November 19, 2026 (InspectorHub scrollspy)
+- High-priority single-page InspectorHub fix: previous scrollspy captured eight section nodes just once during hydration, risking stale active sidebar selection when nested Work History, Income or other dashboards mounted later. Same failure mechanism was found in Client Demo PR #361.
+- Resolve current section elements dynamically on every scroll and resize. At document end, highlight Income only if it has passed the normal reading threshold, rather than overriding Work History because a lower section peeks in.
+- Preserve green left-side text navigation, hash/Back/Forward, keyboard use, uninterrupted Calendar demo state and full embedded dashboards. Add a new source contract regression; retain existing hosted Inspector Chromium scrollspy coverage.
+- Demo-only; no live auth, RLS, data or payment changes. Mandate Validate application, Autonomous QA, exact-head Vercel preview READY; merge sequentially after competing Client Demo PR #364, revalidate against current main and then verify production READY/smoke. Review-gated #288/#360/#56 unchanged.
