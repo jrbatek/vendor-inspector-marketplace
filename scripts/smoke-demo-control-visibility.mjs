@@ -20,7 +20,8 @@ const routes = [
   "/demo/inspector-documents", "/demo/inspector-work-history", "/demo/inspector-income",
   "/demo/agency", "/demo/agency-opportunities", "/demo/agency-resources", "/demo/agency-affiliations", "/demo/agency-commercials",
   "/demo/client-data", "/demo/client-operations", "/demo/inspector-selection-outcomes",
-  "/demo/inspector-affiliations", "/demo/inspector-reports", "/demo/email-requirements"
+  "/demo/inspector-affiliations", "/demo/inspector-reports", "/demo/email-requirements",
+  "/email-requirements?demo=1", "/email-requirements"
 ];
 async function ready() {
   for (let n = 0; n < 40; n++) {
@@ -477,6 +478,73 @@ try {
           if (await links.first().isVisible())
             throw new Error("Client mobile navigation remained visible after collapse");
         }
+      }
+      // Every nested Client, Inspector, and Agency demo route inherits a single
+      // floating Back to top control. Check real mobile/desktop interaction.
+      if (route.startsWith("/demo/") || route === "/email-requirements?demo=1") {
+        // Short report/detail pages must behave correctly once content grows.
+        await page.evaluate(() => {
+          const spacer = document.createElement("div");
+          spacer.id = "demo-back-to-top-test-spacer";
+          spacer.setAttribute("aria-hidden", "true");
+          spacer.style.height = "1200px";
+          document.body.appendChild(spacer);
+          window.scrollTo({ top: 0, behavior: "instant" });
+        });
+        await page.waitForFunction(() => window.scrollY < 8);
+        const back = page.getByRole("button", { name: "Back to top" });
+        // React commits the state after a scroll animation frame, not synchronously.
+        await back.waitFor({ state: "hidden", timeout: 4000 });
+        await page.evaluate(() => window.scrollTo({ top: 360, behavior: "instant" }));
+        await page.waitForFunction(() => window.scrollY >= 350);
+        await page.waitForTimeout(90);
+        await back.waitFor({ state: "hidden", timeout: 4000 }).catch(() => {
+          throw new Error(route + " Demo Back to top appeared before threshold");
+        });
+        await page.evaluate(() => window.scrollTo({ top: 850, behavior: "instant" }));
+        await back.waitFor({ state: "visible", timeout: 7000 })
+          .catch(() => { throw new Error(route + " Demo Back to top missing after scroll"); });
+        const geometry = await back.boundingBox();
+        if (!geometry || geometry.width < 120 || geometry.height < 44 ||
+            geometry.x + geometry.width > width || geometry.y + geometry.height > 900 ||
+            geometry.y < (width < 600 ? 70 : 0)) {
+          throw new Error(width + "px " + route + " Demo Back to top is clipped or obscures mobile header");
+        }
+        // Tab is needed to establish true keyboard modality for :focus-visible.
+        // It can move focus to an earlier control and scroll a long dashboard up,
+        // temporarily hiding this threshold-driven button. Restore our explicit
+        // >=500px setup before focusing the floating control.
+        await page.keyboard.press("Tab");
+        await page.evaluate(() => window.scrollTo({ top: 850, behavior: "instant" }));
+        await back.waitFor({ state: "visible", timeout: 5000 });
+        await back.focus();
+        const focusWidth = await back.evaluate(node => parseFloat(getComputedStyle(node).outlineWidth));
+        if (focusWidth < 2) throw new Error(route + " Demo Back to top lacks keyboard focus");
+        if (width === 390) await page.emulateMedia({ reducedMotion: "reduce" });
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(() => window.scrollY < 8, null, { timeout: 8000 })
+          .catch(async () => {
+            const diagnostic = await page.evaluate(() => ({
+              y: window.scrollY, docTop: document.documentElement.scrollTop,
+              height: document.documentElement.scrollHeight, innerHeight: window.innerHeight,
+              active: document.activeElement?.getAttribute("aria-label") || document.activeElement?.tagName,
+              backButton: !!document.querySelector('button[aria-label="Back to top"]'),
+              url: location.href,
+            }));
+            throw new Error(route + " Demo Back to top failed keyboard activation: " + JSON.stringify(diagnostic));
+          });
+        await back.waitFor({ state: "hidden", timeout: 5000 });
+        if (width === 390) await page.emulateMedia({ reducedMotion: "no-preference" });
+        await page.evaluate(() => document.getElementById("demo-back-to-top-test-spacer")?.remove());
+      }
+      if (route === "/email-requirements") {
+        await page.evaluate(() => {
+          const spacer=document.createElement("div"); spacer.style.height="1200px"; document.body.appendChild(spacer);
+          window.scrollTo({top:800,behavior:"instant"});
+        });
+        await page.waitForTimeout(120);
+        if (await page.getByRole("button", { name: "Back to top" }).count())
+          throw new Error("Live email requirements route must not mount Demo Back to top");
       }
       console.log("Demo control visibility OK:", width + "px", route, result.checked);
     }
