@@ -29,16 +29,21 @@ export default function InspectorDemo(){
  // All eight content sections remain mounted. This viewport scrollspy selects
  // exactly one active sidebar item without destroying calendar or report state.
  useEffect(()=>{
-   const elements=NAV.map(([id])=>document.getElementById(id)).filter((el):el is HTMLElement=>Boolean(el));
-   if(!elements.length)return;
+   // Re-resolve lazily mounted dashboard anchors on every scroll/resize update.
+   const resolveElements=()=>NAV.map(([id])=>document.getElementById(id)).filter((el):el is HTMLElement=>Boolean(el));
    let frame=0;
    const update=()=>{
+     const elements=resolveElements();
+     if(!elements.length)return;
      const threshold=Math.min(220,Math.max(100,window.innerHeight*0.25));
      let current:Section="home";
      for(const el of elements)if(el.getBoundingClientRect().top<=threshold)current=el.id as Section;
      const last=elements[elements.length-1];
-     // Highlight Income when it reaches the reading threshold, not when its heading peeks in at the bottom.
-     if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id as Section;
+     // A short last section must not steal Work History's highlight merely by
+     // peeking into the bottom of the viewport during a clamped scroll.
+     const atDocumentEnd=window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4;
+     const incomeAtReadingLine=last.getBoundingClientRect().top<=threshold;
+     if(atDocumentEnd && incomeAtReadingLine)current=last.id as Section;
      setSection(current);
    };
    const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(update);};
