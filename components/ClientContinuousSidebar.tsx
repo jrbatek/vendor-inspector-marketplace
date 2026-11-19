@@ -56,7 +56,13 @@ export default function ClientContinuousSidebar(){
    const element=document.getElementById(id);
    if(!element)return;
    event.preventDefault();
-   if(window.location.hash!=="#"+id)window.history.pushState(null,"","#"+id);
+   // Retain the synthetic inspection-list snapshot when moving between embedded
+   // sections. A refresh or Back/Forward must not erase the reviewer's filters.
+   // Copy only our demo key, not Next.js internal history fields or live data.
+   if(window.location.hash!=="#"+id){
+     const saved=window.history.state?.__inspectSourceClientInspectionList;
+     window.history.pushState(saved ? {__inspectSourceClientInspectionList:saved} : null,"","#"+id);
+   }
    setActive(id);
    setMobileOpen(false);
    element.scrollIntoView({

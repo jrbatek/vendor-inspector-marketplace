@@ -746,6 +746,34 @@ try{
     "Legacy sidebar returned to authenticated empty Client Workspace shell: "+anchor);
  }
 
+ // Continuous Client sections are navigational anchors, not a fresh workspace.
+ // Preserve synthetic inspection list state when jumping to Analytics and
+ // returning through Back/Forward or refreshing a bookmarked section.
+ await page.goto(base+"/demo/client",{waitUntil:"domcontentloaded"});
+ await page.locator("#inspections-in-progress article.inspection").first().waitFor();
+ await page.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
+ await page.waitForFunction(() => history.state?.__inspectSourceClientInspectionList?.filters?.stage==="Kickoff");
+ const clientSectionNav=page.getByRole("complementary",{name:"Client Workspace navigation"});
+ await clientSectionNav.getByRole("link",{name:"Analytics",exact:true}).click();
+ await page.waitForFunction(() => location.hash==="#analytics");
+ assert(await page.evaluate(() => history.state?.__inspectSourceClientInspectionList?.filters?.stage)==="Kickoff",
+   "Client sidebar navigation discarded the synthetic inspection filter snapshot");
+ await page.reload({waitUntil:"domcontentloaded"});
+ await page.waitForFunction(() => document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff");
+ assert(await page.locator("#inspections-in-progress article.inspection").count()===1,
+   "Reloading the Client Analytics anchor lost the filtered synthetic inspection list");
+ await page.getByRole("complementary",{name:"Client Workspace navigation"}).getByRole("link",{name:"Inspections in Progress",exact:true}).click();
+ await page.waitForFunction(() => location.hash==="#inspections-in-progress");
+ assert(await page.evaluate(() => history.state?.__inspectSourceClientInspectionList?.filters?.stage)==="Kickoff",
+   "Returning to in-progress inspections lost the list snapshot");
+ await page.goBack();
+ await page.waitForFunction(() => location.hash==="#analytics");
+ assert(await page.getByRole("combobox",{name:"Status / stage"}).inputValue()==="Kickoff",
+   "Client sidebar browser Back lost the synthetic list filter");
+ await page.goForward();
+ await page.waitForFunction(() => location.hash==="#inspections-in-progress");
+ assert(await page.locator("#inspections-in-progress article.inspection").count()===1,
+   "Client sidebar browser Forward lost the filtered inspection list");
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
