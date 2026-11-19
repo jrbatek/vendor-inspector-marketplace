@@ -234,6 +234,15 @@ try {
    const connections = cal.locator(".calendarConnections");
    const googleConnected = connections.getByRole("button", { name: "Google Calendar · Connected (demo)" });
    assert(await googleConnected.getAttribute("aria-pressed") === "true", "Google demo connection should start linked");
+   const connectorBoxes=await connections.locator(".connectors button").evaluateAll(buttons=>buttons.map(button=>{
+     const bounds=button.getBoundingClientRect();
+     return {top:bounds.top,height:bounds.height,width:bounds.width};
+   }));
+   assert(connectorBoxes.length===3&&connectorBoxes.every(box=>box.height>=44),
+     "Calendar provider controls must retain at least 44px touch targets: "+JSON.stringify(connectorBoxes));
+   assert(Math.max(...connectorBoxes.map(box=>box.top))-Math.min(...connectorBoxes.map(box=>box.top))<=2,
+     "Desktop calendar providers must be aligned in a single compact row");
+
    const outlookLink = connections.getByRole("button", { name: "Connect Outlook Calendar" });
    assert(await outlookLink.getAttribute("aria-pressed") === "false", "Outlook should start unlinked");
    await outlookLink.click();
