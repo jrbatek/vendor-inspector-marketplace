@@ -402,6 +402,28 @@ try {
   assert(await cal.getByLabel("Start date").inputValue() === "2026-11-18", "List selection must prefill start date");
   assert(await cal.getByLabel("End date").inputValue() === "2026-11-18", "List selection must prefill end date");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "Selecting a private List event must not expose or overwrite it");
+  // List renders event dates only, so ArrowDown must skip unmarked days
+  // instead of moving keyboard focus to a nonexistent day button.
+  await listDatePicker.focus();
+  await listDatePicker.press("ArrowDown");
+  const nextListDate=cal.getByRole("button",{name:"Choose 2026-11-20 from list for availability"});
+  assert(await nextListDate.getAttribute("aria-pressed")==="true" &&
+    await nextListDate.evaluate(el=>document.activeElement===el),
+    "List ArrowDown did not skip unlisted dates and retain keyboard focus");
+  await nextListDate.press("End");
+  const lastListDate=cal.getByRole("button",{name:"Choose 2026-11-27 from list for availability"});
+  assert(await lastListDate.getAttribute("aria-pressed")==="true" &&
+    await lastListDate.evaluate(el=>document.activeElement===el),
+    "List End did not select and focus the last scheduled event date");
+  await lastListDate.press("Shift+Home");
+  const firstListDate=cal.getByRole("button",{name:"Choose 2026-11-09 from list for availability"});
+  assert(await firstListDate.evaluate(el=>document.activeElement===el) &&
+    await cal.getByLabel("Start date").inputValue()==="2026-11-09" &&
+    await cal.getByLabel("End date").inputValue()==="2026-11-27",
+    "List Shift+Home did not select an inclusive range between event dates");
+  assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2,
+    "List keyboard navigation changed protected private calendar entries");
+
   await tabs.getByRole("button", { name: "Month" }).click();
   await cal.getByRole("button", { name: "Open assignment" }).first().click();
   assert(await page.getByRole("heading", { name: /LNG Compressor Package|Gulf Horizon Refinery Upgrade|Orion Deepwater Platform/ }).count() > 0, "Calendar inspection did not open a populated assignment");

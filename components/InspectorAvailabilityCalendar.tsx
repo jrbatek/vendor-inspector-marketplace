@@ -185,6 +185,32 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     setMonth(next.slice(0,7));
     setWeekAnchor(next);
   };
+  // List view has entries only for days with events. Move to the next listed
+  // DATE, not the next calendar day, or keyboard focus would disappear into a
+  // date that has no List button. Same-date events share a single focus target.
+  const onListDateKey=(event:KeyboardEvent<HTMLButtonElement>,date:string)=>{
+    if(!["ArrowUp","ArrowDown","Home","End"].includes(event.key) || event.altKey || event.ctrlKey || event.metaKey)return;
+    const dates=Array.from(new Set(events.filter(item=>item.date.startsWith(month)).map(item=>item.date))).sort();
+    const current=dates.indexOf(date);
+    if(current<0)return;
+    const index=event.key==="Home"?0:event.key==="End"?dates.length-1:
+      Math.max(0,Math.min(dates.length-1,current+(event.key==="ArrowUp"?-1:1)));
+    const next=dates[index];
+    event.preventDefault();
+    if(event.shiftKey){
+      const first=selectionAnchor.current<next?selectionAnchor.current:next;
+      const last=selectionAnchor.current>next?selectionAnchor.current:next;
+      if(dateRange(first,last).length===0){
+        setNotice("Choose an availability range of no more than 62 days. Your existing selection was preserved.");
+        return;
+      }
+      extendSelection(next);
+    }else{
+      selectionAnchor.current=next;setStart(next);setEnd(next);setNotice("");
+    }
+    pendingKeyboardFocus.current=next;
+    setWeekAnchor(next);
+  };
   const rangeDates = dateRange(start,end);
   const invalidRange = !start || !end || rangeDates.length === 0;
   // Read-only selected-range impact helps avoid overwriting protected inspections or
@@ -266,7 +292,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       <p className="connectionStatus" role="status">Linked in this demo: {Object.entries(calendarConnections).filter(([,linked]) => linked).map(([provider]) => provider).join(", ") || "None"}. Session-only preview; no OAuth or calendar sync.</p>
     </section>
     {notice && <p role={noticeIsWarning ? "alert" : "status"} className={noticeIsWarning ? "notice warning" : "notice"}>{notice}</p>}
-    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates. Use arrow keys to move by day or week, Home/End for Sunday/Saturday, and PageUp/PageDown for the adjacent month. Hold Shift with a navigation key to extend the selection.</p>
+    <p className="rangeTip">Choose a date, then hold Shift and choose another date to select up to 62 days. You can also edit the Start and End dates below. Selection alone never blocks dates. Use arrow keys to move by day or week, Home/End for Sunday/Saturday, and PageUp/PageDown for the adjacent month. Hold Shift with a navigation key to extend the selection. In List view, Up/Down moves between listed event dates and Home/End jumps to the first/last listed date.</p>
     <div className="viewTabs" role="group" aria-label="Calendar view">
       {(["Month", "Week", "List"] as View[]).map((item) => <button key={item} aria-pressed={view === item} className={view === item ? "selected" : ""} onClick={() => switchView(item)}>{item}</button>)}
     </div>
@@ -280,7 +306,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       const dayEvents=events.filter(event=>event.date===date);
       return <article key={date}><button type="button" className="weekPicker" data-calendar-date={date} onKeyDown={e=>onDateArrow(e,date)} aria-label={`Choose ${date} for availability`} aria-current={date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(date)} onClick={e=>{if(e.shiftKey){extendSelection(date);return;}selectionAnchor.current=date;setStart(date);setEnd(date);setNotice("");}}>{date}</button>{dayEvents.length?dayEvents.map((event,i)=><span key={date+"-"+i} className={stateClass(event.state)}>{event.label}{event.state==="Assigned"&&event.project&&<button type="button" onClick={()=>onOpenAssignment?.(event.project!)}>Open assignment</button>}</span>):<span className="not-set" title="No inspector availability confirmed for this date">Not set</span>}</article>;
     })}</div></>}
-    {view === "List" && <div className="list" aria-label="List view">{listEvents.length===0 ? <section className="emptyList" role="status"><strong>No scheduled demo events in {monthLabel}</strong><p>This fictional month has no scheduled inspections, holds or personal Busy blocks. Unmarked days are Not set, not confirmed available. Use Month view to select dates or Block dates to simulate availability.</p><button type="button" onClick={()=>setView("Month")}>Open Month calendar</button></section> : listEvents.map((event, i) => <article key={`${event.date}-${i}`}><button type="button" className="listPicker" aria-label={`Choose ${event.date} from list for availability`} aria-current={event.date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(event.date)} onClick={e=>{if(e.shiftKey){extendSelection(event.date);return;}selectionAnchor.current=event.date;setStart(event.date);setEnd(event.date);setNotice("");}}>{event.date}</button><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span></article>)}</div>}
+    {view === "List" && <div className="list" aria-label="List view">{listEvents.length===0 ? <section className="emptyList" role="status"><strong>No scheduled demo events in {monthLabel}</strong><p>This fictional month has no scheduled inspections, holds or personal Busy blocks. Unmarked days are Not set, not confirmed available. Use Month view to select dates or Block dates to simulate availability.</p><button type="button" onClick={()=>setView("Month")}>Open Month calendar</button></section> : listEvents.map((event, i) => <article key={`${event.date}-${i}`}><button type="button" className="listPicker" data-calendar-date={event.date} onKeyDown={e=>onListDateKey(e,event.date)} aria-label={`Choose ${event.date} from list for availability`} aria-current={event.date===DEMO_TODAY?"date":undefined} aria-pressed={isDateSelected(event.date)} onClick={e=>{if(e.shiftKey){extendSelection(event.date);return;}selectionAnchor.current=event.date;setStart(event.date);setEnd(event.date);setNotice("");}}>{event.date}</button><span className={stateClass(event.state)}>{`${event.state} · ${event.label}`}{event.external && <small>Inspector only · client view: Busy</small>}{event.state === "Assigned" && event.project && <button onClick={() => onOpenAssignment?.(event.project!)}>Open assignment</button>}</span></article>)}</div>}
     <form onSubmit={e => {
       e.preventDefault();
       if (start > end) { setNotice("Choose an ordered date range."); return; }
