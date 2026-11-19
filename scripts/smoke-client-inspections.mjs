@@ -56,6 +56,8 @@ try{
  // Natural-language intake remains functional inside the same public Client Demo.
  const natural=page.locator("#natural-language");
  const request=natural.getByRole("textbox",{name:"Inspection requirement"});
+ assert(await request.getAttribute("aria-describedby") === "demo-request-limit",
+   "Client scope textarea refers to a nonexistent upload status when no upload is pending");
  const originalText=await request.inputValue();
  await request.fill("Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.");
  await natural.getByRole("button",{name:"Preview request (demo)"}).click();
@@ -67,6 +69,8 @@ try{
  await natural.locator('input[type="file"]').setInputFiles({
    name:"invalid-scope.pdf",mimeType:"application/pdf",buffer:Buffer.from("%PDF-fictional")
  });
+ assert(await request.getAttribute("aria-describedby") === "demo-request-limit demo-upload-status",
+   "Client scope textarea must describe the visible upload rejection message");
  assert((await natural.locator("#demo-upload-status").innerText()).includes("accepts TXT"),
    "Unsupported scope upload did not provide actionable validation feedback");
  assert(await request.inputValue()==="Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.",
@@ -109,6 +113,8 @@ try{
  await natural.locator("#demo-upload-status").waitFor({state:"detached",timeout:8000});
  assert(await natural.locator("#demo-upload-status").count()===0,
    "Manually edited Client scope retained a stale Loaded filename status");
+ assert(await request.getAttribute("aria-describedby") === "demo-request-limit",
+   "Client scope textarea kept a stale aria-describedby reference after editing");
  // Browser-local File.text() can resolve out of order; only the newest request may win.
  await page.evaluate(()=>{
    const nativeText=File.prototype.text;

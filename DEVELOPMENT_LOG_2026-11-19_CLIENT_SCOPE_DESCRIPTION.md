@@ -1,0 +1,5 @@
+# InspectSource development log — November 19, 2026 (Client scope descriptions)
+- P0 visible/accessibility regression: Client Demo's Natural Language – AI textarea always referenced upload-status through aria-describedby even when that element was not mounted. The stale ID remained after editing cleared the message.
+- Scope: safe synthetic Client Demo only. Dynamically describe the live upload-status element only while it exists; always retain the static 10,000-character limit description. No request text, file handling, live routing, or production writes changed.
+- Add Chromium lifecycle assertions for initial no-upload state, rejected PDF upload and status disappearance after manual edits. Preserve existing upload and race-condition regression checks. Add a source contract.
+- Validate application, Autonomous QA, and exact-head Vercel Preview READY required prior to ordinary low-risk merge; verify Production READY and smoke after merge. No changes to auth, RLS, privacy, bank or payment behavior.
