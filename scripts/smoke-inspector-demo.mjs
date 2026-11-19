@@ -396,6 +396,10 @@ try {
   await tabs.getByRole("button", { name: "List" }).click();
   assert(await tabs.getByRole("button", { name: "List" }).getAttribute("aria-pressed") === "true", "List view cannot be selected");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2, "List view lacks privacy label for external events");
+  assert((await cal.locator(".list .busy").allInnerTexts()).some(label=>label.includes("Personal Busy · Our Anniversary")),
+    "List view must identify inspector-only anniversary as Personal Busy, consistent with legend");
+  assert((await cal.locator(".list .busy").allInnerTexts()).some(label=>label.includes("Personal Busy · Doctor Appointment")),
+    "List view must identify inspector-only appointment as Personal Busy, without exposing it outside inspector demo");
   const listDatePicker = cal.getByRole("button", { name: "Choose 2026-11-18 from list for availability" });
   await listDatePicker.click();
   assert(await listDatePicker.getAttribute("aria-pressed") === "true", "Selected List event date has no visible state");
