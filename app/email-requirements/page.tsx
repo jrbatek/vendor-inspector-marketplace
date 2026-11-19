@@ -7,7 +7,7 @@ import DemoBackToTop from "@/components/DemoBackToTop";
 
 const mailto = "mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request";
 const SAMPLE_REQUEST = `Location: Houston, Texas
-Start date: September 14, 2026
+Start date: December 7, 2026
 Duration: 3 weeks
 Inspection type: API 570 piping inspection
 Required credentials: API 570, TWIC
