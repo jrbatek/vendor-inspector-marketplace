@@ -304,6 +304,19 @@ try{
  await dueButton.click();
  assert(await page.locator("article.inspection .nextAction").count()===7,"Next-action text and due dates must be visible on every card");
  assert(await page.locator("article.inspection").count()===7,"Sorting must not change results count");
+ // Faceted counts must update alongside project filters instead of staying at global totals.
+ const facetProject=page.getByLabel("Project",{exact:true});
+ await facetProject.selectOption({label:"North Sea Wind Array"});
+ assert(await page.getByRole("group",{name:"Outstanding-action urgency"}).getByRole("button",{name:"Due or overdue (0)"}).count()===1,
+   "Due badge did not follow the selected project");
+ assert(await page.getByRole("group",{name:"Non-conformance focus"}).getByRole("button",{name:"With open NCR (0)"}).count()===1,
+   "NCR badge did not follow the selected project");
+ await facetProject.selectOption({label:"Pacific Hydrogen Hub"});
+ assert(await page.getByRole("group",{name:"Outstanding-action urgency"}).getByRole("button",{name:"Due or overdue (1)"}).count()===1,
+   "Due badge missed the filtered Pacific Hydrogen action");
+ assert(await page.getByRole("group",{name:"Non-conformance focus"}).getByRole("button",{name:"With open NCR (1)"}).count()===1,
+   "NCR badge missed the filtered Pacific Hydrogen finding");
+ await page.getByRole("button",{name:"Reset filters"}).click();
  // Fixed fictional demo reference date: 1 overdue (Nov 7) and 1 due today (Nov 8).
  const dueFocus=page.getByRole("group",{name:"Outstanding-action urgency"});
  await dueFocus.getByRole("button",{name:"Due or overdue (2)"}).click();
@@ -320,7 +333,7 @@ try{
  assert(await ncrOnlyButton.getAttribute("aria-pressed")==="true","Selected NCR-only focus is not visible");
  assert(await page.locator("article.inspection").count()===1,"Open-NCR focus must show the single fictional case");
  assert((await page.locator("article.inspection").first().innerText()).includes("Pacific Hydrogen Hub"),"Open-NCR focus selected the wrong inspection");
- await dueFocus.getByRole("button",{name:"Due or overdue (2)"}).click();
+ await dueFocus.getByRole("button",{name:"Due or overdue (1)"}).click();
  assert(await page.locator("article.inspection").count()===1,"NCR and overdue focus must compose");
  await page.getByRole("searchbox",{name:"Search inspections"}).fill("Bayou");
  assert(await page.locator("article.inspection").count()===0,"NCR focus and keyword must compose to empty state");
