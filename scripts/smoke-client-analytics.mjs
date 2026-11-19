@@ -206,6 +206,27 @@ try {
     if(await clientSidebar.getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")==="location")
       throw new Error("Client sidebar prematurely highlighted Profile when only visible at viewport bottom");
   }
+  // Regress bottom-of-document clamping: selecting Contracts must highlight
+  // Contracts, not the Profile section merely peeking into the viewport.
+  await clientSidebar.getByRole("link",{name:"Contracts",exact:true}).click();
+  try {
+    await page.waitForFunction(() => location.hash==="#contracts" &&
+      document.querySelector('nav[aria-label="Client Workspace sections"] a[href="#contracts"]')?.getAttribute("aria-current")==="location",null,{timeout:8000});
+  } catch(error){
+    const state=await page.evaluate(()=>({
+      href:location.href,hash:location.hash,scrollY,viewport:innerHeight,documentHeight:document.documentElement.scrollHeight,
+      active:[...document.querySelectorAll('nav[aria-label="Client Workspace sections"] a[aria-current]')].map(a=>a.textContent),
+      contractsTop:document.getElementById("contracts")?.getBoundingClientRect().top,
+      profileTop:document.getElementById("profile")?.getBoundingClientRect().top,
+      sidebarPresent:!!document.querySelector('nav[aria-label="Client Workspace sections"] a[href="#contracts"]'),
+    }));
+    throw new Error("Contracts navigation timeout: "+JSON.stringify(state)+"; "+String(error));
+  }
+  assert(await clientSidebar.getByRole("link",{name:"Profile",exact:true}).getAttribute("aria-current")!=="location",
+    "Client Contracts bottom-of-page navigation incorrectly highlighted Profile");
+  await clientSidebar.getByRole("link",{name:"Profile",exact:true}).click();
+  await page.waitForFunction(() => location.hash==="#profile" &&
+    document.querySelector('nav[aria-label="Client Workspace sections"] a[href="#profile"]')?.getAttribute("aria-current")==="location");
   // Real-mobile Client Workspace navigation must not occupy the whole screen.
   await page.setViewportSize({width:390,height:780});
   const mobileNavToggle=clientSidebar.getByRole("button",{name:"Show sections"});

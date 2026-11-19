@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState,type MouseEvent} from "react";
+import {useEffect,useRef,useState,type MouseEvent} from "react";
 
 const SECTIONS=[
   ["request-inspectors","Request Inspectors",false],
@@ -16,24 +16,37 @@ const SECTIONS=[
 export default function ClientContinuousSidebar(){
  const [active,setActive]=useState<string>("request-inspectors");
  const [mobileOpen,setMobileOpen]=useState(false);
+ const explicitNavigation=useRef<string|null>(null);
  useEffect(()=>{
-   const elements=SECTIONS.map(([id])=>document.getElementById(id)).filter((el):el is HTMLElement=>Boolean(el));
-   if(!elements.length)return;
+   // Sections can mount after the sidebar hydrates. Resolve on each update,
+   // never cache an incomplete set (Firefox can mount lower sections later).
+   const resolveElements=()=>SECTIONS.map(([id])=>document.getElementById(id)).filter((el):el is HTMLElement=>Boolean(el));
    let frame=0;
    const update=()=>{
+     const elements=resolveElements();
+     if(!elements.length)return;
      const threshold=Math.min(240,Math.max(100,window.innerHeight*0.25));
      let current=elements[0].id;
      for(const el of elements){if(el.getBoundingClientRect().top<=threshold)current=el.id;}
      const last=elements[elements.length-1];
      // Highlight Profile at the end of the document, not when it only peeks
      // into the viewport bottom while Contracts remains the reading section.
-     if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)current=last.id;
-     setActive(current);
+     const atDocumentEnd=window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4;
+     // A partially visible last section should not steal the active Contracts
+     // link merely because the document has reached its scroll limit.
+     const profileAtReadingLine=last.getBoundingClientRect().top<=threshold;
+     if(atDocumentEnd && (profileAtReadingLine || window.location.hash==="#profile"))current=last.id;
+     // Smooth-scrolling to a short section can clamp before its heading reaches
+     // the reading threshold (notably Firefox near the document bottom). Honor
+     // a clicked/deep-linked section until the reader starts scrolling again.
+     const requested=explicitNavigation.current;
+     setActive(requested && elements.some(el=>el.id===requested)?requested:current);
    };
    const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(update);};
    const onHash=()=>{
      const id=window.location.hash.slice(1);
      if(SECTIONS.some(([key])=>key===id)){
+       explicitNavigation.current=id;
        document.getElementById(id)?.scrollIntoView({
          behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
          block:"start",
@@ -45,9 +58,15 @@ export default function ClientContinuousSidebar(){
    const initialFrame=window.requestAnimationFrame(()=>{if(location.hash)onHash();else update();});
    window.addEventListener("scroll",schedule,{passive:true});
    window.addEventListener("resize",schedule);
+   const releaseNavigation=()=>{if(explicitNavigation.current){explicitNavigation.current=null;schedule();}};
+   const onScrollKey=(event:KeyboardEvent)=>{if(["ArrowDown","ArrowUp","PageDown","PageUp","Home","End"," "].includes(event.key))releaseNavigation();};
+   window.addEventListener("wheel",releaseNavigation,{passive:true});
+   window.addEventListener("touchstart",releaseNavigation,{passive:true});
+   window.addEventListener("pointerdown",releaseNavigation);
+   window.addEventListener("keydown",onScrollKey);
    window.addEventListener("hashchange",onHash);
    window.addEventListener("popstate",onHash);
-   return()=>{cancelAnimationFrame(initialFrame);cancelAnimationFrame(frame);window.removeEventListener("scroll",schedule);window.removeEventListener("resize",schedule);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
+   return()=>{cancelAnimationFrame(initialFrame);cancelAnimationFrame(frame);window.removeEventListener("scroll",schedule);window.removeEventListener("resize",schedule);window.removeEventListener("wheel",releaseNavigation);window.removeEventListener("touchstart",releaseNavigation);window.removeEventListener("pointerdown",releaseNavigation);window.removeEventListener("keydown",onScrollKey);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
  },[]);
  const onNavigate=(event:MouseEvent<HTMLAnchorElement>,id:string)=>{
    // Keep real anchors usable for copying and modified-click; ordinary clicks
@@ -63,6 +82,7 @@ export default function ClientContinuousSidebar(){
      const saved=window.history.state?.__inspectSourceClientInspectionList;
      window.history.pushState(saved ? {__inspectSourceClientInspectionList:saved} : null,"","#"+id);
    }
+   explicitNavigation.current=id;
    setActive(id);
    setMobileOpen(false);
    element.scrollIntoView({
