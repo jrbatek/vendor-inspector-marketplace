@@ -10,8 +10,8 @@ import ClientAnalyticsEmbedBoundary from "@/components/ClientAnalyticsEmbedBound
 import ClientOperationsDemo from "@/app/demo/client-operations/page";
 const MAX_REQUEST_CHARS=10000;
 const MAX_UPLOAD_BYTES=256*1024;
-const DEFAULT_CRITERIA={region:"Gulf Coast",qualification:"API 570",start:"2026-11-16",experience:"5",source:"Both"};
-const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting November 16 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
+const DEFAULT_CRITERIA={region:"Gulf Coast",qualification:"API 570",start:"2026-12-07",experience:"5",source:"Both"};
+const sampleRequest=`We need two API 570 inspectors for a refinery turnaround in Houston starting December 7 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.`;
 const portfolioAreas=[
  {title:"Inspections in Progress",description:"Open seven synthetic inspections with schedules, milestones, sample reports, NCRs and client actions.",href:"/demo/client-inspections",cta:"Open inspections"},
  {title:"Contracted Agencies & sourcing",description:"Compare contracted agency coverage, capacity and commercial channels with eligible independent inspectors.",href:"/demo/client-agency-sourcing",cta:"Explore sourcing"},
@@ -31,7 +31,7 @@ export default function ClientDemo(){
   setCriteriaPreview("");
  };
  async function copyEmailSample(){
-  const message="Location: Houston, Texas\nStart: November 16, 2026\nDuration: 3 weeks\nScope: API 570 piping inspection\nQualification: API 570 and TWIC\nEquipment: refinery process piping\nBudget: USD 950/day\nTravel: local preferred";
+  const message="Location: Houston, Texas\nStart: December 7, 2026\nDuration: 3 weeks\nScope: API 570 piping inspection\nQualification: API 570 and TWIC\nEquipment: refinery process piping\nBudget: USD 950/day\nTravel: local preferred";
   try{await navigator.clipboard.writeText(message);setEmailCopyStatus("Sample request copied.");}
   catch{setEmailCopyStatus("Clipboard unavailable. Copy the sample fields from this section.");}
  }
@@ -77,7 +77,7 @@ export default function ClientDemo(){
  <p>Send requirements to <a href="mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request">inspectsource2026@gmail.com</a> with subject <strong>InspectSource - Inspection Request</strong>. Opening the email app does not send anything automatically.</p>
  <p>Describe project/vendor, inspection location and dates, equipment, scope, qualifications, day-rate expectations, travel and shifts. Attach relevant ITPs, drawings or specs (PDF, DOCX, XLSX, CSV, TXT, JPG, PNG; up to 20 MB total). Do not include unneeded personal data.</p>
  <p className="textMeta">A typical response takes about five minutes. Only available inspectors are returned. Emailing this real inbox is separate from the fictional demo.</p>
- <div className="sample"><strong>Sample scope</strong><span>Houston refinery, Nov 16, 2026, three weeks, API 570 piping inspection, TWIC, local preferred, USD 950/day</span><strong>Subject</strong><span>InspectSource - Inspection Request</span></div>
+ <div className="sample"><strong>Sample scope</strong><span>Houston refinery, Dec 7, 2026, three weeks, API 570 piping inspection, TWIC, local preferred, USD 950/day</span><strong>Subject</strong><span>InspectSource - Inspection Request</span></div>
  <button type="button" className="primaryButton actionable" onClick={()=>void copyEmailSample()}>Copy Sample Request</button>
  <span className="textMeta" role="status" aria-live="polite">{emailCopyStatus}</span>
  <a className="quietLink" href="mailto:inspectsource2026@gmail.com?subject=InspectSource%20-%20Inspection%20Request">Open email app</a>

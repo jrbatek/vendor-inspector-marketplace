@@ -6,7 +6,7 @@ const page = readFileSync("app/demo/client/page.tsx", "utf8");
 const smoke = readFileSync("scripts/smoke-client-inspections.mjs", "utf8");
 
 test("Client Structured Selection can reset all five criteria without submitting any real request",()=>{
-  assert.match(page,/const DEFAULT_CRITERIA=\{region:"Gulf Coast",qualification:"API 570",start:"2026-11-16",experience:"5",source:"Both"\}/);
+  assert.match(page,/const DEFAULT_CRITERIA=\{region:"Gulf Coast",qualification:"API 570",start:"2026-12-07",experience:"5",source:"Both"\}/);
   assert.ok(page.includes("Reset criteria"));
   assert.ok(page.includes('setCriteria({...DEFAULT_CRITERIA});setCriteriaPreview("");'));
   assert.ok(page.includes('type="button" className="resetCriteria"'));
