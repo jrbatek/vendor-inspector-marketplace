@@ -42,7 +42,8 @@ test("Client sidebar native anchors use motion-aware smooth scrolling and preser
  assert.match(sidebar,/type MouseEvent/);
  assert.match(sidebar,/event\.metaKey\|\|event\.ctrlKey/);
  assert.match(sidebar,/event\.preventDefault\(\)/);
- assert.match(sidebar,/window\.history\.pushState\(null,"","#"\+id\)/);
+ assert.match(sidebar,/window\.history\.pushState\(saved \? \{__inspectSourceClientInspectionList:saved\} : null,"","#"\+id\)/);
+ assert.match(sidebar,/window\.history\.state\?\.__inspectSourceClientInspectionList/);
  assert.match(sidebar,/scrollIntoView\(\{/);
  assert.match(sidebar,/prefers-reduced-motion: reduce/);
  assert.match(sidebar,/onClick=\{event=>onNavigate\(event,id\)\}/);
