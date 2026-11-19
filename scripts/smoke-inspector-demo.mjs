@@ -423,6 +423,12 @@ try {
     "List Shift+Home did not select an inclusive range between event dates");
   assert(await cal.getByText("Inspector only · client view: Busy").count() >= 2,
     "List keyboard navigation changed protected private calendar entries");
+  // Return to the original Nov 18 anchor before existing assignment-navigation
+  // assertions. The keyboard range test intentionally changed Start/End.
+  await listDatePicker.click();
+  assert(await cal.getByLabel("Start date").inputValue()==="2026-11-18" &&
+    await cal.getByLabel("End date").inputValue()==="2026-11-18",
+    "List keyboard smoke did not restore its starting date before assignment navigation");
 
   await tabs.getByRole("button", { name: "Month" }).click();
   await cal.getByRole("button", { name: "Open assignment" }).first().click();
