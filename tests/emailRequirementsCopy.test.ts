@@ -27,3 +27,12 @@ test("public email requirements sidebar leads to synthetic active inspections in
   assert.match(inspections, /Seven fictional inspections/);
   assert.match(inspections, /No login required/);
 });
+
+
+test("standalone email sample dates agree with the current Client Demo request", () => {
+  const client = fs.readFileSync("app/demo/client/page.tsx", "utf8");
+  assert.match(source, /Start date: December 7, 2026/);
+  assert.match(client, /starting December 7 for approximately three weeks/);
+  assert.doesNotMatch(source, /Start date: September 14, 2026/);
+  assert.match(source, /const SAMPLE_REQUEST =/);
+});
