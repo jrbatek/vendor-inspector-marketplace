@@ -3,6 +3,7 @@ import { buildProjectBrief } from "./projectCoordinator";
 
 export type DemoCandidate = {
   id: string;
+  source: "Agency" | "Independent";
   title: string;
   location: string;
   yearsExperience: number;
@@ -26,6 +27,7 @@ type DemoProfile = Omit<DemoCandidate, "availability" | "shifts"> & {
 const profiles: DemoProfile[] = [
   {
     id: "IS-1042",
+    source: "Independent",
     title: "Refinery piping inspector",
     location: "Houston, Texas",
     city: "Houston",
@@ -44,6 +46,7 @@ const profiles: DemoProfile[] = [
   },
   {
     id: "IS-1314",
+    source: "Agency",
     title: "Piping and pressure vessel inspector",
     location: "Houston, Texas",
     city: "Houston",
@@ -62,6 +65,7 @@ const profiles: DemoProfile[] = [
   },
   {
     id: "IS-1187",
+    source: "Agency",
     title: "Process piping inspector",
     location: "Beaumont, Texas",
     city: "Beaumont",
@@ -173,4 +177,32 @@ export function getDemoCandidates(requestText: string): DemoCandidate[] {
     availability: `${dateLabel.format(Date.parse(profile.availableFrom))} – ${dateLabel.format(Date.parse(profile.availableThrough))}`,
     shifts: `Day or night shifts up to ${profile.maxShiftHours} hours`,
   }));
+}
+
+
+// Structured Selection uses the same browser-local fictional roster and eligibility
+// checks as Natural Language. Only the chosen start day can be checked because the
+// structured prototype has no assignment-duration field. Never claim live coverage.
+export type StructuredDemoCriteria = {
+  region: string; qualification: string; start: string; experience: string; source: string;
+};
+
+export function getStructuredDemoCandidates(criteria: StructuredDemoCriteria): DemoCandidate[] {
+  const minYears = Number(criteria.experience);
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(criteria.start) ||
+      Number.isNaN(Date.parse(criteria.start)) ||
+      !Number.isInteger(minYears) || minYears < 0 || minYears > 40 ||
+      !["Gulf Coast", "Middle East", "Europe", "All regions"].includes(criteria.region) ||
+      !["API 570", "API 510", "AWS CWI", "Any qualification"].includes(criteria.qualification) ||
+      !["Both", "Agency", "Independent"].includes(criteria.source)) return [];
+
+  // The sample roster is Texas-only. Do not invent inspectors in other regions.
+  if (criteria.region === "Middle East" || criteria.region === "Europe") return [];
+  const qualification = criteria.qualification === "Any qualification" ? "" : criteria.qualification;
+  const geography = criteria.region === "Gulf Coast" ? " in Gulf Coast" : "";
+  const scope = `${qualification} piping inspector${geography} starting ${criteria.start} for 1 day`;
+  return getDemoCandidates(scope).filter(candidate =>
+    candidate.yearsExperience >= minYears &&
+    (!qualification || candidate.credentials.includes(qualification)) &&
+    (criteria.source === "Both" || candidate.source === criteria.source));
 }

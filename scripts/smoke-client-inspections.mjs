@@ -257,7 +257,7 @@ try{
  await structured.getByRole("button",{name:"Preview selected criteria"}).click();
  const criteriaStatus=await structured.getByRole("status").innerText();
  assert(criteriaStatus.includes("Europe")&&criteriaStatus.includes("AWS CWI")&&criteriaStatus.includes("7+ years")&&
-   criteriaStatus.includes("No matching, commercial offer or production request was created"),
+   criteriaStatus.includes("no production matching, commercial offer or production request was created"),
    "Structured Selection failed to preview changed fictional criteria safely");
  // A previous summary is no longer current once the user changes any input.
  await structured.getByLabel("Geography").selectOption("Middle East");
@@ -284,6 +284,36 @@ try{
  await structured.getByRole("button",{name:"Preview selected criteria"}).click();
  assert((await structured.getByRole("status").innerText()).includes("Gulf Coast · API 570 · 2026-12-07 · 5+ years · Both"),
    "Preview after Reset criteria must reflect defaults rather than stale selections");
+ // Structured Selection now uses the same fictional CV renderer without sharing
+ // result IDs or making a production search. Filters must change its candidates.
+ const structuredCv=structured.locator("#structured-candidate-results");
+ assert(await structuredCv.locator("article").count()===2,
+   "Structured defaults must preview two local fictional candidate CVs");
+ assert(await structuredCv.getByText("IS-1042").count()===1 &&
+        await structuredCv.getByText("IS-1314").count()===1,
+   "Structured defaults did not return the matching Houston fictional inspectors");
+ assert(await page.locator("#structured-candidate-results-title").count()===1 &&
+        await page.locator("#demo-shortlist #structured-candidate-results-title").count()===0 &&
+        await page.locator("#candidate-cvs-title").count()<=1,
+   "Structured CVs must have an independent, unique heading ID even if Natural results were cleared");
+ await structured.getByLabel("Inspector source").selectOption("Agency");
+ assert(await structuredCv.count()===0,
+   "Structured candidate CVs remained visible after changing the source");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert(await structuredCv.locator("article").count()===1 &&
+        await structuredCv.getByText("IS-1314").count()===1,
+   "Agency-only synthetic sourcing must return only the fictional Agency candidate");
+ await structured.getByLabel("Inspector source").selectOption("Independent");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert(await structuredCv.locator("article").count()===1 &&
+        await structuredCv.getByText("IS-1042").count()===1,
+   "Independent-only synthetic sourcing must return only the fictional independent candidate");
+ await structured.getByLabel("Geography").selectOption("Europe");
+ await structured.getByRole("button",{name:"Preview selected criteria"}).click();
+ assert(await structuredCv.locator("article").count()===0 &&
+        (await structuredCv.innerText()).includes("No available candidates"),
+   "A Texas-only demo roster must not fabricate Europe inspector CV matches");
+ await structured.getByRole("button",{name:"Reset criteria"}).click();
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
    "New inline request mechanism unexpectedly routed to authenticated workspace");
  // Nov 11 owner: the Client Workspace is one continuous public page, not a

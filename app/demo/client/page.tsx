@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import ClientDemoCandidateResults from "@/components/ClientDemoCandidateResults";
-import { getDemoCandidates, type DemoCandidate } from "@/lib/clientDemoCandidates";
+import { getDemoCandidates, getStructuredDemoCandidates, type DemoCandidate } from "@/lib/clientDemoCandidates";
 import ClientContinuousSidebar from "@/components/ClientContinuousSidebar";
 import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContext";
 import ClientInspectionsDemo from "@/app/demo/client-inspections/page";
@@ -28,9 +28,11 @@ export default function ClientDemo(){
  const [naturalPreview,setNaturalPreview]=useState<DemoCandidate[] | string | null>(null);
  const [criteria,setCriteria]=useState({...DEFAULT_CRITERIA});
  const [criteriaPreview,setCriteriaPreview]=useState("");
+ const [criteriaCandidates,setCriteriaCandidates]=useState<DemoCandidate[]|null>(null);
  const updateCriterion=(key:keyof typeof criteria,value:string)=>{
   setCriteria(current=>({...current,[key]:value}));
   setCriteriaPreview("");
+  setCriteriaCandidates(null);
  };
  async function copyEmailSample(){
   const message="Location: Houston, Texas\nStart: December 7, 2026\nDuration: 3 weeks\nScope: API 570 piping inspection\nQualification: API 570 and TWIC\nEquipment: refinery process piping\nBudget: USD 950/day\nTravel: local preferred";
@@ -102,15 +104,16 @@ export default function ClientDemo(){
  <Link className="quietLink" href="/demo/email-requirements">Full email attachment guidance</Link></article>
  <article id="structured-selection" className="requestCard"><h2>Structured Selection</h2>
  <p>Structured selection uses standard fields for location, dates, discipline, certifications, experience, commodity, travel and rate. Enter criteria here to preview the selected fictional requirements without submitting them to production.</p>
- <form aria-label="Structured inspector criteria (demo)" onSubmit={e=>{e.preventDefault();setCriteriaPreview("Demo criteria preview: "+criteria.region+" · "+criteria.qualification+" · "+criteria.start+" · "+criteria.experience+"+ years · "+criteria.source+". No matching, commercial offer or production request was created.");}}>
+ <form aria-label="Structured inspector criteria (demo)" onSubmit={e=>{e.preventDefault();setCriteriaPreview("Demo criteria preview: "+criteria.region+" · "+criteria.qualification+" · "+criteria.start+" · "+criteria.experience+"+ years · "+criteria.source+". Only the chosen start date is checked. All candidates are fictional; no production matching, commercial offer or production request was created.");setCriteriaCandidates(getStructuredDemoCandidates(criteria));}}>
  <div className="intakeFields">
  <label>Geography<select value={criteria.region} onChange={e=>updateCriterion("region",e.target.value)}><option>Gulf Coast</option><option>Middle East</option><option>Europe</option><option>All regions</option></select></label>
  <label>Required certification<select value={criteria.qualification} onChange={e=>updateCriterion("qualification",e.target.value)}><option>API 570</option><option>API 510</option><option>AWS CWI</option><option>Any qualification</option></select></label>
  <label>Inspection start<input type="date" required value={criteria.start} onChange={e=>updateCriterion("start",e.target.value)}/></label>
  <label>Minimum experience (years)<input type="number" min="0" max="40" required value={criteria.experience} onChange={e=>updateCriterion("experience",e.target.value)}/></label>
  <label>Inspector source<select value={criteria.source} onChange={e=>updateCriterion("source",e.target.value)}><option>Both</option><option>Agency</option><option>Independent</option></select></label></div>
- <div className="criteriaActions"><button type="submit" className="primaryButton actionable">Preview selected criteria</button><button type="button" className="resetCriteria" onClick={()=>{setCriteria({...DEFAULT_CRITERIA});setCriteriaPreview("");}}>Reset criteria</button></div></form>
+ <div className="criteriaActions"><button type="submit" className="primaryButton actionable">Preview selected criteria</button><button type="button" className="resetCriteria" onClick={()=>{setCriteria({...DEFAULT_CRITERIA});setCriteriaPreview("");setCriteriaCandidates(null);}}>Reset criteria</button></div></form>
  {criteriaPreview&&<p role="status" className="criteriaNotice" aria-live="polite">{criteriaPreview}</p>}
+ {criteriaCandidates!==null&&<ClientDemoCandidateResults candidates={criteriaCandidates} resultId="structured-candidate-results" announceCount={false}/>}
  <Link className="quietLink" href="/demo/client-agency-sourcing">Explore synthetic sourcing channels and inspector examples</Link></article></div></section>
  <section className="portfolio"><div className="portfolioHeading"><div><p className="eyebrow">Full client experience</p><h2>Explore the synthetic client portfolio</h2><span>60 global inspection records across three major projects, sample reports, billing, contracts and analytics. The completed portfolio shows a 1.8% NCR rate versus a 2.1% global running average.</span></div><Link className="inspectorSwitch" href="/demo/agency">Switch to Agency Demo →</Link></div><section id="inspections-in-progress" className="embeddedDemoBlock" aria-label="Inspections in Progress"><ClientDemoEmbeddedContext.Provider value={true}><ClientInspectionsDemo/></ClientDemoEmbeddedContext.Provider></section>
  <section id="analytics" className="embeddedDemoBlock" aria-label="Analytics"><ClientDemoEmbeddedContext.Provider value={true}><ClientAnalyticsEmbedBoundary><ClientAnalyticsDemo/></ClientAnalyticsEmbedBoundary></ClientDemoEmbeddedContext.Provider></section>

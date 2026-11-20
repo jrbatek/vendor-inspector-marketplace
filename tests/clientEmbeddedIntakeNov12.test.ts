@@ -15,7 +15,9 @@ test("Client single-page Structured Selection has keyboard-usable browser-local 
  for(const label of ["Geography","Required certification","Inspection start","Minimum experience","Inspector source"])assert.ok(client.includes(label),label);
  assert.match(client,/aria-label="Structured inspector criteria \(demo\)"/);
  assert.match(client,/onSubmit=\{e=>\{e.preventDefault\(\);setCriteriaPreview/);
- assert.match(client,/No matching, commercial offer or production request was created/);
+ assert.match(client,/No production matching, commercial offer or production request was created/i);
+ assert.match(client,/getStructuredDemoCandidates\(criteria\)/);
+ assert.match(client,/StructuredDemoCandidateResults|structured-candidate-results/);
  assert.match(client,/\.intakeFields select:focus-visible,\.intakeFields input:focus-visible/);
  assert.doesNotMatch(client,/FormData|fetch\(|\.insert\(|supabaseBrowser/i);
 });
