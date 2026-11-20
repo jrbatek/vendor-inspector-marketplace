@@ -48,6 +48,24 @@ test("common dollar budgets select the lower rate and unsupported currencies sta
   assert.deepEqual(getDemoCandidates("Synthetic scope: API 510 vessel inspection, Houston FAT, supplier dossier verification."), []);
 });
 
+test("yearless completion dates span New Year using the stated start year", () => {
+  const named = "API 570 piping inspector in Houston starting December 29, 2026 through January 5";
+  const iso = "API 570 piping inspector in Houston from 2026-12-29 through Jan 5";
+  const yearless = "API 570 piping inspector in Houston starting Dec 29 through Jan 5";
+  for (const request of [named, iso, yearless]) {
+    assert.equal(demoCandidateStartDateIssue(request), null, request);
+    assert.deepEqual(getDemoCandidates(request).map(person => person.id), ["IS-1314"], request);
+  }
+  // Never silently roll a year that was explicitly supplied by the client.
+  for (const reversed of [
+    "API 570 piping inspector in Houston starting December 29, 2026 through January 5, 2026",
+    "API 570 piping inspector in Houston starting December 7, 2026 through December 1",
+  ]) {
+    assert.match(demoCandidateStartDateIssue(reversed) ?? "", /end date on or after/, reversed);
+    assert.deepEqual(getDemoCandidates(reversed), [], reversed);
+  }
+});
+
 test("an explicit end date must fall inside the candidate’s availability", () => {
   assert.deepEqual(getDemoCandidates("API 570 in Houston from 2026-12-07 through 2027-01-08").map(p => p.id), ["IS-1314"]);
   assert.deepEqual(getDemoCandidates("API 570 in Houston starting December 7 through January 9, 2027"), []);
