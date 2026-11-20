@@ -108,6 +108,7 @@ try{
      ]);
      const filename=download.suggestedFilename();
      assert(filename.includes(candidateId)&&filename.endsWith(".pdf"),"Downloaded CV filename must identify its candidate");
+      assert(filename.includes(candidateName.replace(/[^a-zA-Z0-9]+/g,"-")),"Downloaded CV filename must include the fictional inspector name");
      const chunks=[];
      for await(const chunk of await download.createReadStream())chunks.push(chunk);
      const pdf=Buffer.concat(chunks);

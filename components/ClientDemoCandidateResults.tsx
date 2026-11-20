@@ -14,7 +14,8 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
       const url = URL.createObjectURL(new Blob([Uint8Array.from(bytes).buffer], { type: "application/pdf" }));
       const link = document.createElement("a");
       link.href = url;
-      link.download = `InspectSource-${candidate.id}-demo-CV.pdf`;
+      const safeName = candidate.name.trim().replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "");
+      link.download = `InspectSource-${safeName}-${candidate.id}-demo-CV.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
