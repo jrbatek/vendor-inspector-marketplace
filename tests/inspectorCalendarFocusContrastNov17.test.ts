@@ -15,6 +15,6 @@ test("P0-B calendar focus ring has strong dark contrast on white and mint backgr
 });
 
 test("calendar browser smoke still exercises focusable Month/Week/List and disabled controls",()=>{
-  for(const marker of ['Calendar view','Jump to month','Next month','Return to demo today, November 9 2026'])
+  for(const marker of ['Calendar view','Jump to month','Next month','Return to fictional demo snapshot, November 9 2026'])
     assert.ok(smoke.includes(marker),`calendar browser coverage missing: ${marker}`);
 });

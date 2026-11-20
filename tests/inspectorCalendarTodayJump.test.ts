@@ -10,7 +10,7 @@ test("Inspector Calendar offers a deterministic return-to-today across Month, We
  for (const marker of ['setMonth(DEMO_TODAY.slice(0, 7))','setWeekAnchor(DEMO_TODAY)','setStart(DEMO_TODAY)','setEnd(DEMO_TODAY)']){
    assert.ok(source.includes(marker),marker);
  }
- assert.match(source,/aria-label="Return to demo today, November 9 2026"/);
+ assert.match(source,/aria-label="Return to fictional demo snapshot, November 9 2026"/);
  assert.match(source,/aria-current=\{dateForDay\(day\)===DEMO_TODAY\?"date":undefined\}/);
  assert.match(source,/aria-current=\{date===DEMO_TODAY\?"date":undefined\}/);
  assert.match(source,/aria-current=\{event.date===DEMO_TODAY\?"date":undefined\}/);
