@@ -121,10 +121,35 @@ const technicalScopes = [
 ];
 
 function demoScope(text: string) {
-  // Resolve yearless named starts against the demo calendar even after the sample year.
-  return text.replace(/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})\b(?:,?\s+(20\d{2})\b)?/gi,
-    (_, month: string, day: string, year?: string) => `${month} ${day}, ${year ?? "2026"}`)
-    .replace(/\bAPI[- ]?(\d{3,4})\b/gi, "API $1");
+  // Undated sample starts use 2026. For an *end* date without a year, inherit
+  // the preceding start year, moving into the next year only when the end
+  // month precedes the start month (Dec 29 through Jan 5). Never reinterpret
+  // an explicitly supplied completion year or a backwards date in one month.
+  const namedDates = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})\b(?:,?\s+(20\d{2})\b)?/gi;
+  const earlierDates = /\b(?:20\d{2}-\d{2}-\d{2}|(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{1,2}(?:,?\s+20\d{2})?)\b/gi;
+  return text.replace(namedDates, (_whole, month: string, day: string, explicitYear: string | undefined, offset: number) => {
+    let year = Number(explicitYear ?? "2026");
+    if (!explicitYear) {
+      const prefix = text.slice(0, offset);
+      const connector = prefix.match(/\b(?:to|through|until|ending)\s*$/i);
+      if (connector && connector.index !== undefined) {
+        const earlier = Array.from(prefix.slice(0, connector.index).matchAll(earlierDates));
+        const last = earlier.at(-1)?.[0];
+        if (last) {
+          const statedYear = last.match(/\b20\d{2}\b/)?.[0];
+          const startYear = Number(statedYear ?? "2026");
+          const anchor = Date.parse(last.startsWith("20") && last.includes("-")
+            ? `${last}T00:00:00Z`
+            : `${last}${statedYear ? "" : ", 2026"} UTC`);
+          const candidate = Date.parse(`${month} ${day}, ${startYear} UTC`);
+          if (Number.isFinite(anchor) && Number.isFinite(candidate)) {
+            year = startYear + Number(new Date(candidate).getUTCMonth() < new Date(anchor).getUTCMonth());
+          }
+        }
+      }
+    }
+    return `${month} ${day}, ${year}`;
+  }).replace(/\bAPI[- ]?(\d{3,4})\b/gi, "API $1");
 }
 
 function servesLocation(profile: DemoProfile, location: string | null) {
