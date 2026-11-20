@@ -140,8 +140,15 @@ try{
  assert((await natural.locator(".naturalPreview").innerText())===localPreview,
    "Oversize scope upload erased a valid previously generated preview");
  assert(await candidates.count()===candidateCount,"Oversize scope upload erased the candidate CVs");
- await request.fill("We need an API 653 tank inspector in Houston for a December turnaround.");
+ // Missing dates must not be presented as verified availability.
+ await request.fill("We need an API 570 piping inspector in Houston for a December turnaround.");
  await shortlist.waitFor({state:"detached"});
+ await previewButton.click();
+ assert((await previewStatus.innerText()).includes("specific inspection start date") && await shortlist.count()===0,
+   "Undated Client request must ask for an explicit inspection start rather than presenting available CVs");
+ // Keep the unsupported-certification regression separately dated so it checks
+ // the actual credential gate, not the missing-date gate.
+ await request.fill("We need an API 653 tank inspector in Houston starting December 7, 2026 for a three-week turnaround.");
  await previewButton.click();
  await shortlist.waitFor({state:"visible"});
  assert(await candidates.count()===0 && /\b(?:no|0)\b/i.test(await previewStatus.innerText()),
