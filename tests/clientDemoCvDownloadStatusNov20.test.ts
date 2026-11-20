@@ -17,4 +17,7 @@ test("fictional Client CV download has truthful, legible and accessible result f
   assert.match(card, /Download CV \(PDF\)/);
   assert.match(browser, /waitForEvent\("download"\)/);
   assert.match(browser, /Downloaded candidate CV is not a complete PDF/);
+  assert.match(browser, /downloadNotice=candidate\.getByRole\("status"\)/);
+  assert.match(browser, /Successful demo CV PDF preparation did not announce its result/);
+  assert.match(browser, /Fictional CV PDF success feedback is no longer legible/);
 });

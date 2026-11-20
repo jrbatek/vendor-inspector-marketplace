@@ -114,6 +114,13 @@ try{
      const pdf=Buffer.concat(chunks);
      assert(pdf.subarray(0,5).toString()==="%PDF-"&&pdf.includes(Buffer.from("%%EOF")),
        "Downloaded candidate CV is not a complete PDF");
+     const downloadNotice=candidate.getByRole("status").filter({hasText:"Fictional CV PDF prepared."});
+     await downloadNotice.waitFor({state:"visible"});
+     assert((await downloadNotice.innerText()).includes("Check your browser downloads"),
+       "Successful demo CV PDF preparation did not announce its result");
+     const noticeColor=await downloadNotice.evaluate(node=>getComputedStyle(node).color);
+     assert(noticeColor==="rgb(17, 94, 89)",
+       "Fictional CV PDF success feedback is no longer legible: "+noticeColor);
    }
    await toggle.click();
    assert(!await cv.evaluate(details=>details.open),"The CV for "+candidateId+" did not collapse");
