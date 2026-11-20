@@ -191,10 +191,17 @@ export type StructuredDemoCriteria = {
   region: string; qualification: string; start: string; experience: string; source: string;
 };
 
+// Date.parse normalizes impossible days (for example February 30 -> March 2).
+// Validate the exact UTC calendar day before describing anyone as available.
+export function isValidStructuredDemoStartDate(value: string): boolean {
+  if (!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(value)) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 export function getStructuredDemoCandidates(criteria: StructuredDemoCriteria): DemoCandidate[] {
   const minYears = Number(criteria.experience);
-  if (!/^20\d{2}-\d{2}-\d{2}$/.test(criteria.start) ||
-      Number.isNaN(Date.parse(criteria.start)) ||
+  if (!isValidStructuredDemoStartDate(criteria.start) ||
       !Number.isInteger(minYears) || minYears < 0 || minYears > 40 ||
       !["Gulf Coast", "Middle East", "Europe", "All regions"].includes(criteria.region) ||
       !["API 570", "API 510", "AWS CWI", "Any qualification"].includes(criteria.qualification) ||
