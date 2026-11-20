@@ -143,9 +143,13 @@ function withinWindow(profile: DemoProfile, start: string | null, days: number |
     && lastDay <= Date.parse(profile.availableThrough);
 }
 
+// Keep explicit completion dates out of the shared start-date parser: that
+// parser otherwise treats an ISO completion day as the inspection start.
+const explicitEndPattern = /\b(?:to|through|until|ending)\s+(20\d{2}-\d{2}-\d{2}|[a-z]{3,9} \d{1,2}, 20\d{2})\b/i;
+
 /** Validate an explicitly requested completion day before claiming a fictional availability window. */
 function explicitDemoEndDate(scope: string): { specified: boolean; timestamp: number | null } {
-  const text = scope.match(/\b(?:to|through|until|ending)\s+(20\d{2}-\d{2}-\d{2}|[a-z]{3,9} \d{1,2}, 20\d{2})\b/i)?.[1];
+  const text = scope.match(explicitEndPattern)?.[1];
   if (!text) return { specified: false, timestamp: null };
   if (/^20\d{2}-/.test(text) && !isValidStructuredDemoStartDate(text)) {
     return { specified: true, timestamp: null };
@@ -164,22 +168,23 @@ function explicitDemoEndDate(scope: string): { specified: boolean; timestamp: nu
 
 /** Candidate availability is meaningful only when the fictional request has a real start day. */
 export function demoCandidateStartDateIssue(requestText: string): string | null {
-  const start = buildProjectBrief(demoScope(requestText.trim())).startDate;
+  const scope = demoScope(requestText.trim());
+  const end = explicitDemoEndDate(scope);
+  if (end.specified && end.timestamp === null) return "Enter a real calendar end date before previewing fictional availability.";
+  const start = buildProjectBrief(scope.replace(explicitEndPattern, "")).startDate;
   if (!start) return "Add a specific inspection start date (for example, December 7, 2026) to check the fictional candidates' availability.";
   if (!isValidStructuredDemoStartDate(start)) return "Enter a real calendar start date before previewing available fictional candidates.";
-  const end = explicitDemoEndDate(demoScope(requestText.trim()));
-  if (end.specified && end.timestamp === null) return "Enter a real calendar end date before previewing fictional availability.";
   return null;
 }
 
 export function getDemoCandidates(requestText: string): DemoCandidate[] {
   const scope = demoScope(requestText.trim());
-  const brief = buildProjectBrief(scope);
+  const requestedEnd = explicitDemoEndDate(scope);
+  if (requestedEnd.specified && requestedEnd.timestamp === null) return [];
+  const brief = buildProjectBrief(scope.replace(explicitEndPattern, ""));
   // Never call a fictional inspector 'available' when the start date is absent
   // or impossible (Date.parse can silently roll February 30 into March).
   if (!brief.startDate || !isValidStructuredDemoStartDate(brief.startDate)) return [];
-  const requestedEnd = explicitDemoEndDate(scope);
-  if (requestedEnd.specified && requestedEnd.timestamp === null) return [];
   const end = requestedEnd.timestamp;
   // In "for $900/day" the shared parser can capture FOR as a currency.
   const currency = ["FOR", "MAX", "PAY", "CAP", "AND", "PER"].includes(brief.maximumDayRateCurrency ?? "")

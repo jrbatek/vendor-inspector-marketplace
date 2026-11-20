@@ -75,4 +75,8 @@ test("fictional availability rejects impossible explicit completion dates instea
   }
   assert.equal(demoCandidateStartDateIssue(request + "December 30, 2026"), null);
   assert.deepEqual(getDemoCandidates(request + "December 30, 2026").map(c=>c.id), ["IS-1042", "IS-1314"]);
+  // An ISO completion date must not replace the actual stated start.
+  assert.deepEqual(getDemoCandidates("API 570 in Houston from 2026-12-07 through 2026-12-30").map(c=>c.id), ["IS-1042", "IS-1314"]);
+  assert.equal(demoCandidateStartDateIssue("API 570 in Houston from 2026-12-07 through 2026-11-31")?.includes("end date"), true);
+  assert.deepEqual(getDemoCandidates("API 570 in Houston from 2026-12-07 through 2026-11-31"), []);
 });
