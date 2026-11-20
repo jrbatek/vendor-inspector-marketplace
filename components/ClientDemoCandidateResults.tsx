@@ -26,9 +26,10 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
   }
 
   return (
-    <article className="candidate" aria-label={`Inspector ${candidate.id}`}>
-      <p className="identity">Inspector {candidate.id}</p>
-      <h4>{candidate.title}</h4>
+    <article className="candidate" aria-label={`Fictional inspector ${candidate.name} (${candidate.id})`}>
+      <p className="identity">Fictional inspector · {candidate.id}</p>
+      <h4>{candidate.name}</h4>
+      <p className="role">{candidate.title}</p>
       <p className="location">{candidate.location} · {candidate.yearsExperience} years of experience</p>
       <ul className="credentials" aria-label="Credentials">
         {candidate.credentials.map(credential => <li key={credential}>{credential}</li>)}
@@ -40,7 +41,7 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
         <dt>Day rate</dt><dd>USD {candidate.dayRateUsd.toLocaleString("en-US")}/day</dd>
       </dl>
       <details>
-        <summary aria-label={`View CV for Inspector ${candidate.id}`}>View CV</summary>
+        <summary aria-label={`View CV for fictional inspector ${candidate.name} (${candidate.id})`}>View CV</summary>
         <div className="cv">
           <h5>Relevant experience</h5>
           <p>{candidate.summary}</p>
@@ -56,6 +57,7 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
         .candidate {border:1px solid #cbd5e1;border-radius:12px;padding:16px;min-width:0;background:white;color:#152d46}
         .identity {margin:0 0 3px;color:#0f6970;font-size:.83rem;font-weight:700}
         h4 {margin:0;font-size:1.06rem}
+        .role {margin:3px 0 0;font-weight:650;color:#152d46}
         .location {margin:4px 0 10px;color:#475569;line-height:1.4}
         .credentials {display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0;list-style:none}
         .credentials li {padding:3px 8px;border:1px solid #cbd5e1;border-radius:5px;background:#f8fafc;font-size:.82rem}

@@ -7,6 +7,7 @@ const defaults={region:"Gulf Coast",qualification:"API 570",start:"2026-12-07",e
 test("Structured Selection returns two named fictional Houston CVs with disclosed agency/independent sources",()=>{
  const candidates=getStructuredDemoCandidates(defaults);
  assert.deepEqual(candidates.map(candidate=>candidate.id),["IS-1042","IS-1314"]);
+ assert.deepEqual(candidates.map(candidate=>candidate.name),["Avery Calder","Maya Ellison"]);
  assert.deepEqual(candidates.map(candidate=>candidate.source),["Independent","Agency"]);
  assert.ok(candidates.every(candidate=>candidate.workHistory.length>0&&candidate.credentials.includes("API 570")));
 });

@@ -19,7 +19,8 @@ test("each Houston candidate downloads a readable CV containing their own experi
     const words = Array.from(operators.matchAll(/<([\da-f]+)> Tj/gi), match => Buffer.from(match[1], "hex").toString("latin1"));
     const pageText = words.join(" ").replace(/\s+/g, " ");
     for (const detail of [
-      candidate.id, candidate.title, candidate.location, candidate.yearsExperience + " years of experience",
+      candidate.id, candidate.name, candidate.title, candidate.location, candidate.yearsExperience + " years of experience",
+      "FICTIONAL DEMO PROFILE - NOT A REAL INSPECTOR", "Fictional source: " + candidate.source,
       candidate.summary, ...candidate.credentials, ...candidate.workHistory, candidate.availability,
       candidate.shifts, "USD " + candidate.dayRateUsd.toLocaleString("en-US") + " per day", "Fictional candidate",
     ]) {

@@ -3,6 +3,7 @@ import { buildProjectBrief } from "./projectCoordinator";
 
 export type DemoCandidate = {
   id: string;
+  name: string;
   source: "Agency" | "Independent";
   title: string;
   location: string;
@@ -27,6 +28,7 @@ type DemoProfile = Omit<DemoCandidate, "availability" | "shifts"> & {
 const profiles: DemoProfile[] = [
   {
     id: "IS-1042",
+    name: "Avery Calder",
     source: "Independent",
     title: "Refinery piping inspector",
     location: "Houston, Texas",
@@ -46,6 +48,7 @@ const profiles: DemoProfile[] = [
   },
   {
     id: "IS-1314",
+    name: "Maya Ellison",
     source: "Agency",
     title: "Piping and pressure vessel inspector",
     location: "Houston, Texas",
@@ -65,6 +68,7 @@ const profiles: DemoProfile[] = [
   },
   {
     id: "IS-1187",
+    name: "Nolan Pierce",
     source: "Agency",
     title: "Process piping inspector",
     location: "Beaumont, Texas",
