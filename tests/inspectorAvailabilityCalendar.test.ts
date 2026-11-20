@@ -69,7 +69,10 @@ test("calendar navigates real months and seven-day selected weeks across month b
 });
 test("block dates support cross-month ranges and protect assigned/private events",()=>{
  assert.match(calendar,/dateRange\(start,end\)/);
- assert.match(calendar,/length>62/);
+ const rangeSource=fs.readFileSync(path.join(process.cwd(),"lib/demoCalendarDateRange.ts"),"utf8");
+ assert.match(calendar,/demoCalendarDateRange as dateRange/);
+ assert.match(rangeSource,/count > 62/);
+ assert.match(rangeSource,/new Date\(timestamp\)\.toISOString\(\)\.slice\(0, 10\) !== value/);
  assert.match(calendar,/event\.external/);
  assert.doesNotMatch(calendar,/max="2026-10-31"/);
 });
