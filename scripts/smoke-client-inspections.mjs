@@ -155,6 +155,13 @@ try{
  await previewButton.click();
  assert((await previewStatus.innerText()).includes("end date on or after the requested start date") && await shortlist.count()===0,
    "A real but reversed completion date must produce actionable guidance, not fictional availability");
+ // A yearless completion after New Year uses 2027 and must not reject a
+ // genuinely available fictional inspector as a reversed 2026 date.
+ await request.fill("We need an API 570 piping inspector in Houston starting December 29, 2026 through January 5.");
+ await previewButton.click();
+ await shortlist.waitFor({state:"visible"});
+ assert(await candidates.count()===1 && (await candidates.first().innerText()).includes("Maya Ellison"),
+   "Cross-year fictional availability should retain the agency inspector through January 5, 2027");
  // Keep the unsupported-certification regression separately dated so it checks
  // the actual credential gate, not the missing-date gate.
  await request.fill("We need an API 653 tank inspector in Houston starting December 7, 2026 for a three-week turnaround.");
