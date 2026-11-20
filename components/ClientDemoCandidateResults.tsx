@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DemoCandidate } from "@/lib/clientDemoCandidates";
 
 function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
-  const [downloadState, setDownloadState] = useState<"idle" | "loading" | "error">("idle");
+  const [downloadState, setDownloadState] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   async function downloadCv() {
     setDownloadState("loading");
@@ -20,7 +20,7 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      setDownloadState("idle");
+      setDownloadState("success");
     } catch {
       setDownloadState("error");
     }
@@ -51,7 +51,8 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
           <button type="button" disabled={downloadState === "loading"} onClick={downloadCv}>
             {downloadState === "loading" ? "Preparing PDF…" : "Download CV (PDF)"}
           </button>
-          {downloadState === "error" && <p role="alert">The PDF could not be prepared. Try the download again.</p>}
+          {downloadState === "success" && <p className="downloadStatus" role="status">Fictional CV PDF prepared. Check your browser downloads.</p>}
+          {downloadState === "error" && <p className="downloadStatus error" role="alert">The PDF could not be prepared. Try the download again.</p>}
         </div>
       </details>
       <style jsx>{`
@@ -69,7 +70,8 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
         summary:hover {text-decoration:underline}
         summary:focus-visible,button:focus-visible {outline:3px solid #0d9488;outline-offset:2px}
         .cv {padding:2px 0 4px}.cv h5 {font-size:.94rem;margin:0 0 5px}
-        .cv p,.cv ul {margin:0 0 14px;color:#334155;line-height:1.5}.cv ul {padding-left:1.3rem}.cv li+li {margin-top:5px}
+        .cv p,.cv ul {margin:0 0 14px;color:#334155;line-height:1.5}
+        .cv .downloadStatus {margin:10px 0;color:#115e59;font-weight:700}.cv .downloadStatus.error {color:#991b1b}.cv ul {padding-left:1.3rem}.cv li+li {margin-top:5px}
         button {cursor:pointer;min-height:44px;padding:8px 14px;border:1px solid #0f766e;border-radius:8px;color:#115e59;background:#fff;font:inherit;font-weight:700}
         button:hover {background:#f0fdfa} button:disabled {color:#475569;cursor:progress}
       `}</style>
