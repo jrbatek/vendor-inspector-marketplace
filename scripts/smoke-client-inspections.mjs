@@ -453,23 +453,31 @@ try{
  for(let i=0;i<7;i++){
    const card=page.locator("article.inspection").nth(i);
    const open=card.getByRole("button",{name:/Open Inspection/});
+   assert(await open.getAttribute("aria-expanded")==="false" && await open.getAttribute("aria-controls")===null,
+     "Collapsed inspection must not point aria-controls at an unmounted details region");
    await open.click();
    const details=card.locator(".details");
    await details.waitFor();
+   assert(await card.getByRole("button",{name:/Close Inspection/}).getAttribute("aria-controls")===await details.getAttribute("id"),
+     "Expanded inspection must expose its currently mounted details via aria-controls");
    for(const heading of ["Client, project and site","Milestones","Reports · SAMPLE ONLY","NCRs","Outstanding actions"]){
      assert(await details.getByRole("heading",{name:heading}).count()===1,"Missing detail heading: "+heading+" in inspection "+i);
    }
    const ncrToggle=details.getByRole("button",{name:"Open corrective-action details"});
    if(await ncrToggle.count()){
-     assert(await ncrToggle.getAttribute("aria-expanded")==="false","Synthetic NCR case should start collapsed");
+     assert(await ncrToggle.getAttribute("aria-expanded")==="false" && await ncrToggle.getAttribute("aria-controls")===null,
+       "Collapsed NCR must not reference an unmounted corrective-action region");
      await ncrToggle.click();
      const caseDetails=details.getByRole("region",{name:/Corrective-action details for SAMPLE-NCR-001/});
      assert(await caseDetails.count()===1,"Opening NCR should expose fictional corrective-action workspace");
+     assert(await details.getByRole("button",{name:"Hide corrective-action details"}).getAttribute("aria-controls")===await caseDetails.getAttribute("id"),
+       "Open NCR must identify its mounted corrective-action details");
      for(const evidence of ["Major","Vendor quality manager","material traceability matrix","mill certificates","Verification / next decision"]){
        assert((await caseDetails.innerText()).includes(evidence),"Missing sample NCR case evidence: "+evidence);
      }
      await details.getByRole("button",{name:"Hide corrective-action details"}).click();
-     assert(await caseDetails.count()===0,"NCR case should collapse without changing inspection");
+     assert(await caseDetails.count()===0 && await details.getByRole("button",{name:"Open corrective-action details"}).getAttribute("aria-controls")===null,
+       "Closed NCR must remove the stale aria-controls reference");
    }
    const href=await details.locator('a[href^="/api/demo/report"]').first().getAttribute("href");
    assert(href?.includes("download=1"),"Missing synthetic report download for inspection "+i);
@@ -481,6 +489,8 @@ try{
    }
    await card.getByRole("button",{name:/Close Inspection/}).click();
    assert(await card.locator(".details").count()===0,"Inspection details did not close");
+   assert(await card.getByRole("button",{name:/Open Inspection/}).getAttribute("aria-controls")===null,
+     "Collapsed inspection left a dangling aria-controls target");
  }
  const search=page.getByRole("searchbox",{name:"Search inspections"});
  await search.fill("BAYOU vessel");
