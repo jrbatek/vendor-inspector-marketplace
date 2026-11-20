@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import ClientDemoCandidateResults from "@/components/ClientDemoCandidateResults";
-import { getDemoCandidates, getStructuredDemoCandidates, type DemoCandidate } from "@/lib/clientDemoCandidates";
+import { demoCandidateStartDateIssue, getDemoCandidates, getStructuredDemoCandidates, type DemoCandidate } from "@/lib/clientDemoCandidates";
 import ClientContinuousSidebar from "@/components/ClientContinuousSidebar";
 import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContext";
 import ClientInspectionsDemo from "@/app/demo/client-inspections/page";
@@ -73,6 +73,8 @@ export default function ClientDemo(){
     setNaturalPreview("Enter at least 20 characters describing the inspection scope before previewing.");
     return;
   }
+  const dateIssue = demoCandidateStartDateIssue(requestText);
+  if (dateIssue) { setNaturalPreview(dateIssue); return; }
   setNaturalPreview(getDemoCandidates(requestText));
  }
  return <main className="shell"><ClientContinuousSidebar/><section className="workspace"><section id="request-inspectors" className="requestHero"><p className="eyebrow">Client Demo · Synthetic data</p><h1>Request your inspection</h1><p className="requestIntro">Start the way you already work. Describe the requirement, email it to us, or use structured selection. This demo is fully synthetic, never requires a production login, and never writes synthetic records to production.</p><div className="sourcePreview"><div><strong>Source of Inspectors</strong><span>Contracted agencies · Independent inspectors · Or both</span></div><Link href="/demo/client-agency-sourcing">Configure sourcing & compare agency channels →</Link></div><div className="requestOptions">

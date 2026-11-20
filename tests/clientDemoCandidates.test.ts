@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDemoCandidates } from "../lib/clientDemoCandidates";
+import { demoCandidateStartDateIssue, getDemoCandidates } from "../lib/clientDemoCandidates";
 
 const houston = "We need two API 570 inspectors for a refinery turnaround in Houston starting December 7 for approximately three weeks. API 570 certification, minimum 5 years refinery/petrochemical experience, current TWIC card, availability for 10-12 hour shifts, and local Houston inspectors preferred. Please send qualified CVs/resumes, availability, and rates.";
 
@@ -44,11 +44,25 @@ test("common dollar budgets select the lower rate and unsupported currencies sta
     assert.deepEqual(getDemoCandidates(scope).map(p => p.id), ["IS-1314"]);
   }
   assert.deepEqual(getDemoCandidates("API 570 in Houston for CAD $900/day"), []);
-  assert.equal(getDemoCandidates("API 570 inspector for a piping inspection in Houston, TX").length, 2);
-  assert.deepEqual(getDemoCandidates("Synthetic scope: API 510 vessel inspection, Houston FAT, supplier dossier verification.").map(p => p.id), ["IS-1314"]);
+  assert.deepEqual(getDemoCandidates("API 570 inspector for a piping inspection in Houston, TX"), []);
+  assert.deepEqual(getDemoCandidates("Synthetic scope: API 510 vessel inspection, Houston FAT, supplier dossier verification."), []);
 });
 
 test("an explicit end date must fall inside the candidate’s availability", () => {
   assert.deepEqual(getDemoCandidates("API 570 in Houston from 2026-12-07 through 2027-01-08").map(p => p.id), ["IS-1314"]);
   assert.deepEqual(getDemoCandidates("API 570 in Houston starting December 7 through January 9, 2027"), []);
+});
+
+test("available demo candidate CVs require a real explicit start date", () => {
+  const missing = "API 570 piping inspector in Houston with TWIC";
+  assert.match(demoCandidateStartDateIssue(missing) ?? "", /specific inspection start date/);
+  assert.deepEqual(getDemoCandidates(missing), []);
+  for (const impossible of ["2026-02-30", "2026-04-31", "2026-12-32", "2026-13-07"]) {
+    const request = "API 570 piping inspector in Houston starting " + impossible;
+    assert.match(demoCandidateStartDateIssue(request) ?? "", /real calendar start date/, request);
+    assert.deepEqual(getDemoCandidates(request), [], request);
+  }
+  const dated = "API 570 piping inspector in Houston starting December 7 for three weeks";
+  assert.equal(demoCandidateStartDateIssue(dated), null);
+  assert.deepEqual(getDemoCandidates(dated).map(candidate => candidate.id), ["IS-1042", "IS-1314"]);
 });
