@@ -151,6 +151,10 @@ try{
  await previewButton.click();
  assert((await previewStatus.innerText()).includes("real calendar end date") && await shortlist.count()===0,
    "Impossible client completion date must be rejected before presenting fictional availability");
+ await request.fill("We need an API 570 piping inspector in Houston starting December 7, 2026 through December 1, 2026.");
+ await previewButton.click();
+ assert((await previewStatus.innerText()).includes("end date on or after the requested start date") && await shortlist.count()===0,
+   "A real but reversed completion date must produce actionable guidance, not fictional availability");
  // Keep the unsupported-certification regression separately dated so it checks
  // the actual credential gate, not the missing-date gate.
  await request.fill("We need an API 653 tank inspector in Houston starting December 7, 2026 for a three-week turnaround.");
