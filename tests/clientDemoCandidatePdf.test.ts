@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodePDFRawStream, PDFArray, PDFDocument, PDFName, PDFRawStream } from "pdf-lib";
+import { decodePDFRawStream, PDFArray, PDFDocument, PDFName, PDFRawStream, StandardFonts } from "pdf-lib";
 import { createDemoCandidatePdf } from "../lib/clientDemoCandidatePdf";
 import { getDemoCandidates } from "../lib/clientDemoCandidates";
 
@@ -15,15 +15,16 @@ test("each Houston candidate downloads a readable CV containing their own experi
     const contents = pdf.getPage(0).node.lookup(PDFName.of("Contents"), PDFArray);
     const stream = contents.lookup(0, PDFRawStream);
     const operators = Buffer.from(decodePDFRawStream(stream).decode()).toString("ascii");
-    const decoder = new TextDecoder("windows-1252");
-    const words = Array.from(operators.matchAll(/<([\da-f]+)> Tj/gi), match => decoder.decode(Buffer.from(match[1], "hex")));
+    const winAnsiFont = await pdf.embedFont(StandardFonts.Helvetica);
+    const words = Array.from(operators.matchAll(/<([\da-f]+)> Tj/gi), match => Buffer.from(match[1], "hex").toString("latin1"));
     const pageText = words.join(" ").replace(/\s+/g, " ");
     for (const detail of [
       candidate.id, candidate.title, candidate.location, candidate.yearsExperience + " years of experience",
       candidate.summary, ...candidate.credentials, ...candidate.workHistory, candidate.availability,
       candidate.shifts, "USD " + candidate.dayRateUsd.toLocaleString("en-US") + " per day", "Fictional candidate",
     ]) {
-      assert.ok(pageText.includes(detail), `Missing ${detail} in the CV for ${candidate.id}`);
+      const expectedBytes = Buffer.from(winAnsiFont.encodeText(detail).asBytes()).toString("latin1");
+      assert.ok(pageText.includes(expectedBytes), `Missing ${detail} in the CV for ${candidate.id}`);
     }
   }
 });
