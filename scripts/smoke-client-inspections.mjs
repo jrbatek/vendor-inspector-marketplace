@@ -292,9 +292,10 @@ try{
  assert(await structuredCv.getByText("IS-1042").count()===1 &&
         await structuredCv.getByText("IS-1314").count()===1,
    "Structured defaults did not return the matching Houston fictional inspectors");
- assert(await page.locator("#candidate-cvs-title").count()===1 &&
-        await page.locator("#structured-candidate-results-title").count()===1,
-   "Natural and Structured CV previews must have distinct accessible IDs");
+ assert(await page.locator("#structured-candidate-results-title").count()===1 &&
+        await page.locator("#demo-shortlist #structured-candidate-results-title").count()===0 &&
+        await page.locator("#candidate-cvs-title").count()<=1,
+   "Structured CVs must have an independent, unique heading ID even if Natural results were cleared");
  await structured.getByLabel("Inspector source").selectOption("Agency");
  assert(await structuredCv.count()===0,
    "Structured candidate CVs remained visible after changing the source");
