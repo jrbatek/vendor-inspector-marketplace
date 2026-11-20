@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { clearInspectorAddedDemoAvailability, countProtectedDemoAvailabilityDays, overlapsPrivateDemoEvent } from "@/lib/demoCalendarConflict";
 import { adjacentDemoAssignmentDate } from "@/lib/demoAssignmentNavigation";
+import { demoCalendarDateRange as dateRange } from "@/lib/demoCalendarDateRange";
 
 type View = "Month" | "Week" | "List";
 type AvailabilityState = "Available" | "Tentative / Hold" | "Assigned" | "Unavailable" | "Busy";
@@ -52,12 +53,7 @@ const weekDates = (anchor: string) => {
   const date = new Date(anchor+"T00:00:00Z");
   return Array.from({length:7},(_,index)=>shiftIsoDate(anchor,index-date.getUTCDay()));
 };
-const dateRange = (start: string,end: string) => {
-  const a=Date.parse(start+"T00:00:00Z"),b=Date.parse(end+"T00:00:00Z");
-  const length=Math.round((b-a)/86400000)+1;
-  if(!Number.isFinite(a)||!Number.isFinite(b)||length<1||length>62) return [];
-  return Array.from({length},(_,index)=>shiftIsoDate(start,index));
-};
+// Shared UTC validator rejects impossible dates before availability ranges are simulated.
 const stateClass = (state: AvailabilityState) => state.toLowerCase().replaceAll(" / ", "-").replaceAll(" ", "-");
 // Use a plain-language label without changing the internal Busy status or privacy rules.
 const availabilityLabel = (state: AvailabilityState) => state === "Busy" ? "Personal Busy" : state;
