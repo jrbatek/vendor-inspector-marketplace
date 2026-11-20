@@ -34,6 +34,7 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
         {candidate.credentials.map(credential => <li key={credential}>{credential}</li>)}
       </ul>
       <dl>
+        <dt>Fictional source</dt><dd>{candidate.source}</dd>
         <dt>Availability</dt><dd>{candidate.availability}</dd>
         <dt>Shifts</dt><dd>{candidate.shifts}</dd>
         <dt>Day rate</dt><dd>USD {candidate.dayRateUsd.toLocaleString("en-US")}/day</dd>
@@ -73,8 +74,9 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
   );
 }
 
-export default function ClientDemoCandidateResults({ candidates }: { candidates: DemoCandidate[] }) {
+export default function ClientDemoCandidateResults({ candidates, resultId = "demo-shortlist", announceCount = true }: { candidates: DemoCandidate[]; resultId?: string; announceCount?: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
+  const headingId = resultId === "demo-shortlist" ? "candidate-cvs-title" : `${resultId}-title`;
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollIntoView({ block: "start" });
@@ -82,9 +84,9 @@ export default function ClientDemoCandidateResults({ candidates }: { candidates:
 
   const count = candidates.length;
   return (
-    <section id="demo-shortlist" aria-labelledby="candidate-cvs-title">
-      <h3 id="candidate-cvs-title" tabIndex={-1} ref={heading}>Candidate CVs</h3>
-      <p className="naturalPreview" role="status">
+    <section id={resultId} aria-labelledby={headingId}>
+      <h3 id={headingId} tabIndex={-1} ref={heading}>Candidate CVs</h3>
+      <p className="naturalPreview" role={announceCount ? "status" : undefined}>
         {count > 0
           ? `${count} available demo ${count === 1 ? "candidate" : "candidates"}. Review the fictional CVs and sample rates below.`
           : "No available candidates found in the demo roster for these requirements. Try a different qualification, location, or date."}
