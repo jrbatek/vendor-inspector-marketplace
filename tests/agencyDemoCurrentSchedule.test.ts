@@ -28,3 +28,11 @@ test("Agency Demo date fixture changes remain synthetic and read-only", () => {
   assert.match(page, /syntheticRosterHref/);
   assert.doesNotMatch(page, /supabaseBrowser|createClient|navigator\.geolocation/);
 });
+
+test("dated Agency demo resource and action fixtures explicitly disclose the fixed snapshot", () => {
+  const directory = fs.readFileSync("app/demo/agency-resources/page.tsx", "utf8");
+  assert.match(page, /fixed fictional November 9, 2026 snapshot/);
+  assert.match(page, /not live availability or today's deadlines/);
+  assert.match(directory, /fixed November 9, 2026 snapshot, not live dates/);
+  assert.match(page, /Nothing on this page reads from or writes to production/);
+});
