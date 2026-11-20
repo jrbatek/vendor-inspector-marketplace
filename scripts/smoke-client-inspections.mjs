@@ -41,7 +41,7 @@ try{
  // vertically stacked in the specified order on desktop and narrow mobile screens.
  const requestCards=page.locator(".requestOptions > article");
  assert(await requestCards.count()===3,"Client Request Inspectors must expose three distinct methods");
- const headings=await requestCards.locator("h2").allTextContents();
+ const headings=await requestCards.locator(":scope > h2").allTextContents();
  assert(headings.join("|")==="Natural Language – AI|Email Requirements|Structured Selection",
   "Client request method order or labels regressed: "+headings.join("|"));
  for(const width of [1366,390]){
@@ -59,11 +59,61 @@ try{
  assert(await request.getAttribute("aria-describedby") === "demo-request-limit",
    "Client scope textarea refers to a nonexistent upload status when no upload is pending");
  const originalText=await request.inputValue();
- await request.fill("Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.");
- await natural.getByRole("button",{name:"Preview request (demo)"}).click();
- const localPreview=await natural.getByRole("status").last().innerText();
- assert(localPreview.includes("No AI matching, external submission, or production record was created")&&
-   localPreview.includes("not personalized to this request"),"Natural-language preview must be useful and explicitly fictional");
+ const previewButton=natural.getByRole("button",{name:"Preview request (demo)"});
+ const shortlist=natural.locator("#demo-shortlist");
+ const candidates=shortlist.locator("article");
+ const previewStatus=natural.locator(".naturalPreview");
+ assert(await page.locator("#demo-shortlist").count()===0,"Candidate results appeared before a request preview");
+ await previewButton.click();
+ const resultsHeading=shortlist.getByRole("heading",{name:"Candidate CVs"});
+ await resultsHeading.waitFor({state:"visible"});
+ await page.waitForFunction(()=>{
+   const heading=document.querySelector("#demo-shortlist h2, #demo-shortlist h3");
+   if(!heading)return false;
+   const box=heading.getBoundingClientRect();
+   return box.top>=0 && box.bottom<=window.innerHeight;
+ });
+ const localPreview=await previewStatus.innerText();
+ assert(/demo|fictional|synthetic/i.test(await shortlist.innerText()),"Natural-language results must identify demo candidates");
+ const candidateCount=await candidates.count();
+ assert(candidateCount>=2,"The Houston request did not return two candidate CVs");
+ const candidateIds=new Set();
+ const assignmentsSeen=new Set();
+ for(const candidate of await candidates.all()){
+   const summary=await candidate.innerText();
+   const candidateId=summary.match(/\bIS-\d+\b/)?.[0];
+   assert(candidateId&&!candidateIds.has(candidateId),"Candidate cards must show distinct inspector IDs");
+   candidateIds.add(candidateId);
+   assert(/API\s*570/i.test(summary)&&/availab/i.test(summary)&&/(?:\$|USD\s*)\s*\d/.test(summary),
+     "Candidate "+candidateId+" must show its qualification, availability and rate before opening a CV");
+   const cv=candidate.locator("details");
+   const toggle=cv.locator("summary").filter({hasText:/View CV/i});
+   await toggle.click();
+   assert(await cv.evaluate(details=>details.open),"View CV did not expand the profile for "+candidateId);
+   const resume=await cv.innerText();
+   assert(/Relevant experience/i.test(resume)&&/Assignment history/i.test(resume),
+     "Expanded CV is missing relevant experience or assignment history for "+candidateId);
+   const assignments=await cv.locator("li:visible").allTextContents();
+   assert(assignments.length>0 && assignments.every(entry=>entry.trim().length>20) &&
+     assignments.some(entry=>!assignmentsSeen.has(entry)),
+     "Expanded CV must show substantive assignment history specific to "+candidateId);
+   assignments.forEach(entry=>assignmentsSeen.add(entry));
+   if(candidateIds.size===1){
+     const [download]=await Promise.all([
+       page.waitForEvent("download"),
+       cv.getByText("Download CV (PDF)",{exact:true}).click()
+     ]);
+     const filename=download.suggestedFilename();
+     assert(filename.includes(candidateId)&&filename.endsWith(".pdf"),"Downloaded CV filename must identify its candidate");
+     const chunks=[];
+     for await(const chunk of await download.createReadStream())chunks.push(chunk);
+     const pdf=Buffer.concat(chunks);
+     assert(pdf.subarray(0,5).toString()==="%PDF-"&&pdf.includes(Buffer.from("%%EOF")),
+       "Downloaded candidate CV is not a complete PDF");
+   }
+   await toggle.click();
+   assert(!await cv.evaluate(details=>details.open),"The CV for "+candidateId+" did not collapse");
+ }
  assert(page.url().includes("/demo/client"),"Natural-language preview navigated away from the public Client Demo");
  // A rejected upload must not erase a valid, already-reviewed synthetic preview.
  await natural.locator('input[type="file"]').setInputFiles({
@@ -73,10 +123,11 @@ try{
    "Client scope textarea must describe the visible upload rejection message");
  assert((await natural.locator("#demo-upload-status").innerText()).includes("accepts TXT"),
    "Unsupported scope upload did not provide actionable validation feedback");
- assert(await request.inputValue()==="Synthetic example: vendor surveillance for a pressure-vessel FAT in Houston, with API 510 certification.",
+ assert(await request.inputValue()===originalText,
    "Unsupported scope upload replaced a drafted requirement");
  assert((await natural.locator(".naturalPreview").innerText())===localPreview,
    "Unsupported scope upload erased a valid previously generated preview");
+ assert(await candidates.count()===candidateCount,"Unsupported scope upload erased the candidate CVs");
  await natural.locator('input[type="file"]').setInputFiles({
    name:"large-scope.txt",mimeType:"text/plain",buffer:Buffer.alloc(256*1024+1,66)
  });
@@ -84,6 +135,18 @@ try{
    "Oversize scope upload did not report its size limit");
  assert((await natural.locator(".naturalPreview").innerText())===localPreview,
    "Oversize scope upload erased a valid previously generated preview");
+ assert(await candidates.count()===candidateCount,"Oversize scope upload erased the candidate CVs");
+ await request.fill("We need an API 653 tank inspector in Houston for a December turnaround.");
+ await shortlist.waitFor({state:"detached"});
+ await previewButton.click();
+ await shortlist.waitFor({state:"visible"});
+ assert(await candidates.count()===0 && /\b(?:no|0)\b/i.test(await previewStatus.innerText()),
+   "An unsupported certification must return an explicit empty result without stale candidate CVs");
+ await request.fill("");
+ await shortlist.waitFor({state:"detached"});
+ await previewButton.click();
+ assert((await previewStatus.innerText()).includes("at least 20 characters")&&await shortlist.count()===0,
+   "An empty request must explain the minimum scope length without showing candidate CVs");
  await request.fill("short");
  assert(await natural.locator(".naturalPreview").count()===0,"Preview status stayed stale after editing the scope");
  await natural.getByRole("button",{name:"Preview request (demo)"}).click();
@@ -102,11 +165,15 @@ try{
  await page.waitForFunction(()=>document.querySelector("#demo-upload-status")?.textContent?.includes("scope file is empty"));
  assert(await request.inputValue()==="short","Empty uploaded file erased the existing inspection scope");
  assert(await scopeInput.inputValue()==="","Scope file input must reset to allow selecting an updated file with the same name");
+ await request.fill(originalText);
+ await previewButton.click();
+ await candidates.first().waitFor({state:"visible"});
  const corrected="Synthetic scope: API 510 vessel inspection, Houston FAT, supplier dossier verification.";
  await scopeInput.setInputFiles({name:"scope-demo.txt",mimeType:"text/plain",buffer:Buffer.from(corrected)});
  await page.waitForFunction(text=>document.querySelector("#natural-language textarea")?.value===text,corrected);
  assert(await request.inputValue()===corrected,"Corrected same-name scope file was not loaded");
  assert(await natural.locator(".naturalPreview").count()===0,"Successful scope replacement left a stale preview visible");
+ assert(await shortlist.count()===0,"Successful scope replacement left obsolete candidate CVs visible");
  assert((await natural.locator("#demo-upload-status").innerText()).includes("Loaded scope-demo.txt"),
    "Successful scope upload should announce its filename before any edits");
  await request.fill(originalText);

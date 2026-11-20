@@ -9,8 +9,8 @@ test("Client natural-language scope has a browser-local inline preview with expl
  assert.match(source,/function previewNaturalRequest\(\)/);
  assert.match(source,/requestText\.trim\(\)\.length/);
  assert.match(source,/Enter at least 20 characters/);
- assert.match(source,/No AI matching, external submission, or production record was created/);
- assert.match(source,/not personalized to this request/);
+ assert.match(source,/setNaturalPreview\(getDemoCandidates\(requestText\)\)/);
+ assert.match(source,/Array\.isArray\(naturalPreview\) && <ClientDemoCandidateResults candidates=\{naturalPreview\}/);
  assert.match(source,/onClick=\{previewNaturalRequest\}>Preview request \(demo\)/);
  assert.match(source,/role="status" aria-live="polite">\{naturalPreview\}/);
  assert.doesNotMatch(source,/\.insert\(|supabase|fetch\(/i);
@@ -38,9 +38,9 @@ test("empty scope files preserve drafts and same-name uploads can be retried",()
 test("invalid Client Demo uploads preserve a previously generated preview; successful scope replacements invalidate it",()=>{
   const loader=source.slice(source.indexOf("async function loadScope"),source.indexOf("function previewNaturalRequest"));
   assert.ok(loader.includes("setUploadMessage(\"\");"),"Upload validation starts with fresh feedback");
-  assert.doesNotMatch(loader.slice(0,loader.indexOf("if(!loaded.trim())")) ,/setNaturalPreview\(\"\"\)/,
+  assert.doesNotMatch(loader.slice(0,loader.indexOf("if(!loaded.trim())")) ,/setNaturalPreview\(null\)/,
     "Rejected format, oversized, unreadable or empty files must not erase an existing preview");
-  assert.match(loader,/setNaturalPreview\(\"\"\);\s*setRequestText\(loaded\)/,
+  assert.match(loader,/setNaturalPreview\(null\);\s*setRequestText\(loaded\)/,
     "A successfully loaded new request must invalidate the old preview");
   for(const reason of ["Unsupported scope upload erased a valid previously generated preview",
     "Oversize scope upload erased a valid previously generated preview",
@@ -61,7 +61,7 @@ test("newly uploaded Client scope or manual typing defeats stale asynchronous fi
 });
 
 test("Client Demo manual scope edits retire the previously loaded filename announcement",()=>{
-  assert.match(source,/latestScopeSelection\.current\+=1;setRequestText\(e\.target\.value\);setNaturalPreview\(\"\"\);setUploadMessage\(\"\"\)/);
+  assert.match(source,/latestScopeSelection\.current\+=1;setRequestText\(e\.target\.value\);setNaturalPreview\(null\);setUploadMessage\(\"\"\)/);
   assert.match(smoke,/Manually edited Client scope retained a stale Loaded filename status/);
   assert.match(smoke,/Successful scope upload should announce its filename before any edits/);
 });
