@@ -298,7 +298,7 @@ try {
     "Second date must not appear preselected without explicit user selection");
   assert((await cal.getByRole("button",{name:"Choose 2026-12-02 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
     "Browsing a month must not silently declare availability");
-  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  await cal.getByRole("button", { name: "Return to fictional demo snapshot, November 9 2026" }).click();
   assert(await cal.getByRole("heading", { name: "November 2026" }).count()===1,"Demo today did not restore November month");
   assert(await cal.getByRole("button", { name: "Choose 2026-11-09 for availability" }).getAttribute("aria-current")==="date","Demo today date must be visibly indicated");
   assert(await cal.getByLabel("Start date").inputValue()==="2026-11-09","Demo today did not select the correct date");
@@ -318,10 +318,10 @@ try {
   assert(await cal.getByLabel("Week containing").inputValue()==="2027-01-20",
     "Jump to date must synchronize Week without writing availability");
   await tabs.getByRole("button",{name:"Month"}).click();
-  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await cal.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   // Editing Start date through the date-range form must reveal its month/selected
   // day, synchronize Week navigation and never write an availability event.
-  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await cal.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   await cal.getByLabel("End date").fill("2027-03-05");
   await cal.getByLabel("Start date").fill("2027-03-05");
   // React updates a controlled date input asynchronously after Playwright's
@@ -356,7 +356,7 @@ try {
     "Editing End date must not silently create available or busy records");
   assert(await cal.getByLabel("Jump to date").inputValue()==="2027-03-05",
     "Editing End date should not overwrite the Start/Jump to date field");
-  await cal.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await cal.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   // Arbitrary month jumps must open the full Month grid even from List.
   await tabs.getByRole("button",{name:"List"}).click();
   await cal.getByLabel("Jump to month").fill("2027-02");
@@ -390,7 +390,7 @@ try {
   await tabs.getByRole("button", { name: "Week" }).click();
   // Earlier arbitrary month navigation selects Nov 1, not the fixed demo-today anchor.
   // Establish Nov 9 explicitly so the following next-week assertion checks Nov 16.
-  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  await cal.getByRole("button", { name: "Return to fictional demo snapshot, November 9 2026" }).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09",
     "Week navigation smoke did not establish demo today before stepping a week");
   await cal.getByRole("button", { name: "Next week" }).click();
@@ -401,7 +401,7 @@ try {
     "Visible Week anchor date must be selected");
   assert((await cal.getByRole("button", { name: "Choose 2026-11-17 for availability" }).locator("xpath=..").innerText()).includes("Not set"),
     "Browsing to a week must not silently declare availability");
-  await cal.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  await cal.getByRole("button", { name: "Return to fictional demo snapshot, November 9 2026" }).click();
   assert(await cal.getByLabel("Week containing").inputValue()==="2026-11-09","Today jump did not synchronize Week anchor");
 
   assert(await tabs.getByRole("button", { name: "Week" }).getAttribute("aria-pressed") === "true", "Week view cannot be selected");
@@ -491,7 +491,7 @@ try {
   await calendar.getByRole("button",{name:"Next assigned inspection"}).click();
   assert(await calendar.getByLabel("Start date").inputValue()==="2026-11-26",
     "Moving forward again must return to the next assigned inspection, not an arbitrary date");
-  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await calendar.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   await calendar.getByRole("button",{name:"Previous assigned inspection"}).click();
   assert((await calendar.getByRole("status").allInnerTexts()).some(text=>text.includes("No earlier assigned demo inspections")),
     "Previous assignment must explain when there is no earlier synthetic assignment");
@@ -523,7 +523,7 @@ try {
     "Shift-arrow calendar range did not include dates across month boundary");
   assert(await calendar.getByRole("button",{name:"Choose 2026-11-30 for availability"}).evaluate(el=>document.activeElement===el),
     "Shift-arrow keyboard focus did not follow date across month boundary");
-  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await calendar.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   await tabs.getByRole("button",{name:"Week"}).click();
   const nov9=calendar.getByRole("button",{name:"Choose 2026-11-09 for availability"});
   await nov9.focus();
@@ -567,7 +567,7 @@ try {
     "Shift+Home did not select the inclusive calendar week range");
   assert((await sun15.locator("xpath=..").innerText()).includes("Not set"),
     "Keyboard range navigation must not create any availability records");
-  await calendar.getByRole("button",{name:"Return to demo today, November 9 2026"}).click();
+  await calendar.getByRole("button",{name:"Return to fictional demo snapshot, November 9 2026"}).click();
   const datePicker = calendar.getByRole("button", { name: "Choose 2026-11-19 for availability" });
   await datePicker.click();
   assert(await datePicker.getAttribute("aria-pressed") === "true", "Selected calendar date is not visibly marked");
@@ -678,7 +678,7 @@ try {
   await calendar.getByRole("button", { name: "Next month" }).click();
   assert(await calendar.getByText(/overlaps a linked personal Busy event/).count() === 0,
     "Stale calendar conflict warning persisted after month navigation");
-  await calendar.getByRole("button", { name: "Return to demo today, November 9 2026" }).click();
+  await calendar.getByRole("button", { name: "Return to fictional demo snapshot, November 9 2026" }).click();
   await calendar.getByLabel("Start date").fill("2026-11-09");
   await calendar.getByLabel("End date").fill("2026-11-09");
   assert((await impact.innerText()).includes("1 assigned inspection day"), "Assigned inspection conflict must be shown before update");
