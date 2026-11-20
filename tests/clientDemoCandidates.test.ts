@@ -66,3 +66,13 @@ test("available demo candidate CVs require a real explicit start date", () => {
   assert.equal(demoCandidateStartDateIssue(dated), null);
   assert.deepEqual(getDemoCandidates(dated).map(candidate => candidate.id), ["IS-1042", "IS-1314"]);
 });
+
+test("fictional availability rejects impossible explicit completion dates instead of Date.parse rollover", () => {
+  const request = "API 570 inspector in Houston starting December 7, 2026 through ";
+  for (const invalid of ["November 31, 2026", "February 30, 2027", "2026-11-31", "2027-02-30"]) {
+    assert.match(demoCandidateStartDateIssue(request + invalid) ?? "", /real calendar end date/, invalid);
+    assert.deepEqual(getDemoCandidates(request + invalid), [], invalid);
+  }
+  assert.equal(demoCandidateStartDateIssue(request + "December 30, 2026"), null);
+  assert.deepEqual(getDemoCandidates(request + "December 30, 2026").map(c=>c.id), ["IS-1042", "IS-1314"]);
+});
