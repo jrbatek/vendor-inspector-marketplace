@@ -81,6 +81,9 @@ try{
  const assignmentsSeen=new Set();
  for(const candidate of await candidates.all()){
    const summary=await candidate.innerText();
+   const candidateName=await candidate.locator("h4").innerText();
+   assert(["Avery Calder","Maya Ellison"].includes(candidateName),"Client CV preview did not show a fictional inspector name");
+   assert(summary.includes("Fictional inspector"),"Client candidate card lost its explicit synthetic labeling");
    const candidateId=summary.match(/\bIS-\d+\b/)?.[0];
    assert(candidateId&&!candidateIds.has(candidateId),"Candidate cards must show distinct inspector IDs");
    candidateIds.add(candidateId);

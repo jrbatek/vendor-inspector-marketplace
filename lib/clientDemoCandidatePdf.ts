@@ -3,7 +3,7 @@ import type { DemoCandidate } from "./clientDemoCandidates";
 
 export async function createDemoCandidatePdf(candidate: DemoCandidate): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`Candidate ${candidate.id} CV | InspectSource demo`);
+  pdf.setTitle(`${candidate.name} (${candidate.id}) CV | InspectSource demo`);
   pdf.setAuthor("InspectSource");
   pdf.setSubject("Fictional inspector profile");
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -33,9 +33,12 @@ export async function createDemoCandidatePdf(candidate: DemoCandidate): Promise<
   }
 
   write("InspectSource  /  Candidate CV", 12, bold, teal);
+  write("FICTIONAL DEMO PROFILE - NOT A REAL INSPECTOR", 9, bold, teal);
   y -= 12;
-  write(candidate.title, 23, bold);
+  write(candidate.name, 23, bold);
+  write(candidate.title, 14, bold);
   write(`${candidate.id}   |   ${candidate.location}   |   ${candidate.yearsExperience} years of experience`);
+  write(`Fictional source: ${candidate.source}`);
 
   heading("Professional summary");
   write(candidate.summary);

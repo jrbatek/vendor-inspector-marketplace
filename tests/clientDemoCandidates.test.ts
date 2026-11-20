@@ -7,6 +7,8 @@ const houston = "We need two API 570 inspectors for a refinery turnaround in Hou
 test("the seeded request returns two local sample CVs available for the entire turnaround", () => {
   const candidates = getDemoCandidates(houston);
   assert.deepEqual(candidates.map(candidate => candidate.id), ["IS-1042", "IS-1314"]);
+  assert.deepEqual(candidates.map(candidate => candidate.name), ["Avery Calder", "Maya Ellison"]);
+  assert.equal(new Set(candidates.map(candidate => candidate.name)).size, candidates.length);
   for (const candidate of candidates) {
     assert.equal(candidate.location, "Houston, Texas");
     assert.ok(candidate.credentials.includes("API 570") && candidate.credentials.includes("TWIC"));
