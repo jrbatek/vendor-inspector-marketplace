@@ -31,3 +31,14 @@ test("Agency resource browser remains explicit, synthetic, accessible and downlo
   assert.match(readFileSync(wf,"utf8"),/npm run smoke:agency-resources/);
  }
 });
+
+
+test("resource preview is embedded inside the selected Agency card and has no detached detail shell",()=>{
+ const source=readFileSync("app/demo/agency-resources/page.tsx","utf8");
+ const script=readFileSync("scripts/smoke-agency-resources.mjs","utf8");
+ assert.match(source, /detail===r\.id&&<section id=\{/);
+ assert.match(source, /aria-controls=\{detail===r\.id\?/);
+ assert.doesNotMatch(source, /const current=AGENCY_RESOURCE_POOL\.find/);
+ assert.match(script, /Sample resource detail is not visible inline/);
+ assert.match(script, /Closed Agency resource preview left a dangling/);
+});

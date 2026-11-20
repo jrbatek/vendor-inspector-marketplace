@@ -19,8 +19,19 @@ try{
   await page.getByRole("searchbox",{name:"Search all fictional agency resources"}).fill("IS-20418");
   if(!await page.getByRole("heading",{name:"Maya Chen"}).isVisible())throw Error("Featured inspector ID search failed");
   if(await page.getByRole("heading",{name:"Omar Haddad"}).count())throw Error("Search did not filter out unrelated resource");
-  await page.getByRole("button",{name:"View fictional resource"}).click();
-  if(!await page.getByRole("region",{name:"Fictional resource preview"}).isVisible())throw Error("Sample resource detail did not open");
+  const firstCard=page.locator("article.resource").first();
+  const viewButton=firstCard.getByRole("button",{name:"View fictional resource"});
+  await viewButton.click();
+  const preview=firstCard.getByRole("region",{name:"Fictional resource preview"});
+  if(!await preview.isVisible())throw Error("Sample resource detail is not visible inline with its resource card");
+  const detailId=await preview.getAttribute("id");
+  if(!detailId||await firstCard.getByRole("button",{name:"Close resource"}).getAttribute("aria-controls")!==detailId)
+    throw Error("Expanded Agency resource detail must have a real accessible target");
+  if(await page.locator("article.resource .detail").count()!==1)
+    throw Error("Agency must render just one in-card resource detail");
+  await firstCard.getByRole("button",{name:"Close preview"}).click();
+  if(await preview.count()!==0||await firstCard.getByRole("button",{name:"View fictional resource"}).getAttribute("aria-controls")!==null)
+    throw Error("Closed Agency resource preview left a dangling inaccessible target");
   await page.getByRole("button",{name:"Reset filters"}).click();
   await page.getByRole("button",{name:"Next page"}).click();
   if(!await page.getByText("Page 2 of 113").first().isVisible())throw Error("Pagination failed");
