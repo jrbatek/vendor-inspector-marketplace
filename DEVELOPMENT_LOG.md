@@ -1,3 +1,9 @@
+### 2026-11-19 — Candidate CVs in the Client Demo request preview
+
+Clicking Preview request now brings an inline candidate list into view. The December 7 Houston turnaround returns two anonymous fictional inspectors with API 570 and TWIC credentials. Each card shows availability, shifts, and a sample day rate, and opens a work history with a downloadable PDF. Editing the request or replacing the uploaded scope clears its results. A rejected upload preserves them.
+
+The regression coverage exercises the sample request, alternative criteria, full assignment windows, zero results, CV disclosure, and PDF contents. The public demo uses a local roster. For the authenticated workflow, track the same direct access to redacted CVs from the ranked list under existing identity-release rules.
+
 ### 2026-11-16 — Inspector Calendar End date keeps visible Month / Week in sync (PR pending)
 - Fixed a complementary demo-only date-range usability gap: editing End date across months left the visible Month/Week calendar on the previous dates even though the selected end had changed. End date now updates the displayed month and week anchor without changing Start, the selection anchor or availability data.
 - Added focused source checks and hosted Chromium coverage: a March 5–April 2 fictional range must show April and the selected end day, keep Start unchanged, retain Not set status and reset cleanly via Demo Today.
