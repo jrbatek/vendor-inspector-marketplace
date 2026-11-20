@@ -80,3 +80,14 @@ test("fictional availability rejects impossible explicit completion dates instea
   assert.equal(demoCandidateStartDateIssue("API 570 in Houston from 2026-12-07 through 2026-11-31")?.includes("end date"), true);
   assert.deepEqual(getDemoCandidates("API 570 in Houston from 2026-12-07 through 2026-11-31"), []);
 });
+
+test("a real completion day before the start explains the reversed fictional availability window", () => {
+  for (const request of [
+    "API 570 inspector in Houston starting December 7, 2026 through December 1, 2026",
+    "API 570 inspector in Houston from 2026-12-07 through 2026-12-01"
+  ]) {
+    assert.match(demoCandidateStartDateIssue(request) ?? "", /end date on or after the requested start date/, request);
+    assert.deepEqual(getDemoCandidates(request), [], request);
+  }
+  assert.equal(demoCandidateStartDateIssue("API 570 in Houston from 2026-12-07 through 2026-12-07"), null);
+});

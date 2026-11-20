@@ -174,6 +174,10 @@ export function demoCandidateStartDateIssue(requestText: string): string | null 
   const start = buildProjectBrief(scope.replace(explicitEndPattern, "")).startDate;
   if (!start) return "Add a specific inspection start date (for example, December 7, 2026) to check the fictional candidates' availability.";
   if (!isValidStructuredDemoStartDate(start)) return "Enter a real calendar start date before previewing available fictional candidates.";
+  // A real end day before the start is an invalid requested window, not an
+  // absence of available fictional inspectors.
+  if (end.timestamp !== null && end.timestamp < Date.parse(start + "T00:00:00Z"))
+    return "Set an inspection end date on or after the requested start date before previewing fictional availability.";
   return null;
 }
 
