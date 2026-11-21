@@ -659,6 +659,30 @@ try{
   "Routing to Billing discarded seven synthetic inspections");
  const continuousNav=page.getByRole("navigation",{name:"Client Workspace sections"});
  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Billing & Payment");
+ // The canonical nine-link Client scrollspy must keep deep-linked Profile in view
+ // on a short 1024x400 desktop, not only the nested Client Demo sidebar.
+ await page.setViewportSize({width:1024,height:400});
+ await page.goto(base+"/demo/client#profile",{waitUntil:"domcontentloaded"});
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Profile");
+ await page.waitForFunction(()=>{
+   const aside=document.querySelector("aside.clientContinuousSide");
+   const link=aside?.querySelector('a[aria-current="location"]');
+   if(!aside||!link)return false;
+   const a=aside.getBoundingClientRect(),b=link.getBoundingClientRect();
+   return aside.scrollHeight>aside.clientHeight&&aside.scrollTop>0&&
+     b.top>=a.top-1&&b.bottom<=a.bottom+1;
+ },null,{timeout:15000});
+ const shortClientSide=await continuousSidebar.evaluate(el=>({
+   position:getComputedStyle(el).position,overflow:getComputedStyle(el).overflowY,
+   height:el.getBoundingClientRect().height,scrollTop:el.scrollTop
+ }));
+ assert(shortClientSide.position==="sticky"&&shortClientSide.overflow==="auto"&&shortClientSide.height<=365,
+   "Short Client Workspace sidebar cannot reveal highlighted Profile: "+JSON.stringify(shortClientSide));
+ assert(await page.locator("article.inspection").count()===7,
+   "Deep-linked Client Profile lost seven synthetic inspections");
+ await page.goto(base+"/demo/client#billing-payment",{waitUntil:"domcontentloaded"});
+ await page.waitForFunction(()=>document.querySelector('nav[aria-label="Client Workspace sections"] a[aria-current="location"]')?.textContent?.trim()==="Billing & Payment");
+ await page.setViewportSize({width:1366,height:900});
  await continuousNav.getByRole("link",{name:"Contracts",exact:true}).click();
  await page.waitForFunction(()=>location.hash==="#contracts");
  await page.getByRole("region",{name:"Contracts"}).waitFor();
