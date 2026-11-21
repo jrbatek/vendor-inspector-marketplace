@@ -24,3 +24,16 @@ test("Agency scrollspy tracks viewport, manual reverse scroll, hashes and link i
  assert.match(agency,/aria-current=\{activeSection === anchor \? "page" : undefined\}/);
  assert.match(agency,/\[id\]\{scroll-margin-top:24px\}/);
 });
+
+
+test("Agency demo navigation and operational controls keep visible 44px click targets",()=>{
+ assert.match(agency,/\.side a\{display:flex;align-items:center;min-height:44px;padding:8px/);
+ assert.match(agency,/\.apiWalkthrough select\{min-height:44px/);
+ assert.match(agency,/\.reportTools select,\.reportTools button\{min-height:44px/);
+ assert.match(agency,/\.reportTools a\.reportDownload\{[^}]*min-height:44px/);
+ const smoke=readFileSync("scripts/smoke-agency-scrollspy.mjs","utf8");
+ assert.match(smoke,/verifyAgencyNavTargets\("Desktop"\)/);
+ assert.match(smoke,/verifyAgencyNavTargets\("Mobile"\)/);
+ assert.match(agency,/\.side a:focus-visible\{outline:3px solid #c4b5fd/);
+ assert.match(agency,/\.side a\[aria-current=page\]\{background:#6d28d9;color:#fff/);
+});
