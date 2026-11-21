@@ -28,6 +28,12 @@ try {
   page.on("pageerror", e => errors.push(e.stack || String(e)));
   await page.goto(base + "/demo/inspector", { waitUntil: "domcontentloaded" });
   const navigation = page.getByRole("navigation", { name: "Inspector Workspace navigation" });
+  const undersizedDesktopNav = await navigation.getByRole("button").evaluateAll(buttons =>
+    buttons.filter(button => button.getBoundingClientRect().height < 44).map(button => (button.textContent || "").trim()));
+  assert(undersizedDesktopNav.length === 0, "InspectorHub desktop sidebar links under 44px: " + undersizedDesktopNav.join(", "));
+  const undersizedDemoActions = await page.locator("#opportunities .row button, #home .panel button").evaluateAll(buttons =>
+    buttons.filter(button => button.getBoundingClientRect().height < 44).map(button => (button.textContent || "").trim()));
+  assert(undersizedDemoActions.length === 0, "InspectorHub demo action buttons under 44px: " + undersizedDemoActions.join(", "));
   const names = await navigation.getByRole("button").allTextContents();
   assert(names.join("|") === ["Profile Home","Opportunities","Active Assignments","Availability & Calendar","Selection Insights & Feedback","Qualifications & Documents","Work History","Income & Tax Center"].join("|"), "InspectorHub navigation order or consolidated Work History incorrect: " + names);
   assert(await page.getByText("Inspector Demo · Synthetic data").count() === 1, "Synthetic demo guard banner missing");
@@ -206,6 +212,11 @@ try {
   await firstOpportunity.getByRole("button", { name: "Preview Opportunity" }).click();
   const dialog = page.getByRole("dialog", { name: "Opportunity preview" });
   assert(await dialog.count() === 1, "Opportunity preview did not open");
+  const closeSize = await dialog.getByRole("button", { name:"Close opportunity preview" }).evaluate(button => {
+    const bounds = button.getBoundingClientRect();return {height:bounds.height,width:bounds.width};
+  });
+  assert(closeSize.height >= 44 && closeSize.width >= 44,
+    "InspectorHub opportunity preview close control below 44px: "+JSON.stringify(closeSize));
   assert((await dialog.innerText()).includes("Offered day rate: $950/day"),"Opportunity preview day rate differs from list");
   assert(!(await dialog.innerText()).includes("$850–$1,050"),"Rate range unexpectedly reintroduced");
   await dialog.getByRole("button", { name: "Accept" }).click();
