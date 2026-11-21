@@ -16,6 +16,7 @@ const SECTIONS=[
 export default function ClientContinuousSidebar(){
  const [active,setActive]=useState<string>("request-inspectors");
  const [mobileOpen,setMobileOpen]=useState(false);
+ const asideRef=useRef<HTMLElement|null>(null);
  const explicitNavigation=useRef<string|null>(null);
  useEffect(()=>{
    // Sections can mount after the sidebar hydrates. Resolve on each update,
@@ -68,6 +69,17 @@ export default function ClientContinuousSidebar(){
    window.addEventListener("popstate",onHash);
    return()=>{cancelAnimationFrame(initialFrame);cancelAnimationFrame(frame);window.removeEventListener("scroll",schedule);window.removeEventListener("resize",schedule);window.removeEventListener("wheel",releaseNavigation);window.removeEventListener("touchstart",releaseNavigation);window.removeEventListener("pointerdown",releaseNavigation);window.removeEventListener("keydown",onScrollKey);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
  },[]);
+ // Keep the active scrollspy link discoverable within the sticky desktop menu.
+ // Adjust only sidebar scroll, never the reading column or keyboard focus.
+ useEffect(()=>{
+   if(window.innerWidth<=980)return;
+   const aside=asideRef.current;
+   const selected=aside?.querySelector<HTMLAnchorElement>('nav a[aria-current="location"]');
+   if(!aside||!selected)return;
+   const outer=aside.getBoundingClientRect(),link=selected.getBoundingClientRect(),inset=16;
+   if(link.bottom>outer.bottom-inset)aside.scrollTop+=link.bottom-outer.bottom+inset;
+   else if(link.top<outer.top+inset)aside.scrollTop-=outer.top+inset-link.top;
+ },[active]);
  const onNavigate=(event:MouseEvent<HTMLAnchorElement>,id:string)=>{
    // Keep real anchors usable for copying and modified-click; ordinary clicks
    // update shareable history while respecting the system reduced-motion setting.
@@ -90,7 +102,7 @@ export default function ClientContinuousSidebar(){
      block:"start",
    });
  };
- return <aside className="clientContinuousSide" aria-label="Client Workspace navigation">
+ return <aside ref={asideRef} className="clientContinuousSide" aria-label="Client Workspace navigation">
    <div className="brand"><small>Client Workspace</small><strong>InspectSource</strong></div>
    <button type="button" className="navToggle" aria-controls="clientContinuousSections" aria-expanded={mobileOpen} onClick={()=>setMobileOpen(open=>!open)}>{mobileOpen?"Hide sections":"Show sections"}</button>
    <nav id="clientContinuousSections" aria-label="Client Workspace sections" className={mobileOpen?"":"mobileClosed"}>
