@@ -48,6 +48,13 @@ async function assertCohort(page, label, expected) {
   if (await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
     throw new Error("Transient Client Analytics recovery panel was observed after selecting " + label);
 }
+// Cover native analytics slicers and header/chip actions, not only segmented source buttons.
+async function assertAccessibleControls(panel, context) {
+  const undersized = await panel.locator(".filters select, .actions button, .activeFilterBar button").evaluateAll(nodes =>
+    nodes.filter(node => node.getBoundingClientRect().height < 44)
+      .map(node => (node.closest("label")?.textContent || node.textContent || "").trim().slice(0, 90)));
+  if (undersized.length) throw new Error(context + " analytics slicer/action controls below 44px: " + undersized.join(", "));
+}
 const assert=(ok,message)=>{if(!ok)throw new Error(message)};
 let browser, page, failed=false;
 const errors=[];
@@ -79,6 +86,7 @@ try {
   if (await page.locator(".filters label").filter({hasText:"Source Type"}).count())
     throw new Error("Obsolete graphical-browser-crashing Source Type native selector remains");
   await assertCohort(page,"All",60);
+  await assertAccessibleControls(page.locator(".clientAnalyticsPage"), "Standalone");
   // Reproduce first interaction in the graphical browser: direct pointer action on Independent.
   await source.getByRole("button",{name:"Independent",exact:true}).click();
   await assertCohort(page,"Independent",15);
@@ -166,6 +174,7 @@ try {
     return panel?.querySelectorAll(".filters select").length === 9 &&
       buttons?.length === 3 && [...buttons].every(button => !button.disabled);
   }, null, {timeout:15000});
+  await assertAccessibleControls(embeddedAnalytics, "Embedded desktop");
   const embeddedInspections = page.locator("#inspections-in-progress .inspectionList .inspection");
   if (await embeddedInspections.count() !== 7)
     throw new Error("Embedded Client Demo must preserve seven synthetic Inspections in Progress");
@@ -234,6 +243,7 @@ try {
     document.querySelector('nav[aria-label="Client Workspace sections"] a[href="#profile"]')?.getAttribute("aria-current")==="location");
   // Real-mobile Client Workspace navigation must not occupy the whole screen.
   await page.setViewportSize({width:390,height:780});
+  await assertAccessibleControls(embeddedAnalytics, "Embedded mobile");
   const smallMobileTargets = await embeddedAnalytics.locator(".quickSources button, .grid .barRow.clickable").evaluateAll(nodes =>
     nodes.filter(node => node.getBoundingClientRect().height < 44)
       .map(node => (node.textContent || "").trim().slice(0, 80)));
