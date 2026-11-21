@@ -677,6 +677,39 @@ try{
  await page.goto(base+"/demo/client-operations?tab=contracts",{waitUntil:"domcontentloaded"});
  await page.getByRole("region",{name:"Contracts"}).waitFor();
  await verifyClientSidebarLayout("Direct-linked Contracts desktop",true);
+ // Short landscape desktop: secondary Client Demo routes need scrollable,
+ // keyboard-reachable dark-blue sidebar links without clipping.
+ await page.setViewportSize({width:1024,height:400});
+ const nestedSide=page.locator("aside.clientSide");
+ const sideGeometry=await nestedSide.evaluate(node=>{
+   const box=node.getBoundingClientRect();
+   const style=getComputedStyle(node);
+   return {top:box.top,bottom:box.bottom,height:box.height,
+     scrollHeight:node.scrollHeight,clientHeight:node.clientHeight,overflow:style.overflowY};
+ });
+ assert(sideGeometry.height<=365 && sideGeometry.scrollHeight>sideGeometry.clientHeight &&
+   sideGeometry.overflow==="auto",
+   "Short desktop Client Demo sidebar clipped its last links: "+JSON.stringify(sideGeometry));
+ const profileLink=nestedSide.getByRole("link",{name:"Profile",exact:true});
+ await profileLink.scrollIntoViewIfNeeded();
+ const linkGeometry=await profileLink.evaluate(node=>{
+   const parent=node.closest("aside");
+   const box=node.getBoundingClientRect(),outer=parent.getBoundingClientRect();
+   return {top:box.top,bottom:box.bottom,sideTop:outer.top,sideBottom:outer.bottom,scrollTop:parent.scrollTop};
+ });
+ assert(linkGeometry.top>=linkGeometry.sideTop-1 &&
+   linkGeometry.bottom<=linkGeometry.sideBottom+1 && linkGeometry.scrollTop>0,
+   "Client Demo Profile sidebar link cannot be reached in short desktop: "+JSON.stringify(linkGeometry));
+ await page.setViewportSize({width:760,height:900});
+ const mobileSidebar=await nestedSide.evaluate(node=>{
+   const css=getComputedStyle(node);
+   return {position:css.position,overflow:css.overflowY,maxHeight:css.maxHeight};
+ });
+ assert(mobileSidebar.position==="static" && mobileSidebar.overflow==="visible" &&
+   mobileSidebar.maxHeight==="none",
+   "Mobile Client Demo sidebar remains artificially scroll-clipped: "+JSON.stringify(mobileSidebar));
+ await page.setViewportSize({width:1366,height:900});
+
  await page.setViewportSize({width:760,height:900});
  await verifyClientSidebarLayout("Commercial mobile",false);
  await page.setViewportSize({width:1366,height:900});
