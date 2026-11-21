@@ -55,6 +55,12 @@ try{
  await page.goto(base+"/demo/agency",{waitUntil:"networkidle"});
  const nav=page.locator('aside[aria-label="Agency Workspace navigation"] nav');
  await nav.waitFor({state:"visible",timeout:15000});
+ const verifyAgencyNavTargets = async label => {
+   const undersized = await nav.locator("a").evaluateAll(links => links.filter(link => link.getBoundingClientRect().height < 44)
+     .map(link => (link.textContent || "").trim()));
+   assert(undersized.length === 0, label + " Agency sidebar navigation links below 44px: " + undersized.join(", "));
+ };
+ await verifyAgencyNavTargets("Desktop");
  const hrefs=await nav.locator("a").evaluateAll(els=>els.map(a=>a.getAttribute("href")));
  if(hrefs.join(",")!==ids.map(x=>"#"+x).join(","))throw Error("Agency scrollspy navigation must have exactly seven ordered operational sections: "+hrefs);
  for(const id of ids)if(await page.locator("#"+id).count()!==1)throw Error("Missing or duplicate operational section "+id);
@@ -253,6 +259,7 @@ try{
  await active(page,"overview");
  if((await page.evaluate(()=>location.hash))!=="#overview")throw Error("Keyboard click did not set shareable anchor");
  await page.setViewportSize({width:390,height:844});
+ await verifyAgencyNavTargets("Mobile");
  await nav.getByRole("link",{name:"Resource Pool"}).click();
  await active(page,"resource-pool");
  if(errors.length)throw Error("Agency scrollspy browser exceptions: "+errors.join("\n"));
