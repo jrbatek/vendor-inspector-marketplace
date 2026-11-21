@@ -217,6 +217,31 @@ try {
   });
   assert(closeSize.height >= 44 && closeSize.width >= 44,
     "InspectorHub opportunity preview close control below 44px: "+JSON.stringify(closeSize));
+  // P0-B: on short mobile screens the dialog must scroll internally so Accept,
+  // Request more information and Decline cannot disappear beneath the viewport.
+  for (const size of [{width:390,height:640},{width:320,height:400}]) {
+    await page.setViewportSize(size);
+    const modalBounds = await dialog.evaluate(node => {
+      const bounds = node.getBoundingClientRect();
+      return {left:bounds.left,right:bounds.right,top:bounds.top,bottom:bounds.bottom,
+        overflow:getComputedStyle(node).overflowY,scrollHeight:node.scrollHeight,clientHeight:node.clientHeight};
+    });
+    assert(modalBounds.left >= -1 && modalBounds.right <= size.width + 1 &&
+      modalBounds.top >= -1 && modalBounds.bottom <= size.height + 1 &&
+      modalBounds.overflow === "auto",
+      "InspectorHub opportunity dialog overflows short mobile viewport: " + JSON.stringify({size,modalBounds}));
+    const decline = dialog.getByRole("button",{name:"Decline"});
+    await decline.scrollIntoViewIfNeeded();
+    const actionBounds = await decline.boundingBox();
+    assert(actionBounds && actionBounds.y >= -1 &&
+      actionBounds.y + actionBounds.height <= size.height + 1,
+      "InspectorHub opportunity actions cannot be reached on short mobile screen: " +
+        JSON.stringify({size,actionBounds}));
+    if (size.height === 400)
+      assert(modalBounds.scrollHeight > modalBounds.clientHeight,
+        "Short mobile opportunity preview should provide internal scrolling");
+  }
+  await page.setViewportSize({width:1440,height:960});
   assert((await dialog.innerText()).includes("Offered day rate: $950/day"),"Opportunity preview day rate differs from list");
   assert(!(await dialog.innerText()).includes("$850–$1,050"),"Rate range unexpectedly reintroduced");
   await dialog.getByRole("button", { name: "Accept" }).click();
