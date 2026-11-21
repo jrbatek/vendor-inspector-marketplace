@@ -34,6 +34,7 @@ export default function AgencyDemoPage() {
   const [activeSection, setActiveSection] = useState("overview");
   const [agencyPageReady, setAgencyPageReady] = useState(false);
   const agencySidebarRef = useRef<HTMLElement | null>(null);
+  const requestedSection = useRef<string | null>(null);
   useEffect(() => { setAgencyPageReady(true); }, []);
   useEffect(()=>{
     if(!agencyPageReady)return;
@@ -47,17 +48,34 @@ export default function AgencyDemoPage() {
       // Follow the normal reading threshold even when the final Contracts heading
       // merely enters the bottom of the viewport. At true document end, select it.
       const lastSection=elements[elements.length-1];
-      if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4)
-        current=lastSection.id;
+      const atDocumentEnd=window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4;
+      if(atDocumentEnd)current=lastSection.id;
+      // A smooth sidebar click must not briefly reactivate the previous
+      // section during scroll animation. Release at the reading line or end.
+      const requested=requestedSection.current;
+      if(requested && sectionIds.includes(requested)){
+        const target=document.getElementById(requested);
+        if(target && !(target.getBoundingClientRect().top<=threshold ||
+          (requested===lastSection.id && atDocumentEnd))){
+          setActiveSection(requested);
+          return;
+        }
+        requestedSection.current=null;
+      }
       setActiveSection(current);
     };
-    const onHash=()=>{const hash=window.location.hash.slice(1);if(sectionIds.includes(hash)){document.getElementById(hash)?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});}updateActive();};
+    const onHash=()=>{const hash=window.location.hash.slice(1);if(sectionIds.includes(hash)){requestedSection.current=hash;document.getElementById(hash)?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});}updateActive();};
     const frame=window.requestAnimationFrame(()=>{if(window.location.hash)onHash();else updateActive();});
+    const releaseRequest=()=>{requestedSection.current=null;};
+    const scrollKey=(e:KeyboardEvent)=>{if(["ArrowDown","ArrowUp","PageDown","PageUp","Home","End"," "].includes(e.key))releaseRequest();};
+    window.addEventListener("wheel",releaseRequest,{passive:true});
+    window.addEventListener("touchstart",releaseRequest,{passive:true});
+    window.addEventListener("keydown",scrollKey);
     window.addEventListener("scroll",updateActive,{passive:true});
     window.addEventListener("resize",updateActive);
     window.addEventListener("hashchange",onHash);
     window.addEventListener("popstate",onHash);
-    return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("scroll",updateActive);window.removeEventListener("resize",updateActive);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
+    return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("wheel",releaseRequest);window.removeEventListener("touchstart",releaseRequest);window.removeEventListener("keydown",scrollKey);window.removeEventListener("scroll",updateActive);window.removeEventListener("resize",updateActive);window.removeEventListener("hashchange",onHash);window.removeEventListener("popstate",onHash)};
   },[agencyPageReady]);
   // On short desktop/landscape viewports the sticky purple sidebar scrolls
   // independently. Keep its one active scrollspy link visible without moving
@@ -85,6 +103,7 @@ export default function AgencyDemoPage() {
     if(!target)return;
     event.preventDefault();
     if(window.location.hash!=="#"+id)window.history.pushState(null,"","#"+id);
+    requestedSection.current=id;
     setActiveSection(id);
     target.scrollIntoView({
       behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",

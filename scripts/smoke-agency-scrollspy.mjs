@@ -76,6 +76,8 @@ try{
    "Agency sidebar clips navigation on short desktop viewport: "+JSON.stringify(sideMetrics));
  await nav.getByRole("link",{name:"Contracts & Commercials"}).click();
  await active(page,"contracts-commercials");
+ await page.waitForTimeout(180);
+ await active(page,"contracts-commercials");
  const activeSideLink=await agencySide.evaluate(node=>{
    const selected=node.querySelector('a[aria-current="page"]');
    if(!selected)return null;

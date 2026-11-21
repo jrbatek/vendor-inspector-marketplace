@@ -14,6 +14,9 @@ test("P0-B Agency sticky sidebar scrolls internally on short desktops and keeps 
     "sidebar.scrollTop += selected.bottom - box.bottom + inset",
     "sidebar.scrollTop -= box.top + inset - selected.top",
     "[activeSection, agencyPageReady]",
+    "requestedSection.current=id",
+    "requestedSection.current=hash",
+    "setActiveSection(requested)",
   ]) assert.ok(page.includes(code), "Agency short-screen guard missing: " + code);
   for (const check of [
     "width:1024,height:400",
