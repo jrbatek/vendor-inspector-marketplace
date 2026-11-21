@@ -542,6 +542,24 @@ try {
             throw new Error(route + " Demo Back to top failed keyboard activation: " + JSON.stringify(diagnostic));
           });
         await back.waitFor({ state: "hidden", timeout: 5000 });
+        // A reviewer who resumes scrolling during the smooth return must not
+        // be forcibly sent back to the top when its old settle timer fires.
+        if (route === "/demo/client" && width === 1440) {
+          await page.evaluate(() => {
+            const button = document.querySelector('button[aria-label="Back to top"]');
+            if (!button) throw new Error("Shared demo back-to-top control missing");
+            window.scrollTo({ top: 850, behavior: "instant" });
+            button.click();
+            window.dispatchEvent(new Event("wheel"));
+            window.scrollTo({ top: 750, behavior: "instant" });
+          });
+          await page.waitForTimeout(1100);
+          const retainedPosition = await page.evaluate(() => window.scrollY);
+          if (retainedPosition < 500) throw new Error(
+            "Interrupted Demo Back to top unexpectedly snapped back to page start: " + retainedPosition);
+          await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+          await back.waitFor({ state: "hidden", timeout: 5000 });
+        }
         if (width === 390) await page.emulateMedia({ reducedMotion: "no-preference" });
         await page.evaluate(() => document.getElementById("demo-back-to-top-test-spacer")?.remove());
       }

@@ -21,14 +21,34 @@ export default function DemoBackToTop() {
         setVisible(atThreshold || returningToTop.current);
       });
     };
+    // A real user wheel/touch/pointer/scroll key interrupts the smooth return.
+    // Never snap them back to the top 900ms after they resume reading.
+    const cancelReturn = () => {
+      if (!returningToTop.current) return;
+      if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+      returningToTop.current = false;
+      sync();
+    };
+    const onScrollKey = (event: KeyboardEvent) => {
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Spacebar"].includes(event.key)) cancelReturn();
+    };
     sync();
     window.addEventListener("scroll", sync, { passive: true });
     window.addEventListener("resize", sync);
+    window.addEventListener("wheel", cancelReturn, { passive: true });
+    window.addEventListener("touchstart", cancelReturn, { passive: true });
+    window.addEventListener("pointerdown", cancelReturn);
+    window.addEventListener("keydown", onScrollKey);
     return () => {
       window.cancelAnimationFrame(frame);
       if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
       window.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
+      window.removeEventListener("wheel", cancelReturn);
+      window.removeEventListener("touchstart", cancelReturn);
+      window.removeEventListener("pointerdown", cancelReturn);
+      window.removeEventListener("keydown", onScrollKey);
     };
   }, []);
 
