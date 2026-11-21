@@ -330,6 +330,14 @@ try {
         // Week and List share the explicit disabled-state CSS contract.
         const monthGrid = page.locator(".calendarShell .month");
         await monthGrid.waitFor({state:"visible",timeout:15000});
+        // P0-B: navigation, date fields and Block Dates actions are touch-accessible.
+        const calendarControlSizes = await page.locator(".calendarShell .viewTabs button, .calendarShell .monthControls button, .calendarShell .monthJump input, .calendarShell .availabilityActions button, .calendarShell .availabilityActions input, .calendarShell .availabilityActions select").evaluateAll(nodes => ({
+          count: nodes.length,
+          undersized: nodes.filter(node => node.getBoundingClientRect().height < 44)
+            .map(node => ((node.textContent || node.getAttribute("aria-label") || node.getAttribute("type") || node.tagName).trim()).slice(0,70))
+        }));
+        if(calendarControlSizes.count < 12 || calendarControlSizes.undersized.length)
+          throw new Error(width+"px Inspector Calendar navigation/date/block controls smaller than 44px: "+JSON.stringify(calendarControlSizes));
         const unselectedDate = monthGrid.locator('[data-calendar-date="2026-11-01"]');
         const selectedDate = monthGrid.locator('[data-calendar-date="2026-11-22"]');
         const styleOf = async control => control.evaluate(element => {

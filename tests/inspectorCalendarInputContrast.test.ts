@@ -5,7 +5,7 @@ import test from "node:test";
 const calendar=readFileSync("components/InspectorAvailabilityCalendar.tsx","utf8");
 const smoke=readFileSync("scripts/smoke-inspector-demo.mjs","utf8");
 test("Inspector Calendar Week/Block Dates input/select control states remain legible",()=>{
- assert.match(calendar,/\.weekControls input,\.availabilityActions input,\.availabilityActions select\{background:#fff;color:#0f172a;border:1px solid #64748b/);
+ assert.match(calendar,/\.weekControls input,\.availabilityActions input,\.availabilityActions select\{min-height:44px;background:#fff;color:#0f172a;border:1px solid #64748b/);
  assert.match(calendar,/\.availabilityActions select:hover\{border-color:#0f766e\}/);
  assert.match(calendar,/\.availabilityActions select:focus-visible\{outline:3px solid #0d9488/);
  assert.match(calendar,/\.availabilityActions select:disabled\{background:#f1f5f9;color:#334155/);
