@@ -38,6 +38,11 @@ async function assertCohort(page, label, expected) {
     .getByRole("button", {name:label === "All" ? "All sources" : label, exact:true});
   if (await chosen.getAttribute("aria-pressed") !== "true")
     throw new Error(label + " filter did not expose pressed state");
+  const undersizedTargets = await page.locator(".clientAnalyticsPage .quickSources button, .clientAnalyticsPage .grid .barRow.clickable").evaluateAll(nodes =>
+    nodes.filter(node => node.getBoundingClientRect().height < 44)
+      .map(node => (node.textContent || "").trim().slice(0, 80)));
+  if (undersizedTargets.length)
+    throw new Error("Analytics Source Type/chart controls below 44px minimum: " + undersizedTargets.join(", "));
   if (await page.getByRole("heading", {name:"Analytics view could not load"}).count())
     throw new Error("Client Analytics recovery error after selecting " + label);
   if (await page.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
@@ -229,6 +234,11 @@ try {
     document.querySelector('nav[aria-label="Client Workspace sections"] a[href="#profile"]')?.getAttribute("aria-current")==="location");
   // Real-mobile Client Workspace navigation must not occupy the whole screen.
   await page.setViewportSize({width:390,height:780});
+  const smallMobileTargets = await embeddedAnalytics.locator(".quickSources button, .grid .barRow.clickable").evaluateAll(nodes =>
+    nodes.filter(node => node.getBoundingClientRect().height < 44)
+      .map(node => (node.textContent || "").trim().slice(0, 80)));
+  assert(smallMobileTargets.length === 0,
+    "Mobile embedded Analytics source/chart touch targets below 44px: " + smallMobileTargets.join(", "));
   const mobileNavToggle=clientSidebar.getByRole("button",{name:"Show sections"});
   assert(await mobileNavToggle.isVisible(),"Client mobile sidebar must offer a visible Show sections toggle");
   assert(await mobileNavToggle.getAttribute("aria-expanded")==="false",

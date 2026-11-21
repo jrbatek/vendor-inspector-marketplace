@@ -49,3 +49,14 @@ test("analytics discloses the 30-row preview limit while keeping full CSV export
 test("selected analytics bar can be deselected without resetting unrelated slicers", () => {
   assert.match(page, /onClick=\{\(\)=>onSelect\(selected===r\.name\?ALL:r\.name\)\}/);
 });
+
+
+test("Analytics Source Type segmented buttons and clickable chart rows keep readable 44px touch targets", () => {
+  assert.match(page, /\.quickSources button\{min-height:44px;background:#fff;color:#115e59/);
+  assert.match(page, /\.clientAnalyticsPage \.barRow\.clickable\{cursor:pointer;border-radius:8px;min-height:44px\}/);
+  assert.match(page, /\.quickSources button\[aria-pressed=true\]\{color:#fff;background:#0f766e\}/);
+  assert.match(page, /\.clientAnalyticsPage \.barRow\.clickable:focus-visible\{outline:3px solid #0d9488/);
+  const smoke = fs.readFileSync("scripts/smoke-client-analytics.mjs", "utf8");
+  assert.match(smoke, /Analytics Source Type\/chart controls below 44px minimum/);
+  assert.match(smoke, /Mobile embedded Analytics source\/chart touch targets below 44px/);
+});
