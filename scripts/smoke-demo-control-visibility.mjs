@@ -257,6 +257,13 @@ try {
           throw new Error("Inspector Historical status chip did not preserve expired lifecycle state");
       }
       if (route === "/demo/client-data") {
+        // P0-B: every interactive data/export control remains usable and legible on
+        // both desktop and narrow mobile, including the copy-endpoint action.
+        const controls = await page.locator(".exportActions button, .integrationGrid button, .exportFilterTools select, .exportFilterTools button")
+          .evaluateAll(nodes => nodes.map(node => ({name: (node.textContent || node.getAttribute("aria-label") || "").trim().slice(0, 45),
+            height: node.getBoundingClientRect().height})));
+        if (controls.length < 5 || controls.some(item => item.height < 43.5))
+          throw new Error("Client Data & Integrations demo control below 44px: " + JSON.stringify(controls));
         const exportStatus = page.getByRole("combobox", { name: "Export status" });
         const records = page.locator(".dataPanel tbody tr");
         if (await records.count() !== 5) throw new Error("Client data preview must start with five synthetic inspections");
