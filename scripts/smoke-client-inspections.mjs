@@ -863,6 +863,16 @@ try{
   await checkpoint("navigated to deep link #4");
   const sharedDetails=page.getByRole("region",{name:"Inspection details DEMO-ACT-4"});
   await sharedDetails.waitFor({timeout:12000});
+  // P0-B: functional Open Inspection, action-register, CSV and PDF links must
+  // remain directly tappable rather than small text-only hotspots.
+  const inspectionLinkTargets = await page.locator(".actionRegister a, .resultActions a.exportCsv, .details .reportLink")
+    .evaluateAll(nodes => nodes.map(node => ({
+      label: (node.textContent || "").trim().slice(0, 80),
+      height: node.getBoundingClientRect().height
+    })));
+  assert(inspectionLinkTargets.length >= 4 &&
+    inspectionLinkTargets.every(item => item.height >= 44),
+    "Client inspection action/report links below 44px: " + JSON.stringify(inspectionLinkTargets));
   await checkpoint("deep link #4");
   assert((await sharedDetails.innerText()).includes("Atlantic LNG Terminal"),
     "Direct inspection deep link opened the wrong synthetic inspection");
