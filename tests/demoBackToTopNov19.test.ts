@@ -49,3 +49,14 @@ test("real Chromium checks threshold, keyboard activation, reduced motion, respo
   assert.match(smoke, /Demo Back to top failed keyboard activation/);
   assert.match(smoke, /page\.emulateMedia\(\{ reducedMotion: "reduce" \}\)/);
 });
+
+test("interrupted Back to top never snaps the reviewer up after a new wheel/touch/key action", () => {
+  for (const eventName of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+    assert.ok(component.includes('addEventListener("' + eventName + '"'), eventName);
+    assert.ok(component.includes('removeEventListener("' + eventName + '"'), eventName);
+  }
+  assert.match(component, /returningToTop\.current = false;\s*sync\(\)/);
+  assert.match(component, /window\.clearTimeout\(settleTimer\.current\)/);
+  assert.match(smoke, /Interrupted Demo Back to top unexpectedly snapped back to page start/);
+  assert.match(smoke, /window\.dispatchEvent\(new Event\("wheel"\)\)/);
+});
