@@ -37,6 +37,36 @@ try {
   const names = await navigation.getByRole("button").allTextContents();
   assert(names.join("|") === ["Profile Home","Opportunities","Active Assignments","Availability & Calendar","Selection Insights & Feedback","Qualifications & Documents","Work History","Income & Tax Center"].join("|"), "InspectorHub navigation order or consolidated Work History incorrect: " + names);
   assert(await page.getByText("Inspector Demo · Synthetic data").count() === 1, "Synthetic demo guard banner missing");
+  // Green sidebar links remain reachable in short desktop landscape viewports.
+  await page.setViewportSize({width:1024,height:400});
+  const greenAside=page.locator("aside.side");
+  const sideMetrics=await greenAside.evaluate(node=>{
+    const b=node.getBoundingClientRect(),css=getComputedStyle(node);
+    return {height:b.height,scrollHeight:node.scrollHeight,clientHeight:node.clientHeight,overflow:css.overflowY};
+  });
+  assert(sideMetrics.height<=365&&sideMetrics.scrollHeight>sideMetrics.clientHeight&&sideMetrics.overflow==="auto",
+    "InspectorHub sidebar clips navigation on short desktop: "+JSON.stringify(sideMetrics));
+  await navigation.getByRole("button",{name:"Income & Tax Center"}).click();
+  await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Income & Tax Center");
+  const activeGeometry=await greenAside.evaluate(node=>{
+    const item=node.querySelector('button[aria-current="page"]');
+    if(!item)return null;
+    const a=node.getBoundingClientRect(),b=item.getBoundingClientRect();
+    return {top:b.top,bottom:b.bottom,parentTop:a.top,parentBottom:a.bottom,scrollTop:node.scrollTop};
+  });
+  assert(activeGeometry&&activeGeometry.top>=activeGeometry.parentTop-1&&
+    activeGeometry.bottom<=activeGeometry.parentBottom+1&&activeGeometry.scrollTop>0,
+    "Income & Tax Center highlight not visible in green sidebar: "+JSON.stringify(activeGeometry));
+  await page.setViewportSize({width:390,height:900});
+  const mobileSide=await greenAside.evaluate(node=>({
+    position:getComputedStyle(node).position,overflow:getComputedStyle(node).overflowY,maxHeight:getComputedStyle(node).maxHeight
+  }));
+  assert(mobileSide.position==="static"&&mobileSide.overflow==="visible"&&mobileSide.maxHeight==="none",
+    "InspectorHub green sidebar remains scroll-clipped on mobile: "+JSON.stringify(mobileSide));
+  await page.setViewportSize({width:1440,height:960});
+  await page.goto(base + "/demo/inspector", { waitUntil: "domcontentloaded" });
+  await navigation.getByRole("button",{name:"Profile Home"}).waitFor({state:"visible"});
+
   // Single-page InspectorHub: every dashboard is present, with viewport-driven active
   // sidebar state, sticky desktop navigation, deep links and keyboard controls.
   const sectionIds=["home","opportunities","assignments","calendar","insights","qualifications","work","income"];
