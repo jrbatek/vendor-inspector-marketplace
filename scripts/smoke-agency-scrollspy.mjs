@@ -61,6 +61,38 @@ try{
    assert(undersized.length === 0, label + " Agency sidebar navigation links below 44px: " + undersized.join(", "));
  };
  await verifyAgencyNavTargets("Desktop");
+ // P0-B: the final purple-sidebar links must remain reachable in a short
+ // landscape viewport, while window scrollspy still activates their sections.
+ await page.setViewportSize({width:1024,height:400});
+ const agencySide=page.locator('aside[aria-label="Agency Workspace navigation"]');
+ const sideMetrics=await agencySide.evaluate(node=>{
+   const box=node.getBoundingClientRect();
+   return {top:box.top,bottom:box.bottom,height:box.height,
+     scrollHeight:node.scrollHeight,clientHeight:node.clientHeight,
+     overflow:getComputedStyle(node).overflowY};
+ });
+ assert(sideMetrics.height<=378 && sideMetrics.scrollHeight>sideMetrics.clientHeight &&
+   sideMetrics.overflow==="auto",
+   "Agency sidebar clips navigation on short desktop viewport: "+JSON.stringify(sideMetrics));
+ await nav.getByRole("link",{name:"Contracts & Commercials"}).click();
+ await active(page,"contracts-commercials");
+ await page.waitForTimeout(180);
+ await active(page,"contracts-commercials");
+ const activeSideLink=await agencySide.evaluate(node=>{
+   const selected=node.querySelector('a[aria-current="page"]');
+   if(!selected)return null;
+   const navBounds=node.getBoundingClientRect(),bounds=selected.getBoundingClientRect();
+   return {top:bounds.top,bottom:bounds.bottom,sideTop:navBounds.top,sideBottom:navBounds.bottom,
+     label:selected.textContent?.trim()};
+ });
+ assert(activeSideLink && activeSideLink.top>=activeSideLink.sideTop-1 &&
+   activeSideLink.bottom<=activeSideLink.sideBottom+1 &&
+   activeSideLink.label==="Contracts & Commercials",
+   "Agency scrollspy active link scrolled outside sticky sidebar: "+JSON.stringify(activeSideLink));
+ await page.setViewportSize({width:1280,height:900});
+ await page.goto(base+"/demo/agency",{waitUntil:"networkidle"});
+ await nav.waitFor({state:"visible",timeout:15000});
+
  const hrefs=await nav.locator("a").evaluateAll(els=>els.map(a=>a.getAttribute("href")));
  if(hrefs.join(",")!==ids.map(x=>"#"+x).join(","))throw Error("Agency scrollspy navigation must have exactly seven ordered operational sections: "+hrefs);
  for(const id of ids)if(await page.locator("#"+id).count()!==1)throw Error("Missing or duplicate operational section "+id);
