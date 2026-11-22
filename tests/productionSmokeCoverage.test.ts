@@ -15,6 +15,7 @@ test("production smoke continuously covers the complete synthetic client and ins
     "/demo/client",
     "/demo/client-inspections",
     "/demo/inspector-work-history",
+    "/demo/inspector-reports",
     "/demo/client-analytics",
     "/demo/client-history",
     "/demo/client-operations",
@@ -43,7 +44,6 @@ test("production smoke verifies stable route-specific client and inspector exper
     "Client contracts",
     "Work History",
     "Analytics",
-    "Inspection History",
     "Commercial and account management",
     "InspectSource API",
     "Inspector Demo",
@@ -107,4 +107,15 @@ test("production smoke refuses to pass against an older production alias while m
   assert.ok(workflow.indexOf("production_ready=false") < workflow.indexOf("routes=("),
     "Exact-main READY must precede every HTTP route probe");
   assert.match(workflow, /timeout-minutes: 14/);
+});
+
+test("legacy demo routes verify the canonical embedded destinations after redirects", () => {
+  const routesBlock = workflow.match(/routes=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "";
+  const expectedBlock = workflow.match(/expected=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "";
+  const routes = Array.from(routesBlock.matchAll(/"([^"]+)"/g), match => match[1]);
+  const markers = Array.from(expectedBlock.matchAll(/"([^"]+)"/g), match => match[1]);
+  assert.equal(routes.length, markers.length, "All production routes must retain their own expected heading");
+  assert.equal(markers[routes.indexOf("/demo/client-history")], "Analytics", "Legacy Client History must redirect to Analytics");
+  assert.equal(markers[routes.indexOf("/demo/inspector-reports")], "Inspector Demo", "Legacy Inspector Reports must redirect into InspectorHub Work History");
+  assert.doesNotMatch(workflow, /"Inspection History"/, "Do not restore obsolete Client Inspection History route marker");
 });
