@@ -131,6 +131,23 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/demo/inspector-affiliations") {
+        // Pending claim actions must target an explicitly selected fictional agency.
+        // No action is allowed to imply that an unselected or live claim was modified.
+        await page.getByRole("button", { name: "Pending / Disputed" }).click();
+        const confirm = page.getByRole("button", { name: "Confirm selected claim" });
+        if (await confirm.isEnabled()) throw new Error("Unselected affiliation claim action must be disabled");
+        await page.getByRole("button", { name: "Select this claim" }).first().click();
+        if (!(await confirm.isEnabled())) throw new Error("Selected fictional claim action stayed disabled");
+        await confirm.click();
+        await page.getByRole("status").getByText(/Confirmation previewed for Atlas Technical Inspection/).waitFor();
+        await page.getByRole("button", { name: "Historical", exact: true }).click();
+        if (await page.getByText(/Confirmation previewed for Atlas Technical Inspection/).count())
+          throw new Error("Pending affiliation action banner leaked into history");
+        await page.getByRole("button", { name: "Pending / Disputed" }).click();
+        if (await confirm.isEnabled()) throw new Error("Changing tabs failed to clear selected claim");
+      }
+
       if (route === "/demo/client-analytics") {
         // P0-B: exercise selected, unselected, hover, keyboard-focus and disabled
         // source controls in real desktop/mobile Chromium, not just static colors.
