@@ -36,7 +36,18 @@ try {
   const counts = async () => (await summary.locator("strong").allTextContents()).map(value => Number(value.trim()));
   assert(JSON.stringify(await counts()) === JSON.stringify([10, 10, 6, 3]), "Unexpected unfiltered Work History counters");
 
-  await page.getByRole("button", { name: "Open assignment" }).first().click();
+  const disclosure = page.getByRole("button", { name: "Open assignment" }).first();
+  assert(await disclosure.getAttribute("aria-controls") === null,
+    "Collapsed Work History assignment must not reference a missing details panel");
+  const shortTargets = await page.locator(".historyPage .filters input, .historyPage .filters select, .historyPage .tabs button, .historyPage .records button, .historyPage .pdfLink").evaluateAll(nodes =>
+    nodes.filter(node => node.getBoundingClientRect().height < 44)
+      .map(node => (node.textContent || node.getAttribute("aria-label") || "").trim().slice(0, 70)));
+  assert(shortTargets.length === 0, "Work History controls below 44px: " + shortTargets.join(", "));
+  await disclosure.click();
+  const openDisclosure = page.getByRole("button", { name: "Close assignment" }).first();
+  const detailsId = await openDisclosure.getAttribute("aria-controls");
+  assert(Boolean(detailsId) && await page.locator("#" + detailsId).count() === 1,
+    "Expanded Work History assignment must reference its mounted details");
   assert(await page.getByRole("heading", { name: "Completed assignment details" }).count() === 1, "Assignment detail must open");
   await page.getByRole("combobox", { name: "Client" }).selectOption("Bluewater LNG");
   assert(JSON.stringify(await counts()) === JSON.stringify([2, 2, 1, 1]), "Client filter must update every summary counter");
