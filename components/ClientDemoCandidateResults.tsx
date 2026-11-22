@@ -66,14 +66,14 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
         dl {display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:.92rem;line-height:1.45}
         dt {font-weight:700} dd {margin:0;overflow-wrap:anywhere}
         details {margin-top:12px;border-top:1px solid #dbe3eb}
-        summary {padding:12px 0;color:#105c62;font-weight:700;cursor:pointer}
-        summary:hover {text-decoration:underline}
+        summary {display:flex;align-items:center;min-height:44px;padding:10px 8px;color:#105c62;font-weight:700;cursor:pointer;border-radius:6px}
+        summary:hover,details[open] summary {background:#f0fdfa;color:#115e59;text-decoration:underline}
         summary:focus-visible,button:focus-visible {outline:3px solid #0d9488;outline-offset:2px}
         .cv {padding:2px 0 4px}.cv h5 {font-size:.94rem;margin:0 0 5px}
         .cv p,.cv ul {margin:0 0 14px;color:#334155;line-height:1.5}
         .cv .downloadStatus {margin:10px 0;color:#115e59;font-weight:700}.cv .downloadStatus.error {color:#991b1b}.cv ul {padding-left:1.3rem}.cv li+li {margin-top:5px}
         button {cursor:pointer;min-height:44px;padding:8px 14px;border:1px solid #0f766e;border-radius:8px;color:#115e59;background:#fff;font:inherit;font-weight:700}
-        button:hover {background:#f0fdfa} button:disabled {color:#475569;cursor:progress}
+        button:not(:disabled):hover {background:#f0fdfa} button:disabled {color:#475569;background:#f1f5f9;border-color:#94a3b8;cursor:progress;opacity:1}
       `}</style>
     </article>
   );
