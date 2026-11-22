@@ -146,6 +146,8 @@ try {
           throw new Error("Pending affiliation action banner leaked into history");
         await page.getByRole("button", { name: "Pending / Disputed" }).click();
         if (await confirm.isEnabled()) throw new Error("Changing tabs failed to clear selected claim");
+        // Restore the default current-relationship view for the existing lifecycle and status-chip browser audits below.
+        await page.getByRole("button", { name: "Current / Verified" }).click();
       }
 
       if (route === "/demo/client-analytics") {
