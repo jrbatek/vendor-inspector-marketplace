@@ -21,7 +21,7 @@ test("client operations demo exposes populated synthetic billing", () => {
 });
 
 test("expanded billing and contract records expose accessible detail relationships", () => {
-  assert.match(page, /aria-controls=\{detailsId\}/);
+  assert.match(page, /aria-controls=\{openRow\?detailsId:undefined\}/);
   assert.match(page, /id=\{detailsId\}/);
   assert.match(page, /aria-expanded=\{openRow\}/);
   assert.match(page, /aria-hidden="true"/);
