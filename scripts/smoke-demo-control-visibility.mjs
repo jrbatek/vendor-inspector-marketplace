@@ -131,6 +131,19 @@ try {
           JSON.stringify({ errors: errors.slice(0, 2), controls: result.bad.slice(0, 10) }));
       }
       if (result.checked < 3) throw new Error(width + "px " + route + " returned an empty/unauthenticated shell");
+      if (route === "/") {
+        // Public homepage audience actions need touch-size parity with the demo
+        // workspaces, including small plain-text and nested synthetic demo links.
+        const smallLinks = await page.locator("main .audienceCard a[href]").evaluateAll(links =>
+          links.flatMap(link => {
+            const rect = link.getBoundingClientRect();
+            return rect.width >= 44 && rect.height >= 44 ? [] : [{
+              text: (link.textContent || "").trim(), width: Math.round(rect.width),
+              height: Math.round(rect.height)
+            }];
+          }));
+        if (smallLinks.length) throw new Error(width + "px homepage audience link touch targets: " + JSON.stringify(smallLinks));
+      }
       if (route === "/demo/inspector-affiliations") {
         // Pending claim actions must target an explicitly selected fictional agency.
         // No action is allowed to imply that an unselected or live claim was modified.
