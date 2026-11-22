@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AGENCY_RESOURCE_POOL, AGENCY_SYNTHETIC_RESOURCE_TOTAL } from "@/lib/agencyDemoResources";
 
 const affiliations = [
   {id:"IS-20418",name:"Maya Chen",type:"Employee",state:"Verified",dates:"Jan 1, 2025 — Dec 31, 2027",agencyId:"EMP-4812",action:"Active — dual confirmed",note:"Inspector confirmed Jan 3, 2025 • Agency reconfirmed Jan 3, 2025"},
@@ -11,6 +12,13 @@ const affiliations = [
   {id:"IS-33091",name:"Elena Rossi",type:"Affiliate",state:"Expired / Ended",dates:"Feb 1, 2024 — Aug 31, 2026",agencyId:"AFF-0447",action:"Historical",note:"End date is immutable history for prior awards; independent eligibility may resume if opted in."},
 ];
 
+// Keep aggregate agency resource metrics on the same synthetic fixture as the main Agency Workspace.
+const affiliationTotals = {
+  verified: AGENCY_RESOURCE_POOL.filter(row => row.affiliation === "Verified").length,
+  pending: AGENCY_RESOURCE_POOL.filter(row => row.affiliation === "Confirmation pending").length,
+  expiring: AGENCY_RESOURCE_POOL.filter(row => row.affiliation === "Expiring").length,
+  disputed: AGENCY_RESOURCE_POOL.filter(row => row.affiliation === "Disputed").length,
+};
 type AffiliationFilter = "All" | "Pending" | "Verified" | "Expiring" | "Disputed" | "Ended";
 const FILTER_OPTIONS: AffiliationFilter[] = ["All", "Pending", "Verified", "Expiring", "Disputed", "Ended"];
 const matchesAffiliationFilter = (state: string, filter: AffiliationFilter) =>
@@ -29,7 +37,7 @@ export default function AgencyAffiliationsDemo(){
  return <main className="wrap">
   <div className="notice"><strong>Demo Mode</strong> — synthetic affiliation records only. No production identity, notification, authorization or matching changes occur here.</div>
   <header><div><span className="eyebrow">Agency Workspace / Resource Pool</span><h1>Resource Affiliations</h1><p>Claim and manage agency relationships without changing the inspector's permanent InspectSource identity.</p></div><Link href="/demo/agency">← Agency Workspace</Link></header>
-  <section className="kpis"><article><b>126</b><span>Total resources</span></article><article><b>108</b><span>Verified</span></article><article><b>7</b><span>Confirmation pending</span></article><article><b>6</b><span>Expiring</span></article><article><b>2</b><span>Disputed</span></article></section>
+  <section className="kpis" aria-label="Synthetic agency resource pool totals"><article><b>{AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")}</b><span>Total agency resources</span></article><article><b>{affiliationTotals.verified.toLocaleString("en-US")}</b><span>Verified</span></article><article><b>{affiliationTotals.pending.toLocaleString("en-US")}</b><span>Confirmation pending</span></article><article><b>{affiliationTotals.expiring.toLocaleString("en-US")}</b><span>Expiring</span></article><article><b>{affiliationTotals.disputed.toLocaleString("en-US")}</b><span>Disputed</span></article></section>
   <section className="card"><div className="head"><div><h2>Affiliation lifecycle</h2><p>Neither agency claim nor inspector response alone creates Verified status. Corrections to relationship type or dates require the other party to reconfirm.</p></div><button type="button" aria-expanded={claimPreview} aria-controls="agency-claim-explainer" onClick={()=>setClaimPreview(open=>!open)}>+ Claim / add inspector</button></div>
     <div id="agency-claim-explainer" className="claimHelp" hidden={!claimPreview}><strong>Claim preview · synthetic only</strong><p>A proposed agency affiliation requires the inspector to confirm the relationship, date range and type before verification. No live inspector is contacted or changed.</p><p>Example: Sample Inspector A · Employee · confirmation pending.</p></div>
     <div className="flow"><span>Agency Claimed</span><i>→</i><span>Inspector Confirmation Pending</span><i>→</i><span>Verified</span><i>→</i><span>Expiring</span><i>→</i><span>Expired / Ended</span><em>Disputed can branch from any unverified change</em></div>
