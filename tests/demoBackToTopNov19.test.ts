@@ -41,7 +41,16 @@ test("real Chromium checks threshold, keyboard activation, reduced motion, respo
   const routes = readdirSync(demoRoot, { withFileTypes: true })
     .filter(entry => entry.isDirectory() && existsSync(join(demoRoot, entry.name, "page.tsx")))
     .map(entry => "/demo/" + entry.name);
-  for (const route of routes) assert.ok(smoke.includes('"' + route + '"'), "Missing demo route from browser audit: " + route);
+  for (const route of routes) {
+    if (route === "/demo/client-history") {
+      const clientSmoke = readFileSync("scripts/smoke-client-inspections.mjs", "utf8");
+      assert.match(clientSmoke, /\["\/demo\/client-history","analytics"\]/);
+      assert.match(clientSmoke, /\["\/demo\/client-history\?view=active","inspections-in-progress"\]/);
+      assert.match(clientSmoke, /Legacy Client History redirect lost fictional inspections/);
+    } else {
+      assert.ok(smoke.includes('"' + route + '"'), "Missing demo route from browser audit: " + route);
+    }
+  }
   assert.match(smoke, /for \(const width of \[1440, 390\]\)/);
   assert.match(smoke, /route\.startsWith\("\/demo\/"\)/);
   assert.match(smoke, /Demo Back to top appeared before threshold/);

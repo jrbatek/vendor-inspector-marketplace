@@ -16,7 +16,7 @@ server?.stdout.on("data", x => log += String(x));
 server?.stderr.on("data", x => log += String(x));
 const routes = [
   "/", "/demo/client", "/demo/client-agency-sourcing", "/demo/client-inspections",
-  "/demo/client-analytics", "/demo/client-history", "/demo/inspector",
+  "/demo/client-analytics", "/demo/inspector",
   "/demo/inspector-documents", "/demo/inspector-work-history", "/demo/inspector-income",
   "/demo/agency", "/demo/agency-opportunities", "/demo/agency-resources", "/demo/agency-affiliations", "/demo/agency-commercials",
   "/demo/client-data", "/demo/client-operations", "/demo/inspector-selection-outcomes",

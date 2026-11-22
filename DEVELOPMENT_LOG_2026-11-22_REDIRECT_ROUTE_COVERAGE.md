@@ -1,0 +1,3 @@
+# InspectSource Development Log — 2026-11-22 · Redirect-aware global demo contracts
+
+After rebase, both mandatory test workflows caught two broad global demo route-coverage tests that still required the retired `/demo/client-history` standalone page in the independent-page accessibility sweep. Updated **both** tests to require full contrast/Back-to-Top audit on the canonical `/demo/client-analytics` page and independent Chromium proof of legacy redirect path/hash, seven fictional inspections, and no login shell. This changes no application logic and does not exempt remaining demo routes or weaken the contrast thresholds. Exact-head mandatory validation and Preview READY still gate merge.

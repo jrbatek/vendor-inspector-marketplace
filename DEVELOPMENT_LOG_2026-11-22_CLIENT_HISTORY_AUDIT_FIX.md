@@ -1,0 +1,3 @@
+# InspectSource Development Log — 2026-11-22 · Legacy Client History link smoke correction
+
+The exact-head hosted Chromium P0 control audit failed on the retired `/demo/client-history` URL because that is now a **redirect** to the one-page Client Analytics anchor; the generic route audit expected an independent page at scroll position zero, while the target correctly scrolls to `#analytics`. Remove only this retired route from the generic independent-page control list. Dedicated Client Inspections Chromium tests still exercise all three legacy redirects, final path/hash, seven synthetic records, and no login shell. Client Analytics itself remains audited at desktop/mobile. Do not bypass tests: re-run exact-head full CI and Vercel Preview before merge.

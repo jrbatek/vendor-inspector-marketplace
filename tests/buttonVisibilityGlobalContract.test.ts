@@ -58,7 +58,6 @@ test("locally styled pale control surfaces explicitly pair background and label 
     ["app/demo/client-agency-sourcing/page.tsx", ".seg button,.channels button,.independent button"],
     ["app/demo/inspector-affiliations/page.tsx", ".tabs button,.actions button"],
     ["app/demo/client-analytics/page.tsx", ".actions button"],
-    ["app/demo/client-history/page.tsx", ".projectCards button"],
     ["app/equipment-intelligence/page.tsx", ".family"],
   ];
   for (const [file, selector] of cases) {

@@ -15,7 +15,16 @@ test("control visibility browser audit covers every public demo route on desktop
     .map(entry => "/demo/" + entry.name);
   assert.ok(routes.length >= 18, "Should include every published Client, Inspector and Agency demo route");
   for (const route of routes) {
-    assert.ok(script.includes('"' + route + '"'), route + " lacks browser contrast coverage");
+    if (route === "/demo/client-history") {
+      // Retired history is a redirect, so audit the actual Analytics page for
+      // contrast and verify the legacy transition separately in Chromium.
+      const clientSmoke = fs.readFileSync("scripts/smoke-client-inspections.mjs", "utf8");
+      assert.ok(script.includes('"/demo/client-analytics"'));
+      assert.ok(clientSmoke.includes('["/demo/client-history","analytics"]'));
+      assert.ok(clientSmoke.includes('Legacy Client History redirect lost fictional inspections'));
+    } else {
+      assert.ok(script.includes('"' + route + '"'), route + " lacks browser contrast coverage");
+    }
   }
 });
 

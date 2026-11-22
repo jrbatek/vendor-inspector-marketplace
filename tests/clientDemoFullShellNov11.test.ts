@@ -5,7 +5,6 @@ import test from "node:test";
 const routes=[
  "app/demo/client/page.tsx",
  "app/demo/client-analytics/page.tsx",
- "app/demo/client-history/page.tsx",
  "app/demo/client-agency-sourcing/page.tsx",
  "app/demo/client-data/page.tsx",
  "app/demo/client-inspections/page.tsx",
@@ -13,7 +12,7 @@ const routes=[
 ];
 const smoke=readFileSync("scripts/smoke-client-inspections.mjs","utf8");
 
-test("all seven core Client Demo pages use the same dark-blue sidebar",()=>{
+test("all directly rendered Client Demo pages use the dark-blue sidebar; legacy History redirects",()=>{
  for(const path of routes){
   const source=readFileSync(path,"utf8");
   if(path==="app/demo/client/page.tsx"){
@@ -25,10 +24,12 @@ test("all seven core Client Demo pages use the same dark-blue sidebar",()=>{
  }
 });
 
-test("hosted Chromium checks shared sidebar geometry and demo/live boundaries across other Client Demo pages",()=>{
- for(const route of ["/demo/client","/demo/client-analytics","/demo/client-history","/demo/client-agency-sourcing","/demo/client-data"]){
+test("hosted Chromium checks shared sidebar geometry and redirects obsolete Client History bookmarks",()=>{
+ for(const route of ["/demo/client","/demo/client-analytics","/demo/client-agency-sourcing","/demo/client-data"]){
   assert.ok(smoke.includes('["'+route+'",'),route);
  }
+ assert.match(smoke, /\["\/demo\/client-history","analytics"\]/);
+ assert.match(smoke, /\["\/demo\/client-history\?view=active","inspections-in-progress"\]/);
  assert.match(smoke,/verifyClientSidebarLayout\(label\+" desktop",true\)/);
  assert.match(smoke,/verifyClientSidebarLayout\(label\+" mobile",false\)/);
  assert.match(smoke,/aside\.clientSide a\[href\^="\/client-dashboard"\]/);

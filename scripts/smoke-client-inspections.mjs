@@ -753,7 +753,6 @@ try{
  const otherClientDemoRoutes=[
   ["/demo/client","Request Inspectors"],
   ["/demo/client-analytics","Analytics"],
-  ["/demo/client-history","Completed history within Analytics"],
   ["/demo/client-agency-sourcing","Source of Inspectors"],
   ["/demo/client-data","Data & Integrations"]
  ];
@@ -1022,6 +1021,21 @@ try{
  await page.waitForFunction(() => location.hash==="#inspections-in-progress");
  assert(await page.locator("#inspections-in-progress article.inspection").count()===1,
    "Client sidebar browser Forward lost the filtered inspection list");
+ // Outdated public history bookmarks must join the one-page fictional demo,
+ // not revive the retired standalone Inspection History workspace.
+ for (const [legacy,anchor] of [
+   ["/demo/client-history","analytics"],
+   ["/demo/client-history?view=completed","analytics"],
+   ["/demo/client-history?view=active","inspections-in-progress"]
+ ]) {
+   await page.goto(base+legacy,{waitUntil:"domcontentloaded"});
+   await page.waitForURL(url=>url.pathname==="/demo/client"&&url.hash==="#"+anchor,{timeout:20000});
+   await page.locator("#"+anchor).waitFor({state:"visible",timeout:15000});
+   assert(await page.locator("#inspections-in-progress article.inspection").count()===7,
+     "Legacy Client History redirect lost fictional inspections: "+legacy);
+   assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
+     "Legacy Client History redirected to an authenticated shell: "+legacy);
+ }
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
