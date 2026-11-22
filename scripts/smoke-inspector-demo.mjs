@@ -794,6 +794,17 @@ try {
   assert(await inlineDocuments.getByRole("heading", { name: "Recommended Additional Qualifications" }).count()===1,
     "Inline demand-ranked qualification recommendations missing");
   assert(await inlineDocuments.locator("article.document").count()===3,"Three baseline fictional certificate documents expected");
+  // P0-B: real-browser legibility/touch coverage for document workflows and links.
+  // A disabled action is still legible, while active controls must be easy to tap.
+  const undersizedQualificationControls=await inlineDocuments.locator(
+    "button, form input, form select, .recommendationCard select, .recommendations a"
+  ).evaluateAll(nodes=>nodes.filter(node=>node.getClientRects().length &&
+    node.getBoundingClientRect().height<44).map(node=>(node.getAttribute("aria-label")||
+    node.textContent||node.getAttribute("type")||"").trim().slice(0,70)));
+  assert(undersizedQualificationControls.length===0,
+    "Qualifications buttons, inputs or official requirement links smaller than 44px: "+
+    undersizedQualificationControls.join(", "));
+
   assert(await inlineDocuments.getByRole("link",{name:"Back to Inspector Demo"}).count()===0,
     "Embedded qualifications must omit the redundant standalone back link");
   await inlineDocuments.getByRole("button",{name:"View certificate"}).first().click();
