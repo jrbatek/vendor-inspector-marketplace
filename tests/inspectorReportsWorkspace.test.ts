@@ -79,7 +79,7 @@ test("InspectorHub consolidates the reports navigation into Work History and mai
   assert.match(page,/Open assignment/);
   assert.match(page,/Reset filters/);
   assert.match(page,/button:focus-visible/);
-  assert.match(legacy,/redirect\("\/demo\/inspector-work-history"\)/);
+  assert.match(legacy,/redirect\("\/demo\/inspector#work"\)/);
 });
 
 
