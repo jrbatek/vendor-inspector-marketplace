@@ -25,3 +25,11 @@ test("all homepage audience action types expose visible keyboard focus and legib
   assert.match(source, /\.inspectorButton\{background:#0f766e\}/);
   assert.match(source, /\.agencyButton\{background:#6d28d9\}/);
 });
+
+
+test("homepage gives every audience action and demo entry a 44px keyboard/touch target", () => {
+  assert.match(source, /\.button\{[^}]*min-height:44px/);
+  assert.match(source, /\.textLink\{[^}]*min-height:44px/);
+  assert.match(source, /\.demoEntry :global\(a\)\{[^}]*min-height:44px/);
+  assert.match(source, /\.textLink:hover,\.demoEntry :global\(a:hover\)\{color:#0f766e/);
+});
