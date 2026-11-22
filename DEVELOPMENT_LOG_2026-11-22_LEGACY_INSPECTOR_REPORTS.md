@@ -1,0 +1,3 @@
+# InspectSource Development Log — 2026-11-22 · Legacy Inspector Reports link
+
+P0-A safe demo-only consistency: the obsolete /demo/inspector-reports route previously redirected to the detached /demo/inspector-work-history page, contrary to the approved continuous InspectorHub architecture. Redirect legacy bookmarks directly to /demo/inspector#work with the full Work History section under the persistent green sidebar. Preserve the standalone embedded component implementation, ten fictional work-history records, PDF/CSV controls, and no-login boundary. Add static and Chromium path/hash/navigation checks. No live auth/RLS/PII/payment/production data changes. Require all exact-head CI checks and Vercel Preview READY, then production READY/smoke.

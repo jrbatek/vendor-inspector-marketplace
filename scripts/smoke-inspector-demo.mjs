@@ -873,6 +873,15 @@ try {
   await page.goForward();
   assert(await page.getByRole("heading", { name: "Income & Tax Center" }).count() === 1, "Browser forward must restore Income");
   assert(await navigation.getByRole("button", { name: "Income & Tax Center" }).getAttribute("aria-current") === "page", "Sidebar highlight not restored");
+  // Older demo reports bookmarks must land inside embedded Work History,
+  // preserving the single scrolling InspectorHub with its green sidebar.
+  await page.goto(base + "/demo/inspector-reports", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(url => url.pathname === "/demo/inspector" && url.hash === "#work", { timeout: 15000 });
+  await page.getByRole("region", { name: "Work History", exact: true }).waitFor({ timeout: 15000 });
+  assert(await page.getByRole("navigation", { name: "Inspector Workspace navigation" }).count() === 1,
+    "Legacy Reports redirect lost persistent InspectorHub navigation");
+  assert(await page.getByText(/Log in to view the inspector workspace/i).count() === 0,
+    "Legacy Reports redirect landed in authenticated InspectorHub");
   assert(errors.length === 0, "Inspector Demo browser exceptions: " + errors.join("\n"));
   console.log("Inspector Demo Chromium OK: sidebar, opportunity alert isolation, Month/Week/List, private events, assignment, date conflicts and demo-only connectors.");
 } catch (e) {
