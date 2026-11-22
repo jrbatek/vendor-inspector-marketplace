@@ -116,6 +116,11 @@ test("legacy demo routes verify the canonical embedded destinations after redire
   const markers = Array.from(expectedBlock.matchAll(/"([^"]+)"/g), match => match[1]);
   assert.equal(routes.length, markers.length, "All production routes must retain their own expected heading");
   assert.equal(markers[routes.indexOf("/demo/client-history")], "Analytics", "Legacy Client History must redirect to Analytics");
-  assert.equal(markers[routes.indexOf("/demo/inspector-reports")], "Inspector Demo", "Legacy Inspector Reports must redirect into InspectorHub Work History");
+  assert.equal(markers[routes.indexOf("/demo/inspector")], "Inspector Demo", "Canonical InspectorHub must remain probed");
+  assert.ok(!routes.includes("/demo/inspector-reports"), "Next.js hash redirects are browser-verified instead of requiring final curl HTTP 200");
+  const legacyInspector = fs.readFileSync("app/demo/inspector-reports/page.tsx", "utf8");
+  const inspectorBrowser = fs.readFileSync("scripts/smoke-inspector-demo.mjs", "utf8");
+  assert.ok(legacyInspector.includes('redirect("/demo/inspector#work")'), "Legacy reports must target Work History");
+  assert.ok(inspectorBrowser.includes('url.pathname === "/demo/inspector" && url.hash === "#work"'), "Chromium must verify legacy route destination");
   assert.doesNotMatch(workflow, /"Inspection History"/, "Do not restore obsolete Client Inspection History route marker");
 });
