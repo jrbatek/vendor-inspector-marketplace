@@ -1,0 +1,3 @@
+# InspectSource Development Log — 2026-11-22 · Homepage audience Link scoping follow-up
+
+Hosted Chromium P0-B validation for PR #413 found the underlying issue: Next.js `Link` descendants inside a scoped `style jsx` block were not receiving the parent component's local `.button`/`.textLink` selectors. The six homepage action links rendered 43px and 21px despite source-level 44px declarations. The corrected selectors scope through the parent `.actions` and use `:global(a.button)`/`:global(a.textLink)` to style actual rendered anchors. Existing standalone demo links already met target size. Keep the 1440px and 390px Chromium physical-target check. No failed test bypassed; exact-head validation must rerun before merge.

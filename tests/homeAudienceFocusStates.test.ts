@@ -32,4 +32,5 @@ test("homepage gives every audience action and demo entry a 44px keyboard/touch 
   assert.match(source, /\.textLink\{[^}]*min-height:44px/);
   assert.match(source, /\.demoEntry :global\(a\)\{[^}]*min-height:44px/);
   assert.match(source, /\.textLink:hover,\.demoEntry :global\(a:hover\)\{color:#0f766e/);
+  assert.match(source, /\.actions :global\(a\.button\),\.actions :global\(a\.textLink\)\{[^}]*min-height:44px/);
 });
