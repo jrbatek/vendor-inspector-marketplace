@@ -1,0 +1,5 @@
+# InspectSource development log — November 22, 2026 — Income & Tax control visibility
+
+Second independent P0-B synthetic-only branch, based on the then-current main while Qualifications & Documents #403 validates. Targets the full Income & Tax dashboard: year selector, fictional earnings statement and verification downloads, income-report PDF button, back link, and simulated payment-preference dialog. Establishes 44px minimum visible targets; legible disabled, hover and keyboard-focus states; responsive select sizing. Never requests banking credentials, payment details or real tax documents.
+
+Added source-contract test and Chromium end-to-end verification of rendered control dimensions in the Income & Tax dashboard and its *simulated* preference dialog. Build/tests/synthetic validation/migration checks required before merge; require Vercel Preview READY, sequential rebasing onto latest main after #403 if merged, and exact production READY plus smoke checks. No actual payments, bank accounts, RLS/auth, production data, matching or migrations touched. Preserve original DEVELOPMENT_LOG.md (oversized for GitHub contents API) and record this addendum separately.
