@@ -62,7 +62,8 @@ try {
   const downloadButton=second.getByRole("button",{name:"Download fictional PDF SYN-MSA-2026-002"});
   const [pdf]=await Promise.all([page.waitForEvent("download",{timeout:12000}),downloadButton.click()]);
   if(pdf.suggestedFilename()!=="inspectsource-fictional-SYN-MSA-2026-002.pdf") throw new Error("Incorrect fictional contract PDF filename");
-  await second.getByRole("status").getByText(/Fictional contract PDF generated/).waitFor();
+  await second.getByRole("status").waitFor();
+  if(!(await second.getByRole("status").innerText()).includes("Fictional contract PDF generated")) throw new Error("Contract PDF success confirmation is missing");
   if(await first.getByRole("status").count()) throw new Error("PDF status leaked to first contract");
   await first.getByRole("button",{name:"Open contract details"}).click();
   if(await second.getByRole("status").count()) throw new Error("Stale contract download message survived another preview");
