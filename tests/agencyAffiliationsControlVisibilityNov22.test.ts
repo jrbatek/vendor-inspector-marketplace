@@ -9,6 +9,7 @@ test("Agency affiliation claim and status filters remain legible, touch-sized an
   assert.match(source, /\.filters button\{background:#f1f5f9;color:#0f172a;border-color:#cbd5e1/);
   assert.match(source, /\.filters button\[aria-pressed=true\]\{background:#1d4ed8;color:#fff/);
   assert.match(source, /\.filters button\[aria-pressed=true\]:hover\{background:#1e40af;color:#fff/);
+  assert.match(source, /\.filters button:hover\{background:#dbeafe;color:#1e40af/);
   assert.match(source, /\.head button\[aria-expanded=true\]\{background:#1e3a8a;color:#fff/);
   assert.match(source, /\.head button:disabled,\.filters button:disabled,\.filters button\[aria-pressed=true\]:disabled\{background:#e2e8f0;color:#334155/);
   assert.match(source, /\.head button:focus-visible,\.filters button:focus-visible\{outline:3px solid #2563eb/);
