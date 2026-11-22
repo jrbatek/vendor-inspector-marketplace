@@ -48,7 +48,33 @@ try {
   await page.getByRole("combobox",{name:"Sample contract region"}).focus();
   if ((await page.evaluate(()=>document.activeElement?.getAttribute("aria-label")))!=="Sample contract region") throw new Error("Region selector inaccessible by keyboard");
   if (exceptions.length) throw new Error("Console/page errors: "+exceptions.join("\n"));
-  console.log("Agency Commercials synthetic regional filters passed: 3 → 1 for each region → 3, matching contract and performance tables.");
+  // The one-page Agency Demo includes three interactive fictional agreements.
+  await page.goto(base+"/demo/agency#contracts-commercials",{waitUntil:"networkidle"});
+  const cards=page.locator(".agreementList .agreementCard");
+  if(await cards.count()!==3) throw new Error("Missing three fictional contracts");
+  const first=cards.nth(0), second=cards.nth(1);
+  const firstOpen=first.getByRole("button",{name:"Open contract details"});
+  if(await firstOpen.getAttribute("aria-controls")!==null) throw new Error("Collapsed contract references absent details");
+  await firstOpen.click();
+  if(await first.locator("section.detail").count()!==1) throw new Error("Contract did not expand");
+  await second.getByRole("button",{name:"Open contract details"}).click();
+  if(await first.locator("section.detail").count()!==0) throw new Error("First details remained visible");
+  const downloadButton=second.getByRole("button",{name:"Download fictional PDF SYN-MSA-2026-002"});
+  const [pdf]=await Promise.all([page.waitForEvent("download",{timeout:12000}),downloadButton.click()]);
+  if(pdf.suggestedFilename()!=="inspectsource-fictional-SYN-MSA-2026-002.pdf") throw new Error("Incorrect fictional contract PDF filename");
+  await second.getByRole("status").getByText(/Fictional contract PDF generated/).waitFor();
+  if(await first.getByRole("status").count()) throw new Error("PDF status leaked to first contract");
+  await first.getByRole("button",{name:"Open contract details"}).click();
+  if(await second.getByRole("status").count()) throw new Error("Stale contract download message survived another preview");
+  await page.setViewportSize({width:390,height:844});
+  for(const btn of [first.getByRole("button",{name:"Close contract details"}),downloadButton]){
+    const rect=await btn.boundingBox();
+    if(!rect||rect.height<44||rect.width<44||rect.x<-1||rect.x+rect.width>391) throw new Error("Agency contract control too small or clipped on mobile");
+    const appearance=await btn.evaluate(el=>({color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
+    if(appearance.color===appearance.background) throw new Error("Agency contract control text invisible");
+  }
+  if(exceptions.length) throw new Error("Agency contract browser exceptions: "+exceptions.join("\\n"));
+  console.log("Agency regional filters and three synthetic agreement details, PDF downloads and mobile controls passed.");
 } finally {
   await browser?.close();
   if (child) { child.kill("SIGTERM"); await new Promise(resolve=>setTimeout(resolve,150)); if (!child.killed) child.kill("SIGKILL"); }
