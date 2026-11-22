@@ -924,6 +924,27 @@ try{
    "Browser Forward restored filter but left an inconsistent inspection summary");
  assert(new URL(page.url()).hash==="",
   "Browser Forward did not restore filtered-list navigation");
+ // P0 regression #321: exercise repeated browser Back/Forward cycles from a
+ // filtered synthetic list to the earlier inspection-detail history entry.
+ // The trace captures URL, history length, saved stage and expanded controls
+ // so a sporadic hydration/state race has actionable evidence.
+ for (let cycle=1;cycle<=3;cycle++) {
+   await page.goBack();
+   await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({timeout:12000});
+   await checkpoint("repeated Back restores #4, cycle "+cycle);
+   assert((await page.locator("article.inspection").count())===7 &&
+     (await page.getByRole("combobox",{name:"Status / stage"}).inputValue())==="",
+     "Repeated Back did not restore unfiltered seven-inspection detail view, cycle "+cycle);
+   await page.goForward();
+   await page.getByRole("region",{name:"Inspection details DEMO-ACT-4"}).waitFor({state:"detached",timeout:12000});
+   await page.waitForFunction(() => location.hash==="" &&
+     document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff" &&
+     document.querySelectorAll("article.inspection").length===1);
+   await checkpoint("repeated Forward restores Kickoff list, cycle "+cycle);
+   assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
+     "Repeated synthetic inspection history returned to a live login shell, cycle "+cycle);
+ }
+
 
  // A full refresh must restore a fictional filtered list before persisting history.
  await page.reload({waitUntil:"domcontentloaded"});
