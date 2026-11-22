@@ -22,10 +22,10 @@ test("accelerated client and inspector demo backlog remains represented", () => 
   assert.doesNotMatch(nav, /Client Login|Agency Login|Inspector Login/);
   assert.match(client, /10,000|10000/);
   assert.match(client, /<h2>Structured Selection<\/h2>/);
-  assert.match(history, /Active Inspections/);
-  assert.match(history, /Pending Requests/);
-  assert.match(history, /Submitted Reports/);
-  assert.match(history, /Inspection History API/);
+  assert.match(history, /redirect\(searchParams\?\.view === "active"/);
+  assert.match(history, /"\/demo\/client#analytics"/);
+  assert.match(client, /id="inspections-in-progress"/);
+  assert.match(client, /id="analytics"/);
   assert.match(analytics, /NCR/);
   assert.match(analytics, /Commodity/);
   assert.match(analytics, /Project Type/);
@@ -38,9 +38,11 @@ test("accelerated client and inspector demo backlog remains represented", () => 
 });
 
 test("demo surfaces retain explicit synthetic-data boundaries", () => {
-  for (const source of [client, history, analytics, data, operations, inspector]) {
+  for (const source of [client, analytics, data, operations, inspector]) {
     assert.match(source, /Synthetic|synthetic/);
   }
+  assert.doesNotMatch(history, /supabaseBrowser|createClient|process\.env/);
+  assert.match(history, /fictional|Legacy public demo/);
   assert.doesNotMatch(operations, /supabaseBrowser|createClient|process\.env/);
   assert.doesNotMatch(analytics, /supabaseBrowser|createClient|process\.env/);
 });

@@ -20,13 +20,12 @@ test("inspection history API promotion is a dismissible right-side highlight", (
   assert.match(source, /\/demo\/client-data/);
 });
 
-test("synthetic client history mirrors the dismissible API highlight without production credentials", () => {
-  assert.match(demoHistorySource, /Inspection History API/);
-  assert.match(demoHistorySource, /Dismiss Inspection History API highlight/);
-  assert.match(demoHistorySource, /historyLayout\{display:grid;grid-template-columns:minmax\(0,1fr\) 310px/);
-  assert.match(demoHistorySource, /\/demo\/client-data/);
-  assert.match(demoHistorySource, /Synthetic demo only\. No credentials or production data are exposed\./);
-  assert.doesNotMatch(demoHistorySource, /createClient|supabase|process\.env/);
+test("legacy public Client History bookmarks redirect into the continuous fictional workspace", () => {
+  assert.ok(demoHistorySource.includes('import { redirect } from "next/navigation"'));
+  assert.ok(demoHistorySource.includes('searchParams?.view === "active"'));
+  assert.ok(demoHistorySource.includes('"/demo/client#inspections-in-progress"'));
+  assert.ok(demoHistorySource.includes('"/demo/client#analytics"'));
+  assert.doesNotMatch(demoHistorySource, /ClientWorkspaceSidebar|Inspection History API|createClient|supabase|process\\.env/);
 });
 
 test("client workspace uses a compact section header instead of repeated manage-program hero", () => {
