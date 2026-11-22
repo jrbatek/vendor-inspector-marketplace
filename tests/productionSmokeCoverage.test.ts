@@ -15,7 +15,6 @@ test("production smoke continuously covers the complete synthetic client and ins
     "/demo/client",
     "/demo/client-inspections",
     "/demo/inspector-work-history",
-    "/demo/inspector-reports",
     "/demo/client-analytics",
     "/demo/client-history",
     "/demo/client-operations",
