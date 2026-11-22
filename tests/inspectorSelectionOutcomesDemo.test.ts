@@ -57,3 +57,9 @@ test("insights remain synthetic and contain no individual outcomes or live data 
   const demoOnly = hub.split('{mode==="demo"&&<>')[1].split('</>}')[0];
   assert.ok(demoOnly.includes('/demo/inspector-selection-outcomes'));
 });
+
+
+test("insights qualification guidance returns to embedded InspectorHub documents instead of leaving the single page", () => {
+  assert.match(source, /href="\/demo\/inspector#qualifications">Review qualification documents/);
+  assert.doesNotMatch(source, /href="\/demo\/inspector-documents">Review qualification documents/);
+});

@@ -1,0 +1,3 @@
+# InspectSource Development Log — 2026-11-22 · Inspector Insights qualification navigation
+
+Owner-approved single continuous InspectorHub should not eject reviewers to standalone documents when clicking the peer feedback recommendation. Updated its `Review qualification documents` CTA to `/demo/inspector#qualifications`, preserving sticky green sidebar, active scrollspy, embedded Qualification & Documents, no login and synthetic-only guidance. Added regression contract and run mandatory tests/synthetic validation/migration/typecheck/build/browser checks plus Vercel Preview READY before autonomous merge. No actual inspector qualifications, live auth, RLS or production data changes.
