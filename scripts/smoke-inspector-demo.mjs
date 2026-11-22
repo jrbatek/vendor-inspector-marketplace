@@ -194,6 +194,11 @@ try {
     }
     assert((await assignment.innerText()).includes(dueSummary.slice("Due: ".length)),
       "Active Assignment card due date differs from Open Assignment details for " + name);
+    const undersizedAssignmentNav = await assignment.locator(".backButton, .reportLink").evaluateAll(nodes =>
+      nodes.filter(node => node.getBoundingClientRect().height < 44)
+        .map(node => (node.textContent || "").trim().slice(0, 80)));
+    assert(undersizedAssignmentNav.length === 0,
+      "Open Assignment back/report controls below 44px for " + name + ": " + undersizedAssignmentNav.join(", "));
     const pdfLink=assignment.getByRole("link", { name: "Open synthetic report PDF" });
     const pdf=await page.request.get(base+(await pdfLink.getAttribute("href")));
     assert(pdf.ok() && (pdf.headers()["content-type"]||"").includes("application/pdf"),"Synthetic assignment PDF not working for "+name);
