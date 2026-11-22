@@ -30,6 +30,10 @@ try{
  assert(response?.ok(),"Income Demo is not available");
  assert(await page.getByRole("heading",{name:"Income & Tax Center"}).count()===1,"Missing income hub");
  assert(await page.getByText(/Log in to view the client workspace/i).count()===0,"Unauthenticated demo opened live workspace");
+ const initialTargets=await page.locator(".incomePage button, .incomePage .card a, .incomePage select, .incomePage .hero a").evaluateAll(nodes=>
+   nodes.filter(node=>node.getClientRects().length&&node.getBoundingClientRect().height<44)
+     .map(node=>(node.textContent||node.getAttribute("aria-label")||"").trim().slice(0,75)));
+ assert(initialTargets.length===0,"Income and Tax buttons, download links or year selector below 44px: "+initialTargets.join(", "));
  const yearSelector=page.getByRole("combobox",{name:"Tax and earnings year"});
  for(const [year,count] of [["2026",4],["2025",3],["2024",2]]){
    await yearSelector.selectOption(year);
@@ -59,6 +63,15 @@ try{
    assert(exceptions.length===0,"Income Demo pageerror: "+exceptions.join("\n"));
    console.log("Income PDF browser download OK:",year,fileName,bytes.length);
  }
+ await page.getByRole("button",{name:"Preview payment details update"}).click();
+ const dialog=page.getByRole("dialog",{name:"Payment preference demo"});
+ assert(await dialog.count()===1,"Synthetic payment preference dialog unavailable");
+ const dialogControls=await dialog.locator("button,select").evaluateAll(nodes=>
+   nodes.filter(node=>node.getClientRects().length&&node.getBoundingClientRect().height<44)
+     .map(node=>(node.textContent||node.getAttribute("aria-label")||"").trim().slice(0,75)));
+ assert(dialogControls.length===0,"Demo payment preference controls below 44px: "+dialogControls.join(", "));
+ await dialog.getByRole("button",{name:"Cancel"}).click();
+ assert(await page.getByRole("dialog").count()===0,"Demo payment dialog failed to close");
  assert((await page.locator('input[name="account"],input[name="routing"],input[name="iban"]').count())===0,"Demo must not collect bank account data");
  await page.close();
 }catch(error){failed=true;console.error(error instanceof Error?error.stack:String(error),output.slice(-1500));}
