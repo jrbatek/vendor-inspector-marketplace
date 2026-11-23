@@ -226,6 +226,46 @@ try {
           throw new Error("Analytics source state controls failed to restore All or raised an exception");
       }
       if (route === "/demo/client") {
+        // Owner-reported Preview request regression: verify both independent
+        // client intake flows render fictional candidate CV cards, not a blank
+        // preview, in a real desktop/mobile browser. No live matching is called.
+        const natural = page.locator("#natural-language");
+        const naturalCards = natural.locator("article.candidate");
+        if (await naturalCards.count()) throw new Error("Natural-language demo candidates appeared before Preview request");
+        await natural.getByRole("button", { name: "Preview request (demo)" }).click();
+        await naturalCards.first().waitFor({ state: "visible", timeout: 15000 });
+        const names = await naturalCards.locator("h4").allTextContents();
+        if (names.join("|") !== "Avery Calder|Maya Ellison")
+          throw new Error("Natural-language Preview request did not show two fictional candidate CVs: " + names.join(", "));
+        const first = naturalCards.first();
+        await first.locator("summary").click();
+        if (!(await first.locator("details").evaluate(node => node.open)) ||
+            !(await first.locator(".cv").innerText()).includes("Assignment history"))
+          throw new Error("View CV did not expand fictional candidate work history");
+        if (width === 1440) {
+          const download = page.waitForEvent("download", { timeout: 20000 });
+          await first.getByRole("button", { name: "Download CV (PDF)" }).click();
+          const file = await download;
+          if (file.suggestedFilename() !== "InspectSource-Avery-Calder-IS-1042-demo-CV.pdf")
+            throw new Error("Preview CV download filename did not identify the fictional candidate");
+          const { readFile } = await import("node:fs/promises");
+          const bytes = await readFile(await file.path());
+          if (bytes.subarray(0, 5).toString("ascii") !== "%PDF-")
+            throw new Error("Preview CV download did not contain PDF bytes");
+        }
+        const structured = page.locator("#structured-selection");
+        const structuredCards = structured.locator("article.candidate");
+        if (await structuredCards.count()) throw new Error("Structured candidates appeared before preview");
+        await structured.getByRole("button", { name: "Preview selected criteria" }).click();
+        await structuredCards.first().waitFor({ state: "visible", timeout: 15000 });
+        const structuredNames = await structuredCards.locator("h4").allTextContents();
+        if (structuredNames.join("|") !== "Avery Calder|Maya Ellison")
+          throw new Error("Structured Preview request did not show the expected fictional candidate CVs: " + structuredNames.join(", "));
+        if (await page.getByText(/Log in to view the client workspace/i).count())
+          throw new Error("Client preview entered a live login-required workspace");
+        if (errors.length) throw new Error("Client candidate preview browser exception: " + errors.join("\\n"));
+      }
+      if (route === "/demo/client") {
         // P0-B: measure the real Client intake controls across all interaction states.
         const scope = page.getByRole("textbox", { name: "Inspection requirement" });
         const qualification = page.getByLabel("Required certification");
