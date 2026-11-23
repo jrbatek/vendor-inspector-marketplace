@@ -17,7 +17,7 @@ test("InspectorHub Qualifications embeds complete synthetic evidence workflow un
 test("Standalone qualifications remain accessible and embedded view removes nested landmark and duplicate back link",()=>{
  assert.match(docs,/usePathname\(\) === "\/demo\/inspector"/);
  assert.match(docs,/className=\{embedded \? "page embedded" : "page"\} role=\{embedded \? undefined : "main"\}/);
- assert.match(docs,/!embedded && <a href="\/demo\/inspector">Back to Inspector Demo<\/a>/);
+ assert.match(docs,/!embedded && <a href="\/demo\/inspector#qualifications">Back to Inspector Demo<\/a>/);
  assert.match(docs,/\.page\.embedded\{max-width:none;margin:0;padding:0\}/);
  assert.doesNotMatch(docs,/supabaseBrowser|supabase\.from\(|\.insert\(|\.update\(|\.delete\(|XMLHttpRequest/);
  assert.match(inspector,/No production inspector records are used/);

@@ -46,7 +46,7 @@ export default function InspectorWorkHistoryDemo() {
   return <section className={embedded?"historyPage embedded":"historyPage"} aria-label="Inspector Work History dashboard">
     <header className="hero">
       <div><p className="eyebrow">InspectorHub · Demo Mode</p><h1>Work History</h1><p>Assignments Performed and Reports Submitted in one place. Every client, inspector, project, supplier, document and finding is a <strong>synthetic demonstration</strong>; no live account or production data is accessed.</p></div>
-      {!embedded&&<a className="back" href="/demo/inspector">Back to Inspector Demo</a>}
+      {!embedded&&<a className="back" href="/demo/inspector#work">Back to Inspector Demo</a>}
     </header>
     <div className="summary" role="group" aria-label="Filtered synthetic work history summary">
       <div><strong>{shown.length}</strong><span>Matching assignments performed</span></div>

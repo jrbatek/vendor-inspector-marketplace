@@ -1,0 +1,5 @@
+# InspectSource Development Log — 2026-11-22 · Inspector standalone return links
+
+Safe InspectorHub single-scroll continuity: legacy standalone Qualifications & Documents, Income & Tax Center, and Work History pages now return to their corresponding embedded sections under the persistent green InspectorHub sidebar, instead of returning reviewers to the top of Inspector Demo. Links remain omitted while components are embedded; no alternate dashboards, data changes, auth/RLS/privacy/payment/production matching or real financial records. Added regression assertions for each anchor and the no-duplicate-link boundary. Validate full exact-head test/migration/synthetic/typecheck/build/browser suite and require Vercel Preview READY before merge and production READY/exact-commit smoke after.
+
+Validation note: Initial #417 tests failed because two existing embedded-dashboard contracts expected the now-obsolete no-hash backlink. Updated those expectations to require the owner-approved exact embedded target hashes, preserving tests for the conditional embedded/standalone boundary. Never bypass failed checks; exact-head full CI and Preview READY still required.
