@@ -3,16 +3,10 @@
 import { useContext, useEffect, useState } from "react";
 import { ClientDemoEmbeddedContext } from "@/components/ClientDemoEmbeddedContext";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
+import { parseDemoInspectionListState, type DemoInspectionListState } from "@/lib/demoClientInspectionListState";
 import { ACTIVE_DEMO_INSPECTIONS, EMPTY_INSPECTION_FILTERS, filterActiveInspections, activeInspectionReportHref, exportActiveDemoInspectionsCsv, sortActiveInspections, filterActiveInspectionsByActionDue, searchActiveInspections, activeInspectionActionRegister, nextActiveInspectionAction, exportActiveDemoActionRegisterCsv, type ActiveInspectionSort, type InspectionFilters } from "@/lib/clientActiveInspections";
 
-type StoredInspectionList = {
-  filters: InspectionFilters;
-  sort: ActiveInspectionSort;
-  dueOnly: boolean;
-  ncrOnly: boolean;
-  actionOwner: string;
-  keyword: string;
-};
+type StoredInspectionList = DemoInspectionListState;
 const inspectionListHistoryKey = "__inspectSourceClientInspectionList";
 
 export default function ClientInspectionsDemo() {
@@ -50,11 +44,11 @@ export default function ClientInspectionsDemo() {
       } else {
         // Restore a list entry when browser Forward/Back returns from inspection details.
         // Namespaced state contains fictional UI filters only, never client/live records.
-        const saved = window.history.state?.[inspectionListHistoryKey] as StoredInspectionList | undefined;
-        if(saved?.filters && typeof saved.filters.stage === "string" && ["due","start","stage"].includes(saved.sort)){
-          setFilters(saved.filters);setDueOnly(Boolean(saved.dueOnly));setNcrOnly(Boolean(saved.ncrOnly));
-          setActionOwner(saved.actionOwner ?? "");setKeyword(saved.keyword ?? "");setSort(saved.sort);
-        }
+        // An older or partially written history entry must not inherit stale
+        // detail-page filters. Restore a bounded fictional snapshot or defaults.
+        const saved = parseDemoInspectionListState(window.history.state?.[inspectionListHistoryKey]);
+        setFilters(saved.filters);setDueOnly(saved.dueOnly);setNcrOnly(saved.ncrOnly);
+        setActionOwner(saved.actionOwner);setKeyword(saved.keyword);setSort(saved.sort);
       }
       setExpanded(found?id:null);
       setExpandedNcr(null);
