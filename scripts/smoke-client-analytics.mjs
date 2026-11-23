@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { chromium, firefox } from "playwright";
 
 const port = 3102;
@@ -161,6 +161,16 @@ try {
   const download=await downloadPromise;
   if(download.suggestedFilename()!=="inspectsource-client-demo-inspections.csv")
     throw new Error("Filtered Analytics CSV download unavailable");
+  // Download success is not merely an event: verify the browser received the
+  // actual filtered fictional dataset with no unrelated inspection statuses.
+  const csvText=readFileSync(await download.path(),"utf8");
+  const csvLines=csvText.split("\r\n");
+  const visibleRecordCount=Number.parseInt(await page.locator(".records .recordHead span").innerText(),10);
+  if (!csvLines[0]?.includes('"Source Type"') || !csvLines[0]?.includes('"Status"') ||
+      !Number.isFinite(visibleRecordCount) || csvLines.length!==visibleRecordCount+1 ||
+      csvLines.slice(1).some(line=>!line.includes(',"Completed",'))) {
+    throw new Error("Filtered Analytics CSV rows do not match the Completed synthetic inspection selection");
+  }
   if(errors.length)throw new Error("Analytics browser exceptions:\n"+errors.join("\n"));
   // Embedded continuous Client Workspace first-click regression: the original
   // graphical-browser crash was reported in the full Client Demo, not just the
