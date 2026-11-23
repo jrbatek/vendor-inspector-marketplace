@@ -32,3 +32,10 @@ test("analytics CSV download preserves its temporary URL until the browser accep
   assert.ok(page.includes("window.setTimeout(()=>URL.revokeObjectURL(url),1000)"));
   assert.ok(!page.includes("a.click();URL.revokeObjectURL(url)"));
 });
+
+test("hosted Analytics browser validates actual filtered CSV bytes, not only the download filename", () => {
+  const smoke=readFileSync("scripts/smoke-client-analytics.mjs","utf8");
+  assert.ok(smoke.includes('readFileSync(await download.path(),"utf8")'));
+  assert.ok(smoke.includes('csvLines.length!==visibleRecordCount+1'));
+  assert.ok(smoke.includes('Filtered Analytics CSV rows do not match the Completed synthetic inspection selection'));
+});

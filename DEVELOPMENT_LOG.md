@@ -9,6 +9,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #423 — Real browser legacy-history regression** merged at `356780e8d19634c83be5f1d7eb2687214a68252d` after both exact-head CI checks and Vercel Preview READY. An independent Chromium page exercises malformed saved stage/sort and valid fictional Kickoff via actual Back/Forward without entering live Login. Vercel production READY verified; exact-main smoke must be checked separately. See `DEVELOPMENT_LOG_2026-11-23_CLIENT_MALFORMED_HISTORY_BROWSER.md`.
 - **Back-to-top keyboard/history follow-on**: guard the shared demo-only floating button's pending settle timer against Tab/Enter/Escape, hash navigation and browser Back/Forward. Real hosted Chromium desktop test prevents a late scroll snap after a new navigation gesture. See `DEVELOPMENT_LOG_2026-11-23_BACK_TO_TOP_NAVIGATION.md` (CI/Preview/production gated).
 
+- **PR #425 — Client Analytics CSV download lifecycle** merged into main at `9cbdeba40bb16b454d25041ed7b698217db48a51` after corrected exact-head CI, Vercel Preview READY and a safe rebase onto #424. The fictional CSV export now attaches the transient anchor, lets the browser take the download, then revokes the Blob URL after a short delay. Exact-main production READY/smoke to be verified separately. See `DEVELOPMENT_LOG_2026-11-23_ANALYTICS_CSV_DOWNLOAD.md`.
+- **Filtered CSV browser-content regression** adds hosted Chromium verification of actual downloaded fictional Completed rows, including expected filtered row count, rather than trusting the filename alone. See `DEVELOPMENT_LOG_2026-11-23_ANALYTICS_CSV_CONTENT.md`.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** intermittent browser Back/Forward and deep-link restoration: still OPEN, because one successful mitigation or test does not establish causal elimination of the intermittent failure.
