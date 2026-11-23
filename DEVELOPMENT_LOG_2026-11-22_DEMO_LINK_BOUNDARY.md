@@ -1,0 +1,5 @@
+# InspectSource Development Log — 2026-11-22 · Demo/live link boundary regression
+
+P0-A prevention guard: scan every app/demo/**/page.tsx for direct navigation into authenticated live Client, Inspector or Agency workspaces, while allowing legitimate separate production-only routes elsewhere. Assert Client Demo continues embedding seven fictional in-progress inspections without the obsolete login-warning shell. This complements real-browser route/inspection tests and does not modify production authentication or grant anonymous access. Safe test-only change. Run all mandatory exact-head CI, synthetic/migration/typecheck/build/browser validation and Vercel Preview READY before merge; production READY and exact-commit smoke afterwards.
+
+Validation note: Initial #418 pre-merge runs passed functional tests but TypeScript rejected direct iteration of matchAll under this repository's target. Replaced spread iteration with Array.from to retain the full forbidden-link assertion while matching the current compiler settings; full CI/preview revalidation remains mandatory.
