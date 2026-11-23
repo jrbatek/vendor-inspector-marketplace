@@ -1044,6 +1044,12 @@ try{
  try {
    await legacySnapshotPage.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
    await legacySnapshotPage.locator("article.inspection").first().waitFor();
+   // Wait for React to mount its history sync before the first filter click;
+   // otherwise a browser may interact with SSR controls before hydration.
+   await legacySnapshotPage.waitForFunction(() =>
+     Boolean(history.state?.__inspectSourceClientInspectionList?.filters) &&
+     document.querySelectorAll("article.inspection").length===7,
+     null,{timeout:15000});
    assert(await legacySnapshotPage.locator("article.inspection").count()===7,
      "Malformed-history browser probe did not start with seven fictional inspections");
    await legacySnapshotPage.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
