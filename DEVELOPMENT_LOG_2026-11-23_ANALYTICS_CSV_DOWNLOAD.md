@@ -1,0 +1,7 @@
+# InspectSource Development Log — November 23, 2026 · Client Analytics CSV download lifecycle
+
+The fictional Analytics CSV export previously revoked its Blob URL synchronously immediately after calling a detached anchor's click() method. Some graphical browser download managers do not yet own the transfer at that point, so it can produce an intermittent empty/failed download despite correct data serialization. The demo now attaches the temporary anchor to the document, clicks it, removes the DOM anchor and defers object URL revocation for one second to allow the browser to accept the download.
+
+Preserve all 60 synthetic Analytics rows, cross-filters, spreadsheet-safe CSV escaping, filename, desktop/mobile controls and no-login demo. Extend a source regression contract; the existing hosted Chromium/Firefox Analytics browser smoke already checks filtered CSV download and application exceptions. This does not claim to resolve the unrelated intermittent Source Type issue #154.
+
+This demo-only batch changes no live authentication, RLS, privacy, payment, banking, production matching, API credentials, schema or synthetic database contents. Apply the mandatory exact-head GitHub-hosted tests/synthetic/migration/typecheck/build/Chromium/Firefox, Vercel Preview READY before merge, sequential rebase and revalidation against current main, then Vercel production READY and exact-main smoke. No CI gate is bypassed.

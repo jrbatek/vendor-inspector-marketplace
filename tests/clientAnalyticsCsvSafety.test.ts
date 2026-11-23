@@ -26,3 +26,9 @@ test("CSV exported from filtered inspection rows cannot execute spreadsheet form
   assert.match(csv, /"Atlas ""LNG"" Project"/);
   assert.equal(csv.trimEnd().split(/\r?\n/).length,4);
 });
+
+test("analytics CSV download preserves its temporary URL until the browser accepts the transfer", () => {
+  assert.ok(page.includes("document.body.appendChild(a);a.click();a.remove();"));
+  assert.ok(page.includes("window.setTimeout(()=>URL.revokeObjectURL(url),1000)"));
+  assert.ok(!page.includes("a.click();URL.revokeObjectURL(url)"));
+});
