@@ -67,6 +67,11 @@ jobs:
             exit 1
           fi
 
+          # Legacy Inspector Reports uses a Next.js server-component hash redirect.
+          # GitHub-hosted Chromium verifies /demo/inspector-reports ->
+          # /demo/inspector#work, the persistent sidebar and no-login boundary;
+          # curl -L observed HTTP 307 instead of canonical HTML for that URL.
+          # Probe the canonical Inspector Demo page here instead.
           routes=(
             "/"
             "/project-coordinator"
@@ -82,7 +87,6 @@ jobs:
             "/demo/agency-affiliations"
             "/demo/agency-commercials"
             "/demo/inspector"
-            "/demo/inspector-reports"
             "/demo/inspector-selection-outcomes"
             "/demo/inspector-documents"
             "/demo/inspector-income"
@@ -104,7 +108,6 @@ jobs:
             "Agency Workspace"
             "Resource Affiliations"
             "Client contracts"
-            "Inspector Demo"
             "Inspector Demo"
             "Selection Insights"
             "Qualification Documents"
