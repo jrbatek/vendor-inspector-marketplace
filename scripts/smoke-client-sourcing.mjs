@@ -149,6 +149,12 @@ try {
   await agencyChannel.click();
   assert(await agencyChannel.getAttribute("aria-pressed") === "true", "Mobile agency channel selection not announced");
   await legible(agencyChannel, "mobile selected agency channel");
+  // A selected agency channel must remain readable when temporarily disabled.
+  // In the real UI this state can occur while a selection is being processed.
+  await agencyChannel.evaluate(node => node.setAttribute("disabled", ""));
+  assert(await agencyChannel.isDisabled(), "Selected agency channel lost native disabled semantics");
+  await legible(agencyChannel, "mobile disabled selected agency channel");
+  await agencyChannel.evaluate(node => node.removeAttribute("disabled"));
   assert((await narrow.locator(".selectionNotice").count()) === 1, "Mobile channel selection confirmation absent");
   await narrowIndependent.click();
   assert((await narrow.locator(".results > article").count()) === 2, "Mobile independent cohort incorrect");
@@ -157,9 +163,18 @@ try {
   const independentBounds=await independentChannel.boundingBox();
   assert(independentBounds && independentBounds.width >= 44 && independentBounds.height >= 44,
     "Mobile independent channel selection must provide a 44px tap target");
+  await legible(independentChannel, "mobile unselected independent channel");
+  await independentChannel.evaluate(node => node.setAttribute("disabled", ""));
+  assert(await independentChannel.isDisabled(), "Unselected independent channel lost native disabled semantics");
+  await legible(independentChannel, "mobile disabled unselected independent channel");
+  await independentChannel.evaluate(node => node.removeAttribute("disabled"));
   await independentChannel.click();
   assert(await independentChannel.getAttribute("aria-pressed") === "true", "Mobile independent selection not announced");
   await legible(independentChannel, "mobile selected independent channel");
+  await independentChannel.evaluate(node => node.setAttribute("disabled", ""));
+  assert(await independentChannel.isDisabled(), "Selected independent channel lost native disabled semantics");
+  await legible(independentChannel, "mobile disabled selected independent channel");
+  await independentChannel.evaluate(node => node.removeAttribute("disabled"));
   await narrowBoth.click();
   assert((await narrow.locator(".results > article").count()) === 4, "Mobile reset did not restore all fictional inspectors");
   assert(await narrowBoth.getAttribute("aria-pressed") === "true", "Mobile both-sources selection state incorrect");
@@ -197,7 +212,7 @@ try {
   assert(narrowErrors.length === 0, "320px source control browser exceptions: " + narrowErrors.join("\\n"));
   await narrow.close();
   assert(exceptions.length === 0, "Client sourcing browser exceptions: " + exceptions.join("\n"));
-  console.log("Client Sourcing Chromium OK: desktop source counts 4/2/2/4, keyboard and contrast; mobile viewport selector, focus, hover and chosen channel states, isolation, anonymous routing.");
+  console.log("Client Sourcing Chromium OK: desktop source counts 4/2/2/4, mobile selector/channel selected, unselected, hover, disabled contrast, focus, isolation and anonymous routing.");
 } catch (error) {
   console.error(error);
   process.exitCode = 1;
