@@ -520,6 +520,14 @@ try {
   assert(await lastListDate.getAttribute("aria-pressed")==="true" &&
     await lastListDate.evaluate(el=>document.activeElement===el),
     "List End did not select and focus the last scheduled event date");
+  // Repeated End on the already selected last date must not queue stale focus.
+  await lastListDate.press("End");
+  const listEndField=cal.getByLabel("End date");
+  await listEndField.focus();
+  await listEndField.fill("2026-11-28");
+  assert(await listEndField.evaluate(el=>document.activeElement===el),
+    "List boundary key stole focus from the subsequently edited End date");
+  await lastListDate.click();
   await lastListDate.press("Shift+Home");
   const firstListDate=cal.getByRole("button",{name:"Choose 2026-11-09 from list for availability"});
   assert(await firstListDate.evaluate(el=>document.activeElement===el) &&
@@ -620,6 +628,13 @@ try {
   assert(await sat21.evaluate(el=>document.activeElement===el) &&
     await calendar.getByLabel("Start date").inputValue()==="2026-11-21",
     "End key did not select and focus the Saturday of the current week");
+  await sat21.press("End");
+  const monthEndField=calendar.getByLabel("End date");
+  await monthEndField.focus();
+  await monthEndField.fill("2026-11-22");
+  assert(await monthEndField.evaluate(el=>document.activeElement===el),
+    "Month boundary key stole focus from the subsequently edited End date");
+  await sat21.click();
   await sat21.press("PageDown");
   const dec21=calendar.getByRole("button",{name:"Choose 2026-12-21 for availability"});
   await dec21.waitFor();
