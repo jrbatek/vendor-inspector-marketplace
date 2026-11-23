@@ -267,6 +267,54 @@ try {
     "Client mobile navigation must preserve seven fictional in-progress inspections");
   assert(!(await page.getByText("Log in to view the client workspace").count()),
     "Client mobile navigation displayed a live-workspace login shell");
+  // Independent P0-B / #154 browser probe: a new mobile document's FIRST
+  // source filter action must never throw, lose its selected state or show a
+  // recovery boundary. Older runs only tested mobile after desktop transitions.
+  const freshMobile = await browser.newPage({viewport:{width:390,height:780}});
+  const mobileFirstErrors = [];
+  freshMobile.on("pageerror",error=>mobileFirstErrors.push(error.stack||String(error)));
+  // A first-click exception may recover before final DOM assertions. Preserve
+  // evidence of even a momentarily mounted analytics error boundary.
+  await freshMobile.addInitScript(() => {
+    window.__analyticsRecoverySeen = false;
+    document.addEventListener("DOMContentLoaded", () => {
+      const record = () => {
+        if (document.querySelector(".analyticsRecovery")) window.__analyticsRecoverySeen = true;
+      };
+      new MutationObserver(record).observe(document.documentElement, {subtree:true,childList:true});
+      record();
+    }, {once:true});
+  });
+  try {
+    for (const width of [390,320]) {
+      await freshMobile.setViewportSize({width,height:780});
+      await freshMobile.goto(base+"/demo/client-analytics",{waitUntil:"domcontentloaded"});
+      await freshMobile.waitForFunction(() =>
+        document.querySelectorAll(".quickSources button").length===3 &&
+        [...document.querySelectorAll(".quickSources button")].every(button=>!button.disabled),
+        null,{timeout:15000});
+      await assertCohort(freshMobile,"All",60);
+      const mobileSource=freshMobile.getByRole("group",{name:"Quick source type filters"});
+      await mobileSource.getByRole("button",{name:"Independent",exact:true}).click();
+      await assertCohort(freshMobile,"Independent",15);
+      await assertAccessibleControls(freshMobile.locator(".clientAnalyticsPage"),width+"px first-click");
+      const clipped=await mobileSource.locator("button").evaluateAll(buttons=>buttons.filter(button=>{
+        const rect=button.getBoundingClientRect();
+        return rect.width<44||rect.height<44||rect.left<0||rect.right>innerWidth+1;
+      }).map(button=>button.textContent?.trim()));
+      assert(!clipped.length,width+"px Client Analytics Source Type controls clipped or undersized: "+clipped.join(", "));
+      if(mobileFirstErrors.length)throw new Error(width+"px first-click browser error: "+mobileFirstErrors.join("\\n"));
+      if(await freshMobile.locator(".analyticsRecovery").count() ||
+         await freshMobile.evaluate(() => Boolean(window.__analyticsRecoverySeen)))
+        throw new Error(width+"px Independent first-click mounted Analytics recovery panel");
+      await mobileSource.getByRole("button",{name:"Agency",exact:true}).click();
+      await assertCohort(freshMobile,"Agency",45);
+      await mobileSource.getByRole("button",{name:"All sources",exact:true}).click();
+      await assertCohort(freshMobile,"All",60);
+    }
+  } finally {
+    await freshMobile.close();
+  }
   console.log("Embedded Client Analytics: first-click 15/45/60 source transitions, seven inspections and no recovery boundary passed.");
   console.log(`Client Analytics (${browserName}): fresh-document repeated 15/45/60 source transitions, transient error-boundary observation, pointer/keyboard/chart/reset and CSV passed.`);
 }catch(e){
