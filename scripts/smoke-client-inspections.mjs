@@ -1036,6 +1036,43 @@ try{
    assert((await page.getByText(/Log in to view the client workspace/i).count())===0,
      "Legacy Client History redirected to an authenticated shell: "+legacy);
  }
+ // P0-A #321: a legacy or partially written history entry must never keep a
+ // stale filtered list or produce the authenticated empty Client Workspace.
+ // Exercise actual browser Back/Forward in a fresh independent Chromium page,
+ // not merely a simulated popstate or a source-level contract assertion.
+ const legacySnapshotPage=await browser.newPage();
+ try {
+   await legacySnapshotPage.goto(base+"/demo/client-inspections",{waitUntil:"domcontentloaded"});
+   await legacySnapshotPage.locator("article.inspection").first().waitFor();
+   assert(await legacySnapshotPage.locator("article.inspection").count()===7,
+     "Malformed-history browser probe did not start with seven fictional inspections");
+   await legacySnapshotPage.getByRole("combobox",{name:"Status / stage"}).selectOption("Kickoff");
+   await legacySnapshotPage.waitForFunction(()=>document.querySelectorAll("article.inspection").length===1 &&
+     history.state?.__inspectSourceClientInspectionList?.filters?.stage==="Kickoff");
+   await legacySnapshotPage.evaluate(()=>{
+     const before=history.state && typeof history.state==="object" ? history.state : {};
+     history.replaceState({...before,__inspectSourceClientInspectionList:{filters:{stage:"UNKNOWN LIVE STAGE"},sort:"production"}},"",location.pathname);
+     history.pushState({...before,__inspectSourceClientInspectionList:{filters:{stage:"Kickoff"},sort:"due"}},"","#history-snapshot-probe");
+   });
+   await legacySnapshotPage.goBack();
+   await legacySnapshotPage.waitForFunction(() =>
+     location.hash==="" &&
+     document.querySelector('select[aria-label="Status / stage"]')?.value==="" &&
+     document.querySelectorAll("article.inspection").length===7,
+     null,{timeout:15000});
+   assert(!await legacySnapshotPage.getByText(/Log in to view the client workspace/i).count(),
+     "Malformed Client inspection browser history unexpectedly required live authentication");
+   await legacySnapshotPage.goForward();
+   await legacySnapshotPage.waitForFunction(() =>
+     location.hash==="#history-snapshot-probe" &&
+     document.querySelector('select[aria-label="Status / stage"]')?.value==="Kickoff" &&
+     document.querySelectorAll("article.inspection").length===1,
+     null,{timeout:15000});
+   assert(!await legacySnapshotPage.getByText(/Log in to view the client workspace/i).count(),
+     "Restored fictional Kickoff history route landed in a live workspace");
+ } finally {
+   await legacySnapshotPage.close();
+ }
  await page.goto(base+"/client-dashboard",{waitUntil:"domcontentloaded"});
  await page.waitForURL(url=>url.pathname==="/login",{timeout:20000});
  assert((await page.getByText(/Log in to view the client workspace/i).count())===0,"Unauthenticated live route exposed dead client shell");
