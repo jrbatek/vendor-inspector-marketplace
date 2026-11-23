@@ -13,7 +13,8 @@ test("Work History and Income render their complete dashboard inside the green I
  assert.match(history,/usePathname\(\)==="\/demo\/inspector"/);
  assert.match(income,/usePathname\(\)==="\/demo\/inspector"/);
  assert.match(history,/!embedded&&<a className="back"/);
- assert.match(income,/!embedded&&<a href="\/demo\/inspector"/);
+ assert.match(income,/!embedded&&<a href="\/demo\/inspector#income"/);
+ assert.match(history,/!embedded&&<a className="back" href="\/demo\/inspector#work"/);
  assert.match(history,/className=\{embedded\?"historyPage embedded":"historyPage"\}/);
  assert.match(income,/className=\{embedded\?"incomePage embedded":"incomePage"\}/);
 });

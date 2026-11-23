@@ -66,7 +66,7 @@ export default function InspectorIncomeDemo(){
     <p>Explore fictional earnings, work verification, tax-document summaries and sample income reports. No personal, payroll, tax or banking records are connected.</p>
     <p><strong>{year===2026?"Current-year YTD data through:":"Historical synthetic data snapshot:"}</strong> {DATA_THROUGH} (fixed fictional dataset; not live)</p>
     {year!==2026&&<p role="status">Viewing completed fictional {year} earnings, not {year}-to-date activity. Only 2026 uses the YTD cutoff.</p>}
-    {!embedded&&<a href="/demo/inspector">Back to Inspector Demo</a>}
+    {!embedded&&<a href="/demo/inspector#income">Back to Inspector Demo</a>}
    </header>
    <section className="yearBar"><label>Tax and earnings year <select aria-label="Tax and earnings year" value={year} onChange={e=>setYear(Number(e.target.value) as Year)}><option value={2026}>2026 · YTD</option><option value={2025}>2025</option><option value={2024}>2024</option></select></label><span>{year===2026?"Current-year YTD":"Completed fictional tax year"}</span></section>
    <section className="stats"><div><strong>{money(gross)}</strong><span>{year===2026?"YTD gross":"Annual gross"}</span></div><div><strong>{money(contract)}</strong><span>Independent contractor</span></div><div><strong>{money(employed)}</strong><span>Employee work</span></div><div><strong>{data.length}</strong><span>Assignments paid</span></div></section>

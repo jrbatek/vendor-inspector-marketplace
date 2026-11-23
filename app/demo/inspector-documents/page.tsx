@@ -107,7 +107,7 @@ export default function InspectorQualificationDocumentsDemo() {
         <p className="eyebrow">InspectorHub · Demo Mode</p>
         <h1>Qualification Documents</h1>
         <p>View qualification evidence and preview permission-gated sharing. Built-in records are synthetic; no production certificates or personal data are used. Use sample files only. Added files remain in memory in this page and are cleared on refresh or when you leave; nothing is sent to a server.</p>
-        {!embedded && <a href="/demo/inspector">Back to Inspector Demo</a>}
+        {!embedded && <a href="/demo/inspector#qualifications">Back to Inspector Demo</a>}
       </header>
 
       {notice && <p className="notice" role="status">{notice}</p>}
