@@ -31,7 +31,9 @@ export default function DemoBackToTop() {
       sync();
     };
     const onScrollKey = (event: KeyboardEvent) => {
-      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Spacebar"].includes(event.key)) cancelReturn();
+      // Tab/Enter/Escape can navigate to another demo section during the
+      // 900ms settle period. That later intent must cancel the return timer.
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Spacebar", "Tab", "Enter", "Escape"].includes(event.key)) cancelReturn();
     };
     sync();
     window.addEventListener("scroll", sync, { passive: true });
@@ -40,6 +42,10 @@ export default function DemoBackToTop() {
     window.addEventListener("touchstart", cancelReturn, { passive: true });
     window.addEventListener("pointerdown", cancelReturn);
     window.addEventListener("keydown", onScrollKey);
+    // Browser Back/Forward and anchor navigation can happen without a pointer.
+    // Never let the pending settle callback override their target position.
+    window.addEventListener("hashchange", cancelReturn);
+    window.addEventListener("popstate", cancelReturn);
     return () => {
       window.cancelAnimationFrame(frame);
       if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
@@ -49,6 +55,8 @@ export default function DemoBackToTop() {
       window.removeEventListener("touchstart", cancelReturn);
       window.removeEventListener("pointerdown", cancelReturn);
       window.removeEventListener("keydown", onScrollKey);
+      window.removeEventListener("hashchange", cancelReturn);
+      window.removeEventListener("popstate", cancelReturn);
     };
   }, []);
 

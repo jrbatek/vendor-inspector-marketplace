@@ -596,6 +596,27 @@ try {
           const retainedPosition = await page.evaluate(() => window.scrollY);
           if (retainedPosition < 500) throw new Error(
             "Interrupted Demo Back to top unexpectedly snapped back to page start: " + retainedPosition);
+          // Keyboard navigation and browser history must also interrupt a
+          // pending smooth return, otherwise its 900ms callback erases the new
+          // scroll position after following another demo section.
+          for (const kind of ["keyboard", "hashchange", "popstate"]) {
+            await page.evaluate(kind => {
+              const button = document.querySelector('button[aria-label="Back to top"]');
+              if (!button) throw new Error("Shared demo Back to top control missing");
+              window.scrollTo({ top: 850, behavior: "instant" });
+              button.click();
+              if (kind === "keyboard") {
+                window.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+              } else {
+                window.dispatchEvent(new Event(kind));
+              }
+              window.scrollTo({ top: 750, behavior: "instant" });
+            }, kind);
+            await page.waitForTimeout(1100);
+            const retained = await page.evaluate(() => window.scrollY);
+            if (retained < 500) throw new Error(
+              "Demo Back to top " + kind + " navigation unexpectedly snapped back to page start: " + retained);
+          }
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
           await back.waitFor({ state: "hidden", timeout: 5000 });
         }
