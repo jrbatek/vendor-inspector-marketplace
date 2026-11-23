@@ -69,3 +69,14 @@ test("interrupted Back to top never snaps the reviewer up after a new wheel/touc
   assert.match(smoke, /Interrupted Demo Back to top unexpectedly snapped back to page start/);
   assert.match(smoke, /window\.dispatchEvent\(new Event\("wheel"\)\)/);
 });
+
+test("keyboard and history navigation cancel pending Back to top settle before it overrides another section", () => {
+  assert.match(component, /"Tab", "Enter", "Escape"/);
+  for (const eventName of ["hashchange", "popstate"]) {
+    assert.ok(component.includes('addEventListener("' + eventName + '", cancelReturn)'), eventName + " missing subscription");
+    assert.ok(component.includes('removeEventListener("' + eventName + '", cancelReturn)'), eventName + " missing cleanup");
+  }
+  assert.match(smoke, /for \(const kind of \["keyboard", "hashchange", "popstate"\]\)/);
+  assert.match(smoke, /new KeyboardEvent\("keydown", \{ key: "Tab"/);
+  assert.match(smoke, /Demo Back to top " \+ kind \+ " navigation unexpectedly snapped back/);
+});
