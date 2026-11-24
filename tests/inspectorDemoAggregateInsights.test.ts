@@ -18,7 +18,7 @@ test("Inspector sidebar displays full synthetic peer-positioning dashboard with 
 test("embedded insights keeps standalone route intact without duplicate back navigation",()=>{
  assert.match(inline,/usePathname\(\) === "\/demo\/inspector"/);
  assert.match(inline,/className=\{embedded \? "insightsPage embedded" : "insightsPage"\}/);
- assert.match(inline,/!embedded && <Link href="\/demo\/inspector">Back to Inspector Demo<\/Link>/);
+ assert.match(inline,/!embedded && <Link href="\/demo\/inspector#insights">Back to Inspector Demo<\/Link>/);
  assert.match(inline,/\.insightsPage\.embedded\{max-width:none;margin:0\}/);
  assert.doesNotMatch(inline,/supabaseBrowser|\.from\(|\.insert\(|\.update\(|\.delete\(/);
  assert.match(source,/No production inspector records are used/);

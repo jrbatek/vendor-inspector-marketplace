@@ -897,6 +897,12 @@ try {
     "Legacy Reports redirect lost persistent InspectorHub navigation");
   assert(await page.getByText(/Log in to view the inspector workspace/i).count() === 0,
     "Legacy Reports redirect landed in authenticated InspectorHub");
+  // Standalone peer insights must return to the matching embedded dashboard.
+  await page.goto(base + "/demo/inspector-selection-outcomes", { waitUntil: "domcontentloaded" });
+  await page.getByRole("link", { name: "Back to Inspector Demo" }).click();
+  await page.waitForURL(url => url.pathname === "/demo/inspector" && url.hash === "#insights", { timeout: 15000 });
+  await page.waitForFunction(() => document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent === "Selection Insights & Feedback");
+  assert(await page.locator(".insightsPage.embedded").count() === 1, "Standalone Insights return lost the embedded dashboard");
   assert(errors.length === 0, "Inspector Demo browser exceptions: " + errors.join("\n"));
   console.log("Inspector Demo Chromium OK: sidebar, opportunity alert isolation, Month/Week/List, private events, assignment, date conflicts and demo-only connectors.");
 } catch (e) {
