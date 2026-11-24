@@ -18,7 +18,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #427 — Source of Inspectors channel disabled-state contrast** merged into main at `93983abb10bd7c7c3005e6c41da5da4158f97a04` after exact-head Validate application and Autonomous QA passed with Vercel Preview READY. 390px hosted Chromium verifies selected agency, unselected independent and selected independent button contrast and disabled semantics. Production Vercel READY and exact-commit smoke are separate checks. See `DEVELOPMENT_LOG_2026-11-23_SOURCING_DISABLED_STATES.md`.
 - **Client Preview request → Candidate CV browser regression**: hosted Chromium at desktop/mobile verifies both Natural Language and Structured Selection show two fictional available Houston candidates; View CV expands, and sample PDF downloads with real PDF bytes. See `DEVELOPMENT_LOG_2026-11-23_CLIENT_PREVIEW_CANDIDATES_BROWSER.md`. CI/Preview/production-gated.
 
-- **Calendar focus boundary follow-on:** prevent repeated keyboard boundary actions from stealing focus during later date-field edits; real browser regression for Month and List. See `DEVELOPMENT_LOG_2026-11-23_CALENDAR_FOCUS_BOUNDARY.md`. Pending exact-head CI and preview.
+- **Calendar focus boundary follow-on:** prevent repeated keyboard boundary actions from stealing focus during later date-field edits; real browser regression for Month and List. See `DEVELOPMENT_LOG_2026-11-23_CALENDAR_FOCUS_BOUNDARY.md`. PR #429 merged at `3098cb09286879746daae48ee204d5896218dcda` after exact-head validation and Preview READY; production verification separate.
+
+- **Active Assignment keyboard focus:** focus detail heading and restore originating card on explicit Back. See `DEVELOPMENT_LOG_2026-11-23_ASSIGNMENT_KEYBOARD_FOCUS.md`. Reconciled onto #429; exact-head validation required.
 
 ## Outstanding priority / safety boundaries
 

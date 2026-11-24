@@ -1,0 +1,5 @@
+# InspectSource development log — November 23, 2026 · Active Assignment keyboard focus
+
+Opening an assignment removes its card and previously discarded the keyboard focus target. Focus the detail heading (without competing with Calendar scroll navigation) on open; on the explicit Back to active assignments action, restore focus to the same project's card after it remounts. Sidebar/history navigation is unchanged and does not request return focus. Hosted browser regression uses keyboard activation at 1440px/390px. Fictional data only, no auth or production writes. Mandatory exact-head CI and Preview READY before sequential merge; verify production READY and smoke separately. Local checkout unavailable because GitHub DNS fails. Independent of Calendar component focus work in #429.
+
+Initial Autonomous QA failed one source assertion requiring the old direct onClose callback. Updated it to require both clearing assignment and restoring focus, retaining the sidebar-clearing contract and browser regression. Revalidation required.

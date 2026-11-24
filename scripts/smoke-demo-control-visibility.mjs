@@ -404,6 +404,23 @@ try {
           throw new Error("InspectorHub sidebar click failed to show embedded Work History");
       }
       if (route === "/demo/inspector") {
+        const assignments = page.locator("#assignments");
+        const trigger = assignments.getByRole("button", {name:"Open assignment",exact:true}).first();
+        await trigger.focus();
+        await trigger.press("Enter");
+        const details = assignments.getByRole("region",{name:"Open assignment details"});
+        const title = details.getByRole("heading",{name:"LNG Compressor Package",exact:true});
+        await title.waitFor({state:"visible"});
+        if (!(await title.evaluate(el=>document.activeElement===el)))
+          throw new Error(width+"px Assignment opening lost keyboard focus instead of moving it to the detail heading");
+        const close = details.getByRole("button",{name:"Back to active assignments"});
+        await close.focus();
+        await close.press("Enter");
+        await trigger.waitFor({state:"visible"});
+        if (!(await trigger.evaluate(el=>document.activeElement===el)))
+          throw new Error(width+"px Assignment closing failed to restore focus to the originating assignment card");
+      }
+      if (route === "/demo/inspector") {
         // P0-B: the Month date selectors must stay readable in all real
         // interactive states, including synthetic disabled/loading presentation.
         // Week and List share the explicit disabled-state CSS contract.

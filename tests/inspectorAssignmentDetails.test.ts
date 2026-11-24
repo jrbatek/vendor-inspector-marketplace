@@ -24,5 +24,7 @@ test("section navigation clears opportunity outcome banners", () => {
 test("Inspector Demo sidebar resets stale assignment details", () => {
   assert.match(demo, /setOpp\(null\);setAssignment\(null\);setSection\(s\)/);
   assert.match(demo, /onClick=\{\(\)=>setAssignment\(a\[0\]\)\}/);
-  assert.match(demo, /onClose=\{\(\)=>setAssignment\(null\)\}/);
+  assert.match(demo, /onClose=\{\(\)=>\{returnAssignmentFocus\.current=assignment;setAssignment\(null\);\}\}/);
+  assert.match(demo, /returnAssignmentFocus\.current=null;\s*assignmentButtons\.current\[project\]\?\.focus\(\)/);
+  assert.match(detail, /headingRef\.current\?\.focus\(\{ preventScroll: true \}\)/);
 });

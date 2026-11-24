@@ -18,6 +18,14 @@ const NAV:[Section,string][]=[["home","Profile Home"],["opportunities","Opportun
 
 export default function InspectorDemo(){
  const [assignment,setAssignment]=useState<string|null>(null);
+ const assignmentButtons=useRef<Record<string,HTMLButtonElement|null>>({});
+ const returnAssignmentFocus=useRef<string|null>(null);
+ useEffect(()=>{
+   if(assignment!==null||returnAssignmentFocus.current===null)return;
+   const project=returnAssignmentFocus.current;
+   returnAssignmentFocus.current=null;
+   assignmentButtons.current[project]?.focus();
+ },[assignment]);
  const sidebarRef=useRef<HTMLElement|null>(null);
  const opportunityTrigger=useRef<HTMLButtonElement | null>(null);
  const opportunityClose=useRef<HTMLButtonElement | null>(null);
@@ -77,8 +85,8 @@ export default function InspectorDemo(){
    <><section className="profileSection"><article className="panel"><p className="eyebrow">Professional profile</p><h2>Inspection background</h2><p>Experienced vendor inspector supporting energy and industrial fabrication with verified qualifications, current availability and international project experience.</p><div className="badges">{p.certs.map(x=><span key={x}>{x}</span>)}</div></article></section><section className="grid"><article className="panel"><h2>3 strong matches</h2><p>Assignments are matched by qualifications, experience, geography and availability.</p><button onClick={()=>{setSection("opportunities");window.history.pushState(null,"","#opportunities");jumpTo("opportunities")}}>Review opportunities</button></article><article className="panel"><h2>4.9 / 5 · Peer insights</h2><p>Explore aggregate peer positioning and practical improvement guidance, without individual selection outcomes.</p><button onClick={()=>{setSection("insights");window.history.pushState(null,"","#insights");jumpTo("insights")}}>Open Selection Insights</button></article></section></>
    </section>
    <section id="opportunities" className="demoSection" aria-label="Opportunities"><section className="panel"><p className="eyebrow">Opportunities</p><h2>Matched inspection work</h2>{OPPS.map(o=><article className="row" key={o.id}><div><strong>{o.title}</strong><small>{o.id} · {o.project}</small></div><span>{o.location}</span><span>{o.dates}<small>Offered rate: {o.rate}</small></span><button onClick={e=>{opportunityTrigger.current=e.currentTarget;setNotice("");setNoticeSection(null);setOpp(o)}}>Preview Opportunity</button></article>)}</section>{notice&&noticeSection==="opportunities"&&<div className="notice" role="status">{notice}</div>}</section>
-   <section id="assignments" className="demoSection" aria-label="Active Assignments">{assignment&&<InspectorDemoAssignment key={assignment} project={assignment} inspector={p.name} onClose={()=>setAssignment(null)}/>}
-   {!assignment&&<section className="panel"><p className="eyebrow">Active assignments</p><h2>Work in progress</h2><div className="cards">{[["LNG Compressor Package","FAT evidence review","Verify outstanding calibration evidence and FAT report"],["Gulf Horizon Refinery Upgrade","NCR follow-up","Verify corrected heat-number traceability and report"],["Orion Deepwater Platform","Travel pending","Confirm itinerary"]].map(a=><article key={a[0]}><strong>{a[0]}</strong><span>{a[1]}</span><p><b>Next:</b> {a[2]}</p><p className="dueDate"><b>Due:</b> {getInspectorDemoAssignmentDue(a[0])}</p><button onClick={()=>setAssignment(a[0])}>Open assignment</button></article>)}</div></section>}</section>
+   <section id="assignments" className="demoSection" aria-label="Active Assignments">{assignment&&<InspectorDemoAssignment key={assignment} project={assignment} inspector={p.name} onClose={()=>{returnAssignmentFocus.current=assignment;setAssignment(null);}}/>}
+   {!assignment&&<section className="panel"><p className="eyebrow">Active assignments</p><h2>Work in progress</h2><div className="cards">{[["LNG Compressor Package","FAT evidence review","Verify outstanding calibration evidence and FAT report"],["Gulf Horizon Refinery Upgrade","NCR follow-up","Verify corrected heat-number traceability and report"],["Orion Deepwater Platform","Travel pending","Confirm itinerary"]].map(a=><article key={a[0]}><strong>{a[0]}</strong><span>{a[1]}</span><p><b>Next:</b> {a[2]}</p><p className="dueDate"><b>Due:</b> {getInspectorDemoAssignmentDue(a[0])}</p><button type="button" ref={node=>{assignmentButtons.current[a[0]]=node;}} onClick={()=>setAssignment(a[0])}>Open assignment</button></article>)}</div></section>}</section>
    {/* Keep browser-local Block Dates and selected view while visiting other InspectorHub sections. */}
     <section id="calendar" className="panel calendarPane demoSection" aria-label="Availability & Calendar"><InspectorAvailabilityCalendar onOpenAssignment={project => {setNotice("");setNoticeSection(null);setAssignment(project);setSection("assignments");window.history.pushState(null,"","#assignments");jumpTo("assignments");}}/></section>
    <section id="insights" className="demoSection" aria-label="Selection Insights & Feedback"><InspectorSelectionOutcomesDemo/></section>
