@@ -82,6 +82,7 @@ function CandidateCard({ candidate }: { candidate: DemoCandidate }) {
 export default function ClientDemoCandidateResults({ candidates, resultId = "demo-shortlist", announceCount = true }: { candidates: DemoCandidate[]; resultId?: string; announceCount?: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const headingId = resultId === "demo-shortlist" ? "candidate-cvs-title" : `${resultId}-title`;
+  const resultSummaryId = `${resultId}-summary`;
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollIntoView({ block: "start" });
@@ -90,8 +91,8 @@ export default function ClientDemoCandidateResults({ candidates, resultId = "dem
   const count = candidates.length;
   return (
     <section id={resultId} aria-labelledby={headingId}>
-      <h3 id={headingId} tabIndex={-1} ref={heading}>Candidate CVs</h3>
-      <p className="naturalPreview" role={announceCount ? "status" : undefined}>
+      <h3 id={headingId} tabIndex={-1} ref={heading} aria-describedby={announceCount ? undefined : resultSummaryId}>Candidate CVs</h3>
+      <p id={resultSummaryId} className="naturalPreview" role={announceCount ? "status" : undefined}>
         {count > 0
           ? `${count} available demo ${count === 1 ? "candidate" : "candidates"}. Review the fictional CVs and sample rates below.`
           : "No available candidates found in the demo roster for these requirements. Try a different qualification, location, or date."}

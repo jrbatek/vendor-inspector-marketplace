@@ -321,6 +321,13 @@ try{
  // Structured Selection now uses the same fictional CV renderer without sharing
  // result IDs or making a production search. Filters must change its candidates.
  const structuredCv=structured.locator("#structured-candidate-results");
+ const structuredHeading=structuredCv.getByRole("heading",{name:"Candidate CVs"});
+ const resultDescription=async()=>structuredHeading.evaluate(el=>{
+   const id=el.getAttribute("aria-describedby");
+   return id?document.getElementById(id)?.textContent?.trim():null;
+ });
+ assert((await resultDescription())?.includes("2 available demo candidates"),
+   "Structured CV heading must expose the actual fictional result count to assistive technology");
  assert(await structuredCv.locator("article").count()===2,
    "Structured defaults must preview two local fictional candidate CVs");
  assert(await structuredCv.getByText("IS-1042").count()===1 &&

@@ -1,0 +1,3 @@
+# InspectSource development log — November 23, 2026 · Structured candidate result announcement
+
+Structured Selection intentionally uses one live region for the criteria preview. The Candidate CVs heading receives focus when its results arrive, but previously had no accessible description for the actual result count (or no-match guidance). Link that focused heading to its own visible candidate summary with a unique ID, without creating another live region or changing natural-language announcements. Hosted Chromium verifies the association and actual two-candidate count. Existing no-match text is linked in the same way. Synthetic UI only; no live matching or authentication changes. Exact-head CI and preview gates apply. Independent of Calendar and Assignment branches.
