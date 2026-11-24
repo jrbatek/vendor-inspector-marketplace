@@ -126,8 +126,17 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     const next=pendingKeyboardFocus.current;
     if(!next)return;
     const target=document.querySelector<HTMLButtonElement>(`.calendarShell button[data-calendar-date="${next}"]`);
-    if(target){target.focus();pendingKeyboardFocus.current=null;}
+    pendingKeyboardFocus.current=null;
+    target?.focus();
   },[month,weekAnchor,start,end,view]);
+  // A boundary key can leave all React state unchanged (for example End on the
+  // last selected List date). Focus an already-rendered target immediately;
+  // defer only when navigating to a date outside the current visible grid.
+  const focusCalendarDate=(date:string,origin:HTMLButtonElement)=>{
+    const target=origin.closest(".calendarShell")?.querySelector<HTMLButtonElement>(`button[data-calendar-date="${date}"]`);
+    pendingKeyboardFocus.current=target?null:date;
+    target?.focus();
+  };
   // Editing the Start date should reveal that date in the visible calendar,
   // not leave the inspector looking at an unrelated month or week.
   // This synchronizes only navigation/selection; availability remains untouched.
@@ -177,7 +186,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
       shiftCalendarMonth(date,event.key==="PageUp"?-1:1);
     if(event.shiftKey)extendSelection(next);
     else {selectionAnchor.current=next;setStart(next);setEnd(next);setNotice("");}
-    pendingKeyboardFocus.current=next;
+    focusCalendarDate(next,event.currentTarget);
     setMonth(next.slice(0,7));
     setWeekAnchor(next);
   };
@@ -204,7 +213,7 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
     }else{
       selectionAnchor.current=next;setStart(next);setEnd(next);setNotice("");
     }
-    pendingKeyboardFocus.current=next;
+    focusCalendarDate(next,event.currentTarget);
     setWeekAnchor(next);
   };
   const rangeDates = dateRange(start,end);

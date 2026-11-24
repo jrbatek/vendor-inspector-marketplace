@@ -11,7 +11,7 @@ test("List keyboard navigation moves between distinct event dates and maintains 
   assert.match(source,/data-calendar-date=\{event\.date\} onKeyDown=\{e=>onListDateKey\(e,event\.date\)\}/);
   assert.match(source,/In List view, Up\/Down moves between listed event dates/);
   const handler=source.slice(source.indexOf("const onListDateKey="),source.indexOf("const rangeDates = dateRange(start,end);"));
-  assert.match(handler,/pendingKeyboardFocus\.current=next/);
+  assert.match(handler,/focusCalendarDate\(next,event\.currentTarget\)/);
   assert.match(handler,/if\(event\.shiftKey\)/);
   assert.doesNotMatch(handler,/setEvents\(|supabase|fetch\(|localStorage|OAuth/);
 });
@@ -21,5 +21,6 @@ test("Hosted Chromium verifies list ArrowDown, End and Shift+Home, including pri
     "List End did not select and focus the last scheduled event date",
     "List Shift+Home did not select an inclusive range between event dates",
     "List keyboard navigation changed protected private calendar entries",
+    "List boundary key stole focus from the subsequently edited End date",
   ])assert.ok(browser.includes(marker),marker);
 });

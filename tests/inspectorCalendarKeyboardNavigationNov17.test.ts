@@ -9,7 +9,10 @@ test("Month and Week day buttons support arrow navigation with focus and Shift s
  assert.match(calendar,/const onDateArrow=\(event:KeyboardEvent<HTMLButtonElement>,date:string\)=>/);
  assert.match(calendar,/ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7/);
  assert.match(calendar,/if\(event.shiftKey\)extendSelection\(next\)/);
- assert.match(calendar,/pendingKeyboardFocus.current=next/);
+ assert.match(calendar,/focusCalendarDate\(next,event\.currentTarget\)/);
+ assert.match(calendar,/pendingKeyboardFocus\.current=target\?null:date/);
+ assert.match(calendar,/target\?\.focus\(\)/);
+ assert.match(calendar,/pendingKeyboardFocus\.current=null;\s*target\?\.focus\(\)/);
  assert.match(calendar,/data-calendar-date=\{dateForDay\(day\)\}/);
  assert.match(calendar,/data-calendar-date=\{date\}/);
  assert.match(calendar,/onKeyDown=\{e=>onDateArrow\(e,dateForDay\(day\)\)\}/);
