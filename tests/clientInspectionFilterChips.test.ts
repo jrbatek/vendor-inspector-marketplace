@@ -13,7 +13,11 @@ test("Client Demo names and removes each distinct inspection filter without losi
  }
  assert.match(page,/Active inspection filters/);
  assert.match(page,/aria-label=\{`Remove \$\{chip.label\} filter`\}/);
- assert.match(page,/onClick=\{chip.clear\}/);
+ assert.match(page,/onClick=\{\(\) => clearChip\(chip\)\}/);
+ assert.ok(page.includes('[data-inspection-filter="${chip.key}"]'));
+ for(const key of ["stage","project","inspector","actionOwner","from","to","keyword","dueOnly","ncrOnly"]) assert.ok(page.includes('data-inspection-filter="'+key+'"'),key);
+ assert.ok(browser.includes("Clearing stage chip must return focus to the stage filter"));
+ assert.ok(browser.includes("Clearing last search chip must restore focus to the search control"));
  assert.match(page,/activeFilterChips.length > 0/);
  assert.match(page,/clear: \(\) => update\("stage", ""\)/);
  assert.match(page,/clear: \(\) => update\("project", ""\)/);

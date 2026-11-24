@@ -1,0 +1,3 @@
+# November 24, 2026 — Client inspection filter chip focus
+
+P0 demo accessibility: removing any of nine synthetic inspection filter chips returns keyboard focus to its persistent select, date, search or All-status button. Preserve the existing synchronous browser-history snapshots and unrelated filters, all seven fictional inspections and demo/live boundaries. Real Chromium regression covers keyboard removal with other filters still active and the last chip. Local GitHub DNS remains unavailable; authorized connector and hosted validation fallback only. Exact-head application and Autonomous QA plus Preview READY required before merge; production READY and smoke separately required.
