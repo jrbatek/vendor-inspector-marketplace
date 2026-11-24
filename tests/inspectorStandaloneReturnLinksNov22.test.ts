@@ -6,6 +6,7 @@ const main = fs.readFileSync("app/demo/inspector/page.tsx", "utf8");
 for (const [name, anchor] of [
   ["inspector-documents", "qualifications"],
   ["inspector-income", "income"],
+  ["inspector-selection-outcomes", "insights"],
   ["inspector-work-history", "work"],
 ] as const) {
   test(`standalone ${name} returns to its embedded InspectorHub section`, () => {
