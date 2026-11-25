@@ -22,6 +22,9 @@ This file is the current release/priority index. Detailed implementation notes a
 
 - **Active Assignment keyboard focus:** focus detail heading and restore originating card on explicit Back. See `DEVELOPMENT_LOG_2026-11-23_ASSIGNMENT_KEYBOARD_FOCUS.md`. Reconciled onto #429; exact-head validation required.
 
+- **PR #435 — Client inspection filter focus** merged at `7b12998b618c65c1721250cab013603232765fc2` after exact-head Validate application, Autonomous QA and Vercel Preview READY; production verification separate. See `DEVELOPMENT_LOG_2026-11-24_CLIENT_INSPECTION_CHIP_FOCUS.md`.
+- **Qualifications local sample focus**: see `DEVELOPMENT_LOG_2026-11-24_QUALIFICATION_SAMPLE_FOCUS.md`; exact-head hosted checks and Preview required.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
