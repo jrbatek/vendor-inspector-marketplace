@@ -61,3 +61,8 @@ test("qualification discovery has context controls official sources and accessib
   assert.match(source, /event.key !== "Tab"/);
   assert.match(source, /previous\?\.focus\(\)/);
 });
+
+test("local evidence editing and removal clear stale feedback and preserve keyboard focus", () => {
+  assert.ok(source.includes('onChange={() => { setFormError(""); setNotice(""); }}'));
+  assert.ok(source.includes('setNotice("Local sample removed from this page."); formRef.current?.querySelector("select")?.focus();'));
+});

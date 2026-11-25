@@ -831,6 +831,31 @@ try {
   assert(await page.getByRole("dialog").count()===1,"Inline synthetic certificate preview must open");
   await page.getByRole("button",{name:"Close certificate preview"}).click();
   assert(await page.getByRole("dialog").count()===0,"Inline synthetic certificate preview must close");
+  // Upload only a generated 1x1 PNG fixture; no user file, storage or network write.
+  const sampleForm=inlineDocuments.locator("form");
+  const sampleQualification=sampleForm.getByRole("combobox",{name:"Qualification"});
+  await sampleQualification.selectOption("api-510");
+  await sampleForm.getByLabel("Issue date").fill("2025-01-01");
+  await sampleForm.getByLabel("Expiry date").fill("2028-01-01");
+  await sampleForm.getByLabel("Sample certificate file").setInputFiles({
+    name:"fictional-test.png",mimeType:"image/png",
+    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR1sAAAAASUVORK5CYII=","base64")
+  });
+  await sampleForm.getByRole("button",{name:"Add sample qualification"}).click();
+  await inlineDocuments.getByRole("status").filter({hasText:"Sample added to this page only"}).waitFor();
+  const pendingSample=inlineDocuments.locator("article.document").filter({hasText:"Pending verification"});
+  assert(await inlineDocuments.locator("article.document").count()===4 && await pendingSample.count()===1,
+    "Synthetic local sample must be added without verification");
+  const removeSample=pendingSample.getByRole("button",{name:"Remove local sample"});
+  await removeSample.focus();
+  await removeSample.press("Enter");
+  await inlineDocuments.getByRole("status").filter({hasText:"Local sample removed from this page"}).waitFor();
+  assert(await inlineDocuments.locator("article.document").count()===3,"Removing local sample must preserve all baseline certificates");
+  assert(await sampleQualification.evaluate(el=>document.activeElement===el),"Removing local sample must return keyboard focus to qualification selector");
+  await sampleForm.getByLabel("Issue date").fill("2025-02-01");
+  assert(await inlineDocuments.getByRole("status").count()===0,"Editing new evidence must clear stale sample notice");
+  await sampleForm.getByLabel("Issue date").fill("");
+
   await navigation.getByRole("button", { name: "Work History" }).click();
   assert(await page.getByRole("heading", { name: "Work History" }).count() === 1, "Full Work History must render directly beside green sidebar");
   assert(new URL(page.url()).pathname === "/demo/inspector", "Work History must not redirect to standalone route");

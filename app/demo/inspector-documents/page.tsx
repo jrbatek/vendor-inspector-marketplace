@@ -54,7 +54,7 @@ export default function InspectorQualificationDocumentsDemo() {
   }, [selected]);
 
   async function addQualification(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setFormError("");
+    event.preventDefault(); setFormError(""); setNotice("");
     const error = validateQualificationDraft({ qualificationId, issued, expires });
     if (error) { setFormError(error); return; }
     if (!file) { setFormError("Choose a sample certificate file."); return; }
@@ -114,7 +114,7 @@ export default function InspectorQualificationDocumentsDemo() {
       <section className="card addCard" aria-labelledby="add-qualification-title">
         <h2 id="add-qualification-title">Add Qualification &amp; Upload Documentation</h2>
         <p>Sample PDF or image · up to 5 MB · demo snapshot {DEMO_DOCUMENT_AS_OF}. Issue and expiry dates describe your evidence, not verification by InspectSource.</p>
-        <form ref={formRef} onSubmit={addQualification}>
+        <form ref={formRef} onSubmit={addQualification} onChange={() => { setFormError(""); setNotice(""); }}>
           <label>Qualification<select aria-label="Qualification" value={qualificationId} onChange={event => setQualificationId(event.target.value)}>{INSPECTOR_QUALIFICATION_CATALOG.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
           <div className="dateFields"><label>Issue date<input type="date" required max={DEMO_DOCUMENT_AS_OF} value={issued} onChange={event => setIssued(event.target.value)}/></label><label>Expiry date<input type="date" required value={expires} onChange={event => setExpires(event.target.value)}/></label></div>
           <label>Sample certificate file<input ref={fileInput} type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={event => setFile(event.target.files?.[0] || null)}/></label>
@@ -140,7 +140,7 @@ export default function InspectorQualificationDocumentsDemo() {
               <div className="actions">
                 <button type="button" onClick={() => setSelected(document)} aria-haspopup="dialog">View certificate</button>
                 <button type="button" className="secondary" onClick={() => setShareTarget(document)} aria-haspopup="dialog">Share securely</button>
-                {document.file && <button type="button" className="secondary" onClick={() => { setDocuments(current => current.filter(item => item.id !== document.id)); setNotice("Local sample removed from this page."); }}>Remove local sample</button>}
+                {document.file && <button type="button" className="secondary" onClick={() => { setDocuments(current => current.filter(item => item.id !== document.id)); setNotice("Local sample removed from this page."); formRef.current?.querySelector("select")?.focus(); }}>Remove local sample</button>}
               </div>
             </article>
           ))}
