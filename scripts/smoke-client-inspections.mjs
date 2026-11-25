@@ -563,13 +563,19 @@ try{
  const chipContainerStyles=await page.locator(".filterChips").evaluate(element=>{const s=getComputedStyle(element);return {display:s.display,background:s.backgroundColor,border:s.borderTopColor,wrap:s.flexWrap}});
  assert(chipContainerStyles.display==="flex" && chipContainerStyles.wrap==="wrap" && chipContainerStyles.background==="rgb(239, 246, 255)" && chipContainerStyles.border==="rgb(191, 219, 254)",
    "P0-B active Client Demo filter chips must render with their intended visible container styles: "+JSON.stringify(chipContainerStyles));
- await page.getByRole("button",{name:/Remove Stage: .* filter/}).click();
+ const stageChip=page.getByRole("button",{name:/Remove Stage: .* filter/});
+ await stageChip.focus();
+ await stageChip.press("Enter");
+ assert(await status.evaluate(el=>document.activeElement===el),"Clearing stage chip must return focus to the stage filter");
  assert(await status.inputValue()==="","Removing stage chip should clear only stage");
  assert(await project.inputValue()!==""&&await search.inputValue()==="sample","Removing stage chip cleared another filter");
  await page.getByRole("button",{name:/Remove Project: .* filter/}).click();
  assert(await project.inputValue()==="","Project chip did not clear project");
  assert(await search.inputValue()==="sample"&&await page.locator(".filterChips button").count()===1,"Search chip should remain");
- await page.getByRole("button",{name:"Remove Search: sample filter"}).click();
+ const searchChip=page.getByRole("button",{name:"Remove Search: sample filter"});
+ await searchChip.focus();
+ await searchChip.press("Enter");
+ assert(await search.evaluate(el=>document.activeElement===el),"Clearing last search chip must restore focus to the search control");
  assert(await search.inputValue()===""&&await page.locator("article.inspection").count()===7,"Removing last chip must restore all seven fictional inspections");
  assert(await page.locator(".filterChips").count()===0,"Filter chip bar should disappear when cleared");
 
