@@ -25,6 +25,13 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #435 — Client inspection filter focus** merged at `7b12998b618c65c1721250cab013603232765fc2` after exact-head Validate application, Autonomous QA and Vercel Preview READY; production verification separate. See `DEVELOPMENT_LOG_2026-11-24_CLIENT_INSPECTION_CHIP_FOCUS.md`.
 - **Qualifications local sample focus**: see `DEVELOPMENT_LOG_2026-11-24_QUALIFICATION_SAMPLE_FOCUS.md`; exact-head hosted checks and Preview required.
 
+- **PR #436 — Qualifications local sample focus** merged at `dc6249ba85ffc4094baf8a3195955a9d3d3237fc` after both exact-head CI workflows and Vercel Preview READY; production verification separate.
+- **PR #430 — Active Assignment keyboard focus** merged at `34ed4f6356065d1ba113f2e1ac68482bc3bd1fe4` after both exact-head CI workflows passed and Vercel Preview READY. Production verification is separate. #431 and #432 reconciled onto this main; #432 had an obsolete source assertion for the old standalone return URL, corrected to require `#insights`. Both require fresh CI/Preview.
+- **Work History filter keyboard recovery**: clearing a chip restores focus to its matching persistent filter, avoids duplicate live result announcements, and preserves other active criteria. See `DEVELOPMENT_LOG_2026-11-24_WORK_HISTORY_FILTER_FOCUS.md`. CI/Preview/production-gated.
+- **PR #431 — Structured Candidate CV announcement** merged at `897066e0e427932060ddb9ac7ee6f429acfde68e` after exact-head Validate application, Autonomous QA and Vercel Preview READY; production verification separate. #432 and #433 reconciled against this main for fresh validation.
+- **PR #432 — Selection Insights return navigation** merged at `a5b137b71df90d319dffdd9ca966495420df25b1` after both exact-head workflows and Vercel Preview READY. Production verification separate. Work History and Income CSV browser coverage require reconciliation and fresh validation.
+- **PR #435 — Client inspection filter focus** merged at `7b12998b618c65c1721250cab013603232765fc2` after exact-head Validate application, Autonomous QA and Preview READY. Production verification separate. See `DEVELOPMENT_LOG_2026-11-24_CLIENT_INSPECTION_CHIP_FOCUS.md`.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.

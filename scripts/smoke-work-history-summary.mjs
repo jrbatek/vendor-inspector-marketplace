@@ -58,10 +58,21 @@ try {
   const clientChip=activeFilters.getByRole("button", { name: "Clear Client filter: Bluewater LNG" });
   assert((await clientChip.innerText()).trim().startsWith("Client: Bluewater LNG"),
     "Inspector Work History filter chip displays stray dollar signs or mismatched visible label");
-  await clientChip.click();
+  await clientChip.focus();
+  await clientChip.press("Enter");
+  assert(await page.getByRole("combobox", { name: "Client" }).evaluate(el => document.activeElement === el),
+    "Clearing the last Work History chip must restore keyboard focus to its persistent filter");
   assert(JSON.stringify(await counts()) === JSON.stringify([10, 10, 6, 3]), "Clearing one client filter must restore unfiltered counters");
   assert(await activeFilters.count()===0, "Active filter chips must disappear once all selections are cleared");
   await page.getByRole("combobox", { name: "Client" }).selectOption("Bluewater LNG");
+  await page.getByRole("combobox", { name: "NCR findings" }).selectOption("with");
+  const ncrChip = activeFilters.getByRole("button", { name: "Clear NCR findings filter: NCR raised" });
+  await ncrChip.focus();
+  await ncrChip.press("Enter");
+  assert(await page.getByRole("combobox", { name: "NCR findings" }).evaluate(el => document.activeElement === el),
+    "Clearing a Work History chip must restore focus even when another filter remains");
+  assert(await page.getByRole("combobox", { name: "Client" }).inputValue() === "Bluewater LNG", "Clearing an NCR chip must retain the client filter");
+  assert(await page.locator(".historyPage [role=status]").count() === 1, "Work History should expose only one live results status");
   await page.getByRole("button", { name: "Reports Submitted" }).click();
   assert(await page.getByRole("heading", { name: "Coastal Liquefaction Train 3" }).count() === 2, "Report cards must identify project, not only inspection type");
   const href = await page.getByRole("link", { name: "Open sample PDF" }).first().getAttribute("href");
