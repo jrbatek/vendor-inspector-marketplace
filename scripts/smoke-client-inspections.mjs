@@ -578,6 +578,28 @@ try{
  assert(await search.evaluate(el=>document.activeElement===el),"Clearing last search chip must restore focus to the search control");
  assert(await search.inputValue()===""&&await page.locator("article.inspection").count()===7,"Removing last chip must restore all seven fictional inspections");
  assert(await page.locator(".filterChips").count()===0,"Filter chip bar should disappear when cleared");
+ // Exercise the other seven focus destinations, including native dates and paired status buttons.
+ // Every isolated keyboard removal must restore the full fictional list.
+ const chipFocusCases=[
+   {key:"project",label:/Remove Project: .* filter/,activate:()=>project.selectOption({index:1}),target:project},
+   {key:"inspector",label:/Remove Inspector: .* filter/,activate:()=>inspector.selectOption({index:1}),target:inspector},
+   {key:"action owner",label:/Remove Action owner: .* filter/,activate:()=>actionOwner.selectOption({index:1}),target:actionOwner},
+   {key:"from",label:/Remove From: .* filter/,activate:()=>page.getByLabel("Scheduled from").fill("2026-11-05"),target:page.getByLabel("Scheduled from")},
+   {key:"through",label:/Remove Through: .* filter/,activate:()=>page.getByLabel("Scheduled through").fill("2026-11-20"),target:page.getByLabel("Scheduled through")},
+   {key:"due",label:"Remove Due or overdue filter",activate:()=>page.getByRole("group",{name:"Outstanding-action urgency"}).getByRole("button",{name:/Due or overdue/}).click(),target:page.getByRole("group",{name:"Outstanding-action urgency"}).getByRole("button",{name:"All active"})},
+   {key:"NCR",label:"Remove With open NCR filter",activate:()=>page.getByRole("group",{name:"Non-conformance focus"}).getByRole("button",{name:/With open NCR/}).click(),target:page.getByRole("group",{name:"Non-conformance focus"}).getByRole("button",{name:"All NCR statuses"})}
+ ];
+ for(const {key,label,activate,target} of chipFocusCases){
+   await activate();
+   assert(await page.locator(".filterChips button").count()===1,"Expected isolated "+key+" chip");
+   const chip=page.getByRole("button",{name:label});
+   await chip.focus();
+   await chip.press("Enter");
+   assert(await target.evaluate(el=>document.activeElement===el),"Clearing "+key+" chip must restore focus to its persistent control");
+   assert(await page.locator(".filterChips").count()===0&&await page.locator("article.inspection").count()===7,
+     "Clearing "+key+" must restore all seven fictional inspections");
+ }
+
 
  // P0-B: visually inspect real browser computed colors for all five inspection filters.
  for (const label of ["Status / stage","Project","Inspector","Action owner","Scheduled from","Scheduled through"]) {
