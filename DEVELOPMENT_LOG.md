@@ -32,6 +32,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #432 — Selection Insights return navigation** merged at `a5b137b71df90d319dffdd9ca966495420df25b1` after both exact-head workflows and Vercel Preview READY. Production verification separate. Work History and Income CSV browser coverage require reconciliation and fresh validation.
 - **PR #435 — Client inspection filter focus** merged at `7b12998b618c65c1721250cab013603232765fc2` after exact-head Validate application, Autonomous QA and Preview READY. Production verification separate. See `DEVELOPMENT_LOG_2026-11-24_CLIENT_INSPECTION_CHIP_FOCUS.md`.
 
+- **PR #433 — Work History filter focus** merged at `7769d89e43f6ffe468312dedde171885def90250` after both required exact-head workflows and Preview READY; production verification separate. PR #434 reconciled onto this main for fresh validation.
+- **Income CSV browser verification**: see `DEVELOPMENT_LOG_2026-11-24_INCOME_CSV_BROWSER.md`. CI/Preview/production gated.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
