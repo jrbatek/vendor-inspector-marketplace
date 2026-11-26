@@ -41,6 +41,10 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #438 — Agency resource keyboard recovery** merged at `84732c0a14c30b34564d06b5b2ef38de9abb37d8` after both exact-head mandatory workflows and Preview READY; production verification separate.
 - **PR #439 — Restore keyboard focus after resetting fictional Agency opportunities**: see `DEVELOPMENT_LOG_2026-11-25_AGENCY_OPPORTUNITY_RESET.md`; reconciled onto #438 for fresh exact-head checks.
 
+- **PR #439 — Agency opportunity reset focus** merged at `95707771139c8265acfa506f6699c1716a129553` after both mandatory exact-head checks and Preview READY; production verification separate.
+- **PR #440 — Verify actual PDFs for all three fictional Agency contracts**: see `DEVELOPMENT_LOG_2026-11-25_AGENCY_CONTRACT_PDF_BROWSER.md`; reconciled onto #438 for fresh exact-head checks.
+- PR #440 reconciled onto #439 for fresh checks.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
