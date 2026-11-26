@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import {useMemo,useState} from "react";
+import {useMemo,useRef,useState} from "react";
 import {AGENCY_DEMO_OPPORTUNITIES,filterAgencyDemoOpportunities} from "@/lib/agencyDemoOpportunities";
 
 const distinct=(field:"region"|"status"|"discipline")=>Array.from(new Set(AGENCY_DEMO_OPPORTUNITIES.map(row=>row[field]))).sort();
 export default function AgencyOpportunitiesDemo(){
+ const searchRef=useRef<HTMLInputElement>(null);
  const [query,setQuery]=useState("");
  const [region,setRegion]=useState("All regions");
  const [status,setStatus]=useState("All statuses");
@@ -14,12 +15,12 @@ export default function AgencyOpportunitiesDemo(){
  const rows=useMemo(()=>filterAgencyDemoOpportunities(AGENCY_DEMO_OPPORTUNITIES,{query,region,status,discipline}),[query,region,status,discipline]);
  const closePreview=()=>{setOpened(null);setInterest("");};
  const togglePreview=(id:string)=>{setOpened(current=>current===id?null:id);setInterest("");};
- const reset=()=>{setQuery("");setRegion("All regions");setStatus("All statuses");setDiscipline("All disciplines");closePreview();};
+ const reset=()=>{setQuery("");setRegion("All regions");setStatus("All statuses");setDiscipline("All disciplines");closePreview();searchRef.current?.focus();};
  return <main className="wrap">
   <div className="banner"><strong>DEMO MODE · 100% FICTIONAL OPPORTUNITIES</strong><span>No real inspection, matching, agency offer, selection, submission or external request happens here.</span></div>
   <header><div><small>Agency Workspace · Opportunity browser</small><h1>Search all synthetic opportunities</h1><p>Browse {AGENCY_DEMO_OPPORTUNITIES.length} imaginary agency inspection opportunities across regions and expertise. Offered rates are fixed fictional examples, never advertised live jobs.</p></div><Link href="/demo/agency#opportunities">Return to Agency Opportunities</Link></header>
   <section className="filters" aria-label="Filter fictional agency opportunities">
-    <label>Search projects, vendors or equipment<input type="search" aria-label="Search synthetic opportunities" value={query} onChange={e=>{setQuery(e.target.value);closePreview();}} placeholder="Project, vendor, qualification or location"/></label>
+    <label>Search projects, vendors or equipment<input ref={searchRef} type="search" aria-label="Search synthetic opportunities" value={query} onChange={e=>{setQuery(e.target.value);closePreview();}} placeholder="Project, vendor, qualification or location"/></label>
     <label>Region<select aria-label="Opportunity region" value={region} onChange={e=>{setRegion(e.target.value);closePreview();}}><option>All regions</option>{distinct("region").map(x=><option key={x}>{x}</option>)}</select></label>
     <label>Status<select aria-label="Opportunity status" value={status} onChange={e=>{setStatus(e.target.value);closePreview();}}><option>All statuses</option>{distinct("status").map(x=><option key={x}>{x}</option>)}</select></label>
     <label>Discipline<select aria-label="Opportunity discipline" value={discipline} onChange={e=>{setDiscipline(e.target.value);closePreview();}}><option>All disciplines</option>{distinct("discipline").map(x=><option key={x}>{x}</option>)}</select></label>
@@ -37,7 +38,7 @@ export default function AgencyOpportunitiesDemo(){
     {interest===op.id&&<p className="interest" role="status">Sample interest preview prepared for {op.id}. Nothing was submitted or sent; this fictional opportunity has no live client.</p>}
    </section>}
   </article>)}</section>
-  <footer>All 24 opportunities, vendors, projects, rates and dates are synthetic. No client records or production API calls.</footer>
+  <footer>All {AGENCY_DEMO_OPPORTUNITIES.length} opportunities, vendors, projects, rates and dates are synthetic. No client records or production API calls.</footer>
   <style jsx>{`
    .wrap{max-width:1330px;margin:0 auto;padding:24px 18px 60px;color:#0f172a}.banner{background:#f5f3ff;color:#4c1d95;border:1px solid #a78bfa;border-radius:12px;padding:12px 16px;display:grid;gap:3px;font-size:.86rem}
    header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin:18px 0}header small{color:#6d28d9;font-weight:900;text-transform:uppercase;letter-spacing:.06em}header h1{margin:4px 0;font-size:1.8rem}header p{color:#475569}header :global(a){display:inline-flex;align-items:center;min-height:44px;box-sizing:border-box;padding:8px 10px;border-radius:8px;color:#4c1d95;font-weight:800}header :global(a:hover){background:#ede9fe;color:#4c1d95}header :global(a:focus-visible){outline:3px solid #a78bfa;outline-offset:2px}
