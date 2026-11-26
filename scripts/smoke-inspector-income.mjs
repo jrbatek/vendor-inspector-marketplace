@@ -49,6 +49,16 @@ try{
      assert((await page.getByRole("status").filter({hasText:"Viewing completed fictional "+year+" earnings"}).count())===1,
        "Completed tax-year context is missing for "+year);
    }
+   // Inspect the real browser download, not just the data URI or filename.
+   const csvPending=page.waitForEvent("download",{timeout:20000});
+   await page.getByRole("link",{name:"Download selected-year synthetic earnings CSV"}).click();
+   const csvDownload=await csvPending;
+   assert(csvDownload.suggestedFilename()==="inspectsource-synthetic-earnings-"+year+".csv","Wrong selected-year CSV filename");
+   const csv=fs.readFileSync(await csvDownload.path(),"utf8");
+   const csvRows=csv.split(/\r?\n/);
+   assert(csvRows.length===count+1,"Wrong selected-year CSV record count for "+year);
+   assert(csvRows[0]==='"Dataset","Year","Statement ID","Client","Project","Engagement type","Gross USD","Paid date","Data through"',"Unexpected earnings CSV header");
+   assert(csvRows.slice(1).every(row=>row.startsWith('"SYNTHETIC DEMO - NOT VERIFIED","'+year+'",')&&row.endsWith('"2026-11-01T23:59:59-06:00"')),"CSV must contain only selected-year fictional rows with the exact snapshot cutoff");
    const pending=page.waitForEvent("download",{timeout:20000});
    await page.getByRole("button",{name:"Download synthetic income report PDF"}).click();
    const download=await pending;
