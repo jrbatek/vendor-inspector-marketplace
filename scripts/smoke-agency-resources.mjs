@@ -29,15 +29,26 @@ try{
     throw Error("Expanded Agency resource detail must have a real accessible target");
   if(await page.locator("article.resource .detail").count()!==1)
     throw Error("Agency must render just one in-card resource detail");
-  await firstCard.getByRole("button",{name:"Close preview"}).click();
+  const closePreview=firstCard.getByRole("button",{name:"Close preview"});
+  await closePreview.focus();
+  await closePreview.press("Enter");
+  if(!await viewButton.evaluate(el=>document.activeElement===el))throw Error("Closing the fictional resource preview must restore keyboard focus to its opener");
   if(await preview.count()!==0||await firstCard.getByRole("button",{name:"View fictional resource"}).getAttribute("aria-controls")!==null)
     throw Error("Closed Agency resource preview left a dangling inaccessible target");
-  await page.getByRole("button",{name:"Reset filters"}).click();
+  const reset=page.getByRole("button",{name:"Reset filters"});
+  await reset.focus();
+  await reset.press("Enter");
+  if(!await page.getByRole("searchbox",{name:"Search all fictional agency resources"}).evaluate(el=>document.activeElement===el)||!await reset.isDisabled())throw Error("Reset must restore focus to search before the reset button becomes disabled");
+  if(await page.locator("article.resource").count()!==25)throw Error("Reset must restore the first 25 fictional resources");
   await page.getByRole("button",{name:"Next page"}).click();
   if(!await page.getByText("Page 2 of 113").first().isVisible())throw Error("Pagination failed");
   await page.setViewportSize({width:390,height:844});
   await page.getByRole("combobox",{name:"Region"}).selectOption("Middle East");
   if(!await page.getByRole("status").getByText(/matching synthetic resources/).isVisible())throw Error("Mobile region filter broken");
+  await reset.focus();
+  await reset.press("Enter");
+  if(!await page.getByRole("searchbox",{name:"Search all fictional agency resources"}).evaluate(el=>document.activeElement===el))throw Error("Mobile reset must restore search focus");
+  if(!await page.getByText("Page 1 of 113").first().isVisible())throw Error("Mobile reset must restore the first page");
   if(errors.length)throw Error("Agency resource browser errors: "+errors.join("\n"));
   console.log("Agency 2,823 synthetic resource browser PASS: search, detail, pagination, region, mobile");
 }catch(e){console.error(e);process.exitCode=1}finally{await browser?.close();if(server){server.kill("SIGTERM");setTimeout(()=>server.kill("SIGKILL"),2000).unref()}}
