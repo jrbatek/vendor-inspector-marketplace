@@ -35,6 +35,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #433 — Work History filter focus** merged at `7769d89e43f6ffe468312dedde171885def90250` after both required exact-head workflows and Preview READY; production verification separate. PR #434 reconciled onto this main for fresh validation.
 - **Income CSV browser verification**: see `DEVELOPMENT_LOG_2026-11-24_INCOME_CSV_BROWSER.md`. CI/Preview/production gated.
 
+- **PR #434 — Income CSV browser verification** merged at `67cddcb392efed3ccd21eda0ad65b4a6a304b3dd` after both exact-head workflows and Preview READY; production verification separate.
+- **PR #438 — Restore keyboard focus in fictional Agency resource search**: see `DEVELOPMENT_LOG_2026-11-25_AGENCY_RESOURCE_FOCUS.md`; reconciled onto #434 for fresh checks.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.

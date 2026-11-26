@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {useMemo,useState} from "react";
+import {useMemo,useRef,useState} from "react";
 import {AGENCY_RESOURCE_POOL,AGENCY_SYNTHETIC_RESOURCE_TOTAL,filterAgencyResources} from "@/lib/agencyDemoResources";
 
 const PAGE_SIZE=25;
@@ -9,6 +9,7 @@ const regions=["All regions",...Array.from(new Set(AGENCY_RESOURCE_POOL.map(row=
 const statuses=["All statuses",...Array.from(new Set(AGENCY_RESOURCE_POOL.map(row=>row.affiliation)))];
 const relationships=["All relationships","Employee","Subcontractor","Affiliate"];
 export default function AgencyResourcePoolDemo(){
+  const searchInput=useRef<HTMLInputElement>(null);
   const [query,setQuery]=useState("");
   const [region,setRegion]=useState("All regions");
   const [status,setStatus]=useState("All statuses");
@@ -19,12 +20,12 @@ export default function AgencyResourcePoolDemo(){
   const totalPages=Math.max(1,Math.ceil(results.length/PAGE_SIZE));
   const safePage=Math.min(page,totalPages-1);
   const visible=results.slice(safePage*PAGE_SIZE,(safePage+1)*PAGE_SIZE);
-  const reset=()=>{setQuery("");setRegion("All regions");setStatus("All statuses");setRelationship("All relationships");setPage(0);setDetail(null)};
+  const reset=()=>{setQuery("");setRegion("All regions");setStatus("All statuses");setRelationship("All relationships");setPage(0);setDetail(null);searchInput.current?.focus()};
   return <main className="resourceShell">
     <div className="heading"><div><p className="eyebrow">Agency Demo · Fictional data</p><h1>Search all {AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")} resources</h1><p>Northstar Inspection Partners · Synthetic sample pool. Fictional availability reflects a fixed November 9, 2026 snapshot, not live dates. No real profiles, locations, credentials or production affiliations are loaded.</p></div><Link className="backLink" href="/demo/agency#resource-pool">Back to Agency Workspace</Link></div>
     <section className="summary" aria-label="Synthetic resource pool summary"><strong>{AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")}</strong><span>Fictional resources across multiple regions. Five featured examples also appear in the Agency Workspace.</span></section>
     <section className="filters" aria-label="Search synthetic agency resources">
-      <label>Search name, ID, location or expertise<input aria-label="Search all fictional agency resources" type="search" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setDetail(null)}} placeholder="Try Maya, API 570 or IS-20418"/></label>
+      <label>Search name, ID, location or expertise<input ref={searchInput} aria-label="Search all fictional agency resources" type="search" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setDetail(null)}} placeholder="Try Maya, API 570 or IS-20418"/></label>
       <label>Region<select value={region} onChange={e=>{setRegion(e.target.value);setPage(0);setDetail(null)}}>{regions.map(r=><option key={r}>{r}</option>)}</select></label>
       <label>Affiliation status<select value={status} onChange={e=>{setStatus(e.target.value);setPage(0);setDetail(null)}}>{statuses.map(r=><option key={r}>{r}</option>)}</select></label>
       <label>Relationship<select value={relationship} onChange={e=>{setRelationship(e.target.value);setPage(0);setDetail(null)}}>{relationships.map(r=><option key={r}>{r}</option>)}</select></label>
@@ -42,7 +43,7 @@ export default function AgencyResourcePoolDemo(){
         </button>
         {detail===r.id&&<section id={`resource-detail-${r.id}`} className="detail" aria-label="Fictional resource preview">
           <div><h2>{r.name} · {r.id}</h2><p><strong>Qualification:</strong> {r.expertise}</p><p><strong>Coverage:</strong> {r.coverage} ({r.region})</p><p><strong>Affiliation:</strong> {r.affiliation} · {r.relationship}</p><p><strong>Availability:</strong> {r.capacity}</p><p><strong>Indicative agency rate:</strong> {r.dayRate} · {r.terms}</p><p><strong>Commercial package:</strong> {r.commercialPackage}</p><p className="privacy">Synthetic preview only. Verification and inspector confirmation remain required; no live booking or contact actions.</p></div>
-          <button type="button" onClick={()=>setDetail(null)}>Close preview</button>
+          <button type="button" onClick={event=>{event.currentTarget.closest("article")?.querySelector<HTMLButtonElement>("button[aria-expanded]")?.focus();setDetail(null)}}>Close preview</button>
         </section>}
       </article>)}
     </section>
