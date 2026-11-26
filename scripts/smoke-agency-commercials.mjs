@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
+import { readFile } from "node:fs/promises";
+import { PDFDocument } from "pdf-lib";
 
 const port = 3108;
 const base = process.env.AGENCY_BASE_URL || "http://127.0.0.1:" + port;
@@ -62,11 +64,29 @@ try {
   const downloadButton=second.getByRole("button",{name:"Download fictional PDF SYN-MSA-2026-002"});
   const [pdf]=await Promise.all([page.waitForEvent("download",{timeout:12000}),downloadButton.click()]);
   if(pdf.suggestedFilename()!=="inspectsource-fictional-SYN-MSA-2026-002.pdf") throw new Error("Incorrect fictional contract PDF filename");
+  async function verifyFictionalPdf(download,id) {
+    if(download.suggestedFilename()!=="inspectsource-fictional-"+id+".pdf") throw new Error("Wrong contract filename: "+id);
+    const bytes=await readFile(await download.path());
+    if(bytes.subarray(0,5).toString()!=="%PDF-") throw new Error("Downloaded contract is not a PDF: "+id);
+    const doc=await PDFDocument.load(bytes);
+    if(doc.getPageCount()!==1 || doc.getTitle()!=="INSPECTSOURCE SYNTHETIC SAMPLE - "+id ||
+       doc.getSubject()!=="FICTIONAL / NOT SIGNED / NOT LEGALLY BINDING")
+      throw new Error("Contract PDF identity or fictional disclaimer is wrong: "+id);
+  }
+  await verifyFictionalPdf(pdf,"SYN-MSA-2026-002");
   await second.getByRole("status").waitFor();
   if(!(await second.getByRole("status").innerText()).includes("Fictional contract PDF generated")) throw new Error("Contract PDF success confirmation is missing");
   if(await first.getByRole("status").count()) throw new Error("PDF status leaked to first contract");
   await first.getByRole("button",{name:"Open contract details"}).click();
   if(await second.getByRole("status").count()) throw new Error("Stale contract download message survived another preview");
+  // Verify actual files for every agreement, not only one suggested filename.
+  for(const [index,id] of [[0,"SYN-MSA-2026-001"],[2,"SYN-MSA-2026-003"]]){
+    const card=cards.nth(index);
+    const [file]=await Promise.all([page.waitForEvent("download",{timeout:12000}),card.getByRole("button",{name:"Download fictional PDF "+id}).click()]);
+    await verifyFictionalPdf(file,id);
+    await card.getByRole("status").waitFor();
+    if(await page.locator(".agreementList [role=status]").count()!==1) throw new Error("Contract status leaked across cards");
+  }
   await page.setViewportSize({width:390,height:844});
   for(const btn of [first.getByRole("button",{name:"Close contract details"}),downloadButton]){
     const rect=await btn.boundingBox();
