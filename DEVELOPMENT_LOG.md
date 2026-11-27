@@ -56,6 +56,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - Calendar invalid-range selection: use the already-validated UTC date range for pressed states across Month, Week and List; no selection when inputs are blank or exceed 62 days. Real browser regression for invalid input and recovery, no availability write. See DEVELOPMENT_LOG_2026-11-26_CALENDAR_INVALID_SELECTION.md; mandatory hosted checks and preview required.
 - PR #446 reconciled onto #445; fresh checks required.
 
+- **PR #446** merged at `2979ba638accee9089a1ae6b75cba363fb6c6981` after both exact-head validation workflows and Vercel Preview READY. Production verification separate.
+- **PR #447** assignment action-filter result announcement reconciled onto #446; fresh hosted checks required. See `DEVELOPMENT_LOG_2026-11-27_ASSIGNMENT_ACTION_ANNOUNCEMENT.md`.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
