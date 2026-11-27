@@ -51,6 +51,11 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #444** merged at `5e5450ac16a9f2a58da84993fffd25daee58ec11` after both hosted checks and exact-head Preview READY; exact-main production READY verified; smoke separate. First-click hydration cause remains a hypothesis.
 - **PR #445**: corrected three TS2802 errors in the new regression harness by using Array.from instead of spreading MapIterator values under the repository ES5 target. Exact ES5 strict isolated typecheck and three deterministic tests passed locally. Reconciled on #444, full hosted revalidation mandatory.
 
+- **PR #445** merged at `cd9c405e922ffa107c8e304baa28c138c86a8aad` after exact-head mandatory checks and Preview READY; production verification separate.
+- **PR #444** merged at `5e5450ac16a9f2a58da84993fffd25daee58ec11` after both exact-head workflows and Preview READY; exact-main production READY and smoke run 45926063195 passed.
+- Calendar invalid-range selection: use the already-validated UTC date range for pressed states across Month, Week and List; no selection when inputs are blank or exceed 62 days. Real browser regression for invalid input and recovery, no availability write. See DEVELOPMENT_LOG_2026-11-26_CALENDAR_INVALID_SELECTION.md; mandatory hosted checks and preview required.
+- PR #446 reconciled onto #445; fresh checks required.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.

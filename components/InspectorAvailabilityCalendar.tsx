@@ -225,8 +225,8 @@ export default function InspectorAvailabilityCalendar({ onOpenAssignment }: { on
   const manualRangeDays = rangeDates.filter(date=>events.some(event=>event.date===date && event.manuallySet)).length;
   const protectedRangeDays = countProtectedDemoAvailabilityDays(events,rangeDates);
   // Visually select every day of a chosen range, without writing availability.
-  // ISO calendar dates sort chronologically, and reversed ranges select none.
-  const isDateSelected = (date: string) => start <= end && date >= start && date <= end;
+  // Only a validated range is selected: blank, reversed, impossible or oversized inputs select none.
+  const isDateSelected = (date: string) => rangeDates.includes(date);
   const [blockState, setBlockState] = useState<AvailabilityState>("Unavailable");
   const [notice, setNotice] = useState("");
   // Synthetic session state only: no OAuth, API credentials, external requests or storage.

@@ -696,6 +696,18 @@ try {
   await calendar.getByLabel("End date").fill("2026-11-28");
   assert(await calendar.getByRole("button", { name: "Choose 2026-11-29 for availability" }).getAttribute("aria-pressed") === "false",
     "Reversed range must never indicate selected dates");
+  await calendar.getByLabel("Start date").fill("");
+  assert(await calendar.locator(".dayPicker[aria-pressed=true]").count() === 0,
+    "Blank start date must not highlight calendar days");
+  await calendar.getByLabel("Start date").fill("2026-09-01");
+  await calendar.getByLabel("End date").fill("2026-11-30");
+  assert(await calendar.locator(".dayPicker[aria-pressed=true]").count() === 0,
+    "Oversized range must not highlight calendar days");
+  await calendar.getByLabel("Start date").fill("2026-11-28");
+  assert(await calendar.locator(".dayPicker[aria-pressed=true]").count() === 3,
+    "Correcting an invalid range restores selected dates");
+  assert((await calendar.getByRole("button", {name:"Choose 2026-11-29 for availability"}).locator("xpath=..").innerText()).includes("Not set"),
+    "Correcting date range must not write availability");
   const keyboardDate = calendar.getByRole("button", { name: "Choose 2026-11-21 for availability" });
   await keyboardDate.focus();
   await page.keyboard.press("Enter");
