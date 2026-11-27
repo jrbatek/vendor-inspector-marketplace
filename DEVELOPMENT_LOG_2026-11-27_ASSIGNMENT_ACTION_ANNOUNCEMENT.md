@@ -1,0 +1,3 @@
+# November 27, 2026 — Inspector assignment action-filter feedback
+
+Keep one persistent atomic status region mounted when filtering synthetic action rows; report actual visible/total counts and selected filter, retaining the existing empty explanation. This gives keyboard and screen-reader reviewers useful feedback without focus changes or duplicate live announcements. Source preflight passed; full hosted tests/typecheck/build/synthetic/migration/browser validation and exact-head Preview READY required before merge. Existing inspector smoke exercises both empty and populated filters; additional browser announcement checks may follow after #446 avoids overlapping smoke edits. No live data or auth changes.

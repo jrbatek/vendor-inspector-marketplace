@@ -127,7 +127,10 @@ export default function InspectorDemoAssignment({ project, inspector, onClose }:
       <button type="button" aria-pressed={actionFilter === "overdue"} onClick={() => setActionFilter("overdue")}>Overdue ({overdueCount})</button>
       <button type="button" aria-pressed={actionFilter === "upcoming"} onClick={() => setActionFilter("upcoming")}>Upcoming ({upcomingCount})</button>
     </div>
-    {filteredActions.length === 0 && <p className="actionEmpty" role="status">No {actionFilter === "overdue" ? "overdue" : "upcoming"} actions in this fictional assignment as of November 17, 2026.</p>}
+    <p className={filteredActions.length === 0 ? "actionEmpty" : "demoAsOf"} role="status" aria-atomic="true">
+      {filteredActions.length === 0 ? <>No {actionFilter === "overdue" ? "overdue" : "upcoming"} actions in this fictional assignment as of November 17, 2026.</> :
+        <>Showing {filteredActions.length} of {workflow.nextActions.length} fictional outstanding actions · {actionFilter === "all" ? "All actions" : actionFilter === "overdue" ? "Overdue" : "Upcoming"}.</>}
+    </p>
     <ul className="nextActions" aria-label="Synthetic assignment outstanding action register">
       {filteredActions.map(item => {
         // Keep disposition and lateness distinct: awaiting evidence after its due date is overdue.
