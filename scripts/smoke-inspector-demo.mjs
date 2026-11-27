@@ -131,6 +131,35 @@ try {
   const ratingsBox=await inlineInsights.getByRole("heading",{name:"Ratings & feedback"}).boundingBox();
   const compareBox=await inlineInsights.getByRole("heading",{name:"Compare relevant peer groups"}).boundingBox();
   assert(ratingsBox&&compareBox&&ratingsBox.y<compareBox.y,"Client ratings must appear above peer comparisons");
+  // Exercise every fictional cohort, including the suppressed small cohort, in the embedded dashboard.
+  for (const [region, geography] of ["US Gulf Coast","UK North Sea"].entries()) {
+    await inlineInsights.getByLabel("Geography").selectOption(geography);
+    for (const [discipline, expertise] of ["Pressure equipment","Welding"].entries()) {
+      await inlineInsights.getByLabel("Expertise").selectOption(expertise);
+      for (const [activity, inspectionType] of ["Vendor surveillance","NDT review"].entries()) {
+        await inlineInsights.getByLabel("Inspection type").selectOption(inspectionType);
+        const status = inlineInsights.getByRole("status");
+        if (region === 1 && discipline === 1 && activity === 1) {
+          assert((await status.innerText()).includes("at least 10 peers"),"Small fictional cohort must be suppressed");
+          assert(await inlineInsights.getByRole("heading",{name:"Day-rate percentile"}).count()===0,"Suppressed cohort must not show rate metrics");
+          assert(await inlineInsights.locator(".metrics").count()===0,"Suppressed cohort must not show comparison metrics");
+        } else {
+          const size=24+region*4+discipline*6+activity*2;
+          const percentile=58+region*5+discipline*3+activity;
+          const expectedLabels={58:"58th",59:"59th",61:"61st",62:"62nd",63:"63rd",64:"64th",66:"66th"};
+          assert((await status.innerText()).includes(size+" synthetic peers"),"Wrong fictional cohort count");
+          assert((await inlineInsights.locator(".rate strong").innerText())===expectedLabels[percentile]+" percentile","Wrong fictional percentile label");
+          assert(await inlineInsights.locator(".metrics article").count()===6,"All six aggregate comparison metrics must be present");
+        }
+      }
+    }
+  }
+  await inlineInsights.getByRole("button",{name:"Reset comparison"}).click();
+  assert(await inlineInsights.getByLabel("Geography").inputValue()==="US Gulf Coast","Reset geography failed");
+  assert(await inlineInsights.getByLabel("Expertise").inputValue()==="Pressure equipment","Reset expertise failed");
+  assert(await inlineInsights.getByLabel("Inspection type").inputValue()==="Vendor surveillance","Reset inspection type failed");
+  assert(await inlineInsights.getByLabel("Geography").evaluate(el=>document.activeElement===el),"Reset comparison must restore focus to Geography");
+  assert((await inlineInsights.getByRole("status").innerText()).includes("24 synthetic peers"),"Reset must restore the full default comparison");
   await page.evaluate(() => window.history.back());
   await page.getByRole("heading", { name: "Inspection background" }).waitFor();
   await navigation.getByRole("button", { name: "Active Assignments" }).click();

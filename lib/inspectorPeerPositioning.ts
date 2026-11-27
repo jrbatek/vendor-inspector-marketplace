@@ -33,3 +33,11 @@ export function peerPositioning(filters: PeerFilters) {
   return summarizePeerCohort(DEMO_PEER_COHORTS.find(cohort => cohort.geography === filters.geography
     && cohort.expertise === filters.expertise && cohort.inspectionType === filters.inspectionType));
 }
+
+/** Format synthetic percentile labels without incorrect 61th/62th/63th suffixes. */
+export function formatPeerPercentile(value: number): string {
+  const lastTwo = value % 100;
+  const last = value % 10;
+  const suffix = lastTwo >= 11 && lastTwo <= 13 ? "th" : last === 1 ? "st" : last === 2 ? "nd" : last === 3 ? "rd" : "th";
+  return `${value}${suffix} percentile`;
+}
