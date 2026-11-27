@@ -48,6 +48,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #440 — Agency contract PDF verification** merged at `48b029569e4faecfe63fcdf28975c76c4052f20f` after both exact-head workflows and Preview READY; production verification separate.
 - **PR #444** reconciled onto #440. P0 preview hydration: both prior workflows failed at tests/clientNaturalLanguageInlinePreviewNov13.test.ts because the older literal markup assertion omitted the new disabled guard. Corrected the assertion to require both handler and guard; single-click browser checks unchanged. Fresh hosted checks required; original first-click cause unproven. Dated note: DEVELOPMENT_LOG_2026-11-26_CLIENT_PREVIEW_HYDRATION.md.
 
+- **PR #444** merged at `5e5450ac16a9f2a58da84993fffd25daee58ec11` after both hosted checks and exact-head Preview READY; exact-main production READY verified; smoke separate. First-click hydration cause remains a hypothesis.
+- **PR #445**: corrected three TS2802 errors in the new regression harness by using Array.from instead of spreading MapIterator values under the repository ES5 target. Exact ES5 strict isolated typecheck and three deterministic tests passed locally. Reconciled on #444, full hosted revalidation mandatory.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
