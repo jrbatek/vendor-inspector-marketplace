@@ -59,6 +59,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #446** merged at `2979ba638accee9089a1ae6b75cba363fb6c6981` after both exact-head validation workflows and Vercel Preview READY. Production verification separate.
 - **PR #447** assignment action-filter result announcement reconciled onto #446; fresh hosted checks required. See `DEVELOPMENT_LOG_2026-11-27_ASSIGNMENT_ACTION_ANNOUNCEMENT.md`.
 
+- **PR #447** merged at `9c1d1084bcee26c4f4d3f84cba0894d066af3f30` after mandatory checks and exact-head Preview READY; production verification separate.
+- Qualification recommendation stale feedback correction: see DEVELOPMENT_LOG_2026-11-27_QUALIFICATION_RECOMMENDATION_FEEDBACK.md. Hosted validation required.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
