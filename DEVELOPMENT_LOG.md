@@ -45,6 +45,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #440 — Verify actual PDFs for all three fictional Agency contracts**: see `DEVELOPMENT_LOG_2026-11-25_AGENCY_CONTRACT_PDF_BROWSER.md`; reconciled onto #438 for fresh exact-head checks.
 - PR #440 reconciled onto #439 for fresh checks.
 
+- **PR #440 — Agency contract PDF verification** merged at `48b029569e4faecfe63fcdf28975c76c4052f20f` after both exact-head workflows and Preview READY; production verification separate.
+- **PR #444** reconciled onto #440. P0 preview hydration: both prior workflows failed at tests/clientNaturalLanguageInlinePreviewNov13.test.ts because the older literal markup assertion omitted the new disabled guard. Corrected the assertion to require both handler and guard; single-click browser checks unchanged. Fresh hosted checks required; original first-click cause unproven. Dated note: DEVELOPMENT_LOG_2026-11-26_CLIENT_PREVIEW_HYDRATION.md.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.

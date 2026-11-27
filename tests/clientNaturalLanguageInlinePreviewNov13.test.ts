@@ -11,7 +11,7 @@ test("Client natural-language scope has a browser-local inline preview with expl
  assert.match(source,/Enter at least 20 characters/);
  assert.match(source,/setNaturalPreview\(getDemoCandidates\(requestText\)\)/);
  assert.match(source,/Array\.isArray\(naturalPreview\) && <ClientDemoCandidateResults candidates=\{naturalPreview\}/);
- assert.match(source,/onClick=\{previewNaturalRequest\}>Preview request \(demo\)/);
+ assert.match(source,/onClick=\{previewNaturalRequest\} disabled=\{!hydrated\}>Preview request \(demo\)/);
  assert.match(source,/role="status" aria-live="polite">\{naturalPreview\}/);
  assert.doesNotMatch(source,/\.insert\(|supabase|fetch\(/i);
 });

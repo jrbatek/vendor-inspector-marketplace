@@ -66,7 +66,10 @@ try{
  assert(await page.locator("#demo-shortlist").count()===0,"Candidate results appeared before a request preview");
  await previewButton.click();
  const resultsHeading=shortlist.getByRole("heading",{name:"Candidate CVs"});
- await resultsHeading.waitFor({state:"visible"});
+ await resultsHeading.waitFor({state:"visible"}).catch(async error=>{
+   const state=await natural.evaluate(el=>({text:el.querySelector("textarea")?.value, preview:el.querySelector(".naturalPreview")?.textContent, disabled:el.querySelector("button.actionable")?.disabled, heading:el.querySelector("#demo-shortlist h3")?.textContent}));
+   throw new Error("First Client preview did not render candidate CVs: "+JSON.stringify(state)+"; "+String(error));
+ });
  await page.waitForFunction(()=>{
    const heading=document.querySelector("#demo-shortlist h2, #demo-shortlist h3");
    if(!heading)return false;
