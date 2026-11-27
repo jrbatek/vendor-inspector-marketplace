@@ -80,3 +80,10 @@ test("keyboard and history navigation cancel pending Back to top settle before i
   assert.match(smoke, /new KeyboardEvent\("keydown", \{ key: "Tab"/);
   assert.match(smoke, /Demo Back to top " \+ kind \+ " navigation unexpectedly snapped back/);
 });
+
+test("new user intent and cleanup also cancel the late two-frame correction", () => {
+  assert.match(component, /const cancelReturn = \(\) => \{[\s\S]*?correction\.current\?\.cancel\(\);\s*if \(!returningToTop\.current\) return/);
+  assert.match(component, /return \(\) => \{\s*window\.cancelAnimationFrame\(frame\);\s*correction\.current\?\.cancel\(\)/);
+  assert.match(component, /const backToTop = \(\) => \{\s*correction\.current\?\.cancel\(\)/);
+  assert.match(component, /correction\.current\?\.schedule\(\(\) => \{\s*window\.scrollTo\(\{ top: 0, left: 0, behavior: "instant" \}\)/);
+});

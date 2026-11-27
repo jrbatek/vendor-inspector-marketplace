@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createDemoBackToTopCorrection } from "@/lib/demoBackToTopCorrection";
 
 const SCROLL_THRESHOLD = 500;
 
@@ -11,6 +12,13 @@ export default function DemoBackToTop() {
   // control can trigger browser scroll anchoring and stop smooth keyboard scroll.
   const returningToTop = useRef(false);
   const settleTimer = useRef<number | null>(null);
+  const correction = useRef<ReturnType<typeof createDemoBackToTopCorrection> | null>(null);
+  if (correction.current === null) {
+    correction.current = createDemoBackToTopCorrection(
+      callback => window.requestAnimationFrame(callback),
+      id => window.cancelAnimationFrame(id),
+    );
+  }
 
   useEffect(() => {
     let frame = 0;
@@ -24,6 +32,9 @@ export default function DemoBackToTop() {
     // A real user wheel/touch/pointer/scroll key interrupts the smooth return.
     // Never snap them back to the top 900ms after they resume reading.
     const cancelReturn = () => {
+      // Even after the settle timer completes, a two-frame correction may
+      // still be queued. A newer navigation must invalidate it as well.
+      correction.current?.cancel();
       if (!returningToTop.current) return;
       if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
       settleTimer.current = null;
@@ -48,7 +59,10 @@ export default function DemoBackToTop() {
     window.addEventListener("popstate", cancelReturn);
     return () => {
       window.cancelAnimationFrame(frame);
+      correction.current?.cancel();
       if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+      returningToTop.current = false;
       window.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
       window.removeEventListener("wheel", cancelReturn);
@@ -61,6 +75,7 @@ export default function DemoBackToTop() {
   }, []);
 
   const backToTop = () => {
+    correction.current?.cancel();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     returningToTop.current = true;
     setVisible(true);
@@ -74,9 +89,9 @@ export default function DemoBackToTop() {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       returningToTop.current = false;
       setVisible(false);
-      window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      correction.current?.schedule(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      }));
+      });
       settleTimer.current = null;
     }, reducedMotion ? 100 : 900);
   };
