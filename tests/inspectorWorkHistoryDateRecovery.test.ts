@@ -17,12 +17,14 @@ test("invalid Inspector Work History dates are distinct from genuine empty filte
 test("Work History date recovery is usable, visible and non-destructive across both views", () => {
   const source = fs.readFileSync("app/demo/inspector-work-history/page.tsx", "utf8");
   const browser = fs.readFileSync("scripts/smoke-inspector-demo.mjs", "utf8");
-  assert.match(source, /const clearInvalidDates = \(\) => \{ setFilters\(current => \(\{ \.\.\.current, from: "", to: "" \}\)\); setOpen\(null\); \};/);
+  assert.match(source, /const clearInvalidDates = \(\) => \{ setFilters\(current => \(\{ \.\.\.current, from: "", to: "" \}\)\); setOpen\(null\); filterCard\.current\?\.querySelector<HTMLElement>\('\[data-history-filter="from"\]'\)\?\.focus\(\); \};/);
   assert.match(source, /invalidDateNotice" role="alert"/);
   assert.match(source, /invalidDates \? "Invalid completion date range" : "No matching work history"/);
   assert.match(source, /invalidDates \? "Invalid completion date range — correct or clear the dates/);
   assert.match(source, /onClick=\{clearInvalidDates\}>Clear invalid date range/);
   assert.match(source, /\.invalidDateNotice button:focus-visible|button:focus-visible/);
-  assert.match(browser, /getByRole\("button", \{ name: "Clear invalid date range" \}\)\.click\(\)/);
+  assert.match(browser, /const clearHistoryDates=workFilters\.getByRole\("button", \{ name: "Clear invalid date range" \}\);/);
+  assert.match(browser, /await clearHistoryDates\.press\("Enter"\)/);
+  assert.match(browser, /Invalid date recovery must restore focus before the button disappears/);
   assert.match(browser, /Recovery must preserve independently selected client/);
 });

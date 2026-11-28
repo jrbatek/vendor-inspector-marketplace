@@ -62,8 +62,11 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #447** merged at `9c1d1084bcee26c4f4d3f84cba0894d066af3f30` after exact-head mandatory checks and Preview READY; production verification separate.
 - **PR #448** Selection Insights: ordinal labels, reset focus and all eight fictional cohort tests. Previous Validate application failed in unrelated global control audit at mobile /demo/client-operations scroll-to-top wait, line 598. Reconciled on #447; mandatory fresh checks required. See DEVELOPMENT_LOG_2026-11-27_INSIGHTS_COHORT_COVERAGE.md.
 
-- **PR #448** merged at `385f38d89dfb9ef10bdbec430524ab460784669c` after both mandatory exact-head workflows and Preview READY; exact-main production READY confirmed. Independent public Client and Inspector demo content retrieved; seven inspections and ten history records remain present.
-- Work History reset and invalid date recovery now restore keyboard focus to stable inputs; real browser checks exercise both via Enter. See DEVELOPMENT_LOG_2026-11-27_WORK_HISTORY_RECOVERY_FOCUS.md. Hosted validation required.
+- **PR #448** merged at `385f38d89dfb9ef10bdbec430524ab460784669c` after exact-head Validate application and Autonomous QA SUCCESS, Vercel Preview READY; production verification separate.
+- **PR #449** qualification recommendation stale feedback correction reconciled on #448; fresh checks required. See DEVELOPMENT_LOG_2026-11-27_QUALIFICATION_RECOMMENDATION_FEEDBACK.md.
+
+- **PR #449** merged as `cd43070e024745882e8b0eef99f2b751c4529dd3` after exact-head mandatory workflows and Preview READY; production verification separate.
+- **PR #450** both CI workflows failed on the obsolete literal source assertion in tests/inspectorWorkHistoryDateRecovery.test.ts. Updated the assertion to require the focus-restoring handler and keyboard Enter/browser focus check, preserving all date recovery and independent filter assertions. Reconciled onto #449; fresh full CI/Preview required. See DEVELOPMENT_LOG_2026-11-27_WORK_HISTORY_RECOVERY_FOCUS.md.
 
 ## Outstanding priority / safety boundaries
 
