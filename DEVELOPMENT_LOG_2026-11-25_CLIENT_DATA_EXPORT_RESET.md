@@ -1,0 +1,3 @@
+# November 25, 2026 — Client Data & Integrations export reliability
+
+Demo-only: return focus to the persistent export-status selector before reset disables, delay Blob URL revocation until the browser can consume the download, and clarify that both formats export the filtered preview. Extend existing desktop/mobile Chromium smoke to inspect actual filtered CSV bytes and keyboard reset; preserve JSON verification. No live API, auth, database, credentials or financial changes. Local checkout still fails DNS; authorized hosted mandatory checks and exact-head Vercel Preview READY before merge, exact-main production READY and smoke afterward.
