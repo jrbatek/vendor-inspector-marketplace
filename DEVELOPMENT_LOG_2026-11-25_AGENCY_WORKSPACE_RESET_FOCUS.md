@@ -1,0 +1,3 @@
+# November 25, 2026 — Agency workspace reset focus
+
+The continuous fictional Agency Workspace restores focus to the resource search and NCR status selector when their reset buttons disable, and to the native CSV upload input when the clear-preview button disappears. Chromium regression exercises keyboard Enter, restored resource/report counts and a fictional browser-local roster. Preserve async CSV race guards, all existing controls, sidebar and zero production writes. No live API, matching, privacy/auth, finance or database changes. Local DNS unavailable; hosted validation fallback requires both exact-head workflows and Vercel Preview READY, then sequential merge, production READY and smoke.
