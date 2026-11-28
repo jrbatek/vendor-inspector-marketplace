@@ -24,7 +24,7 @@ async function ready(){
 try{
  if(server)await ready();
  browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
- const page=await browser.newPage({acceptDownloads:true});
+ let page=await browser.newPage({acceptDownloads:true});
  const exceptions=[];page.on("pageerror",error=>exceptions.push(error.stack||String(error)));
  const response=await page.goto(base+"/demo/inspector-income",{waitUntil:"networkidle"});
  assert(response?.ok(),"Income Demo is not available");
@@ -34,8 +34,17 @@ try{
    nodes.filter(node=>node.getClientRects().length&&node.getBoundingClientRect().height<44)
      .map(node=>(node.textContent||node.getAttribute("aria-label")||"").trim().slice(0,75)));
  assert(initialTargets.length===0,"Income and Tax buttons, download links or year selector below 44px: "+initialTargets.join(", "));
- const yearSelector=page.getByRole("combobox",{name:"Tax and earnings year"});
  for(const [year,count] of [["2026",4],["2025",3],["2024",2]]){
+   // Chromium throttles repeated anchor downloads after ten per document in rapid succession.
+   // Each year is an independent public reviewer session; retain every actual file-byte assertion.
+   if(year!=="2026"){
+     await page.close();
+     page=await browser.newPage({acceptDownloads:true});
+     page.on("pageerror",error=>exceptions.push(error.stack||String(error)));
+     const yearlyResponse=await page.goto(base+"/demo/inspector-income",{waitUntil:"networkidle"});
+     assert(yearlyResponse?.ok(),"Income Demo unavailable for "+year);
+   }
+   const yearSelector=page.getByRole("combobox",{name:"Tax and earnings year"});
    await yearSelector.selectOption(year);
    const yearContext=page.getByRole("heading",{name:"Income & Tax Center"}).locator("xpath=..");
    if(year==="2026"){
@@ -59,6 +68,21 @@ try{
    assert(csvRows.length===count+1,"Wrong selected-year CSV record count for "+year);
    assert(csvRows[0]==='"Dataset","Year","Statement ID","Client","Project","Engagement type","Gross USD","Paid date","Data through"',"Unexpected earnings CSV header");
    assert(csvRows.slice(1).every(row=>row.startsWith('"SYNTHETIC DEMO - NOT VERIFIED","'+year+'",')&&row.endsWith('"2026-11-01T23:59:59-06:00"')),"CSV must contain only selected-year fictional rows with the exact snapshot cutoff");
+   // Every exported text document must remain explicitly fictional and identify its selected year and fixed data snapshot.
+   const textLinks=page.locator('.incomePage a[download$=".txt"]');
+   assert(await textLinks.count()===count+2+(year==="2026"?0:2),"Wrong number of selected-year fictional text documents");
+   for(let i=0;i<await textLinks.count();i++){
+     const link=textLinks.nth(i);
+     const expectedFile=await link.getAttribute("download");
+     console.log("Verifying fictional text download:",year,expectedFile);
+     const [textDownload]=await Promise.all([page.waitForEvent("download",{timeout:20000}),link.click()]);
+     assert(textDownload.suggestedFilename()===expectedFile,"Wrong text sample filename");
+     const sample=fs.readFileSync(await textDownload.path(),"utf8");
+     assert(sample.startsWith("INSPECTSOURCE - FICTIONAL DEMO SAMPLE\n"),"Text document must identify fictional provenance");
+     assert(sample.split("\n").includes("Year: "+year),"Wrong year in text sample");
+     assert(sample.split("\n").includes("Synthetic data through: 2026-11-01T23:59:59-06:00"),"Missing exact fixed snapshot in text sample");
+     assert(sample.includes("NOT TAX, CREDIT, PAYROLL, BANK OR EMPLOYMENT EVIDENCE."),"Fictional evidence disclaimer missing");
+   }
    const pending=page.waitForEvent("download",{timeout:20000});
    await page.getByRole("button",{name:"Download synthetic income report PDF"}).click();
    const download=await pending;
