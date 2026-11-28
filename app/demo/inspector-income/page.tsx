@@ -20,7 +20,7 @@ const ACTIVITIES:Activity[]=[
 ];
 function money(n:number){return "USD "+n.toLocaleString("en-US");}
 function sampleDocument(title:string,year:Year,lines:string[]){
- const content=["INSPECTSOURCE - FICTIONAL DEMO SAMPLE",title,"Year: "+year,"",...lines,"",
+ const content=["INSPECTSOURCE - FICTIONAL DEMO SAMPLE",title,"Year: "+year,"Synthetic data through: "+DATA_THROUGH,"",...lines,"",
   "SIMULATED DATA ONLY. NOT TAX, CREDIT, PAYROLL, BANK OR EMPLOYMENT EVIDENCE.",
   "No independent verification, filing, account update or real payment has occurred."].join("\n");
  return "data:text/plain;charset=utf-8,"+encodeURIComponent(content);
