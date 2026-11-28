@@ -319,6 +319,17 @@ try {
   await page.waitForFunction(()=>document.querySelector('nav[aria-label="Inspector Workspace navigation"] [aria-current="page"]')?.textContent==="Income & Tax Center");
   await dialog.getByRole("button", { name: "Decline" }).click();
   assert(await page.locator("#opportunities").getByRole("status").filter({ hasText: "Opportunity declined" }).count() === 1, "Declined feedback missing in Opportunities");
+  // Profile shortcuts are navigation too: a manually scrolled reviewer must not carry a stale action notice.
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await page.getByRole("button",{name:"Review opportunities",exact:true}).click();
+  assert(await page.locator("#opportunities").getByRole("status").filter({hasText:"Opportunity declined"}).count()===0,"Profile Review opportunities shortcut retained stale decline feedback");
+  await firstOpportunity.getByRole("button",{name:"Preview Opportunity"}).click();
+  await dialog.getByRole("button",{name:"Request more information"}).click();
+  assert(await page.locator("#opportunities").getByRole("status").filter({hasText:"More information requested"}).count()===1,"Information-request feedback missing in Opportunities");
+  assert(await page.locator("#opportunities .notice").count()===1,"More information must replace, not append to, earlier action notices");
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await page.getByRole("button",{name:"Open Selection Insights",exact:true}).click();
+  assert(await page.getByText(/More information requested/).count()===0,"Profile Selection Insights shortcut retained stale opportunity feedback");
   await navigation.getByRole("button", { name: "Availability & Calendar" }).click();
   assert(await page.getByText("Opportunity declined").count() === 0, "Opportunity feedback leaked across InspectorHub sections");
   const cal = page.getByRole("region", { name: "Inspector availability calendar" });

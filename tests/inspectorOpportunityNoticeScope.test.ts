@@ -18,3 +18,12 @@ test("each preview and sidebar change resets stale notice without an obsolete re
  assert.match(page,/Opportunity declined/);
  assert.doesNotMatch(page,/supabaseBrowser|\.insert\(|\.update\(|fetch\(/);
 });
+
+
+test("profile shortcuts clear opportunity feedback like sidebar navigation",()=>{
+ assert.ok(page.includes('setNotice("");setNoticeSection(null);setSection("opportunities");window.history.pushState(null,"","#opportunities");jumpTo("opportunities")'));
+ assert.ok(page.includes('setNotice("");setNoticeSection(null);setSection("insights");window.history.pushState(null,"","#insights");jumpTo("insights")'));
+ const browser=fs.readFileSync("scripts/smoke-inspector-demo.mjs","utf8");
+ assert.match(browser,/Profile Review opportunities shortcut retained stale decline feedback/);
+ assert.match(browser,/Profile Selection Insights shortcut retained stale opportunity feedback/);
+});
