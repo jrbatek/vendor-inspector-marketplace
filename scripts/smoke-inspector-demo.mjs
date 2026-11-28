@@ -910,7 +910,10 @@ try {
   assert((await page.locator(".resultCount").innerText()).includes("1 of 10"),"Report view must retain keyword filter");
   await historySearch.fill("ir-260914");
   assert((await page.locator(".resultCount").innerText()).includes("1 of 10"),"Case-insensitive report ID keyword should find one submitted report");
-  await page.getByRole("button",{name:"Reset filters"}).click();
+  const historyReset=page.getByRole("region",{name:"Work History filters"}).getByRole("button",{name:"Reset filters"});
+  await historyReset.focus();
+  await historyReset.press("Enter");
+  assert(await historySearch.evaluate(el=>document.activeElement===el),"Work History reset must restore focus to search");
   assert(await historySearch.inputValue()==="","Reset must clear Work History keyword");
   assert((await page.locator(".resultCount").innerText()).includes("10 of 10"),"Reset must restore all fictional reports");
   // Invalid Work History dates must not masquerade as a genuine empty result.
@@ -929,7 +932,10 @@ try {
   }
   assert(!(await page.locator(".resultCount").innerText()).includes("Showing 0 of 10"),
     "Invalid range should not be presented as a genuine no-match result");
-  await workFilters.getByRole("button", { name: "Clear invalid date range" }).click();
+  const clearHistoryDates=workFilters.getByRole("button", { name: "Clear invalid date range" });
+  await clearHistoryDates.focus();
+  await clearHistoryDates.press("Enter");
+  assert(await workFilters.getByLabel("Completed from",{exact:true}).evaluate(el=>document.activeElement===el),"Invalid date recovery must restore focus before the button disappears");
   assert(await workFilters.getByLabel("Completed from",{exact:true}).inputValue() === "" &&
     await workFilters.getByLabel("Completed through",{exact:true}).inputValue() === "",
     "Recovery must clear only the two invalid dates");

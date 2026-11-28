@@ -62,6 +62,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #447** merged at `9c1d1084bcee26c4f4d3f84cba0894d066af3f30` after exact-head mandatory checks and Preview READY; production verification separate.
 - **PR #448** Selection Insights: ordinal labels, reset focus and all eight fictional cohort tests. Previous Validate application failed in unrelated global control audit at mobile /demo/client-operations scroll-to-top wait, line 598. Reconciled on #447; mandatory fresh checks required. See DEVELOPMENT_LOG_2026-11-27_INSIGHTS_COHORT_COVERAGE.md.
 
+- **PR #448** merged at `385f38d89dfb9ef10bdbec430524ab460784669c` after both mandatory exact-head workflows and Preview READY; exact-main production READY confirmed. Independent public Client and Inspector demo content retrieved; seven inspections and ten history records remain present.
+- Work History reset and invalid date recovery now restore keyboard focus to stable inputs; real browser checks exercise both via Enter. See DEVELOPMENT_LOG_2026-11-27_WORK_HISTORY_RECOVERY_FOCUS.md. Hosted validation required.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.
