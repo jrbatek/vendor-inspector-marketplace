@@ -40,13 +40,18 @@ export default function ClientAnalyticsDemo(){
   <section className="quickSources" role="group" aria-label="Quick source type filters">
     <strong>Source Type</strong>
     {([{value:ALL,label:"All sources"},{value:"Agency",label:"Agency"},{value:"Independent",label:"Independent"}] as const).map(option=>
-      <button key={option.value} type="button" disabled={!hydrated} aria-pressed={sourceType===option.value}
+      <button key={option.value} type="button" data-analytics-source={option.value} disabled={!hydrated} aria-pressed={sourceType===option.value}
         onClick={()=>setSourceType(option.value)}>{option.label}</button>)}
     <span role="status">Source: {sourceType}. {filtered.length} synthetic inspections match current filters.</span>
   </section>
   {activeFilters.length>0 && <section className="activeFilterBar" aria-label="Active analytics filters">
     <strong>Active filters</strong>
-    {activeFilters.map(item=><button key={item.key} type="button" onClick={item.clear} aria-label={`Clear ${item.key} filter: ${item.value}`}>{item.key}: {item.value} <span aria-hidden="true">×</span></button>)}
+    {activeFilters.map(item=><button key={item.key} type="button" onClick={event=>{
+      const panel=event.currentTarget.closest(".clientAnalyticsPage");
+      const control=item.key==="Source Type"?panel?.querySelector<HTMLButtonElement>('button[data-analytics-source="All"]'):Array.from(panel?.querySelectorAll<HTMLSelectElement>("select[data-analytics-filter]")??[]).find(select=>select.dataset.analyticsFilter===item.key);
+      control?.focus();
+      item.clear();
+    }} aria-label={`Clear ${item.key} filter: ${item.value}`}>{item.key}: {item.value} <span aria-hidden="true">×</span></button>)}
     <span>{filtered.length} synthetic inspections shown</span>
   </section>}
   <section className="filters" aria-label="Analytics slicers" aria-busy={!hydrated}>
@@ -76,7 +81,7 @@ export default function ClientAnalyticsDemo(){
 @media(max-width:680px){.clientAnalyticsPage .barRow{grid-template-columns:minmax(80px,110px) 1fr auto}}
 `}</style></Root>
 }
-function Filter({label,value,values,setValue,disabled=false}:{label:string;value:string;values:string[];setValue:(v:string)=>void;disabled?:boolean}){return <label className="filter">{label}<select value={value} disabled={disabled} onChange={e=>setValue(e.target.value)}>{values.map(v=><option key={v}>{v}</option>)}</select></label>}
+function Filter({label,value,values,setValue,disabled=false}:{label:string;value:string;values:string[];setValue:(v:string)=>void;disabled?:boolean}){return <label className="filter">{label}<select data-analytics-filter={label} value={value} disabled={disabled} onChange={e=>setValue(e.target.value)}>{values.map(v=><option key={v}>{v}</option>)}</select></label>}
 function Kpi({label,value}:{label:string;value:string}){return <article className="kpi"><strong>{value}</strong><span>{label}</span></article>}
 function Panel({title,subtitle,children}:{title:string;subtitle:string;children:React.ReactNode}){return <article className="panel"><h2>{title}</h2><p>{subtitle}</p>{children}</article>}
 function Bars({rows,onSelect,selected,moneyValues=false,enabled=true}:{rows:{name:string;value:number}[];onSelect?:(v:string)=>void;selected?:string;moneyValues?:boolean;enabled?:boolean}){if(!rows.length)return <p>No records in this selection.</p>;const max=Math.max(...rows.map(r=>r.value),1);return <div className="bars">{rows.slice(0,10).map(r=>{const c=<><span>{r.name}</span><span className="track"><span className="fill" style={{width:`${r.value/max*100}%`}}/></span><strong>{moneyValues?money(r.value):r.value}</strong></>;return onSelect?<button type="button" className="barRow clickable" key={r.name} disabled={!enabled} aria-pressed={selected===r.name} onClick={()=>onSelect(selected===r.name?ALL:r.name)}>{c}</button>:<div className="barRow" key={r.name}>{c}</div>})}</div>}

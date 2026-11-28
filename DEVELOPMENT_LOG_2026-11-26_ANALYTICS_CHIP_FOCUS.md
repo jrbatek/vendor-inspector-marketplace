@@ -1,0 +1,3 @@
+# November 26, 2026 — Client Analytics chip focus
+
+Removing any of ten synthetic Analytics filters now restores focus to the corresponding persistent selector (All sources for Source Type), scoped to its own Analytics panel. Real browser coverage checks all nine native selectors and Source Type, retention of an unrelated Status filter, 320/390px mobile status removal and unchanged 60-record count. No live data, authorization, matching, schema or production write changes. The intermittent #154 exception remains open; this is an independent usability improvement. Local GitHub DNS still unavailable; require mandatory hosted tests, synthetic/migration checks, typecheck, build, exact-head Preview READY and exact-main production READY/smoke before release.

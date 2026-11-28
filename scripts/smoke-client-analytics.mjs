@@ -108,6 +108,31 @@ try {
     "Active Agency source must expose a legible removable filter chip");
   await chips.getByRole("button", {name:"Clear Source Type filter: Agency"}).click();
   await assertCohort(page,"All",60);
+  assert(await source.getByRole("button",{name:"All sources"}).evaluate(el=>document.activeElement===el), "Clearing Source Type must restore focus to the All sources control");
+  // Each of the nine native filter chips must restore keyboard focus to the
+  // corresponding persistent select, rather than losing focus to the body.
+  const nativeLabels=["Status","Agency","Project","Project Type","Country","Commodity","Timing","Non-conformance","NCR Type"];
+  for(const label of nativeLabels){
+    const select=page.getByRole("combobox",{name:label,exact:true});
+    await select.selectOption({index:1});
+    const selected=await select.inputValue();
+    const chip=chips.getByRole("button",{name:`Clear ${label} filter: ${selected}`,exact:true});
+    await chip.focus();
+    await chip.press("Enter");
+    assert(await select.evaluate(el=>document.activeElement===el),`Clearing ${label} must restore focus to its select`);
+    assert(await select.inputValue()==="All",`Clearing ${label} must reset its value`);
+    await assertCohort(page,"All",60);
+  }
+  const retainedStatus=page.getByRole("combobox",{name:"Status",exact:true});
+  await retainedStatus.selectOption("Completed");
+  await source.getByRole("button",{name:"Agency",exact:true}).click();
+  const agencyChip=chips.getByRole("button",{name:"Clear Source Type filter: Agency"});
+  await agencyChip.focus();
+  await agencyChip.press("Enter");
+  assert(await retainedStatus.inputValue()==="Completed","Removing Source Type must preserve an unrelated Status selection");
+  assert(await source.getByRole("button",{name:"All sources"}).evaluate(el=>document.activeElement===el),"Keyboard source chip removal must restore focus");
+  await page.getByRole("button",{name:"Reset filters"}).click();
+  await assertCohort(page,"All",60);
   // Independent filters must survive removing just the Source Type chip.
   await page.getByRole("group",{name:"Quick source type filters"}).getByRole("button",{name:"Agency"}).click();
   await assertCohort(page,"Agency",45);
@@ -320,6 +345,13 @@ try {
       await mobileSource.getByRole("button",{name:"Agency",exact:true}).click();
       await assertCohort(freshMobile,"Agency",45);
       await mobileSource.getByRole("button",{name:"All sources",exact:true}).click();
+      await assertCohort(freshMobile,"All",60);
+      const mobileStatus=freshMobile.getByRole("combobox",{name:"Status",exact:true});
+      await mobileStatus.selectOption("Completed");
+      const mobileChip=freshMobile.getByRole("button",{name:"Clear Status filter: Completed"});
+      await mobileChip.focus();
+      await mobileChip.press("Enter");
+      assert(await mobileStatus.evaluate(el=>document.activeElement===el),width+"px status chip must restore focus");
       await assertCohort(freshMobile,"All",60);
     }
   } finally {
