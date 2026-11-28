@@ -10,7 +10,10 @@ test("active Client Analytics slicers are removable individually, without resett
   for(const key of keys) assert.ok(src.includes(`key:"${key}"`), `Missing chip key: ${key}`);
   assert.match(src,/\.filter\(item=>item.value!==ALL\)/);
   assert.match(src,/aria-label="Active analytics filters"/);
-  assert.match(src,/onClick=\{item.clear\}/);
+  assert.match(src,/item\.clear\(\)/);
+  assert.match(src,/control\?\.focus\(\)/);
+  assert.match(src,/data-analytics-filter=\{label\}/);
+  assert.match(src,/data-analytics-source=\{option.value\}/);
   assert.ok(src.includes('aria-label={`Clear ${item.key} filter: ${item.value}`}'));
   assert.match(src,/activeFilterBar button:focus-visible/);
   assert.match(src,/activeFilterBar button:hover/);
@@ -20,4 +23,7 @@ test("built-app Chromium/Firefox source transition smoke validates chip recovery
   assert.match(smoke,/getByRole\("region", \{name:"Active analytics filters"\}\)/);
   assert.match(smoke,/getByRole\("button", \{name:"Clear Source Type filter: Agency"\}\)\.click\(\)/);
   assert.match(smoke,/assertCohort\(page,"All",60\)/);
+  assert.match(smoke,/Clearing Source Type must restore focus/);
+  assert.match(smoke,/Clearing \$\{label\} must restore focus/);
+  assert.match(smoke,/Removing Source Type must preserve an unrelated Status selection/);
 });
