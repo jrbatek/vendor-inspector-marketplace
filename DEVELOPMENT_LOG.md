@@ -68,6 +68,9 @@ This file is the current release/priority index. Detailed implementation notes a
 - **PR #449** merged as `cd43070e024745882e8b0eef99f2b751c4529dd3` after exact-head mandatory workflows and Preview READY; production verification separate.
 - **PR #450** both CI workflows failed on the obsolete literal source assertion in tests/inspectorWorkHistoryDateRecovery.test.ts. Updated the assertion to require the focus-restoring handler and keyboard Enter/browser focus check, preserving all date recovery and independent filter assertions. Reconciled onto #449; fresh full CI/Preview required. See DEVELOPMENT_LOG_2026-11-27_WORK_HISTORY_RECOVERY_FOCUS.md.
 
+- **PR #450** merged at `09ffae8cb7df03c916c1139cc9dd28c9501ada8c` after both exact-head workflows and Preview READY; exact-main production READY and smoke run 46152183648 passed.
+- **PR #442** reconciled onto #450; prior mandatory workflows passed, fresh exact-head checks required.
+
 ## Outstanding priority / safety boundaries
 
 - **#321** browser Back/Forward and deep-link restoration: CLOSED on November 23 after state-normalization and real Chromium Back/Forward coverage (#421/#423); preserve regression coverage and reopen on any reproduced recurrence.

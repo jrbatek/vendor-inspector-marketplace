@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import ClientWorkspaceSidebar from "@/components/ClientWorkspaceSidebar";
 import { buildDemoCsv, buildDemoJson } from "@/lib/demoClientDataExport";
 
@@ -15,6 +15,7 @@ const rows = [
 export default function ClientDataDemoPage(){
   const [copyMessage,setCopyMessage]=useState("GET /api/v1/client/inspections · illustrative only");
   const [exportStatus,setExportStatus]=useState("All statuses");
+  const exportStatusControl=useRef<HTMLSelectElement>(null);
   const filteredRows=useMemo(()=>exportStatus==="All statuses"?rows:rows.filter(row=>row.status===exportStatus),[exportStatus]);
   const csv=useMemo(()=>{
     const headers=["Inspection","Project","Supplier","Country","Commodity","Status","Planned date","Completed date","NCR type","Spend USD"];
@@ -32,7 +33,8 @@ export default function ClientDataDemoPage(){
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
+    // Give the browser time to consume the object URL before revocation.
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
 
   function downloadCsv(){downloadFile(csv,"inspectsource-client-demo-data.csv","text/csv;charset=utf-8");}
@@ -69,10 +71,10 @@ export default function ClientDataDemoPage(){
       <section className="dataPanel">
         <div className="panelHead"><div><p className="eyebrow">Synthetic export preview</p><h2>Inspection records</h2></div><span>{filteredRows.length} of {rows.length} demo records</span></div>
         <div className="exportFilterTools">
-          <label>Export status<select aria-label="Export status" value={exportStatus} onChange={event=>setExportStatus(event.target.value)}>
+          <label>Export status<select ref={exportStatusControl} aria-label="Export status" value={exportStatus} onChange={event=>setExportStatus(event.target.value)}>
             <option>All statuses</option>{rows.map(row=>row.status).filter((status,index,list)=>list.indexOf(status)===index).map(status=><option key={status}>{status}</option>)}
           </select></label>
-          <button type="button" disabled={exportStatus==="All statuses"} onClick={()=>setExportStatus("All statuses")}>Reset export filter</button>
+          <button type="button" disabled={exportStatus==="All statuses"} onClick={()=>{exportStatusControl.current?.focus();setExportStatus("All statuses");}}>Reset export filter</button>
           <span role="status" aria-live="polite">{filteredRows.length} of {rows.length} fictional records selected for CSV and JSON.</span>
         </div>
         <div className="tableWrap"><table><thead><tr><th>Inspection</th><th>Project</th><th>Supplier</th><th>Country</th><th>Commodity</th><th>Status</th><th>NCR</th><th>Spend</th></tr></thead><tbody>{filteredRows.map(row=><tr key={row.inspection}><td><strong>{row.inspection}</strong></td><td>{row.project}</td><td>{row.supplier}</td><td>{row.country}</td><td>{row.commodity}</td><td>{row.status}</td><td>{row.ncr}</td><td>${row.spend.toLocaleString()}</td></tr>)}</tbody></table></div>
@@ -82,7 +84,7 @@ export default function ClientDataDemoPage(){
         <div><span>1</span><strong>InspectSource</strong><small>Normalized client inspection data</small></div><b aria-hidden="true">→</b><div><span>2</span><strong>API or scheduled export</strong><small>Client-authorized data delivery</small></div><b aria-hidden="true">→</b><div><span>3</span><strong>Excel / Power BI / ERP</strong><small>Your existing reporting ecosystem</small></div>
       </section>
 
-      <p className="securityNote"><strong>Demo boundary:</strong> CSV and JSON contain the same five fictional records shown above. The illustrative API route is not active. This experience intentionally does not issue API credentials, connect to a live tenant, or expose production data. Live API authorization and credential management remain a reviewed security implementation.</p>
+      <p className="securityNote"><strong>Demo boundary:</strong> CSV and JSON contain the same fictional records as the current filtered preview (five when no filter is applied). The illustrative API route is not active. This experience intentionally does not issue API credentials, connect to a live tenant, or expose production data. Live API authorization and credential management remain a reviewed security implementation.</p>
     </section>
 
     <style jsx>{`

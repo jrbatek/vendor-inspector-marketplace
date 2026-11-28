@@ -351,7 +351,19 @@ try {
         const body = JSON.parse(await readFile(await sample.path(), "utf8"));
         if (body.count !== 1 || body.inspections?.[0]?.inspection !== "IS-10428" || body.liveIntegration !== false)
           throw new Error("Filtered client data JSON exported wrong cohort or lost demo isolation");
-        await page.getByRole("button", { name: "Reset export filter" }).click();
+        const csvEvent = page.waitForEvent("download", { timeout: 15000 });
+        await page.getByRole("button", { name: "Download synthetic client data (.CSV)" }).click();
+        const csvFile = await csvEvent;
+        const csvLines = (await readFile(await csvFile.path(), "utf8")).split(/\r?\n/);
+        if (csvFile.suggestedFilename() !== "inspectsource-client-demo-data.csv" ||
+            csvLines.length !== 2 || !csvLines[1].startsWith('"IS-10428",') ||
+            !csvLines[1].includes('"Completed"'))
+          throw new Error("Filtered client CSV did not contain the single selected fictional record");
+        const reset = page.getByRole("button", { name: "Reset export filter" });
+        await reset.focus();
+        await reset.press("Enter");
+        if (!await exportStatus.evaluate(el => document.activeElement === el) || !await reset.isDisabled())
+          throw new Error("Client export reset must restore keyboard focus before disabling");
         if (await records.count() !== 5) throw new Error("Client export reset must restore all five rows");
         if (errors.length) throw new Error("Client data filter caused browser exception: " + errors.join("\\n"));
       }
