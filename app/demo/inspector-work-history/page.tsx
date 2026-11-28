@@ -29,13 +29,13 @@ export default function InspectorWorkHistoryDemo() {
   };
   const options = (key: "client" | "industry" | "commodity" | "status") =>
     Array.from(new Set(rows.map(row => row[key]))).sort();
-  const reset = () => { setFilters(EMPTY_WORK_HISTORY_FILTERS); setOpen(null); };
+  const reset = () => { setFilters(EMPTY_WORK_HISTORY_FILTERS); setOpen(null); filterCard.current?.querySelector<HTMLElement>('[data-history-filter="query"]')?.focus(); };
   // Counters describe the visible filtered subset, not the unfiltered history.
   const reviewed = shown.filter(row => row.status === "Client reviewed").length;
   const ncrs = shown.filter(row => row.ncr).length;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
   // Recover from a contradictory date range without losing unrelated closeout criteria.
-  const clearInvalidDates = () => { setFilters(current => ({ ...current, from: "", to: "" })); setOpen(null); };
+  const clearInvalidDates = () => { setFilters(current => ({ ...current, from: "", to: "" })); setOpen(null); filterCard.current?.querySelector<HTMLElement>('[data-history-filter="from"]')?.focus(); };
   // Active filters are derived directly from the same controlled filters that
   // drive counts, PDFs and the CSV; clearing one never resets unrelated criteria.
   const activeFilters = ([
