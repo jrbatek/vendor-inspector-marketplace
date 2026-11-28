@@ -27,7 +27,10 @@ try{
  await resourceStatus.selectOption({label:"Disputed"});
  if(await resourceRows.count()!==0)throw Error("Combined nonmatching filters should show empty state");
  if(await page.getByText("No fictional resources match these filters.").count()!==1)throw Error("No-results explanation missing");
- await page.getByRole("button",{name:"Reset resource filters"}).click();
+ const resetResources=page.getByRole("button",{name:"Reset resource filters"});
+ await resetResources.focus();
+ await resetResources.press("Enter");
+ if(!await resourceSearch.evaluate(el=>el===document.activeElement)||!await resetResources.isDisabled())throw Error("Agency resource reset must restore search focus before disabling");
  if(await resourceRows.count()!==5||await resourceSearch.inputValue()!==""||!(await resourceCount.innerText()).includes("5 of 2,823"))throw Error("Resource filters did not restore all fictional rows");
  // The owner-retired Availability & Capacity UI must remain absent, while the shared
  // 2,823 fictional resource directory is reachable from the five-row preview.
@@ -62,8 +65,22 @@ try{
  const reportCsv=await readFile(await ncrDownload.path(),"utf8");
  if(!reportCsv.startsWith("\uFEFF")||!reportCsv.includes("SYNTHETIC - NOT VERIFIED")||!reportCsv.includes("NCR-204")||reportCsv.includes("NCR-198")||reportCsv.includes("Gulf Coast LNG"))
    throw Error("Agency report CSV did not preserve selected fictional finding only");
- await page.getByRole("button",{name:"Reset NCR filter"}).click();
+ const resetNcr=page.getByRole("button",{name:"Reset NCR filter"});
+ await resetNcr.focus();
+ await resetNcr.press("Enter");
+ if(!await ncrFilter.evaluate(el=>el===document.activeElement)||!await resetNcr.isDisabled())throw Error("Agency NCR reset must restore status filter focus before disabling");
  if(await reportRows.count()!==3)throw Error("Agency NCR reset did not restore three sample reports");
+ // Clear a purely fictional CSV preview using the keyboard; the removed button must
+ // hand focus back to the still-present native upload control.
+ const rosterUpload=page.locator("#agency-roster-upload");
+ await rosterUpload.setInputFiles({name:"fictional-focus.csv",mimeType:"text/csv",buffer:Buffer.from("Inspector ID,Name,Relationship,Country,Affiliation Status\nSYN-1001,Sample Inspector A,Employee,USA,Pending\n")});
+ await page.locator("#agency-roster-preview").waitFor({state:"visible"});
+ const clearRoster=page.getByRole("button",{name:"Clear browser-local roster preview"});
+ await clearRoster.focus();
+ await clearRoster.press("Enter");
+ await clearRoster.waitFor({state:"detached"});
+ if(!await rosterUpload.evaluate(el=>el===document.activeElement))throw Error("Cleared fictional roster preview must return focus to the upload input");
+ if(await page.locator("#agency-roster-preview").count())throw Error("Cleared fictional roster preview persisted");
  const agencyExamples=page.locator("#active-inspections article.agencyInspection");
  await agencyExamples.first().waitFor({state:"visible",timeout:15000});
  const agencyStage=page.getByRole("combobox",{name:"Agency inspection stage"});

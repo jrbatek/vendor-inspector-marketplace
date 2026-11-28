@@ -118,6 +118,9 @@ export default function AgencyDemoPage() {
   const [rosterError,setRosterError]=useState("");
   const [rosterCleared,setRosterCleared]=useState(false);
   const latestRosterSelection=useRef(0);
+  const rosterUploadRef=useRef<HTMLInputElement>(null);
+  const resourceSearchRef=useRef<HTMLInputElement>(null);
+  const reportFilterRef=useRef<HTMLSelectElement>(null);
   const previewRoster=async(file?:File)=>{
     // Last selection wins even when an earlier browser file read finishes later.
     const selection=++latestRosterSelection.current;
@@ -162,18 +165,18 @@ export default function AgencyDemoPage() {
         <label>Affiliation status<select aria-label="Affiliation status" value={rosterStatus} onChange={e=>setRosterStatus(e.target.value)}>
           <option>All statuses</option>{Array.from(new Set(resources.map(row=>row[3]))).map(status=><option key={status}>{status}</option>)}
         </select></label>
-        <label>Search fictional resources<input type="search" aria-label="Search fictional resources" placeholder="Name, inspector ID, location or relationship" value={rosterQuery} onChange={e=>setRosterQuery(e.target.value)}/></label>
-        <button type="button" disabled={rosterStatus==="All statuses"&&!rosterQuery} onClick={()=>{setRosterStatus("All statuses");setRosterQuery("");}}>Reset resource filters</button>
+        <label>Search fictional resources<input ref={resourceSearchRef} type="search" aria-label="Search fictional resources" placeholder="Name, inspector ID, location or relationship" value={rosterQuery} onChange={e=>setRosterQuery(e.target.value)}/></label>
+        <button type="button" disabled={rosterStatus==="All statuses"&&!rosterQuery} onClick={()=>{setRosterStatus("All statuses");setRosterQuery("");resourceSearchRef.current?.focus();}}>Reset resource filters</button>
         <span role="status" aria-live="polite">Showing {visibleResources.length} of {AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")} resources (synthetic).</span><a className="actionLink" href="/demo/agency-resources">Search all {AGENCY_SYNTHETIC_RESOURCE_TOTAL.toLocaleString("en-US")} resources</a>
       </div>
       {visibleResources.length===0&&<p role="status">No fictional resources match these filters. Reset to see all sample resources.</p>}
       <div className="tableWrap"><table><thead><tr><th>Inspector</th><th>Relationship</th><th>Affiliation</th><th>Coverage</th><th>Capacity</th><th>Agency rate</th><th>Terms</th><th>Commercial package</th></tr></thead><tbody>{visibleResources.map(r => <tr key={r[0]}><td><b>{r[1]}</b><small>{r[0]}</small></td>{r.slice(2).map((v,i)=><td key={i}>{v}</td>)}</tr>)}</tbody></table></div><p className="fine">Claims use name, email/phone, country, agency internal resource ID and InspectSource Inspector ID after matching — never SSN, passport, national ID or other government identifiers. Inspector confirmation or dispute is required before an affiliation becomes Verified.</p></section>
       <section id="mass-resource-connect" className="card" aria-label="Mass Resource Connect">
         <h3>Mass Resource Connect</h3><p>Preview-first resource connection for employees, subcontractors and affiliates. All records and API responses here are fictional; no production systems are contacted.</p>
-        <div className="upload"><label htmlFor="agency-roster-upload"><strong>Preview CSV resource roster</strong><small>Validate records → preview affiliation claims. Export XLSX spreadsheets as CSV before previewing.</small></label><input id="agency-roster-upload" type="file" accept=".csv,text/csv" aria-describedby="agency-roster-privacy" onChange={event=>{const selected=event.currentTarget.files?.[0];event.currentTarget.value="";void previewRoster(selected)}}/><p id="agency-roster-privacy">Browser-local preview only; no data is uploaded, sent to an agency, or written to production. Use fictional samples only.</p></div>
+        <div className="upload"><label htmlFor="agency-roster-upload"><strong>Preview CSV resource roster</strong><small>Validate records → preview affiliation claims. Export XLSX spreadsheets as CSV before previewing.</small></label><input ref={rosterUploadRef} id="agency-roster-upload" type="file" accept=".csv,text/csv" aria-describedby="agency-roster-privacy" onChange={event=>{const selected=event.currentTarget.files?.[0];event.currentTarget.value="";void previewRoster(selected)}}/><p id="agency-roster-privacy">Browser-local preview only; no data is uploaded, sent to an agency, or written to production. Use fictional samples only.</p></div>
         {rosterError&&<p role="alert" id="agency-roster-error" className="rosterPreviewError">{rosterError}</p>}
         {rosterPreview&&<p role="status" id="agency-roster-preview" className="rosterPreviewResult">Synthetic roster preview: {rosterPreview.totalRows} rows · {rosterPreview.validRows} complete unique records · {rosterPreview.reviewRows} need review · {rosterPreview.duplicateIds} duplicate IDs. No records submitted.</p>}
-        {rosterPreview&&<button type="button" className="rosterClear" onClick={()=>{latestRosterSelection.current+=1;setRosterPreview(null);setRosterError("");setRosterCleared(true);}}>Clear browser-local roster preview</button>}
+        {rosterPreview&&<button type="button" className="rosterClear" onClick={()=>{latestRosterSelection.current+=1;setRosterPreview(null);setRosterError("");setRosterCleared(true);rosterUploadRef.current?.focus();}}>Clear browser-local roster preview</button>}
         {rosterCleared&&<p className="rosterCleared" role="status">Roster preview cleared from this browser session. No records were submitted.</p>}
         {rosterPreview&&rosterPreview.reviewRows>0&&<div className="rosterValidationBreakdown" role="group" aria-label="CSV columns requiring attention"><strong>Correct the fictional roster before connecting:</strong><ul>
           {Object.entries(rosterPreview.missingByColumn).filter(([,count])=>count>0).map(([column,count])=><li key={column}>{column}: missing in {count} {count===1?"row":"rows"}</li>)}
@@ -203,10 +206,10 @@ export default function AgencyDemoPage() {
         </section>
       <section id="reports-ncrs" className="card"><div className="sectionHead"><div><h3>Reports & NCRs</h3><p>Operational queue connects assignments to report delivery and non-conformance follow-up while preserving the agency/source attribution.</p></div><span className="pill">7 open NCRs · fictional agency portfolio</span></div>
         <div className="reportTools">
-          <label>Sample NCR status<select aria-label="Sample NCR status" value={reportFocus} onChange={e=>setReportFocus(e.target.value)}>
+          <label>Sample NCR status<select ref={reportFilterRef} aria-label="Sample NCR status" value={reportFocus} onChange={e=>setReportFocus(e.target.value)}>
             <option>All findings</option><option>Open</option><option>Follow-up</option><option>No NCR</option>
           </select></label>
-          <button type="button" disabled={reportFocus==="All findings"} onClick={()=>setReportFocus("All findings")}>Reset NCR filter</button>
+          <button type="button" disabled={reportFocus==="All findings"} onClick={()=>{setReportFocus("All findings");reportFilterRef.current?.focus();}}>Reset NCR filter</button>
           {visibleSampleReports.length > 0 && <a className="reportDownload" download="inspectsource-synthetic-agency-reports-ncrs.csv" href={sampleReportsCsvHref} aria-label={`Download ${visibleSampleReports.length} filtered synthetic agency report and NCR examples as CSV`}>Download filtered reports & NCRs (CSV)</a>}
           <span role="status" aria-live="polite">Showing {visibleSampleReports.length} of {sampleReports.length} fictional report/NCR examples.</span>
         </div>
